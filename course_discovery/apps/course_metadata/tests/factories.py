@@ -9,6 +9,7 @@ from taxonomy.models import CourseSkills, ProgramSkill, Skill
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
+from course_discovery.apps.course_metadata.choices import ExternalProductStatus
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -117,6 +118,8 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     variant_id = factory.LazyFunction(uuid4)
     course_term_override = FuzzyText()
     product_meta = factory.SubFactory(ProductMetaFactory, keywords=['test', 'test2'])
+    product_status = ExternalProductStatus.Published
+    external_course_marketing_type = None
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):

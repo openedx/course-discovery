@@ -38,8 +38,8 @@ from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalProductStatus, PayeeType, ProgramStatus,
-    ReportingType
+    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
+    PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
@@ -770,6 +770,15 @@ class AdditionalMetadata(TimeStampedModel):
     product_status = models.CharField(
         default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
         choices=ExternalProductStatus.choices, validators=[ExternalProductStatus.validator]
+    )
+    external_course_marketing_type = models.CharField(
+        help_text=_('This field contain external course marketing type specific to product lines'),
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None,
+        choices=ExternalCourseMarketingType.choices,
+        validators=[ExternalCourseMarketingType.validator]
     )
 
     def __str__(self):
