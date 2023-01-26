@@ -325,24 +325,27 @@ class VideoSerializer(MediaSerializer):
 
 class GeoLocationSerializer(BaseModelSerializer):
     """Serializer for the ``GeoLocation`` model."""
+    location_name = serializers.CharField(allow_null=True, max_length=128)
     lat = serializers.DecimalField(
         max_digits=GeoLocation.LAT_MAX_DIGITS,
         decimal_places=GeoLocation.DECIMAL_PLACES,
         min_value=-90,
         max_value=90,
-        rounding=ROUND_HALF_UP
+        rounding=ROUND_HALF_UP,
+        allow_null=True
     )
     lng = serializers.DecimalField(
         max_digits=GeoLocation.LNG_MAX_DIGITS,
         decimal_places=GeoLocation.DECIMAL_PLACES,
         min_value=-180,
         max_value=180,
-        rounding=ROUND_HALF_UP
+        rounding=ROUND_HALF_UP,
+        allow_null=True
     )
 
     class Meta:
         model = GeoLocation
-        fields = ('lat', 'lng')
+        fields = ('lat', 'lng', 'location_name')
 
 
 class PositionSerializer(BaseModelSerializer):
@@ -1444,9 +1447,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
-        existing_geolocation = GeoLocation.objects.filter(**geolocation).first()
-        if existing_geolocation:
-            instance.geolocation = existing_geolocation
+        if instance.geolocation:
+            GeoLocation.objects.filter(id=instance.geolocation.id).update(**geolocation)
+            instance.refresh_from_db()
         else:
             instance.geolocation = GeoLocation.objects.create(**geolocation)
 
@@ -1470,7 +1473,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)
         if 'geolocation' in validated_data:
-            self.update_geolocation(instance, validated_data.pop('geolocation'))
+            geolocation = validated_data.pop('geolocation')
+            if all(bool(value) is True for value in geolocation.values()):
+                self.update_geolocation(instance, geolocation)
         if 'location_restriction' in validated_data:
             location_restriction_data = validated_data.pop('location_restriction')
             if not all(bool(value) is False for value in location_restriction_data.values()):

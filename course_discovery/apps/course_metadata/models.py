@@ -1011,13 +1011,15 @@ class GeoLocation(TimeStampedModel):
         max_digits=LAT_MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
         validators=[MaxValueValidator(90), MinValueValidator(-90)],
-        verbose_name=_('Latitude')
+        verbose_name=_('Latitude'),
+        null=True,
     )
     lng = models.DecimalField(
         max_digits=LNG_MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
         validators=[MaxValueValidator(180), MinValueValidator(-180)],
-        verbose_name=_('Longitude')
+        verbose_name=_('Longitude'),
+        null=True
     )
 
     class Meta:
