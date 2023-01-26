@@ -125,7 +125,6 @@ class ProductValueAdmin(admin.ModelAdmin):
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
-    inline = (SourceInline,)
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
@@ -349,13 +348,12 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 @admin.register(Program)
 class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = ProgramAdminForm
-    inline = (SourceInline,)
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')
     readonly_fields = (
         'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
-        'enterprise_subscription_inclusion'
+        'enterprise_subscription_inclusion', 'ofac_comment'
     )
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
@@ -371,7 +369,8 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
-        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation', 'program_duration_override'
+        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation', 'program_duration_override',
+        'product_source', 'ofac_comment'
     )
     change_actions = ('refresh_program_skills', )
 
@@ -923,3 +922,11 @@ class GeolocationDataLoaderConfigurationAdmin(admin.ModelAdmin):
     Admin for GeolocationDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(Source)
+class SourceAdmin(admin.ModelAdmin):
+    """
+    Admin for Source model.
+    """
+    list_display = ('id', 'name', 'slug', 'description')
