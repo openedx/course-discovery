@@ -22,10 +22,10 @@ from course_discovery.apps.course_metadata.algolia_models import (
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
-    CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership, DataLoaderConfig,
-    DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig,
-    ProfileImageDownloadConfig, Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation,
-    TagCourseUuidsConfig, TopicTranslation
+    BulkUploadTagsConfig, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
+    DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
+    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
 from course_discovery.apps.course_metadata.tests import factories
@@ -59,7 +59,7 @@ class TestCacheInvalidation:
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
                          AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
                          LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig,
-                         CSVDataLoaderConfiguration, ]:
+                         BulkUploadTagsConfig, CSVDataLoaderConfiguration, ]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
