@@ -38,7 +38,7 @@ class Command(BaseCommand):
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords', 'slug'
+        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -326,4 +326,5 @@ class Command(BaseCommand):
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
             'organization_logo_override': utils.format_base64_strings(product_dict['logoUrl']),
+            'external_course_marketing_type': product_dict['productType'],
         }
