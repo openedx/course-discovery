@@ -806,7 +806,7 @@ class TestDownloadAndSaveImage(TestCase):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
-        image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)  # pylint: disable=line-too-long
+        image_url, _ = self.mock_image_response(body=b'invalid', content_type='text/plain', url=image_url)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
         course.refresh_from_db()
         assert course.card_image_url == image_url

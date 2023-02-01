@@ -11,7 +11,9 @@ from django.db.models import Q
 from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus
+)
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
@@ -717,6 +719,7 @@ class CSVDataLoader(AbstractDataLoader):
         )
         registration_deadline = data.get('reg_close_date', '')
         variant_id = data.get('variant_id', '')
+        external_course_marketing_type = data.get('external_course_marketing_type', '')
         if lead_capture_url:
             additional_metadata.update({'lead_capture_form_url': lead_capture_url})
         if organic_url:
@@ -737,4 +740,6 @@ class CSVDataLoader(AbstractDataLoader):
                 data['meta_description'],
                 data['meta_keywords']
             )})
+        if external_course_marketing_type in dict(ExternalCourseMarketingType):
+            additional_metadata.update({'external_course_marketing_type': external_course_marketing_type})
         return additional_metadata
