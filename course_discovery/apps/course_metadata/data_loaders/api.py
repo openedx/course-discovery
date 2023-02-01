@@ -1001,6 +1001,7 @@ class WordPressApiDataLoader(AbstractDataLoader):
             instructor_socials = course_instructor.pop('instructor_socials')
             instructor, created = Person.objects.get_or_create(
                 marketing_id=course_instructor['marketing_id'],
+                partner=course_instructor['partner'],
                 defaults=course_instructor
             )
             if created:
