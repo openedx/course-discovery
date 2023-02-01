@@ -18,12 +18,14 @@ algoliasearch-django==1.7.3
 amqp==5.1.1
     # via kombu
 asgiref==3.6.0
-    # via django
+    # via
+    #   django
+    #   django-countries
 asn1crypto==1.5.1
     # via
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.13.3
+astroid==2.14.1
     # via
     #   pylint
     #   pylint-celery
@@ -49,7 +51,7 @@ backoff==2.2.1
     # via -r requirements/base.in
 bcrypt==4.0.1
     # via paramiko
-beautifulsoup4==4.11.1
+beautifulsoup4==4.11.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -60,9 +62,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.58
+boto3==1.26.63
     # via django-ses
-botocore==1.29.58
+botocore==1.29.63
     # via
     #   boto3
     #   s3transfer
@@ -134,7 +136,7 @@ coverage[toml]==7.1.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==38.0.4
+cryptography==39.0.0
     # via
     #   paramiko
     #   pyjwt
@@ -223,7 +225,7 @@ django-contrib-comments==2.2.0
     # via -r requirements/base.in
 django-cors-headers==3.13.0
     # via -r requirements/base.in
-django-countries==7.5
+django-countries==7.5.1
     # via -r requirements/base.in
 django-crum==0.7.9
     # via
@@ -237,9 +239,10 @@ django-dynamic-filenames==1.3.1
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==3.0.2
     # via -r requirements/local.in
-django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
+django-elasticsearch-dsl==7.3
     # via
-    #   -r requirements/github.in
+    #   -r requirements/base.in
+    #   -r requirements/docs.in
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
@@ -424,7 +427,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.74.0
+google-api-python-client==2.76.0
     # via -r requirements/base.in
 google-auth==2.16.0
     # via
@@ -469,7 +472,7 @@ iniconfig==2.0.0
     # via pytest
 isodate==0.6.1
     # via zeep
-isort==5.11.4
+isort==5.12.0
     # via
     #   -r requirements/test.in
     #   pylint
@@ -583,7 +586,7 @@ pycountry==22.3.5
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pycryptodomex==3.16.0
+pycryptodomex==3.17
     # via
     #   pyjwkest
     #   snowflake-connector-python
@@ -600,7 +603,7 @@ pyjwt[crypto]==2.6.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.15.10
+pylint==2.16.1
     # via
     #   edx-lint
     #   pylint-celery
@@ -620,7 +623,7 @@ pynacl==1.5.0
     # via
     #   edx-django-utils
     #   paramiko
-pyopenssl==22.1.0
+pyopenssl==23.0.0
     # via snowflake-connector-python
 pyparsing==3.0.9
     # via
@@ -666,7 +669,7 @@ python-memcached==1.59
     # via -r requirements/test.in
 python-monkey-business==1.0.0
     # via django-nested-admin
-python-slugify==7.0.0
+python-slugify==8.0.0
     # via
     #   -r requirements/base.in
     #   code-annotations
@@ -790,7 +793,7 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==2.9.0
+snowflake-connector-python==3.0.0
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
@@ -814,7 +817,7 @@ sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
@@ -865,7 +868,7 @@ trio==0.22.0
     #   trio-websocket
 trio-websocket==0.9.2
     # via selenium
-types-toml==0.10.8.1
+types-toml==0.10.8.2
     # via responses
 typing-extensions==4.4.0
     # via
@@ -920,7 +923,7 @@ xss-utils==0.4.0
     # via -r requirements/base.in
 zeep==4.2.1
     # via simple-salesforce
-zipp==3.11.0
+zipp==3.12.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

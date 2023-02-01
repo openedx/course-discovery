@@ -14,8 +14,8 @@ certifi==2022.12.7
     #   requests
 charset-normalizer==3.0.1
     # via requests
-django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
-    # via -r requirements/github.in
+django-elasticsearch-dsl==7.3
+    # via -r requirements/docs.in
 docutils==0.19
     # via sphinx
 edx-sphinx-theme==3.1.0
@@ -67,7 +67,7 @@ sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
@@ -79,5 +79,5 @@ urllib3==1.26.14
     # via
     #   elasticsearch
     #   requests
-zipp==3.11.0
+zipp==3.12.0
     # via importlib-metadata
