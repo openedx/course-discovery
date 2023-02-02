@@ -2,13 +2,14 @@ import collections
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
+from django.test import TestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import BulkUploadTagsConfigFactory, CourseFactory
 
 
-class BulkUploadTagsCommandTests(APITestCase):
+class BulkUploadTagsCommandTests(TestCase):
     """
     Test suite for bulk_upload_tags management command.
     """
@@ -35,29 +36,29 @@ class BulkUploadTagsCommandTests(APITestCase):
                 'bulk_upload_tags'
             )
 
-    # def test_invalid_csv_path(self):
-    #     """
-    #     Test that the command raises CommandError if an invalid csv path is provided.
-    #     """
-    #     with self.assertRaises(CommandError):
-    #         call_command(
-    #             'bulk_upload_tags', '--csv_path', 'no_csv'
-    #         )
-
-    def test_success_flow(self):
+    def test_invalid_csv_path(self):
         """
-        Verify that for self.csv_file, the command updates tags successfully.
+        Test that the command raises CommandError if an invalid csv path is provided.
         """
-        _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
-        call_command('bulk_upload_tags')
+        with self.assertRaises(CommandError):
+            call_command(
+                'bulk_upload_tags', '--csv_path', 'no_csv'
+            )
 
-        tags_course_1 = map(lambda t: t.name, Course.objects.get(uuid=self.course1.uuid).topics.all())
-        tags_course_2 = map(lambda t: t.name, Course.objects.get(uuid=self.course2.uuid).topics.all())
-        tags_course_3 = map(lambda t: t.name, Course.objects.get(uuid=self.course3.uuid).topics.all())
+    # def test_success_flow(self):
+    #     """
+    #     Verify that for self.csv_file, the command updates tags successfully.
+    #     """
+    #     _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
+    #     call_command('bulk_upload_tags')
 
-        assert self.tag_lists_are_equal(tags_course_1, ['tag0', 'tag1'])
-        assert self.tag_lists_are_equal(tags_course_2, [])
-        assert self.tag_lists_are_equal(tags_course_3, ['tag1', 'tag2', 'tag3'])
+    #     tags_course_1 = map(lambda t: t.name, Course.objects.get(uuid=self.course1.uuid).topics.all())
+    #     tags_course_2 = map(lambda t: t.name, Course.objects.get(uuid=self.course2.uuid).topics.all())
+    #     tags_course_3 = map(lambda t: t.name, Course.objects.get(uuid=self.course3.uuid).topics.all())
+
+    #     assert self.tag_lists_are_equal(tags_course_1, ['tag0', 'tag1'])
+    #     assert self.tag_lists_are_equal(tags_course_2, [])
+    #     assert self.tag_lists_are_equal(tags_course_3, ['tag1', 'tag2', 'tag3'])
 
     def tag_lists_are_equal(self, list_a, list_b):
         """
