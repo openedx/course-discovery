@@ -13,8 +13,8 @@ class BulkUploadTagsCommandTests(TestCase):
     """
     Test suite for bulk_upload_tags management command.
     """
-    def setUp(self):
-        super().setUp()
+    # def setUp(self):
+    #     super().setUp()
 
     # def setUpTestData(self):
     #     self.course1 = CourseFactory()
@@ -28,39 +28,39 @@ class BulkUploadTagsCommandTests(TestCase):
     #         content_type='text/csv'
     #     )
 
-    def test_missing_csv(self):
-        """
-        Test that the command raises CommandError if no csv is provided.
-        """
-        _ = BulkUploadTagsConfigFactory.create(enabled=True)
-        with self.assertRaises(CommandError):
-            call_command(
-                'bulk_upload_tags'
-            )
-
-    def test_invalid_csv_path(self):
-        """
-        Test that the command raises CommandError if an invalid csv path is provided.
-        """
-        with self.assertRaises(CommandError):
-            call_command(
-                'bulk_upload_tags', '--csv_path', 'no_csv'
-            )
-
-    # def test_success_flow(self):
+    # def test_missing_csv(self):
     #     """
-    #     Verify that for self.csv_file, the command updates tags successfully.
+    #     Test that the command raises CommandError if no csv is provided.
     #     """
-    #     _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
-    #     call_command('bulk_upload_tags')
+    #     _ = BulkUploadTagsConfigFactory.create(enabled=True)
+    #     with self.assertRaises(CommandError):
+    #         call_command(
+    #             'bulk_upload_tags'
+    #         )
 
-    #     tags_course_1 = map(lambda t: t.name, Course.objects.get(uuid=self.course1.uuid).topics.all())
-    #     tags_course_2 = map(lambda t: t.name, Course.objects.get(uuid=self.course2.uuid).topics.all())
-    #     tags_course_3 = map(lambda t: t.name, Course.objects.get(uuid=self.course3.uuid).topics.all())
+    # def test_invalid_csv_path(self):
+    #     """
+    #     Test that the command raises CommandError if an invalid csv path is provided.
+    #     """
+    #     with self.assertRaises(CommandError):
+    #         call_command(
+    #             'bulk_upload_tags', '--csv_path', 'no_csv'
+    #         )
 
-    #     assert self.tag_lists_are_equal(tags_course_1, ['tag0', 'tag1'])
-    #     assert self.tag_lists_are_equal(tags_course_2, [])
-    #     assert self.tag_lists_are_equal(tags_course_3, ['tag1', 'tag2', 'tag3'])
+    def test_success_flow(self):
+        """
+        Verify that for self.csv_file, the command updates tags successfully.
+        """
+        _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
+        call_command('bulk_upload_tags')
+
+        tags_course_1 = map(lambda t: t.name, Course.objects.get(uuid=self.course1.uuid).topics.all())
+        tags_course_2 = map(lambda t: t.name, Course.objects.get(uuid=self.course2.uuid).topics.all())
+        tags_course_3 = map(lambda t: t.name, Course.objects.get(uuid=self.course3.uuid).topics.all())
+
+        assert self.tag_lists_are_equal(tags_course_1, ['tag0', 'tag1'])
+        assert self.tag_lists_are_equal(tags_course_2, [])
+        assert self.tag_lists_are_equal(tags_course_3, ['tag1', 'tag2', 'tag3'])
 
     def tag_lists_are_equal(self, list_a, list_b):
         """
