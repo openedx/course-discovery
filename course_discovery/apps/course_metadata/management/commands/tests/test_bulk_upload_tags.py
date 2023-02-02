@@ -51,6 +51,17 @@ class BulkUploadTagsCommandTests(TestCase):
         """
         Verify that for self.csv_file, the command updates tags successfully.
         """
+
+        self.course1 = CourseFactory()
+        self.course2 = CourseFactory()
+        self.course3 = CourseFactory()
+        self.csv_file_content = ','.join([str(self.course1.uuid), 'tag0', 'tag1']) + '\n'
+        self.csv_file_content += ','.join([str(self.course3.uuid), 'tag1', 'tag2', 'tag3']) + '\n'
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=self.csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
         _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
         call_command('bulk_upload_tags')
 
