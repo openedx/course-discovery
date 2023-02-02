@@ -48,8 +48,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
 
     def tearDown(self):
-        super().tearDown()
         self.client.logout()
+        super().tearDown()
 
     def mock_ecommerce_publication(self):
         url = f'{self.course.partner.ecommerce_api_url}publication/'
