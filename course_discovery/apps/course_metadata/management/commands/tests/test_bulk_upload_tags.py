@@ -2,18 +2,18 @@ import collections
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
-from django.test import TestCase
 
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import BulkUploadTagsConfigFactory, CourseFactory
 
 
-class BulkUploadTagsCommandTests(TestCase):
+class BulkUploadTagsCommandTests(APITestCase):
     """
     Test suite for bulk_upload_tags management command.
     """
     def setUp(self):
-        # super().setUp()
+        super().setUp()
         self.course1 = CourseFactory()
         self.course2 = CourseFactory()
         self.course3 = CourseFactory()
