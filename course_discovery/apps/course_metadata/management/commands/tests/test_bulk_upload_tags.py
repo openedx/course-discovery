@@ -15,6 +15,8 @@ class BulkUploadTagsCommandTests(TestCase):
     """
     def setUp(self):
         super().setUp()
+
+    def setUpTestData(self):
         self.course1 = CourseFactory()
         self.course2 = CourseFactory()
         self.course3 = CourseFactory()
@@ -26,15 +28,15 @@ class BulkUploadTagsCommandTests(TestCase):
             content_type='text/csv'
         )
 
-    # def test_missing_csv(self):
-    #     """
-    #     Test that the command raises CommandError if no csv is provided.
-    #     """
-    #     _ = BulkUploadTagsConfigFactory.create(enabled=True)
-    #     with self.assertRaises(CommandError):
-    #         call_command(
-    #             'bulk_upload_tags'
-    #         )
+    def test_missing_csv(self):
+        """
+        Test that the command raises CommandError if no csv is provided.
+        """
+        _ = BulkUploadTagsConfigFactory.create(enabled=True)
+        with self.assertRaises(CommandError):
+            call_command(
+                'bulk_upload_tags'
+            )
 
     # def test_invalid_csv_path(self):
     #     """
