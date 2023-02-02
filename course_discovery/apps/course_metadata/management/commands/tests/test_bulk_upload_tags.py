@@ -13,8 +13,8 @@ class BulkUploadTagsCommandTests(TestCase):
     """
     Test suite for bulk_upload_tags management command.
     """
-    # def setUp(self):
-    #     super().setUp()
+    def setUp(self):
+        super().setUp()
 
     # def setUpTestData(self):
     #     self.course1 = CourseFactory()
