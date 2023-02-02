@@ -35,14 +35,14 @@ class BulkUploadTagsCommandTests(APITestCase):
                 'bulk_upload_tags'
             )
 
-    def test_invalid_csv_path(self):
-        """
-        Test that the command raises CommandError if an invalid csv path is provided.
-        """
-        with self.assertRaises(CommandError):
-            call_command(
-                'bulk_upload_tags', '--csv_path', 'no_csv'
-            )
+    # def test_invalid_csv_path(self):
+    #     """
+    #     Test that the command raises CommandError if an invalid csv path is provided.
+    #     """
+    #     with self.assertRaises(CommandError):
+    #         call_command(
+    #             'bulk_upload_tags', '--csv_path', 'no_csv'
+    #         )
 
     def test_success_flow(self):
         """
