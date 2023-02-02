@@ -28,15 +28,15 @@ class BulkUploadTagsCommandTests(TestCase):
     #         content_type='text/csv'
     #     )
 
-    # def test_missing_csv(self):
-    #     """
-    #     Test that the command raises CommandError if no csv is provided.
-    #     """
-    #     _ = BulkUploadTagsConfigFactory.create(enabled=True)
-    #     with self.assertRaises(CommandError):
-    #         call_command(
-    #             'bulk_upload_tags'
-    #         )
+    def test_missing_csv(self):
+        """
+        Test that the command raises CommandError if no csv is provided.
+        """
+        _ = BulkUploadTagsConfigFactory(enabled=True)
+        with self.assertRaises(CommandError):
+            call_command(
+                'bulk_upload_tags'
+            )
 
     # def test_invalid_csv_path(self):
     #     """
@@ -62,7 +62,7 @@ class BulkUploadTagsCommandTests(TestCase):
             content=self.csv_file_content.encode('utf-8'),
             content_type='text/csv'
         )
-        _ = BulkUploadTagsConfigFactory.create(csv_file=self.csv_file, enabled=True)
+        _ = BulkUploadTagsConfigFactory(csv_file=self.csv_file, enabled=True)
         call_command('bulk_upload_tags')
 
         tags_course_1 = map(lambda t: t.name, Course.objects.get(uuid=self.course1.uuid).topics.all())
