@@ -53,5 +53,4 @@ class Command(BaseCommand):
             raise CommandError(  # pylint: disable=raise-missing-from
                 "Geolocation CSV loader import could not be completed due to unexpected errors.\n{}".format(exc)
             )
-        else:
-            logger.info("CSV loader import flow completed.")
+        logger.info("CSV loader import flow completed.")

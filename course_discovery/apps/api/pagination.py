@@ -95,7 +95,7 @@ class ProxiedPagination:
         except NameError as name_error:
             # The attribute wasn't found on either paginator.
             raise AttributeError from name_error
-        else:
+        else:  # pylint: disable=no-else-raise
             # The attribute was found. If it's callable, return a ProxiedCall
             # which will route method calls to the correct paginator.
             if callable(attr):
