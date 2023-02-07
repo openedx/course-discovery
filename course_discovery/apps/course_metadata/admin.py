@@ -930,3 +930,11 @@ class SourceAdmin(admin.ModelAdmin):
     Admin for Source model.
     """
     list_display = ('id', 'name', 'slug', 'description')
+
+
+@admin.register(BulkUploadTagsConfig)
+class BulkUploadTagsConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for BulkUploadTagsConfig model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
