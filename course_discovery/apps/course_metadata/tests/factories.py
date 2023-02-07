@@ -890,6 +890,11 @@ class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
         model = DrupalPublishUuidConfig
 
 
+class BulkUploadTagsConfigFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BulkUploadTagsConfig
+
+
 class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = GeotargetingDataLoaderConfiguration
