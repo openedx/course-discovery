@@ -14,7 +14,7 @@ from course_discovery.apps.api.cache import api_change_receiver, set_api_timesta
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.emails import send_ingestion_email
-from course_discovery.apps.course_metadata.models import CSVDataLoaderConfiguration
+from course_discovery.apps.course_metadata.models import CourseType, CSVDataLoaderConfiguration, Source
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,11 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Import course and course run information from a CSV uploaded through ' \
            'CSVDataLoaderConfiguration in django admin or on a provided csv path.'
+
+    PRODUCT_TYPE_SLUG_MAP = {
+        'EXECUTIVE_EDUCATION': CourseType.EXECUTIVE_EDUCATION_2U,
+        'BOOTCAMPS': CourseType.BOOTCAMP_2U
+    }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -40,11 +45,18 @@ class Command(BaseCommand):
             '--product_type',
             help='Product Type to ingest',
             type=str,
+            required=True,
             choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS']
         )
         parser.add_argument(
-            '--args_from_env',
-            help='Link to the Data Spreadsheet',
+            '--product_source',
+            help='Slug of product source with whom the ingested courses are to be linked.',
+            type=str,
+            required=True
+        )
+        parser.add_argument(
+            '--use_gspread_client',
+            help='Identify if the CSV information should be read from PRODUCT_METADATA_MAPPING settings',
             type=bool,
         )
 
@@ -57,13 +69,19 @@ class Command(BaseCommand):
         csv_path = options.get('csv_path', None)
         csv_file = csv_loader_config.csv_file if csv_loader_config.is_enabled() else None
         product_type = options.get('product_type', None)
-        args_from_env = options.get('args_from_env', None)
+        product_source = options.get('product_source', None)
+        use_gspread_client = options.get('use_gspread_client', None)
 
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
+            source = Source.objects.get(slug=product_source)
         except Partner.DoesNotExist:
             raise CommandError(  # pylint: disable=raise-missing-from
                 "Unable to locate partner with code {}".format(partner_short_code)
+            )
+        except Source.DoesNotExist:
+            raise CommandError(  # pylint: disable=raise-missing-from
+                "Unable to locate Product Source with code {}".format(product_source)
             )
 
         # The signal disconnect has been taken from refresh_course_metadata management command.
@@ -77,8 +95,12 @@ class Command(BaseCommand):
 
         try:
             loader = CSVDataLoader(
-                partner, csv_path=csv_path, csv_file=csv_file,
-                args_from_env=args_from_env, product_type=product_type
+                partner,
+                csv_path=csv_path,
+                csv_file=csv_file,
+                use_gspread_client=use_gspread_client,
+                product_type=self.PRODUCT_TYPE_SLUG_MAP[product_type],
+                product_source=source.slug
             )
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             ingestion_time = datetime.now()

@@ -58,7 +58,7 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 CommandError, 'CSV loader import could not be completed due to unexpected errors.'
         ):
             call_command(
-                'import_course_metadata', '--partner_code', self.partner.short_code, '--csv_path', 'no-path',
+                'import_degree_data', '--partner_code', self.partner.short_code, '--csv_path', 'no-path',
             )
 
     def test_no_csv_file(self, jwt_decode_patch):  # pylint: disable=unused-argument

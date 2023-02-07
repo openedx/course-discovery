@@ -67,7 +67,10 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         _ = CSVDataLoaderConfigurationFactory.create(enabled=True)
         with self.assertRaisesMessage(CommandError, "The 'csv_file' attribute has no file associated with it."):
             call_command(
-                'import_course_metadata', '--partner_code', self.partner.short_code,
+                'import_course_metadata',
+                '--partner_code', self.partner.short_code,
+                '--product_type', 'EXECUTIVE_EDUCATION',
+                '--product_source', self.source.slug
             )
 
     def test_invalid_csv_path(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -79,7 +82,11 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 CommandError, 'CSV loader import could not be completed due to unexpected errors.'
         ):
             call_command(
-                'import_course_metadata', '--partner_code', self.partner.short_code, '--csv_path', 'no-path',
+                'import_course_metadata',
+                '--partner_code', self.partner.short_code,
+                '--product_type', 'EXECUTIVE_EDUCATION',
+                '--product_source', self.source.slug,
+                '--csv_path', 'no-path',
             )
 
     def test_missing_partner(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -89,7 +96,23 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
         with self.assertRaisesMessage(CommandError, 'Unable to locate partner with code invalid-partner-code'):
             call_command(
-                'import_course_metadata', '--partner_code', 'invalid-partner-code',
+                'import_course_metadata',
+                '--partner_code', 'invalid-partner-code',
+                '--product_type', 'EXECUTIVE_EDUCATION',
+                '--product_source', self.source.slug,
+            )
+
+    def test_missing_product_source(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Test that the command raises CommandError if no source is present against the provided product source slug.
+        """
+        _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+        with self.assertRaisesMessage(CommandError, 'Unable to locate Product Source with code invalid_slug'):
+            call_command(
+                'import_course_metadata',
+                '--partner_code', self.partner.short_code,
+                '--product_type', 'EXECUTIVE_EDUCATION',
+                '--product_source', 'invalid_slug',
             )
 
     @responses.activate
@@ -114,7 +137,8 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 call_command(
                     'import_course_metadata',
                     '--partner_code', self.partner.short_code,
-                    '--product_type', 'EXECUTIVE_EDUCATION'
+                    '--product_type', 'EXECUTIVE_EDUCATION',
+                    '--product_source', self.source.slug,
                 )
                 log_capture.check_present(
                     (
