@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.edly_discovery_app.api.v1.tasks import run_dataloader
+from course_discovery.apps.edly_discovery_app.tasks import run_dataloader
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class EdlyDataLoaderView(APIView):
         """
         Loads and updates course runs from the given service.
         """
-        raw_data = request.POST.copy()
+        raw_data = request.data.copy()
         partner = raw_data.get('partner')
         course_id = raw_data.get('course_id')
         service = raw_data.get('service')
