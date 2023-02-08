@@ -299,7 +299,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==3.8.0
+edx-event-bus-kafka==3.9.1
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -414,7 +414,7 @@ oauthlib==3.2.2
     # via
     #   requests-oauthlib
     #   social-auth-core
-openedx-events==4.2.0
+openedx-events==5.0.0
     # via
     #   edx-event-bus-kafka
     #   taxonomy-connector
