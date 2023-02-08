@@ -25,7 +25,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         if not (self.partner.analytics_url and self.partner.analytics_token):
             msg = 'Analytics API credentials are not properly configured for Partner [{partner}]!'.format(
                 partner=partner.short_code)
-            raise Exception(msg)
+            raise Exception(msg)  # pylint: disable=broad-exception-raised
 
     def analytics_api_client(self):
         analytics_api_client = Client(base_url=self.partner.analytics_url,

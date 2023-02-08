@@ -293,7 +293,9 @@ def ensure_draft_world(obj):
         # must re-get from db to ensure related fields like course_runs are updated (refresh_from_db isn't enough)
         return Course.everything.get(pk=draft_course.pk)
     else:
-        raise Exception('Ensure draft world only accepts Courses and Course Runs.')
+        raise Exception(  # pylint: disable=broad-exception-raised
+            'Ensure draft world only accepts Courses and Course Runs.'
+        )
 
 
 class UploadToFieldNamePath(FilePattern):

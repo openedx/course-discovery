@@ -100,9 +100,8 @@ class CSVDataLoader(AbstractDataLoader):
         except Exception:
             logger.exception("Error reading the input data source")
             raise  # re-raising exception to avoid moving the code flow
-        else:
-            self.reader = list(self.reader)
-            self.ingestion_summary['total_products_count'] = len(self.reader)
+        self.reader = list(self.reader)
+        self.ingestion_summary['total_products_count'] = len(self.reader)
 
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
@@ -479,7 +478,7 @@ class CSVDataLoader(AbstractDataLoader):
                 Q(name=language) | Q(code=language)
             ).first()
             if not language_obj:
-                raise Exception(
+                raise Exception(  # pylint: disable=broad-exception-raised
                     'Language {} from provided string {} is either missing or an invalid ietf language'.format(
                         language, language_str
                     )

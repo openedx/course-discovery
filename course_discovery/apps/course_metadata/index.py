@@ -17,8 +17,9 @@ class BaseProductIndex(AlgoliaIndex):
 
     def get_queryset(self):  # pragma: no cover
         if not self.language:
-            raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
-                index_name=self.index_name))
+            raise Exception(  # pylint: disable=broad-exception-raised
+                'Cannot update Algolia index \'{index_name}\'. No language set'.format(index_name=self.index_name)
+            )
 
         bootcamp_contentful_data = fetch_and_transform_bootcamp_contentful_data()
         qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data=bootcamp_contentful_data)

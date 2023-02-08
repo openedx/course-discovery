@@ -90,9 +90,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         except Exception:
             logger.exception("Error reading the input data source")
             raise  # re-raising exception to avoid moving the code flow
-        else:
-            self.reader = list(self.reader)
-            self.ingestion_summary['total_products_count'] = len(self.reader)
+        self.reader = list(self.reader)
+        self.ingestion_summary['total_products_count'] = len(self.reader)
 
     def ingest(self):
         logger.info("Initiating Degree CSV data loader flow.")

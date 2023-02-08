@@ -209,14 +209,18 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Confirm that this course doesn't already exist in an official non-draft form
         if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
-            raise Exception(_('A course with key [{key}] already exists.').format(key=course_creation_fields['key']))
+            raise Exception(  # pylint: disable=broad-exception-raised
+                _('A course with key [{key}] already exists.').format(key=course_creation_fields['key'])
+            )
 
         # if a manually entered url_slug, ensure it's not already taken (auto-generated are guaranteed uniqueness)
         if url_slug:
             validators.validate_slug(url_slug)
             if CourseUrlSlug.objects.filter(url_slug=url_slug, partner=partner).exists():
-                raise Exception(_('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in '
-                                  'use. Please update this field and try again.').format(url_slug=url_slug))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    _('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in '
+                      'use. Please update this field and try again.').format(url_slug=url_slug)
+                )
 
         course = serializer.save(draft=True)
         course.set_active_url_slug(url_slug)
@@ -252,7 +256,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course_run_creation_fields.update({'course': course.key, 'prices': prices})
             run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
             if run_response.status_code != 201:
-                raise Exception(str(run_response.data))
+                raise Exception(str(run_response.data))  # pylint: disable=broad-exception-raised
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -378,7 +382,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             all_course_historical_slugs_excluding_present = CourseUrlSlug.objects.filter(
                 url_slug=url_slug, partner=course.partner).exclude(course__uuid=course.uuid)
             if all_course_historical_slugs_excluding_present.exists():
-                raise Exception(
+                raise Exception(  # pylint: disable=broad-exception-raised
                     _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
                       'Please update this field and try again.').format(url_slug=url_slug))
 

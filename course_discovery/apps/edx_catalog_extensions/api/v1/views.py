@@ -207,7 +207,7 @@ def load_related(pks_to_load, excluded_models):
         objects_by_pk = {obj.pk: obj for obj in objects}
         pks_failed_to_load = pks_to_load - set(objects_by_pk.keys())
         if pks_failed_to_load:
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 "Failed to load some objects required for fixture: " +
                 "Model = " + model._meta.label + ", "
                 "PKs of failed objects = " + str(pks_failed_to_load)

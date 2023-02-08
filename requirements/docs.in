@@ -3,5 +3,6 @@
 -c constraints.txt
 -r github.in              # Forks and other dependencies not yet on PyPI
 
+django-elasticsearch-dsl
 edx-sphinx-theme
 Sphinx

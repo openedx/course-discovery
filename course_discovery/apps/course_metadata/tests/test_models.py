@@ -2151,7 +2151,7 @@ class ProgramTests(TestCase):
                 type=verified_seat_type,
                 currency=currency,
                 course_run=course_run,
-                price=(day_separation * 100))
+                price=day_separation * 100)
             day_separation += 1
         course.canonical_course_run = course_runs_same_course[2]
         course.save()
