@@ -34,10 +34,10 @@ class CSVIngestionErrorMessages:
     MISSING_REQUIRED_DATA = '[MISSING_REQUIRED_DATA] Course {course_title} is missing the required data for ' \
                             'ingestion. The missing data elements are "{missing_data}"'
 
-    COURSE_CREATE_ERROR = '[COURSE_CREATE_ERROR] Unable to create course {course_title} in the system. The ingestion' \
+    COURSE_CREATE_ERROR = '[COURSE_CREATE_ERROR] Unable to create course {course_title} in the system. The ingestion ' \
                           'failed with the exception: {exception_message}'
 
-    COURSE_UPDATE_ERROR = '[COURSE_UPDATE_ERROR] Unable to update course {course_title} in the system. The update' \
+    COURSE_UPDATE_ERROR = '[COURSE_UPDATE_ERROR] Unable to update course {course_title} in the system. The update ' \
                           'failed with the exception: {exception_message}'
 
     COURSE_RUN_UPDATE_ERROR = '[COURSE_RUN_UPDATE_ERROR] Unable to update course run of the course {course_title} ' \
@@ -53,8 +53,9 @@ class CSVIngestionErrorMessages:
 CSV_LOADER_ERROR_LOG_SEQUENCE = [
     CSVIngestionErrors.MISSING_ORGANIZATION, CSVIngestionErrors.MISSING_COURSE_TYPE,
     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, CSVIngestionErrors.MISSING_REQUIRED_DATA,
-    CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.COURSE_CREATE_ERROR,
-    CSVIngestionErrors.COURSE_UPDATE_ERROR, CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
+    CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE,
+    CSVIngestionErrors.COURSE_CREATE_ERROR, CSVIngestionErrors.COURSE_UPDATE_ERROR,
+    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
 ]
 
 

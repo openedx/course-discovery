@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import ddt
 import six
 from django.conf import settings
@@ -7,9 +9,9 @@ from pytest import mark
 from taxonomy.models import CourseSkills
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseSkillsFactory
-from course_discovery.apps.course_metadata.views import CourseSkillsView
+from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_PROGRAM_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseSkillsFactory, ProgramFactory
+from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshProgramSkillsView
 
 
 @ddt.ddt
@@ -90,3 +92,55 @@ class TestCourseSkillView(TestCase):
         course_skills = self._create_course_skills(self.course)
         response = self.client.get(self.view_url)
         self._test_get_response(response, course_skills)
+
+
+@ddt.ddt
+@mark.django_db
+@override_settings(ROOT_URLCONF="course_discovery.urls")
+class TestRefreshProgramSkillsView(TestCase):
+    """
+    Tests for RefreshProgramSkillsView GET and POST endpoint.
+    """
+    def setUp(self):
+        """
+        Test set up
+        """
+        super().setUp()
+        self.user = UserFactory.create(is_staff=True, is_active=True)
+        self.user.set_password('QWERTY')
+        self.user.save()
+        self.program = ProgramFactory()
+        self.admin_context = {
+            'has_permission': True,
+            'opts': self.program._meta,
+        }
+        self.client = Client()
+        self.refresh_program_skill_get_url = reverse(
+            "admin:" + REFRESH_PROGRAM_SKILLS_URL_NAME,
+            args=(self.program.pk,)
+        )
+        self.context_parameters = RefreshProgramSkillsView.ContextParameters
+
+    def _login(self):
+        """Log user in."""
+        assert self.client.login(username=self.user.username, password='QWERTY')
+
+    def test_refresh_program_skills_index__with_no_user(self):
+        """Tests response if user is not logged in."""
+        assert settings.SESSION_COOKIE_NAME not in self.client.cookies  # precondition check - no session cookie
+        response = self.client.get(self.refresh_program_skill_get_url)
+        assert response.status_code == 302
+
+    def test_refresh_program_skills_index__with_valid_user(self):
+        """Tests refresh program skill index response"""
+        self._login()
+        response = self.client.get(self.refresh_program_skill_get_url)
+        assert response.status_code == 200
+
+    @patch('taxonomy.signals.signals.UPDATE_PROGRAM_SKILLS.send')
+    def test_refresh_program_skills(self, mock_signal):
+        """Tests UPDATE_PROGRAM_SKILLS is called on post refresh program skill url"""
+        self._login()
+        response = self.client.post(self.refresh_program_skill_get_url)
+        assert mock_signal.called
+        assert response.status_code == 302

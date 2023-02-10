@@ -459,11 +459,11 @@ SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 # (by default it uses the database driver's default setting)
 # https://docs.djangoproject.com/en/3.1/ref/models/querysets/#iterator
 # Thus set the 'chunk_size'
-ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 5000
+ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 10000
 
 # Defining default pagination for all requests to ElasticSearch,
 # whose parameters 'size' and 'from' are not explicitly set.
-ELASTICSEARCH_DSL_LOAD_PER_QUERY = 5000
+ELASTICSEARCH_DSL_LOAD_PER_QUERY = 10000
 
 ELASTICSEARCH_DSL = {
     'default': {'hosts': '127.0.0.1:9200'}
@@ -486,7 +486,7 @@ ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT = 3
 
 # Update Index Settings
 # Make sure the size of the new index does not change by more than this percentage
-INDEX_SIZE_CHANGE_THRESHOLD = .1
+INDEX_SIZE_CHANGE_THRESHOLD = .1  # 10%
 
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
 # See  https://www.elastic.co/guide/en/elasticsearch/reference/7.8/search-aggregations-metrics-percentile-aggregation.html
@@ -521,6 +521,8 @@ SOLO_CACHE_TIMEOUT = 3600
 
 ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (frontend-app-publisher)
 PUBLISHER_FROM_EMAIL = None
+
+LOADER_INGESTION_CONTACT_EMAIL = None
 
 USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
 
@@ -591,6 +593,8 @@ MEDIA_STORAGE_BACKEND = {
 # Settings related to the taxonomy_support
 TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
 TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryProgramMetadataProvider'
+TAXONOMY_XBLOCK_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryXBlockMetadataProvider'
+TAXONOMY_XBLOCK_SUPPORTED_TYPES = ['video', 'vertical']
 
 # Settings related to the EMSI client
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
@@ -653,20 +657,32 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
   'CLIENT_X509_CERT_URL': ''
 }
 
-PRODUCT_EXTERNAL_SHEET_MAPPING = {
+PRODUCT_METADATA_MAPPING = {
     'EXECUTIVE_EDUCATION': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
     'BOOTCAMPS': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
     'DEGREES': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
+}
+
+CONTENTFUL_SPACE_ID = None
+CONTENTFUL_CONTENT_DELIVERY_API_KEY = None
+CONTENTFUL_ENVIRONMENT = None
+LMS_API_URLS = {
+    'api_access_request': 'api-admin/api/v1/api_access_request/',
+    'blocks': 'api/courses/v1/blocks/',
+    'block_metadata': 'api/courses/v1/block_metadata/',
 }

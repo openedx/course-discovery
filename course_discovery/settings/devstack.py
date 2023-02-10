@@ -23,6 +23,10 @@ CORS_ORIGIN_WHITELIST = (
 
 ELASTICSEARCH_DSL['default']['hosts'] = 'edx.devstack.elasticsearch710:9200'
 
+# Expand change threshold to something more forgiving, especially in local development scenarios where the count goes
+# from 1->2 (100% change).
+INDEX_SIZE_CHANGE_THRESHOLD = 1.01  # 101%
+
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 JWT_AUTH.update({

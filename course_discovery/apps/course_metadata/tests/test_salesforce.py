@@ -198,7 +198,7 @@ class TestSalesforce(TestCase):
             assert course.salesforce_id == return_value.get('id')
 
     def test_create_course_organization_salesforce_id_not_set(self):
-        create_pub_org_path = (self.salesforce_util_path + '.create_publisher_organization')
+        create_pub_org_path = self.salesforce_util_path + '.create_publisher_organization'
 
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
         organization = OrganizationFactoryNoSignals(key='edX', partner=self.salesforce_config.partner)

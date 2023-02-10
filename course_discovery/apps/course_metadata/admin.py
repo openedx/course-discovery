@@ -16,7 +16,9 @@ from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invali
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.constants import (
+    COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME, REFRESH_PROGRAM_SKILLS_URL_NAME
+)
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -24,7 +26,9 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
+from course_discovery.apps.course_metadata.views import (
+    CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
+)
 from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -83,6 +87,11 @@ class SeatInline(admin.TabularInline):
 
 class PositionInline(admin.TabularInline):
     model = Position
+    extra = 0
+
+
+class SourceInline(admin.TabularInline):
+    model = Source
     extra = 0
 
 
@@ -320,6 +329,13 @@ class CourseLocationRestrictionAdmin(admin.ModelAdmin):
     inlines = (CourseInline,)
 
 
+@admin.register(TaxiForm)
+class TaxiFormAdmin(admin.ModelAdmin):
+    list_display = ('id', 'grouping', 'title')
+    fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
+    readonly_fields = ('created', 'modified')
+
+
 @admin.register(ProgramLocationRestriction)
 class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
     list_display = ('program', 'restriction_type',)
@@ -330,14 +346,14 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(admin.ModelAdmin):
+class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')
     readonly_fields = (
         'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
-        'enterprise_subscription_inclusion'
+        'enterprise_subscription_inclusion', 'ofac_comment'
     )
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
@@ -353,10 +369,35 @@ class ProgramAdmin(admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
-        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation'
+        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation', 'program_duration_override',
+        'product_source', 'ofac_comment'
     )
+    change_actions = ('refresh_program_skills', )
 
     save_error = False
+
+    def get_urls(self):
+        """
+        Returns the additional urls used by the custom object tools.
+        """
+        additional_urls = [
+            re_path(
+                r"^([^/]+)/refresh_program_skills$",
+                self.admin_site.admin_view(RefreshProgramSkillsView.as_view()),
+                name=REFRESH_PROGRAM_SKILLS_URL_NAME
+            ),
+        ]
+        return additional_urls + super().get_urls()
+
+    def get_change_actions(self, request, object_id, form_url):
+        actions = super().get_change_actions(request, object_id, form_url)
+        actions = list(actions)
+
+        obj = self.model.objects.get(pk=object_id)
+        if obj.status != ProgramStatus.Active:
+            actions.remove('refresh_program_skills')
+
+        return actions
 
     def custom_course_runs_display(self, obj):
         return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
@@ -371,6 +412,13 @@ class ProgramAdmin(admin.ModelAdmin):
             HttpResponseRedirect
         """
         return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+
+    def refresh_program_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Refresh Course Skills" view
+        """
+        refresh_program_skills_url = reverse(f"admin:{REFRESH_PROGRAM_SKILLS_URL_NAME}", args=(obj.pk,))
+        return HttpResponseRedirect(refresh_program_skills_url)
 
     def response_add(self, request, obj, post_url_continue=None):
         if self.save_error:
@@ -502,9 +550,10 @@ class CertificateInfoAdmin(admin.ModelAdmin):
 class AdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
-        'courses', 'facts_list', 'certificate_info', 'organic_url'
+        'courses', 'facts_list', 'certificate_info', 'organic_url', 'external_course_marketing_type'
     )
     search_fields = ('external_identifier', 'external_url')
+    list_filter = ('product_status', )
 
     def courses(self, obj):
         return ', '.join([
@@ -515,6 +564,16 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
         return ', '.join([
             fact.heading for fact in obj.facts.all()
         ])
+
+
+@admin.register(ProductMeta)
+class ProductMetaAdmin(admin.ModelAdmin):
+    list_display = ['title', 'description']
+    search_fields = ['title']
+
+    inlines = (
+        AdditionalMetadataInline,
+    )
 
 
 class OrganizationUserRoleInline(admin.TabularInline):
@@ -780,9 +839,10 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping', 'micromasters_long_title',
+        'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
         'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
+        'program_duration_override', 'display_on_org_page',
     )
     actions = [publish_degrees, unpublish_degrees]
 
@@ -852,5 +912,29 @@ class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
 class GeotargetingDataLoaderConfigurationAdmin(admin.ModelAdmin):
     """
     Admin for GeotargetingDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(GeolocationDataLoaderConfiguration)
+class GeolocationDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for GeolocationDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(Source)
+class SourceAdmin(admin.ModelAdmin):
+    """
+    Admin for Source model.
+    """
+    list_display = ('id', 'name', 'slug', 'description')
+
+
+@admin.register(BulkUploadTagsConfig)
+class BulkUploadTagsConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for BulkUploadTagsConfig model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')

@@ -28,9 +28,10 @@ from course_discovery.apps.api.serializers import (
     LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProductValueSerializer, ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
-    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
-    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
+    RankingSerializer, SeatSerializer, SourceSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
+    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
     get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -168,6 +169,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'full_description': course.full_description,
             'level_type': course.level_type.name_t,
             'extra_description': AdditionalPromoAreaSerializer(course.extra_description).data,
+            'product_source': SourceSerializer(course.product_source).data,
             'additional_metadata': AdditionalMetadataSerializer(course.additional_metadata).data,
             'subjects': [],
             'prerequisites': [],
@@ -621,6 +623,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'go_live_date': json_date_format(course_run.go_live_date),
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
+            'weeks_to_complete': course_run.weeks_to_complete,
             'pacing_type': course_run.pacing_type,
             'type': course_run.type_legacy,
             'run_type': course_run.type.uuid,
@@ -1068,6 +1071,7 @@ class MinimalProgramSerializerTests(TestCase):
             'card_image_url': program.card_image_url,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'degree': None,
+            'taxi_form': TaxiFormSerializer(program.taxi_form).data,
             'curricula': [],
             'marketing_hook': program.marketing_hook,
             'total_hours_of_effort': program.total_hours_of_effort,
@@ -1077,7 +1081,8 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
-            'labels': ['topic'] if include_labels else []
+            'labels': ['topic'] if include_labels else [],
+            'program_duration_override': program.program_duration_override,
         }
 
     def test_data(self):
@@ -1132,6 +1137,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'topics': [topic.name for topic in program.topics],
             'credit_value': program.credit_value,
             'enterprise_subscription_inclusion': program.enterprise_subscription_inclusion,
+            'product_source': SourceSerializer(program.product_source).data,
             'organization_short_code_override': program.organization_short_code_override,
             'organization_logo_override_url': program.organization_logo_override_url,
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
@@ -1418,8 +1424,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
             'hubspot_lead_capture_form_id': degree.hubspot_lead_capture_form_id,
-            'taxi_form_id': degree.taxi_form_id,
-            'taxi_form_grouping': degree.taxi_form_grouping,
             'micromasters_path': expected_micromasters_path,
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
@@ -1433,6 +1437,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'title_background_image': degree.title_background_image,
             'additional_metadata': expected_degree_additional_metadata,
             'specializations': expected_specializations,
+            'program_duration_override': degree.program_duration_override,
+            'display_on_org_page': degree.display_on_org_page,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -1995,10 +2001,15 @@ class AdditionalMetadataSerializerTests(TestCase):
             'lead_capture_form_url': additional_metadata.lead_capture_form_url,
             'certificate_info': CertificateInfoSerializer(additional_metadata.certificate_info).data,
             'facts': FactSerializer(additional_metadata.facts, many=True).data,
+            'product_meta': ProductMetaSerializer(additional_metadata.product_meta).data,
             'organic_url': additional_metadata.organic_url,
             'start_date': serialize_datetime(additional_metadata.start_date),
+            'end_date': serialize_datetime(additional_metadata.end_date),
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
             'variant_id': str(additional_metadata.variant_id),
+            'course_term_override': additional_metadata.course_term_override,
+            'product_status': additional_metadata.product_status,
+            'external_course_marketing_type': additional_metadata.external_course_marketing_type,
         }
         assert serializer.data == expected
 
@@ -2109,6 +2120,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             subjects=SubjectFactory.create_batch(3),
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
+            course_length='medium',
         )
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
@@ -2218,7 +2230,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'course_length': course.course_length,
+            'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
         }
 
         serializer = self.serialize_course(course, request)
@@ -2312,6 +2326,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'outcome': course.outcome,
             'level_type': course.level_type.name,
             'modified': course.modified,
+            'course_length': course.course_length,
+            'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
         }
         if is_post_request:
             del expected['outcome']
@@ -2375,7 +2391,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'course_length': course.course_length,
+            'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
         }
 
 

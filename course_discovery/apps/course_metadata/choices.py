@@ -57,3 +57,26 @@ class CertificateType(DjangoChoices):
 class PayeeType(DjangoChoices):
     Platform = ChoiceItem('platform', _('Platform'))
     Organization = ChoiceItem('organization', _('Organization'))
+
+
+class CourseLength(DjangoChoices):
+    Short = ChoiceItem('short', _('Short'))
+    Medium = ChoiceItem('medium', _('Medium'))
+    Long = ChoiceItem('long', _('Long'))
+
+
+class ExternalProductStatus(DjangoChoices):
+    """
+    The statuses for external product lines.
+    """
+    Archived = ChoiceItem('archived', _('Archived'))
+    Published = ChoiceItem('published', _('Published'))
+
+
+class ExternalCourseMarketingType(DjangoChoices):
+    """
+    Course Types for external courses marketing type.
+    """
+    ShortCourse = ChoiceItem('short_course', _('Short Course'))
+    Sprint = ChoiceItem('sprint', _('Sprint'))
+    CourseStack = ChoiceItem('course_stack', _('Course Stack'))

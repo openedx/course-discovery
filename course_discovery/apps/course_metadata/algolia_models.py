@@ -9,7 +9,7 @@ from sortedm2m.fields import SortedManyToManyField
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
 )
@@ -66,7 +66,9 @@ def delegate_attributes(cls):
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
-                     'product_organization_short_code_override', 'product_organization_logo_override', 'skills']
+                     'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
+                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields'
+                     ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -111,10 +113,15 @@ class AlgoliaProxyProduct(Program):
     class Meta:
         proxy = True
 
-    def __init__(self, product, language='en'):
+    def __init__(self, product, language='en', contentful_data=None):
         super().__init__()
         self.product = product
         self.product.language = language
+        product_uuid = str(product.uuid)
+
+        if contentful_data and product_uuid in contentful_data:
+            contentful_product = contentful_data[product_uuid]
+            self.product.contentful_fields = contentful_product
 
     @property
     def coordinates(self):
@@ -199,6 +206,15 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         if self.type.slug == CourseType.BOOTCAMP_2U:
             return 'Boot Camp'
         return 'Course'
+
+    @property
+    def product_meta_title(self):
+        """
+        Meta title will only be present for ExecEd courses.
+        """
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and self.additional_metadata.product_meta:
+            return self.additional_metadata.product_meta.title
+        return None
 
     @property
     def custom_object_id(self):
@@ -320,9 +336,25 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return ALGOLIA_EMPTY_LIST
 
     @property
+    def product_external_status(self):
+        if self.additional_metadata:
+            return getattr(self.additional_metadata, 'product_status', None)
+        return None
+
+    @property
+    def product_display_on_org_page(self):
+        # Only courses display on organization pages
+        return self.product_type == 'Course'
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
+        # Archived Executive Education courses should not be indexed
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and \
+                self.product_external_status == ExternalProductStatus.Archived:
+            return False
+
         return (len(self.owners) > 0 and
                 self.active_url_slug and
                 self.partner.name == 'edX' and
@@ -481,6 +513,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return ALGOLIA_EMPTY_LIST
 
     @property
+    def product_display_on_org_page(self):
+        # Legacy programs always display on organization pages
+        if not self.is_2u_degree_program:
+            return True
+        else:
+            return getattr(self.degree, 'display_on_org_page', False)
+
+    @property
     def availability_level(self):
         # Master's and 2U programs don't have courses in the same way that our other programs do.
         # We got confirmation from masters POs that we should make masters Programs always
@@ -490,6 +530,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             ProgramType.BACHELORS,
             ProgramType.DOCTORATE,
             ProgramType.LICENSE,
+            ProgramType.CERTIFICATE,
         ]:
             return _('Available now')
 
@@ -536,6 +577,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def is_2u_degree_program(self):
         return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
+
+    @property
+    def product_meta_title(self):
+        """
+        Programs currently do not have any meta title. Returning an explicit None here to avoid
+        any Algolia indexing issues.
+        """
+        return None
 
 
 class SearchDefaultResultsConfiguration(models.Model):

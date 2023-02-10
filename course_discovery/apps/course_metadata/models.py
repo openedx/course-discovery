@@ -38,7 +38,8 @@ from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
+    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
+    PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
@@ -360,6 +361,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     BACHELORS = 'bachelors'
     DOCTORATE = 'doctorate'
     LICENSE = 'license'
+    CERTIFICATE = 'certificate'
     MICROBACHELORS = 'microbachelors'
 
     name = models.CharField(max_length=32, blank=False)
@@ -416,6 +418,27 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type.slug in [
             cls.XSERIES, cls.MICROMASTERS, cls.PROFESSIONAL_CERTIFICATE, cls.PROFESSIONAL_PROGRAM_WL, cls.MICROBACHELORS
         ]
+
+
+class Source(TimeStampedModel):
+    """
+    Source Model to find where a course or program originated from.
+    """
+    name = models.CharField(max_length=255, help_text=_('Name of the external source.'))
+    slug = AutoSlugField(
+        populate_from='name', editable=True, slugify_function=uslugify, overwrite_on_add=False,
+        help_text=_('Leave this field blank to have the value generated automatically.')
+    )
+    description = models.CharField(max_length=255, blank=True, help_text=_('Description of the external source.'))
+    ofac_restricted_program_types = SortedManyToManyField(
+        ProgramType,
+        blank=True,
+        related_name='ofac_restricted_source',
+        help_text=_('Programs of these types will be OFAC restricted')
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class ProgramTypeTranslation(TranslatedFieldsModel):
@@ -656,9 +679,52 @@ class CertificateInfo(AbstractHeadingBlurbModel):
     """ Certificate Information Model """
 
 
+class ProductMeta(TimeStampedModel):
+    """
+    Model to contain SEO/Meta information for a product.
+    """
+    title = models.CharField(
+        max_length=200, default='', null=True, blank=True,
+        help_text="Product title that will appear in meta tag for search engine ranking"
+    )
+    description = models.CharField(
+        max_length=255, default='', null=True, blank=True,
+        help_text="Product description that will appear in meta tag for search engine ranking"
+    )
+    keywords = TaggableManager(
+        blank=True,
+        related_name='product_metas',
+        help_text=_('SEO Meta tags for Products'),
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class TaxiForm(TimeStampedModel):
+    """
+    Represents the data needed for a single Taxi (2U form library) lead capture form.
+    """
+    form_id = models.CharField(
+        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
+        max_length=75,
+        blank=True,
+        default='',
+    )
+    grouping = models.CharField(
+        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
+        max_length=50,
+        blank=True,
+        default='',
+    )
+    title = models.CharField(max_length=255, default=None, null=True, blank=True)
+    subtitle = models.CharField(max_length=255, default=None, null=True, blank=True)
+    post_submit_url = models.URLField(null=True, blank=True)
+
+
 class AdditionalMetadata(TimeStampedModel):
     """
-    This model holds 2U related additional fields
+    This model holds 2U related additional fields.
     """
 
     external_url = models.URLField(
@@ -682,6 +748,10 @@ class AdditionalMetadata(TimeStampedModel):
         default=None, blank=True, null=True,
         help_text=_('The start date of the external course offering for marketing purpose')
     )
+    end_date = models.DateTimeField(
+        default=None, blank=True, null=True,
+        help_text=_('The ends date of the external course offering for marketing purpose')
+    )
     registration_deadline = models.DateTimeField(
         default=None, blank=True, null=True,
         help_text=_('The suggested deadline for enrollment for marketing purpose')
@@ -689,6 +759,35 @@ class AdditionalMetadata(TimeStampedModel):
     variant_id = models.UUIDField(
         blank=False, null=True, editable=False,
         help_text=_('The identifier for a product variant.')
+    )
+    course_term_override = models.CharField(
+        max_length=20,
+        verbose_name=_('Course override'),
+        help_text=_('This field allows for override the default course term'),
+        blank=True,
+        null=True,
+        default=None,
+    )
+    product_meta = models.OneToOneField(
+        ProductMeta,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        default=None,
+        related_name="product_additional_metadata"
+    )
+    product_status = models.CharField(
+        default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
+        choices=ExternalProductStatus.choices, validators=[ExternalProductStatus.validator]
+    )
+    external_course_marketing_type = models.CharField(
+        help_text=_('This field contain external course marketing type specific to product lines'),
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None,
+        choices=ExternalCourseMarketingType.choices,
+        validators=[ExternalCourseMarketingType.validator]
     )
 
     def __str__(self):
@@ -830,6 +929,7 @@ class PkSearchableMixin:
             # want everything, we don't need to actually query elasticsearch at all.
             return queryset
 
+        logger.info(f"Attempting Elasticsearch document search against query: {query}")
         es_document, *_ = registry.get_documents(models=(cls,))
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
         try:
@@ -838,8 +938,10 @@ class PkSearchableMixin:
             logger.warning('Elasticsearch request is failed. Got exception: %r', exp)
             results = []
         ids = {result.pk for result in results}
-
-        return queryset.filter(pk__in=ids)
+        logger.info(f'{len(ids)} records extracted from Elasticsearch query "{query}"')
+        filtered_queryset = queryset.filter(pk__in=ids)
+        logger.info(f'Filtered queryset of length {len(filtered_queryset)} extracted against query "{query}"')
+        return filtered_queryset
 
 
 class Collaborator(TimeStampedModel):
@@ -899,24 +1001,32 @@ class GeoLocation(TimeStampedModel):
     LAT_MAX_DIGITS = 9
     LNG_MAX_DIGITS = 10
 
+    location_name = models.CharField(
+        max_length=128,
+        blank=False,
+        null=True,
+    )
+
     lat = models.DecimalField(
         max_digits=LAT_MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
         validators=[MaxValueValidator(90), MinValueValidator(-90)],
-        verbose_name=_('Latitude')
+        verbose_name=_('Latitude'),
+        null=True,
     )
     lng = models.DecimalField(
         max_digits=LNG_MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
         validators=[MaxValueValidator(180), MinValueValidator(-180)],
-        verbose_name=_('Longitude')
+        verbose_name=_('Longitude'),
+        null=True
     )
 
     class Meta:
         unique_together = (('lat', 'lng'),)
 
     def __str__(self):
-        return f'{self.lat}, {self.lng}'
+        return f'{self.location_name}'
 
     @property
     def coordinates(self):
@@ -975,6 +1085,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         related_name='related_courses',
         default=None, null=True, blank=True
     )
+    course_length = models.CharField(
+        max_length=64, choices=CourseLength, blank=True,
+        help_text=_('The actual duration of this course as experienced by learners who complete it.'),
+    )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
@@ -1002,6 +1116,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')
     )
+    product_source = models.ForeignKey(Source, models.SET_NULL, null=True, blank=True, related_name='courses')
     recent_enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_(
             'Total number of learners who have enrolled in this course in the last 6 months'
@@ -1945,6 +2060,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         now = datetime.datetime.now(pytz.UTC)
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
+        # Use external course availability for ExecEd course run types
+        # Check additional_metadata existence as a fail safe for some unit tests
+        # where this flow is triggered via signals before AdditionalMetadata object can be persisted
+        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION] and \
+                self.course.additional_metadata:
+            return self.external_course_availability
+
         if self.has_ended(now):
             return _('Archived')
         elif self.start and (self.start <= now):
@@ -1953,6 +2075,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return _('Starting Soon')
         else:
             return _('Upcoming')
+
+    @property
+    def external_course_availability(self):
+        """
+        Property to get course availability for external courses using product status.
+        """
+        additional_metadata = self.course.additional_metadata
+        if additional_metadata.product_status == ExternalProductStatus.Published:
+            return _('Current')
+        return _('Archived')
 
     @property
     def get_video(self):
@@ -2389,6 +2521,11 @@ class FAQ(TimeStampedModel):
 
 
 class Program(PkSearchableMixin, TimeStampedModel):
+    OFAC_RESTRICTION_CHOICES = (
+        ('', '--'),
+        (True, _('Blocked')),
+        (False, _('Unrestricted')),
+    )
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255)
@@ -2413,6 +2550,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
+    product_source = models.ForeignKey(Source, models.SET_NULL, null=True, blank=True, related_name='programs')
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
     total_hours_of_effort = models.PositiveSmallIntegerField(
@@ -2526,12 +2664,35 @@ class Program(PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    taxi_form = models.OneToOneField(
+        TaxiForm,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        default=None,
+        related_name='taxi_form',
+    )
+    program_duration_override = models.CharField(
+        help_text=_(
+            'Useful field to overwrite the duration of a program. It can be a text describing a period of time, '
+            'Ex: 6-9 months.'),
+        max_length=20,
+        blank=True,
+        null=True)
     # nosemgrep
     labels = TaggableManager(
         blank=True,
         related_name='program_tags',
         help_text=_('Pick a tag/label from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
+
+    has_ofac_restrictions = models.NullBooleanField(
+        blank=True,
+        choices=OFAC_RESTRICTION_CHOICES,
+        default=None,
+        verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
+    )
+    ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
 
     objects = ProgramQuerySet.as_manager()
 
@@ -2991,18 +3152,6 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-    taxi_form_id = models.CharField(
-        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
-        max_length=75,
-        blank=True,
-        default='',
-    )
-    taxi_form_grouping = models.CharField(
-        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
-        max_length=50,
-        blank=True,
-        default='',
-    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
@@ -3058,6 +3207,10 @@ class Degree(Program):
         null=True,
     )
     specializations = SortedManyToManyField(Specialization, blank=True, null=True)
+    display_on_org_page = models.BooleanField(
+        null=False, default=False,
+        help_text=_('Designates whether the degree should be displayed on the owning organization\'s page')
+    )
 
     class Meta:
         verbose_name_plural = "Degrees"
@@ -3420,9 +3573,34 @@ class CourseUrlRedirect(AbstractValueModel):
         )
 
 
+class BulkUploadTagsConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in bulk_upload_tags.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format ")
+    )
+
+
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_geotargeting_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
+
+class GeolocationDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_geolocation_data.
     """
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0

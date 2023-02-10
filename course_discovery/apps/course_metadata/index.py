@@ -3,6 +3,9 @@ from algoliasearch_django import AlgoliaIndex, register
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
+from course_discovery.apps.course_metadata.contentful_utils import (
+    fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
+)
 
 
 class BaseProductIndex(AlgoliaIndex):
@@ -14,10 +17,18 @@ class BaseProductIndex(AlgoliaIndex):
 
     def get_queryset(self):  # pragma: no cover
         if not self.language:
-            raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
-                index_name=self.index_name))
-        qs1 = [AlgoliaProxyProduct(course, self.language) for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
+            raise Exception(  # pylint: disable=broad-exception-raised
+                'Cannot update Algolia index \'{index_name}\'. No language set'.format(index_name=self.index_name)
+            )
+
+        bootcamp_contentful_data = fetch_and_transform_bootcamp_contentful_data()
+        qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data=bootcamp_contentful_data)
+               for course in AlgoliaProxyCourse.objects.all()]
+
+        degree_contentful_data = fetch_and_transform_degree_contentful_data()
+        qs2 = [AlgoliaProxyProduct(program, self.language, contentful_data=degree_contentful_data)
+               for program in AlgoliaProxyProgram.objects.all()]
+
         return qs1 + qs2
 
     def generate_empty_query_rule(self, rule_object_id, product_type, results):
@@ -79,8 +90,9 @@ class EnglishProductIndex(BaseProductIndex):
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
+                     ('product_meta_title', 'meta_title'), ('product_display_on_org_page', 'display_on_org_page'),
                      'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags',
-                     'skills')
+                     'skills', 'contentful_fields',)
 
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -94,7 +106,9 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
+            'tags',
+            'contentful_fields.page_title, contentful_fields.subheading, contentful_fields.about_the_program, '
+            'contentful_fields.faq_items, contentful_fields.featured_products'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
@@ -127,7 +141,9 @@ class SpanishProductIndex(BaseProductIndex):
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills')
+                     ('product_meta_title', 'meta_title'), ('product_display_on_org_page', 'display_on_org_page'),
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills',
+                     'contentful_fields',)
 
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix
@@ -142,7 +158,9 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
+            'tags',
+            'contentful_fields.page_title, contentful_fields.subheading, contentful_fields.about_the_program, '
+            'contentful_fields.faq_items, contentful_fields.featured_products'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',

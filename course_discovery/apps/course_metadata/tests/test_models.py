@@ -29,10 +29,10 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
-    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseType, Curriculum,
+    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseRunType, CourseType, Curriculum,
     CurriculumCourseMembership, CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline,
     Endorsement, Organization, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
 )
@@ -41,7 +41,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory, SeatTypeFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
+    SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -191,6 +192,18 @@ class TestCourse(TestCase):
         factories.CourseRunFactory(course=course, end=end)
         self.assertEqual(course.course_ends, expected)
 
+    def test_product_meta(self):
+        """
+        Verify the ProductMeta has expected fields' data.
+        """
+        keywords_list = ['keyword_1', 'keyword_2', 'keyword_3']
+        product_meta = factories.ProductMetaFactory(
+            keywords=keywords_list
+        )
+        assert product_meta.title is not None
+        assert product_meta.description is not None
+        assert set(product_meta.keywords.all().values_list('name', flat=True)) == set(keywords_list)
+
     def test_additional_metadata(self):
         """ Verify the property returns valid additional metadata fields. """
 
@@ -206,6 +219,12 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
         self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
         self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
+        self.assertEqual(course.additional_metadata.product_meta, additional_metadata.product_meta)
+        self.assertEqual(course.additional_metadata.product_status, additional_metadata.product_status)
+        self.assertEqual(course.additional_metadata.external_course_marketing_type,
+                         additional_metadata.external_course_marketing_type)
+        assert course.additional_metadata.end_date == additional_metadata.end_date
+        assert course.additional_metadata.product_status == ExternalProductStatus.Published
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """
@@ -570,6 +589,25 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         if end:
             end = parse(end)
         course_run = factories.CourseRunFactory(start=start, end=end)
+        assert course_run.availability == expected_availability
+
+    @ddt.data(
+        (ExternalProductStatus.Archived, 'Archived'),
+        (ExternalProductStatus.Published, 'Current'),
+    )
+    @ddt.unpack
+    def test_external_course_availability(self, product_status, expected_availability):
+        """ Verify the property returns the appropriate availability string based on external product status """
+        course_run = factories.CourseRunFactory(
+            type=factories.CourseRunTypeFactory(
+                slug=CourseRunType.UNPAID_EXECUTIVE_EDUCATION
+            ),
+            course=CourseFactory(
+                additional_metadata=AdditionalMetadataFactory(
+                    product_status=product_status
+                )
+            )
+        )
         assert course_run.availability == expected_availability
 
     def test_marketing_url(self):
@@ -1505,6 +1543,31 @@ class AbstractHeadingBlurbModelTests(TestCase):
 
 
 @ddt.ddt
+class TaxiFormTests(TestCase):
+    """ Tests for the `TaxiForm` model. """
+
+    def setUp(self):
+        super().setUp()
+        self.taxi_form = factories.TaxiFormFactory()
+
+    def test_form_id(self):
+        """ Verify the Taxi Form returns a form ID """
+        expected = int(self.taxi_form.form_id)
+        assert self.taxi_form.form_id == expected
+
+    def test_title(self):
+        """ Verify the Taxi Form has valid title """
+        self.taxi_form = factories.TaxiFormFactory(title='Get More Information!')
+        expected = 'Get More Information!'
+        assert self.taxi_form.title == expected
+
+    def test_no_subtitle(self):
+        """ Verify Taxi Form can have an empty subtitle """
+        self.taxi_form = factories.TaxiFormFactory(subtitle=None)
+        assert self.taxi_form.subtitle is None
+
+
+@ddt.ddt
 @pytest.mark.django_db
 class ProgramTests(TestCase):
     """Tests of the Program model."""
@@ -2088,7 +2151,7 @@ class ProgramTests(TestCase):
                 type=verified_seat_type,
                 currency=currency,
                 course_run=course_run,
-                price=(day_separation * 100))
+                price=day_separation * 100)
             day_separation += 1
         course.canonical_course_run = course_runs_same_course[2]
         course.save()
@@ -2361,6 +2424,11 @@ class ProgramTests(TestCase):
         degree = factories.DegreeFactory()
         program.degree = degree
         assert not program.is_2u_degree_program
+
+    def test_program_duration_override(self):
+        """ Verify the property returns None if the Program has no program_duration_override set. """
+        self.program.program_duration_override = ''
+        assert self.program.program_duration_override is not None
 
 
 class PathwayTests(TestCase):
@@ -2723,6 +2791,7 @@ class DegreeTests(TestCase):
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
+        assert self.degree.program_duration_override is not None
 
     def test_degree_additional_metadata(self):
         """ Verify the property returns valid  degree additional metadata fields. """

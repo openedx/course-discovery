@@ -105,7 +105,7 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 pull_translations: ## Pull translations from Transifex
-	tx pull -a -f --mode reviewed --minimum-perc=1
+	tx pull -a -f -t --mode reviewed --minimum-perc=1
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 push_translations: ## Push source translation files (.po) to Transifex
@@ -134,22 +134,6 @@ docs:
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
 	python manage.py check_reserved_keywords --override_file db_keyword_overrides.yml
 
-docker_build:
-	docker build . -f Dockerfile --target app -t openedx/discovery
-	docker build . -f Dockerfile --target newrelic -t openedx/discovery:latest-newrelic
-
-docker_tag: docker_build
-	docker tag openedx/discovery openedx/discovery:${GITHUB_SHA}
-	docker tag openedx/discovery:latest-newrelic openedx/discovery:${GITHUB_SHA}-newrelic
-
-docker_auth:
-	echo "$$DOCKERHUB_PASSWORD" | docker login -u "$$DOCKERHUB_USERNAME" --password-stdin
-
-docker_push: docker_tag docker_auth ## push to docker hub
-	docker push 'openedx/discovery:latest'
-	docker push "openedx/discovery:${GITHUB_SHA}"
-	docker push 'openedx/discovery:latest-newrelic'
-	docker push "openedx/discovery:${GITHUB_SHA}-newrelic"
 
 install_transifex_client: ## Install the Transifex client
 	curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash

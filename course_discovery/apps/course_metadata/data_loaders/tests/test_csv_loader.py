@@ -13,9 +13,9 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseType
+from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
@@ -187,8 +187,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
+    @data(
+        ('csv-course-custom-slug', 'csv-course-custom-slug'),
+        ('custom-slug-2', 'custom-slug-2'),
+        ('', 'csv-course')  # No slug in CSV corresponds to default slug mechanism
+    )
+    @unpack
     @responses.activate
-    def test_single_valid_row(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_single_valid_row(self, csv_slug, expected_slug, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that for a single row of valid data for a non-existent course, the draft unpublished
         entries are created.
@@ -198,8 +204,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_ecommerce_publication(self.partner)
         _, image_content = self.mock_image_response()
 
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'slug': csv_slug
+        }
+
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            csv = self._write_csv(csv, [csv_data])
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
@@ -229,6 +240,86 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.organization_logo_override.read() == image_content
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+
+                    assert course.active_url_slug == expected_slug
+                    assert loader.get_ingestion_stats() == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 0,
+                        'created_products_count': 1,
+                        'created_products': [str(course.uuid)],
+                        'archived_products_count': 0,
+                        'archived_products': [],
+                        'errors': loader.error_logs
+                    }
+
+    @responses.activate
+    def test_archived_flow_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader archives courses not in input data.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        additional_metadata_one = AdditionalMetadataFactory(product_status="Published")
+        _ = CourseFactory(
+            key='test+123', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata_one
+        )
+
+        additional_metadata_two = AdditionalMetadataFactory(product_status="Published")
+        _ = CourseFactory(
+            key='test+124', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata_two
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_type='EXECUTIVE_EDUCATION')
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Archived 2 products in discovery.'
+                        ),
+                    )
+
+                    # Verify the existence of both draft and non-draft versions
+                    assert Course.everything.count() == 3
+                    assert AdditionalMetadata.objects.count() == 3
+
+                    course = Course.everything.get(key=self.COURSE_KEY)
+                    stats = loader.get_ingestion_stats()
+                    archived_products = stats.pop('archived_products')
+                    assert stats == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 0,
+                        'created_products_count': 1,
+                        'created_products': [str(course.uuid)],
+                        'archived_products_count': 2,
+                        'errors': loader.error_logs
+                    }
+
+                    # asserting separately due to random sort order
+                    assert set(archived_products) == set([
+                        additional_metadata_one.external_identifier,
+                        additional_metadata_two.external_identifier
+                    ])
 
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -293,6 +384,18 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     self._assert_course_data(course, expected_course_data)
                     self._assert_course_run_data(course_run, expected_course_run_data)
+
+                    assert loader.get_ingestion_stats() == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 1,
+                        'created_products_count': 0,
+                        'created_products': [],
+                        'archived_products_count': 0,
+                        'archived_products': [],
+                        'errors': loader.error_logs
+                    }
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -521,6 +624,61 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
                     assert course.subjects.first().slug == "computer-science"
                     assert course_run.staff.exists() is False
+
+    @responses.activate
+    def test_ingest_product_metadata_flow_for_non_exec_ed(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader does not ingest product meta information for non-exec ed course type.
+        """
+        CourseTypeFactory(name='Bootcamp(2U)', slug='bootcamp-2u')
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': 'Bootcamp(2U)',  # Additional metadata can exist only for ExecEd and Bootcamp
+        }
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [csv_data], self.CSV_DATA_KEYS_ORDER)
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course key edx+csv_123 could not be found in database, creating the course.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
+                        )
+                    )
+
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
+
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+
+                    # Asserting some required and optional values to verify the correctness
+                    assert course.title == 'CSV Course'
+                    assert course.short_description == '<p>Very short description</p>'
+                    assert course.full_description == (
+                        '<p>Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
+                        'Organization,Title,Number,Course Enrollment track,Image,'
+                        'Short Description,Long Description,</p>'
+                    )
+                    assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
+                    assert course.subjects.first().slug == "computer-science"
+                    assert course.additional_metadata.product_meta is None
 
     @data(
         (['primary_subject', 'image', 'long_description'],

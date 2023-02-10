@@ -331,7 +331,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value',
             'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
-            'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation'
+            'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
+            'field-program_duration_override', 'field-product_source', 'field-ofac_comment'
         ]
         assert actual == expected
 
@@ -350,6 +351,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self.browser.find_element(By.ID, 'id_title').send_keys(program.title)
         self.browser.find_element(By.ID, 'id_subtitle').send_keys(program.subtitle)
         self.browser.find_element(By.ID, 'id_marketing_slug').send_keys(program.marketing_slug)
+        self.browser.find_element(By.ID, 'id_program_duration_override').send_keys(program.program_duration_override)
         self._select_option('id_status', program.status)
         self._select_option('id_type', str(program.type.id))
         self._select_option('id_partner', str(program.partner.id))
@@ -362,6 +364,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         assert actual.status == program.status
         assert actual.type == program.type
         assert actual.partner == program.partner
+        assert actual.program_duration_override == program.program_duration_override
 
     def test_program_update(self):
         self._navigate_to_edit_page()

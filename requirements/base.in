@@ -2,6 +2,7 @@ algoliasearch_django
 backoff
 beautifulsoup4
 cairosvg
+contentful
 django
 django-admin-sortable2
 django-autocomplete-light==3.9.0rc1
@@ -34,6 +35,7 @@ django-webpack-loader
 djangorestframework
 djangorestframework-csv
 djangorestframework-xml
+django-elasticsearch-dsl
 django-elasticsearch-dsl-drf
 django-object-actions
 drf-flex-fields
@@ -47,11 +49,14 @@ edx-django-release-util
 edx-django-sites-extensions
 edx-django-utils
 edx-drf-extensions
-edx-event-bus-kafka
+# edx-event-bus-kafka 3.7.0 introduces `reset_offsets_and_sleep_indefinitely`
+edx-event-bus-kafka>=3.7.1
 edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 elasticsearch-dsl
+google-api-python-client
+google-auth-httplib2
 gspread
 html2text
 lxml
@@ -69,3 +74,4 @@ python-slugify
 xss-utils
 taxonomy-connector
 importlib-metadata
+snowflake-connector-python

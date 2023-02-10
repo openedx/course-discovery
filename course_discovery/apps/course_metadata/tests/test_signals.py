@@ -1,3 +1,4 @@
+
 import datetime
 from re import escape
 from unittest import mock
@@ -21,10 +22,10 @@ from course_discovery.apps.course_metadata.algolia_models import (
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
-    CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership, DataLoaderConfig,
-    DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig,
-    ProfileImageDownloadConfig, Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation,
-    TagCourseUuidsConfig, TopicTranslation
+    BulkUploadTagsConfig, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
+    DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
+    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
 from course_discovery.apps.course_metadata.tests import factories
@@ -58,7 +59,7 @@ class TestCacheInvalidation:
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
                          AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
                          LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig,
-                         CSVDataLoaderConfiguration, ]:
+                         BulkUploadTagsConfig, CSVDataLoaderConfiguration, ]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
@@ -737,7 +738,6 @@ class TestCourseDataUpdateSignal(TestCase):
             course_key=self.course_key,
             name='Test Course',
             schedule_data=self.scheduling_data,
-            effort='a lot',
             hidden=False,
         )
         self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
@@ -855,4 +855,4 @@ class TestCourseDataUpdateSignal(TestCase):
         )
         with self.assertLogs('course_discovery.apps.course_metadata.data_loaders.api') as captured_logs:
             update_course_data_from_event(catalog_info=catalog_data)
-            assert 'An error occurred while updating' in captured_logs.output[0]
+            assert 'An error occurred while updating' in captured_logs.output[1]

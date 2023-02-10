@@ -21,10 +21,11 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import ALLOWED_ANCHOR_TAG_ATTRIBUTES, IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
+from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
@@ -292,7 +293,9 @@ def ensure_draft_world(obj):
         # must re-get from db to ensure related fields like course_runs are updated (refresh_from_db isn't enough)
         return Course.everything.get(pk=draft_course.pk)
     else:
-        raise Exception('Ensure draft world only accepts Courses and Course Runs.')
+        raise Exception(  # pylint: disable=broad-exception-raised
+            'Ensure draft world only accepts Courses and Course Runs.'
+        )
 
 
 class UploadToFieldNamePath(FilePattern):
@@ -646,22 +649,33 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.ignore_links = True
         self.in_lang_span = False
         self.images_with_size = True
 
     def handle_tag(self, tag, attrs, start):
         super().handle_tag(tag, attrs, start)
         if tag == 'span':
-            if attrs:
-                attr_dict = dict(attrs)
-                if start and 'lang' in attr_dict:
-                    lang = attr_dict['lang']
-                    self.outtextf(f'<span lang="{lang}">')
-                    self.in_lang_span = True
-            if not start:
-                if self.in_lang_span:
-                    self.outtextf('</span>')
+            if attrs and start and 'lang' in dict(attrs):
+                self.outtextf(f'<span lang="{dict(attrs)["lang"]}">')
+                self.in_lang_span = True
+            if not start and self.in_lang_span:
+                self.outtextf('</span>')
                 self.in_lang_span = False
+
+        if tag == 'a':
+            # override the default behavior of html2text to include only allowed tags from attr_dict for <a> tags
+            # because by default it only includes the href and title attributes
+            if attrs and start and 'href' in dict(attrs):
+                self.outtextf('<a')
+                filtered_attrs_list = [
+                    (attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES
+                ]
+                for attr, value in filtered_attrs_list:
+                    self.outtextf(f' {attr}="{value}"')
+                self.outtextf('>')
+            if not start:
+                self.outtextf('</a>')
 
 
 def clean_html(content):
@@ -682,45 +696,66 @@ def clean_html(content):
     return cleaned
 
 
+def get_file_from_drive_link(image_url):
+    """
+    Helper method to get the file content_type and content from a drive link
+
+    Keyword Arguments:
+        image_url {str} -- drive link of the file
+
+    Returns:
+        tuple --  content_type and content of the file
+    """
+    google_api_client = GoogleAPIClient()
+    content_type = google_api_client.get_file_metadata(image_url).get('mimeType')
+    content = google_api_client.download_file_by_url(image_url)
+    return content_type, content
+
+
 def download_and_save_course_image(course, image_url, data_field='image', headers=None):
     """
     Helper method to download an image from a provided image url and save it
     in the data field mentioned, defaulting to course card image.
     """
     try:
-        image_url = get_downloadable_url_from_drive_link(image_url)
-        response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
-
-        if response.status_code == requests.codes.ok:  # pylint: disable=no-member
-            content_type = response.headers['Content-Type'].lower()
+        if is_google_drive_url(image_url):
+            content_type, content = get_file_from_drive_link(image_url)
             extension = IMAGE_TYPES.get(content_type)
-
-            if extension:
-                filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
-                # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
-                # field save errors for some reasons.
-                if data_field == 'image':
-                    course.image.save(filename, ContentFile(response.content))
-                elif data_field == 'organization_logo_override':
-                    image_file = ContentFile(response.content)
-                    if extension == 'svg':
-                        filename = '{uuid}.png'.format(uuid=str(course.uuid))
-                        image_file = convert_svg_to_png_from_url(image_url)
-                    if image_file:
-                        course.organization_logo_override.save(filename, image_file)
-                    else:
-                        logger.error('Update organization logo override failed for course [%s]', course.key)
-                        return False
-                logger.info('Image for course [%s] successfully updated.', course.key)
-                return True
-            else:
-                # pylint: disable=line-too-long
-                msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
-                logger.error(msg, course.key, image_url, content_type)
-
         else:
-            msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
-            logger.error(msg, course.key, image_url, response.status_code, response.content)
+            response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
+
+            if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                content_type = response.headers['Content-Type'].lower()
+                extension = IMAGE_TYPES.get(content_type)
+                content = response.content
+
+            else:
+                msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
+                logger.error(msg, course.key, image_url, response.status_code, response.content)
+                return False
+
+        if extension:
+            filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
+            # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
+            # field save errors for some reasons.
+            if data_field == 'image':
+                course.image.save(filename, ContentFile(content))
+            elif data_field == 'organization_logo_override':
+                image_file = ContentFile(content)
+                if extension == 'svg':
+                    filename = '{uuid}.png'.format(uuid=str(course.uuid))
+                    image_file = convert_svg_to_png_from_url(image_url)
+                if image_file:
+                    course.organization_logo_override.save(filename, image_file)
+                else:
+                    logger.error('Update organization logo override failed for course [%s]', course.key)
+                    return False
+            logger.info('Image for course [%s] successfully updated.', course.key)
+            return True
+        else:
+            msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+            logger.error(msg, course.key, image_url, content_type)
+
     except Exception:  # pylint: disable=broad-except
         logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
     return False
@@ -741,16 +776,12 @@ def convert_svg_to_png_from_url(image_url):
         return None
 
 
-def get_downloadable_url_from_drive_link(file_path):
+def is_google_drive_url(url):
     """
-    Helper method to get the downloadable url from a drive link
+    Helper method to check if the file url is a drive url or not
     """
-    URL = 'https://docs.google.com/uc?id={file_id}'
-    parsed_url = urlparse(file_path)
-    if parsed_url.hostname == 'drive.google.com':
-        file_id = parsed_url.path.split('/')[3]
-        return URL.format(file_id=file_id)
-    return file_path
+    parsed_url = urlparse(url)
+    return parsed_url.hostname == 'drive.google.com'
 
 
 def download_and_save_program_image(program, image_url, data_field='image', headers=None):
@@ -760,31 +791,35 @@ def download_and_save_program_image(program, image_url, data_field='image', head
     """
     # TODO: refactor and merge program image download to use the same code as course image download
     try:
-        image_url = get_downloadable_url_from_drive_link(image_url)
-        response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
-
-        if response.status_code == requests.codes.ok:  # pylint: disable=no-member
-            content_type = response.headers['Content-Type'].lower()
+        if is_google_drive_url(image_url):
+            content_type, content = get_file_from_drive_link(image_url)
             extension = IMAGE_TYPES.get(content_type)
-
-            if extension:
-                filename = '{uuid}.{extension}'.format(uuid=str(program.uuid), extension=extension)
-                # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
-                # field save errors for some reasons.
-                if data_field == 'image':
-                    program.card_image.save(filename, ContentFile(response.content))
-                elif data_field == 'organization_logo_override':
-                    program.organization_logo_override.save(filename, ContentFile(response.content))
-                logger.info('Image for program [%s] successfully updated.', program.title)
-                return True
-            else:
-                # pylint: disable=line-too-long
-                msg = 'Image retrieved for program [%s] from [%s] has an unknown content type [%s] and will not be saved.'
-                logger.error(msg, program.title, image_url, content_type)
-
         else:
-            msg = 'Failed to download image for program [%s] from [%s]! Response was [%d]:\n%s'
-            logger.error(msg, program.title, image_url, response.status_code, response.content)
+            response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
+
+            if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                content_type = response.headers['Content-Type'].lower()
+                extension = IMAGE_TYPES.get(content_type)
+                content = response.content
+            else:
+                msg = 'Failed to download image for program [%s] from [%s]! Response was [%d]:\n%s'
+                logger.error(msg, program.title, image_url, response.status_code, response.content)
+                return False
+
+        if extension:
+            filename = '{uuid}.{extension}'.format(uuid=str(program.uuid), extension=extension)
+            # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
+            # field save errors for some reasons.
+            if data_field == 'image':
+                program.card_image.save(filename, ContentFile(content))
+            elif data_field == 'organization_logo_override':
+                program.organization_logo_override.save(filename, ContentFile(content))
+            logger.info('Image for program [%s] successfully updated.', program.title)
+            return True
+        else:
+            msg = 'Image retrieved for program [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+            logger.error(msg, program.title, image_url, content_type)
+
     except Exception:  # pylint: disable=broad-except
         logger.exception('An unknown exception occurred while downloading image for program [%s]', program.title)
     return False

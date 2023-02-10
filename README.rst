@@ -1,29 +1,23 @@
-Course Discovery Service  |Codecov|_
-==============================================
-.. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
-.. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
+Course Discovery Service
+###################
+
+| |status-badge| |license-badge| |CI| |Codecov|
 
 Service providing access to consolidated course and program metadata.
 
-Documentation
--------------
+Getting Started with Development
+********************************
 
-`Documentation <https://edx-discovery.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/openedx/course-discovery/tree/master/docs>`_ directory. The docs are automatically rebuilt and redeployed when commits are merged to master. To contribute, please open a PR against this repo.
+This repository works with openedx `devstack`_. Once the devstack has been set up and provisioned, run the
+following commands in devstack directory to access Discovery shell and perform operations as needed
 
-License
--------
+.. code-block:: shell
 
-The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
+    $ make dev.up.discovery
+    $ make discovery-shell
+    $ make requirements
+    $ make validate
 
-.. _LICENSE: https://github.com/openedx/course-discovery/blob/master/LICENSE
-
-How To Contribute
------------------
-
-Contributions are welcome. Please read `How To Contribute <https://github.com/openedx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details. Even though it was written with ``edx-platform`` in mind, these guidelines should be followed for Open edX code in general.
-
-Development
------------
 
 Using elasticsearch locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,12 +114,79 @@ For example,
 .. _pytest-xdist does not support pdb.set_trace(): https://github.com/pytest-dev/pytest/issues/390#issuecomment-112203885
 .. _pytest-no-xdist.ini file: https://github.com/openedx/course-discovery/blob/master/pytest=no-xdist.ini
 
+
+Getting Help
+*************
+
+`Documentation <https://edx-discovery.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/openedx/course-discovery/tree/master/docs>`_ directory. The docs are automatically rebuilt and redeployed when commits are merged to master. To contribute, please open a PR against this repo.
+
+License
+*************
+
+The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
+
+.. _LICENSE: https://github.com/openedx/course-discovery/blob/master/LICENSE
+
+Contributing
+************
+
+Contributions are very welcome.
+Please read `How To Contribute <https://openedx.org/r/how-to-contribute>`_ for details.
+
+This project is currently accepting all types of contributions, bug fixes,
+security fixes, maintenance work, or new features.  However, please make sure
+to have a discussion about your new feature idea with the maintainers prior to
+beginning development to maximize the chances of your change being accepted.
+You can start a conversation by creating a new issue on this repo summarizing
+your idea.
+
+The Open edX Code of Conduct
+****************************
+
+All community members are expected to follow the `Open edX Code of Conduct`_.
+
+.. _Open edX Code of Conduct: https://openedx.org/code-of-conduct/
+
 Reporting Security Issues
--------------------------
+**************************
 
-Please do not report security issues in public. Please email security@edx.org.
 
-Get Help
---------
+Please do not report security issues in public. Please email security@tcril.org.
 
-Ask questions and discuss this project on `Slack <https://openedx.slack.com/messages/general/>`_ or in the `edx-code Google Group <https://groups.google.com/forum/#!forum/edx-code>`_.
+More Help
+*********
+
+If you're having trouble, we have discussion forums at
+`discuss.openedx.org <https://discuss.openedx.org>`_ where you can connect with others in the
+community.
+
+Our real-time conversations are on Slack. You can request a `Slack
+invitation`_, then join our `community Slack workspace`_.
+
+For anything non-trivial, the best path is to `open an issue`__ in this
+repository with as many details about the issue you are facing as you
+can provide.
+
+__ https://github.com/openedx/course-discovery/issues
+
+For more information about these options, see the `Getting Help`_ page.
+
+.. _Slack invitation: https://openedx.org/slack
+.. _community Slack workspace: https://openedx.slack.com/
+.. _Getting Help: https://openedx.org/getting-help
+.. _devstack: https://github.com/openedx/devstack
+
+.. |CI| image:: https://github.com/openedx/course-discovery/workflows/Python%20CI/badge.svg?branch=master
+    :target: https://github.com/openedx/course-discovery/actions?query=workflow%3A%22Python+CI%22
+    :alt: Test suite status
+
+.. |Codecov| image:: https://codecov.io/github/openedx/course-discovery/coverage.svg?branch=master
+    :target: https://codecov.io/github/openedx/course-discovery?branch=master
+    :alt: Code coverage
+
+.. |status-badge| image:: https://img.shields.io/badge/Status-Maintained-brightgreen
+    :alt: Maintained
+
+.. |license-badge| image:: https://img.shields.io/github/license/openedx/course-discovery.svg
+    :target: https://github.com/openedx/course-discovery/blob/master/LICENSE
+    :alt: License

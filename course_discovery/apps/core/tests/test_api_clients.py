@@ -1,6 +1,8 @@
 import logging
+from urllib.parse import urljoin
 
 import responses
+from django.conf import settings
 from django.test import TestCase
 
 from course_discovery.apps.core.api_client import lms
@@ -41,6 +43,11 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             'site': 1,
             'contacted': True
         }
+        self.block_id = 'block-v1:edX+DemoX+Demo_Course+type@vertical+block@vertical_0270f6de40fc'
+        resource = settings.LMS_API_URLS['blocks']
+        self.block_resource_url = urljoin(self.partner.lms_url, resource + self.block_id)
+        self.course_resource_url = urljoin(self.partner.lms_url, resource)
+        self.block_metadata_base_url = urljoin(self.partner.lms_url, settings.LMS_API_URLS['block_metadata'])
 
     @responses.activate
     def test_get_api_access_request(self):
@@ -185,3 +192,48 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert self.lms.get_api_access_request(self.user)['company_name'] == 'Test Company'
         assert 'Multiple ApiAccessRequest models returned from LMS API for user [%s].' % self.user.username in \
                self.log_messages['warning']
+
+    @responses.activate
+    def test_get_course_blocks_data(self):
+        """
+        Verify that `get_course_blocks_data` returns correct value.
+        """
+        data = self.mock_blocks_data_request(self.course_resource_url)
+        assert self.lms.get_course_blocks_data('dummy-course-id') == data['blocks']
+
+    @responses.activate
+    def test_get_blocks_data(self):
+        """
+        Verify that `get_blocks_data` returns correct value.
+        """
+        data = self.mock_blocks_data_request(self.block_resource_url)
+        assert self.lms.get_blocks_data(self.block_id) == data['blocks']
+
+    @responses.activate
+    def test_get_block_metadata(self):
+        """
+        Verify that `get_blocks_metadata` returns correct value.
+        """
+        data = self.mock_block_metadata_request(self.block_metadata_base_url)
+        assert self.lms.get_blocks_metadata(self.block_id) == data[self.block_id]
+
+    @responses.activate
+    def test_get_blocks_data_with_no_results(self):
+        """
+        Verify that `get_blocks_data` returns None when
+        API returns no results.
+        """
+        self.mock_blocks_data_request(self.block_resource_url, override_blocks={})
+        assert not self.lms.get_blocks_data(self.block_id)
+        assert 'No blocks found for [%s].' % self.block_id in self.log_messages['info']
+
+    @responses.activate
+    def test_get_blocks_data_cache_hit(self):
+        """
+        Verify that `get_blocks_data` returns the correct value and then
+        returns the cached results on another call with the same block_id.
+        """
+        data = self.mock_blocks_data_request(self.block_resource_url)
+        assert self.lms.get_blocks_data(self.block_id) == data['blocks']
+        assert self.lms.get_blocks_data(self.block_id) == data['blocks']
+        assert len(responses.calls) == 1

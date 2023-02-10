@@ -40,8 +40,9 @@ from course_discovery.apps.course_metadata.models import (
     CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
-    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductValue, Program,
-    ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
+    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
+    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject,
+    TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -224,6 +225,13 @@ class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
         model = AdditionalPromoArea
 
 
+class SourceSerializer(BaseModelSerializer):
+    """Serializer for Source"""
+    class Meta:
+        model = Source
+        fields = ('name', 'slug', 'description')
+
+
 class FactSerializer(HeadingBlurbSerializer):
     """Serializer for Facts """
     class Meta(HeadingBlurbSerializer.Meta):
@@ -317,24 +325,27 @@ class VideoSerializer(MediaSerializer):
 
 class GeoLocationSerializer(BaseModelSerializer):
     """Serializer for the ``GeoLocation`` model."""
+    location_name = serializers.CharField(allow_null=True, max_length=128)
     lat = serializers.DecimalField(
         max_digits=GeoLocation.LAT_MAX_DIGITS,
         decimal_places=GeoLocation.DECIMAL_PLACES,
         min_value=-90,
         max_value=90,
-        rounding=ROUND_HALF_UP
+        rounding=ROUND_HALF_UP,
+        allow_null=True
     )
     lng = serializers.DecimalField(
         max_digits=GeoLocation.LNG_MAX_DIGITS,
         decimal_places=GeoLocation.DECIMAL_PLACES,
         min_value=-180,
         max_value=180,
-        rounding=ROUND_HALF_UP
+        rounding=ROUND_HALF_UP,
+        allow_null=True
     )
 
     class Meta:
         model = GeoLocation
-        fields = ('lat', 'lng')
+        fields = ('lat', 'lng', 'location_name')
 
 
 class PositionSerializer(BaseModelSerializer):
@@ -655,26 +666,68 @@ class ProductValueSerializer(BaseModelSerializer):
         fields = ('per_click_international', 'per_click_usa', 'per_lead_international', 'per_lead_usa')
 
 
+class ProductMetaSerializer(TaggitSerializer, BaseModelSerializer):
+    """Serializer for the ``ProductMeta`` model."""
+    keywords = TagListSerializerField(required=False)
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return ProductMeta.objects.all().select_related('keywords')
+
+    class Meta:
+        model = ProductMeta
+        fields = ('title', 'description', 'keywords')
+
+
 class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
 
     facts = FactSerializer(many=True)
     certificate_info = CertificateInfoSerializer()
+    product_meta = ProductMetaSerializer(required=False, allow_null=True)
     start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
     variant_id = serializers.UUIDField(allow_null=True)
 
     @classmethod
     def prefetch_queryset(cls):
-        return AdditionalMetadata.objects.select_related('facts', 'certificate_info')
+        return AdditionalMetadata.objects.select_related('facts', 'certificate_info', 'product_meta')
 
     class Meta:
         model = AdditionalMetadata
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
-            'facts', 'certificate_info', 'organic_url', 'start_date',
-            'registration_deadline', 'variant_id',
+            'facts', 'certificate_info', 'organic_url', 'start_date', 'end_date',
+            'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
+            'product_meta', 'external_course_marketing_type',
         )
+
+    def _update_product_meta(self, instance, product_meta):
+        if instance.product_meta:
+            ProductMeta.objects.filter(
+                id=instance.product_meta.id).update(**product_meta)
+        else:
+            instance.product_meta = ProductMeta.objects.create(
+                **product_meta)
+
+    def update(self, instance, validated_data):
+        # Handle writing nested fields separately
+        if 'product_meta' in validated_data:
+            # Handle product metadata only for 2U Executive Education courses else just pop
+            product_meta_data = validated_data.pop(
+                'product_meta')
+            if instance:
+                self._update_product_meta(
+                    instance, product_meta_data)
+        return super().update(instance, validated_data)
+
+
+class TaxiFormSerializer(BaseModelSerializer):
+    """Serializer for the ``TaxiForm`` model."""
+    class Meta:
+        model = TaxiForm
+        fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
 
 
 class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
@@ -868,7 +921,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     class Meta:
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
-                  'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
+                  'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end', 'weeks_to_complete',
                   'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
 
     def get_marketing_url(self, obj):
@@ -1225,6 +1278,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
+    product_source = SourceSerializer(required=False)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1245,6 +1299,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'partner',
             'extra_description',
             'additional_metadata',
+            'product_source',
             '_official_version',
             'canonical_course_run',
             'type',
@@ -1280,7 +1335,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value'
+            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
+            'product_source',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1340,10 +1396,39 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
             instance.save()
 
+    def update_product_meta(self, instance, product_meta_data):
+        """ Updates product metadata (inside additional metadata) for a course. """
+        keywords = product_meta_data.pop('keywords', None)
+
+        if instance.product_meta:
+            ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
+            # This is needed to get the latest value for Product Meta from DB.
+            # Otherwise, the previous values re-appear when keywords are handled and product_meta is saved.
+            instance.product_meta.refresh_from_db()
+        else:
+            instance.product_meta = ProductMeta.objects.create(**product_meta_data)
+            instance.save()
+
+        if keywords and instance.product_meta:
+            instance.product_meta.keywords.set(keywords, clear=True)
+            instance.product_meta.save()
+
+    def update_product_source(self, instance, product_source):
+
+        if instance.product_source:
+            Source.objects.filter(id=instance.product_source.id).update(
+                **product_source)
+        else:
+            instance.product_source = Source.objects.create(
+                **product_source,
+            )
+            instance.save()
+
     def update_additional_metadata(self, instance, additional_metadata):
 
         facts = additional_metadata.pop('facts', None)
         certificate_info = additional_metadata.pop('certificate_info', None)
+        product_meta = additional_metadata.pop('product_meta', None)
 
         if instance.additional_metadata:
             AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
@@ -1353,15 +1438,18 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if facts:
             self.update_facts(instance.additional_metadata, facts)
 
+        if product_meta:
+            self.update_product_meta(instance.additional_metadata, product_meta)
+
         if certificate_info:
             self.update_certificate_info(instance.additional_metadata, certificate_info)
 
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
-        existing_geolocation = GeoLocation.objects.filter(**geolocation).first()
-        if existing_geolocation:
-            instance.geolocation = existing_geolocation
+        if instance.geolocation:
+            GeoLocation.objects.filter(id=instance.geolocation.id).update(**geolocation)
+            instance.refresh_from_db()
         else:
             instance.geolocation = GeoLocation.objects.create(**geolocation)
 
@@ -1385,13 +1473,18 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)
         if 'geolocation' in validated_data:
-            self.update_geolocation(instance, validated_data.pop('geolocation'))
+            geolocation = validated_data.pop('geolocation')
+            if all(bool(value) is True for value in geolocation.values()):
+                self.update_geolocation(instance, geolocation)
         if 'location_restriction' in validated_data:
             location_restriction_data = validated_data.pop('location_restriction')
             if not all(bool(value) is False for value in location_restriction_data.values()):
                 self.update_location_restriction(instance, location_restriction_data)
         if 'in_year_value' in validated_data:
             self.update_in_year_value(instance, validated_data.pop('in_year_value'))
+        if 'product_source' in validated_data:
+            self.update_product_source(
+                instance, validated_data.pop('product_source'))
         return super().update(instance, validated_data)
 
 
@@ -1743,8 +1836,8 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping',
-            'additional_metadata', 'specializations'
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
+            'specializations', 'program_duration_override', 'display_on_org_page'
         )
 
     def get_micromasters_path(self, degree):
@@ -1782,6 +1875,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     level_type_override = LevelTypeSerializer()
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
     labels = TagListSerializerField()
+    taxi_form = TaxiFormSerializer()
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1815,7 +1909,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels',
+            'labels', 'taxi_form', 'program_duration_override'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1983,6 +2077,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     in_year_value = ProductValueSerializer(required=False)
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    product_source = SourceSerializer(required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2001,6 +2096,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'partner',
             'geolocation',
             'in_year_value',
+            'product_source',
             'location_restriction'
         ).prefetch_related(
             'excluded_course_runs',
@@ -2044,8 +2140,26 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
+            'product_source',
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
+
+    def update_product_source(self, instance, product_source):
+
+        if instance.product_source:
+            Source.objects.filter(
+                id=instance.product_source.id).update(**product_source)
+        else:
+            instance.product_source = Source.objects.create(
+                **product_source,
+            )
+            instance.save()
+
+    def update(self, instance, validated_data):
+        if 'product_source' in validated_data:
+            self.update_product_source(
+                instance, validated_data.pop('product_source'))
+        return super().update(instance, validated_data)
 
 
 class PathwaySerializer(BaseModelSerializer):
