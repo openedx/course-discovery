@@ -8,6 +8,7 @@
 # Aleks Ada, 2022
 # Aleks Ada, 2022
 # Aleksandra Iksińska, 2022
+# Filip Jankowski, 2022
 # Maciej Kolankowski <maciej@eduprojekt.org>, 2016-2018
 # Jerzy Pankiewicz <jerzy.pankiewicz@pwr.edu.pl>, 2020
 # Magdalena Dulęba <magdalena.duleba@e-science.pl>, 2021-2022
@@ -20,7 +21,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Marcin Miłek, 2022\n"
+"Last-Translator: Filip Jankowski, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

@@ -9,7 +9,7 @@
 # Domenico Casanica <domenico.casanica@sistinf.it>, 2021
 # Giuseppe Vullo <giuseppe.vullo@laspeziaportservice.it>, 2018
 # Ilaria Botti <ilabotti@gmail.com>, 2021
-# Mauri Macera, 2021
+# 20bdf6b5822f7ccbe16f09a657dbe357_e29decb, 2021
 # Pietro Lombardo <pietrolombardo1979@gmail.com>, 2016
 # Renzo Lucioni <rlucioni@edx.org>, 2016
 msgid ""
