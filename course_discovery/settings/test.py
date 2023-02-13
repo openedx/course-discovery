@@ -86,3 +86,11 @@ PRODUCT_API_URL = 'http://www.example.com'
 BOOTCAMP_CONTENTFUL_CONTENT_TYPE = 'bootCampPage'
 
 DEGREE_CONTENTFUL_CONTENT_TYPE = 'degreeDetailPage'
+
+GETSMARTER_CLIENT_CREDENTIALS = {
+    'CLIENT_ID' : 'test_id',
+    'CLIENT_SECRET' : 'test_secret',
+    'API_URL' : 'https://test-getsmarter.com/api/v1',
+    'PROVIDER_URL' : 'https://auth-test.com',
+    'PRODUCTS_DETAILS_URL' : 'https://test-getsmarter.com/api/v1/products?detail=2',
+}
