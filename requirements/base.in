@@ -55,6 +55,7 @@ edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 elasticsearch-dsl
+getsmarter-api-clients
 google-api-python-client
 google-auth-httplib2
 gspread

@@ -1,5 +1,5 @@
 import datetime
-from unittest import mock
+from unittest import mock, skip
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -257,7 +257,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             self.serialize_course(Course.objects.all(), many=True)
         )
 
-    @pytest.mark.skip(reason="failing on ci for no apparent reason")
+    @skip('elasticsearch has some sort of failure and returns 0 records with status 400')
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
         title = 'Some random title'

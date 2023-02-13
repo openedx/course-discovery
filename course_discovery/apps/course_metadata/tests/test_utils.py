@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 import urllib
 from unittest import mock
@@ -8,6 +9,7 @@ import pytest
 import pytz
 import requests
 import responses
+from django.conf import settings
 from django.test import TestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -26,8 +28,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
-    download_and_save_course_image, download_and_save_program_image, ensure_draft_world, is_google_drive_url,
-    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
+    download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
+    is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
+    transform_skills_data
 )
 
 
@@ -78,7 +81,7 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.entitlement = self.course.entitlements.first()
         self.api_root = self.partner.ecommerce_api_url
 
-    def mock_publication(self, status=200, json=None):
+    def mock_publication(self, status=200, json=None):  # pylint: disable=redefined-outer-name
         responses.add(
             responses.POST,
             urllib.parse.urljoin(self.api_root, 'publication/'),
@@ -806,7 +809,7 @@ class TestDownloadAndSaveImage(TestCase):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
-        image_url, _ = self.mock_image_response(body=b'invalid', content_type='text/plain', url=image_url)
+        image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
         course.refresh_from_db()
         assert course.card_image_url == image_url
@@ -896,3 +899,129 @@ class TestDownloadAndSaveImage(TestCase):
         assert course.organization_logo_override is not None
         assert course.organization_logo_override.read() == self.IMG_CONTENT
         assert str(course.uuid) in course.organization_logo_override.name
+
+
+class TestGEAGApiProductDetails(TestCase):
+    """
+    Test for GEAG API Product Details using getsmarter_api_client
+    """
+    SUCCESS_API_RESPONSE = {
+        'products': [
+            {
+                "id": "12345678",
+                "name": "CSV Course",
+                "altName": "Alternative CSV Course",
+                "abbreviation": "TC",
+                "altAbbreviation": "UCT",
+                "blurb": "A short description for CSV course",
+                "language": "Español",
+                "subjectMatter": "Marketing",
+                "altSubjectMatter": "Design and Marketing",
+                "altSubjectMatter1": "Marketing, Sales, and Techniques",
+                "universityAbbreviation": "edX",
+                "altUniversityAbbreviation": "altEdx",
+                "cardUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=",
+                "edxRedirectUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
+                "edxPlpUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
+                "durationWeeks": 10,
+                "effort": "7–10 hours per week",
+                'introduction': 'Very short description\n',
+                'isThisCourseForYou': 'This is supposed to be a long description',
+                'whatWillSetYouApart': "New ways to learn",
+                "videoURL": "",
+                "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
+                "logoUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=g",
+                "metaTitle": "SEO Title",
+                "metaDescription": "SEO Description",
+                "metaKeywords": "Keyword 1, Keyword 2",
+                "slug": "csv-course-slug",
+                "variant": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "endDate": "2022-05-06",
+                    "finalPrice": "1998",
+                    "startDate": "2022-03-06",
+                    "regCloseDate": "2022-02-06",
+                },
+                "curriculum": {
+                    "heading": "Course curriculum",
+                    "blurb": "Test Curriculum",
+                    "modules": [
+                        {
+                            "module_number": 0,
+                            "heading": "Module 0",
+                            "description": "Welcome to your course"
+                        },
+                        {
+                            "module_number": 1,
+                            "heading": "Module 1",
+                            "description": "Welcome to Module 1"
+                        },
+                    ]
+                },
+                "testimonials": [
+                    {
+                        "name": "Lorem Ipsum",
+                        "title": "Gibberish",
+                        "text": " This is a good course"
+                    },
+                ],
+                "faqs": [
+                    {
+                        "id": "faq-1",
+                        "headline": "FAQ 1",
+                        "blurb": "This should answer it"
+                    }
+                ],
+                "certificate": {
+                    "headline": "About the certificate",
+                    "blurb": "how this makes you special"
+                },
+                "stats": {
+                    "stat1": "90%",
+                    "stat1Blurb": "<p>A vast number of special beings take this course</p>",
+                    "stat2": "100 million",
+                    "stat2Blurb": "<p>VC fund</p>"
+                }
+            },
+        ]
+    }
+
+    def tearDown(self):
+        responses.reset()
+        super().tearDown()
+
+    def mock_product_api_call(self):
+        """
+        Mock product api with success response.
+        """
+        responses.add(
+            responses.GET,
+            settings.PRODUCT_API_URL + '/?detail=2',
+            body=json.dumps(self.SUCCESS_API_RESPONSE),
+            status=200,
+        )
+        return self.SUCCESS_API_RESPONSE
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger.info')
+    @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
+    def test_fetch_getsmarter_products__with_valid_credentials(self, mock_getsmarter_api_client, mock_logger):
+        """
+        Verify that get_products_details_using_getsmarter_client will return product details using getsmarter_api_client
+        """
+        mock_getsmarter_api_client.return_value.request.return_value.json.return_value = self.mock_product_api_call()
+        products = fetch_getsmarter_products()
+        assert products == self.SUCCESS_API_RESPONSE['products']
+        mock_logger.assert_called_with(f"Products found in API response: {len(products)}")
+
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger.error')
+    @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
+    def test_fetch_getsmarter_products__with_invalid_credentials(self, mock_getsmarter_api_client, mock_logger):
+        """
+        Verify that get_products_details_using_getsmarter_client will return empty product details list
+        """
+        exception_message = 'can only concatenate str (not "NoneType") to str'
+        mock_getsmarter_api_client.return_value.request.side_effect = mock.Mock(side_effect=Exception(f'{exception_message}'))  # pylint: disable=line-too-long
+        products = fetch_getsmarter_products()
+        mock_logger.assert_called_with(f'Failed to retrieve products from getsmarter API: {exception_message}')
+        assert products == []

@@ -17,6 +17,7 @@ from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
+from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
 from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
@@ -882,3 +883,30 @@ def transform_skills_data(skills_data):
         }
         skills.append(skill_dict)
     return skills
+
+
+def fetch_getsmarter_products():
+    """ Returns the products details from the getsmarter API """
+    products = []
+    getsmarter_api_client = GetSmarterEnterpriseApiClient(
+        client_id=settings.GETSMARTER_CLIENT_CREDENTIALS['CLIENT_ID'],
+        client_secret=settings.GETSMARTER_CLIENT_CREDENTIALS['CLIENT_SECRET'],
+        provider_url=settings.GETSMARTER_CLIENT_CREDENTIALS['PROVIDER_URL'],
+        api_url=settings.GETSMARTER_CLIENT_CREDENTIALS['API_URL']
+    )
+    try:
+        response = getsmarter_api_client.request(method='GET',
+                                                 url=settings.GETSMARTER_CLIENT_CREDENTIALS['PRODUCTS_DETAILS_URL'])
+        response.raise_for_status()
+        response = response.json()
+
+        if 'products' in response:
+            logger.info(f"Products found in API response: {len(response)}")
+            products = response['products']
+            return products
+        else:
+            logger.info(f"No products found in API response: {len(response)}")
+
+    except Exception as ex:  # pylint: disable=broad-except
+        logger.error(f"Failed to retrieve products from getsmarter API: {ex}")
+    return products
