@@ -672,6 +672,9 @@ class UtilsTests(TestCase):
 </li>
 </ol>
 <p><img src='file:////Users/myuser/Library/Group%20Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image001.png' width='276' height='208' /></p>"""),
+        ("<div><p>online course.</p><p><b></b></p><p><strong>Module 1:</strong></p></div>",
+         """<p>online course.</p>
+<p><strong>Module 1:</strong></p>"""),
     )
     @ddt.unpack
     def test_clean_html(self, content, expected):
