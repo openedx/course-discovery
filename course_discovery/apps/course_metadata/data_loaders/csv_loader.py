@@ -379,6 +379,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
+            related_courses__product_source=self.product_source,
             product_status='Published'
         ).values_list('external_identifier', flat=True)
 
@@ -387,7 +388,10 @@ class CSVDataLoader(AbstractDataLoader):
         archived_products_queryset.update(product_status="Archived")
         self.ingestion_summary['archived_products'] = list(archived_products)
 
-        logger.info("Archived {} products in discovery.".format(len(archived_products)))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info(
+            f"Archived {len(archived_products)} products in CSV Ingestion for source {self.product_source.slug} and "
+            f"product type {self.product_type}."
+        )
         logger.info("Archived Courses External Identifiers:")
         for archived_product in archived_products:
             logger.info(archived_product)
