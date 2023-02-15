@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization,
-    Person, ProgramType, Subject
+    Person, ProgramType, Source, Subject
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -44,30 +44,37 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.PROFESSIONAL_CERTIFICATE
     ]
 
-    # list of data fields (present as CSV columns) that should be present in each row
+    # list of data fields present as CSV columns that should be present in each row for successful CSV Data ingestion.
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'syllabus', 'publish_date', 'start_date', 'start_time', 'end_date',
+        'primary_subject', 'verified_price', 'publish_date', 'start_date', 'start_time', 'end_date',
         'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
 
-    EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
-        'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
-        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions',
-        'reg_close_date', 'reg_close_time', 'variant_id',
-    ]
-
-    BOOTCAMP_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
-        'redirect_url', 'organic_url', 'external_identifier',
-    ]
+    # Addition of a user agent to allow access to data CDNs
+    REQUEST_USER_AGENT_HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+    }
 
     def __init__(
         self, partner, api_url=None, max_workers=None, is_threadsafe=False,
-        csv_path=None, csv_file=None, args_from_env=None, product_type=None
+        csv_path=None, csv_file=None, use_gspread_client=None, product_type='audit', product_source='openedx'
     ):
+        """
+        Arguments:
+            * api_url: It is not needed in CSV loader but required as a requirement for AbstractDataLoader.
+            * max_workers: Same as api_url, not needed.
+            * is_threadsafe: Same case as api_url, not needed.
+            * csv_path: Directory link the CSV file whose data is to be ingested
+            * csv_file: File object that contains the opened CSV file.
+            * use_gspread_client: Boolean flag to identify if Gspread client should be used to read CSV from
+            Google sheet link.
+            * product_type: course type slug to identify the product type present in CSV
+            * product_source: slug of the external source that actually owns the product.
+        """
         super().__init__(partner, api_url, max_workers, is_threadsafe)
-
         self.error_logs = {}
         self.ingestion_summary = {
             'total_products_count': 0,
@@ -79,12 +86,17 @@ class CSVDataLoader(AbstractDataLoader):
         }
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         self.product_type = product_type
+        try:
+            self.product_source = Source.objects.get(slug=product_source)
+        except Source.DoesNotExist:
+            logger.exception(f"Unable to locate source with slug {product_source}")
+            raise
 
         for error_log_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
             self.error_logs.setdefault(error_log_key, [])
 
         try:
-            if args_from_env:
+            if use_gspread_client:
                 # TODO: add unit tests
                 product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
                 gspread_client = GspreadClient()
@@ -183,16 +195,14 @@ class CSVDataLoader(AbstractDataLoader):
             is_downloaded = download_and_save_course_image(
                 course,
                 row['image'],
-                # TODO: Temporary addition of User agent to allow access to data CDNs
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                                  '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
-                })
+                headers=self.REQUEST_USER_AGENT_HEADERS)
             if not is_downloaded:
                 error_message = CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
                 logger.error(error_message)
                 self._register_ingestion_error(CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
                 continue
+
+            self.add_product_source(course)
 
             is_draft = self.get_draft_flag(course_run)
             logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
@@ -217,11 +227,7 @@ class CSVDataLoader(AbstractDataLoader):
                     course,
                     row['organization_logo_override'],
                     'organization_logo_override',
-                    # TODO: Temporary addition of User agent to allow access to data CDNs
-                    headers={
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                                      '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
-                    }
+                    headers=self.REQUEST_USER_AGENT_HEADERS
                 )
                 if not is_logo_downloaded:
                     error_message = CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
@@ -262,11 +268,14 @@ class CSVDataLoader(AbstractDataLoader):
         data dictionary and return a comma separated string of missing data fields.
         """
         missing_fields = []
-        required_fields = self.BASE_REQUIRED_DATA_FIELDS
-        if course_type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
-            required_fields = self.EXECUTIVE_EDUCATION_REQUIRED_FIELDS
-        elif course_type.slug == CourseType.BOOTCAMP_2U:
-            required_fields = self.BOOTCAMP_REQUIRED_FIELDS
+        required_fields = self.BASE_REQUIRED_DATA_FIELDS.copy()
+        if (
+                course_type.slug in settings.CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS and
+                self.product_source.slug in settings.CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS[course_type.slug]
+        ):
+            required_fields.extend(
+                settings.CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS[course_type.slug][self.product_source.slug]
+            )
 
         for field in required_fields:
             if not (field in data and data[field]):
@@ -298,6 +307,16 @@ class CSVDataLoader(AbstractDataLoader):
         """
         self.ingestion_summary['failure_count'] += 1
         self.error_logs[error_key].append(error_message)
+
+    def add_product_source(self, course):
+        """
+        Associate product source object with provided course object.
+        """
+        course.product_source = self.product_source
+        if course.official_version:
+            course.official_version.product_source = self.product_source
+            course.official_version.save()
+        course.save()
 
     def get_ingestion_stats(self):
         return {
@@ -355,15 +374,11 @@ class CSVDataLoader(AbstractDataLoader):
         This method checks diff between products in discovery vs 2U sheets
         and archive the ones which are not incoming anymore.
         """
-        if self.product_type is None:
+        if self.product_type not in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]:
             return
 
-        product_type_slug_map = {
-            'EXECUTIVE_EDUCATION': CourseType.EXECUTIVE_EDUCATION_2U,
-            'BOOTCAMPS': CourseType.BOOTCAMP_2U
-        }
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
-            related_courses__type__slug=product_type_slug_map[self.product_type],
+            related_courses__type__slug=self.product_type,
             product_status='Published'
         ).values_list('external_identifier', flat=True)
 
@@ -399,7 +414,7 @@ class CSVDataLoader(AbstractDataLoader):
             'prices': self.get_pricing_representation(data['verified_price'], course.type),
 
             'title': data['title'],
-            'syllabus_raw': data['syllabus'],
+            'syllabus_raw': data.get('syllabus', ''),
             'level_type': data['course_level'],
             'outcome': data['what_will_you_learn'],
             'faq': data.get('frequently_asked_questions', ''),
@@ -735,9 +750,9 @@ class CSVDataLoader(AbstractDataLoader):
             additional_metadata.update({'variant_id': variant_id})
         if type_slug == CourseType.EXECUTIVE_EDUCATION_2U:
             additional_metadata.update({'product_meta': self.process_meta_information(
-                data['meta_title'],
-                data['meta_description'],
-                data['meta_keywords']
+                data.get('meta_title', ''),
+                data.get('meta_description', ''),
+                data.get('meta_keywords', '')
             )})
         if external_course_marketing_type in dict(ExternalCourseMarketingType):
             additional_metadata.update({'external_course_marketing_type': external_course_marketing_type})

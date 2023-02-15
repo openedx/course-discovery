@@ -13,9 +13,9 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
-from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType
+from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType, Source
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, SourceFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
@@ -80,7 +80,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_ORGANIZATION_DATA])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -102,7 +102,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_COURSE_TYPE_DATA])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -124,7 +124,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_COURSE_RUN_TYPE_DATA])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -163,7 +163,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -218,7 +218,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(
+                        self.partner, csv_path=csv.name,
+                        product_type=self.course_type.slug,
+                        product_source=self.source.slug
+                    )
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -285,7 +289,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_type='EXECUTIVE_EDUCATION')
+                    loader = CSVDataLoader(
+                        self.partner,
+                        csv_path=csv.name,
+                        product_type=CourseType.EXECUTIVE_EDUCATION_2U,
+                        product_source=self.source.slug
+                    )
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -316,10 +325,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     }
 
                     # asserting separately due to random sort order
-                    assert set(archived_products) == set([
-                        additional_metadata_one.external_identifier,
-                        additional_metadata_two.external_identifier
-                    ])
+                    assert set(archived_products) == {additional_metadata_one.external_identifier,
+                                                      additional_metadata_two.external_identifier}
 
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -358,7 +365,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -384,6 +391,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     self._assert_course_data(course, expected_course_data)
                     self._assert_course_run_data(course_run, expected_course_run_data)
+
+                    assert course.product_source == self.source
+                    assert course.draft_version.product_source == self.source
 
                     assert loader.get_ingestion_stats() == {
                         'total_products_count': 1,
@@ -416,7 +426,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -481,7 +491,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         self.mock_call_course_api
                 ):
 
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     log_capture.check_present(
@@ -531,7 +541,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -590,7 +600,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -646,7 +656,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -683,40 +693,54 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @data(
         (['primary_subject', 'image', 'long_description'],
          ('Executive Education(2U)', 'executive-education-2u'),
+         'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "image, long_description, primary_subject"'
          ),
         (['publish_date', 'organic_url', 'stat1_text'],
          ('Executive Education(2U)', 'executive-education-2u'),
+         'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "publish_date, organic_url, stat1_text"'
          ),
+        (['organic_url', 'stat1_text', 'certificate_header'],
+         ('Executive Education(2U)', 'executive-education-2u'),
+         'dbz_source',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "organic_url"'
+         ),
         (['primary_subject', 'image', 'long_description'],
          ('Bootcamp(2U)', 'bootcamp-2u'),
+         'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "image, long_description, primary_subject"'
          ),
         (['redirect_url', 'organic_url'],
          ('Bootcamp(2U)', 'bootcamp-2u'),
+         'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "redirect_url, organic_url"'
          ),
         (['publish_date', 'organic_url', 'stat1_text'],  # ExEd data fields are not considered for other types
          ('Professional', 'prof-ed'),
+         'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "publish_date"'
          ),
     )
     @unpack
     def test_data_validation_checks(
-            self, missing_fields, course_type, expected_message, jwt_decode_patch
+            self, missing_fields, course_type, product_source, expected_message, jwt_decode_patch
     ):  # pylint: disable=unused-argument
         """
         Verify that if any of the required field is missing in data, the ingestion is not done.
         """
         self._setup_prerequisites(self.partner)
         if not CourseType.objects.filter(name=course_type[0], slug=course_type[1]).exists():
-            _ = CourseTypeFactory(name=course_type[0], slug=course_type[1])
+            CourseTypeFactory(name=course_type[0], slug=course_type[1])
+
+        if not Source.objects.filter(slug=product_source).exists():
+            SourceFactory(slug=product_source)
 
         csv_data = {
             **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
@@ -730,7 +754,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [csv_data])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                loader = CSVDataLoader(
+                    self.partner, csv_path=csv.name, product_type=course_type[1], product_source=product_source
+                )
                 loader.ingest()
 
                 self._assert_default_logs(log_capture)

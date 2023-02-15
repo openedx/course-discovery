@@ -694,3 +694,11 @@ LMS_API_URLS = {
     'blocks': 'api/courses/v1/blocks/',
     'block_metadata': 'api/courses/v1/block_metadata/',
 }
+
+# Map defining the required data fields against courses types and course's product source.
+# Mapping pattern: course_type_slug -> product_source_slug -> fields list (excluding base fields present in CSV loader).
+CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS = {
+    'audit': {
+        'openedx': ['staff']
+    },
+}

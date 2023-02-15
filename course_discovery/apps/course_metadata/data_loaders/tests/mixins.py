@@ -8,7 +8,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
-    PartnerFactory, ProgramFactory, SeatTypeFactory, SubjectFactory, TrackFactory
+    PartnerFactory, ProgramFactory, SeatTypeFactory, SourceFactory, SubjectFactory, TrackFactory
 )
 
 
@@ -331,6 +331,7 @@ class CSVLoaderMixin:
             course_run_types=[self.course_run_type],
             entitlement_types=[seat_type]
         )
+        self.source = SourceFactory(slug='ext_source')
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
         """
@@ -429,6 +430,7 @@ class CSVLoaderMixin:
         assert course.level_type.name_t == expected_data['level_type']
         assert course.video.src == expected_data['about_video_link']
         assert course.type == self.course_type
+        assert course.product_source == self.source
         assert course.organization_short_code_override == 'Org Override'
         assert course_entitlement.price == expected_data['verified_price']
         assert course.additional_metadata.external_url == expected_data['external_url']

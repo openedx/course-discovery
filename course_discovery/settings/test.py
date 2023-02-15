@@ -87,6 +87,24 @@ BOOTCAMP_CONTENTFUL_CONTENT_TYPE = 'bootCampPage'
 
 DEGREE_CONTENTFUL_CONTENT_TYPE = 'degreeDetailPage'
 
+CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS.update(
+    {
+        'executive-education-2u': {
+            'ext_source': [
+                'syllabus', 'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url',
+                'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
+                'frequently_asked_questions', 'reg_close_date', 'reg_close_time', 'variant_id',
+            ],
+            'dbz_source': [
+                'redirect_url', 'organic_url', 'external_identifier',
+            ]
+        },
+        'bootcamp-2u': {
+            'ext_source': ['redirect_url', 'organic_url', 'external_identifier']
+        }
+    }
+)
+
 GETSMARTER_CLIENT_CREDENTIALS = {
     'CLIENT_ID' : 'test_id',
     'CLIENT_SECRET' : 'test_secret',
