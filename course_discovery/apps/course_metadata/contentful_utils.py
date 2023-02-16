@@ -293,12 +293,16 @@ def fetch_and_transform_bootcamp_contentful_data():
     transformed_bootcamp_data = {}
     for bootcamp_entry in contentful_bootcamp_page_entries:
         product_uuid = bootcamp_entry.uuid
+        excluded_from_search = getattr(bootcamp_entry, 'excluded_from_search', False)
+        excluded_from_seo = getattr(bootcamp_entry, 'excluded_from_seo', False)
         page_title = bootcamp_entry.seo.page_title
         subheading = bootcamp_entry.hero.subheading
         hero_text_list = rich_text_to_plain_text(bootcamp_entry.hero.text_list)
 
         transformed_bootcamp_data[product_uuid] = {
             'page_title': page_title,
+            'excluded_from_search': excluded_from_search,
+            'excluded_from_seo': excluded_from_seo,
             'subheading': subheading,
             'hero_text_list': hero_text_list,
         }
@@ -395,11 +399,15 @@ def fetch_and_transform_degree_contentful_data():
 
     for degree_entry in contentful_degree_page_entries:
         product_uuid = degree_entry.uuid
+        excluded_from_search = getattr(degree_entry, 'excluded_from_search', False)
+        excluded_from_seo = getattr(degree_entry, 'excluded_from_seo', False)
         page_title = degree_entry.seo.page_title
         subheading = degree_entry.hero.subheading
 
         transformed_degree_data[product_uuid] = {
             'page_title': page_title,
+            'excluded_from_search': excluded_from_search,
+            'excluded_from_seo': excluded_from_seo,
             'subheading': subheading,
         }
 

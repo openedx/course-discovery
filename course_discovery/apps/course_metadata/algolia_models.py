@@ -132,9 +132,15 @@ class AlgoliaProxyProduct(Program):
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
+        # Do not index if entry for this object exists in contentful and was set to exclude from search
+        if contentful_fields in self.product and self.product.contentful_fields.excluded_from_search:
+            return False
+        # Otherwise, look at regular conditions for indexing 
         return getattr(self.product, 'should_index', True)
 
     def should_index_spanish(self):
+        if contentful_fields in self.product and self.product.contentful_fields.excluded_from_search:
+            return False
         return getattr(self.product, 'should_index_spanish', True)
 
 
@@ -360,7 +366,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.partner.name == 'edX' and
                 self.availability_level and
                 bool(self.advertised_course_run) and
-                not self.advertised_course_run.hidden)
+                not self.advertised_course_run.hidden and
+                not self.excluded_from_search)
 
     @property
     def should_index_spanish(self):
@@ -561,7 +568,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.status == ProgramStatus.Active and
                 self.availability_level and
                 self.partner.name == 'edX' and
-                not self.hidden)
+                not self.hidden and
+                not self.excluded_from_search)
 
     @property
     def skills(self):
