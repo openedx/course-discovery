@@ -12,7 +12,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.geolocation_loader import GeolocationCSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import GeolocationCSVLoaderMixin
-from course_discovery.apps.course_metadata.models import GeoLocation
+from course_discovery.apps.course_metadata.models import Course, GeoLocation, Program
 
 
 @ddt.ddt
@@ -177,23 +177,29 @@ class TestGeolocationCSVDataLoader(GeolocationCSVLoaderMixin, OAuth2Mixin, APITe
 
     @ddt.data('course', 'program')
     def test_product_success_flow(self, product_type, jwt_decode_patch):  # pylint: disable=unused-argument
-        initial_geolocation_obj_count = GeoLocation.objects.count()
-        VALID_PRODUCT_GEOLOCATION_CSV_DICT = {
+        valid_product_geolocation_csv_dict = {
             **mock_data.VALID_GEOLOCATION_CSV_DICT,
             'PRODUCT TYPE': product_type
         }
-        valid_uuid = VALID_PRODUCT_GEOLOCATION_CSV_DICT['UUID']
+        valid_uuid = valid_product_geolocation_csv_dict['UUID']
 
         if product_type == 'program':
             self._setup_program(valid_uuid)
         else:
             self._setup_course(valid_uuid)
+        assert GeoLocation.objects.count() == 0
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [VALID_PRODUCT_GEOLOCATION_CSV_DICT])
+            csv = self._write_csv(csv, [valid_product_geolocation_csv_dict])
             with LogCapture(self.LOGGER_PATH) as log_capture:
                 loader = GeolocationCSVDataLoader(self.partner, csv_path=csv.name)
                 loader.ingest()
+
+                if product_type == 'program':
+                    product = Program.objects.get(uuid=valid_uuid)
+                else:
+                    product = Course.everything.get(draft=False, uuid=valid_uuid)
+
                 self._assert_default_logs(log_capture)
 
                 log_capture.check_present(
@@ -206,7 +212,12 @@ class TestGeolocationCSVDataLoader(GeolocationCSVLoaderMixin, OAuth2Mixin, APITe
                     (
                         self.LOGGER_PATH,
                         'INFO',
-                        'Updated geolocation data for product with UUID: {}'.format(valid_uuid)
+                        f"Created new geolocation object with id {product.geolocation.pk} for product {valid_uuid}"
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Created geolocation data for product with UUID: {}'.format(valid_uuid)
                     ),
                     self.COMPLETED_LOG_MESSAGE,
                     (
@@ -217,7 +228,76 @@ class TestGeolocationCSVDataLoader(GeolocationCSVLoaderMixin, OAuth2Mixin, APITe
                     (
                         self.LOGGER_PATH,
                         'INFO',
-                        'Updated geolocation data for product with UUID: {}'.format(valid_uuid)
+                        'Created geolocation data for product with UUID: {}'.format(valid_uuid)
                     )
                 )
-                assert GeoLocation.objects.count() == initial_geolocation_obj_count + 1
+                assert GeoLocation.objects.count() == 1
+
+    def test_product_success_flow__same_geolocation(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that no new geolocation object is created for a product if a geoloc object with same data is present.
+        """
+        valid_uuid = mock_data.VALID_GEOLOCATION_CSV_DICT['UUID']
+
+        self._setup_program(valid_uuid)
+        self._setup_course(valid_uuid)
+        assert GeoLocation.objects.count() == 0
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [
+                    mock_data.VALID_GEOLOCATION_CSV_DICT,
+                    {**mock_data.VALID_GEOLOCATION_CSV_DICT, "PRODUCT TYPE": "program"}
+                ]
+            )
+            with LogCapture(self.LOGGER_PATH) as log_capture:
+                loader = GeolocationCSVDataLoader(self.partner, csv_path=csv.name)
+                loader.ingest()
+                product = Course.everything.get(draft=False, uuid=valid_uuid)
+                self._assert_default_logs(log_capture)
+
+                log_capture.check_present(
+                    self.INITIATED_LOG_MESSAGE,
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Starting data import flow for course: {}'.format(valid_uuid)
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        f"Created new geolocation object with id {product.geolocation.pk} for product {valid_uuid}"
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Created geolocation data for product with UUID: {}'.format(valid_uuid)
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Starting data import flow for program: {}'.format(valid_uuid)
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        f"Using existing geolocation object with id {product.geolocation.pk} for product {valid_uuid}"
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Created geolocation data for product with UUID: {}'.format(valid_uuid)
+                    ),
+                    self.COMPLETED_LOG_MESSAGE,
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Successfully updated courses: '
+                    ),
+                    (
+                        self.LOGGER_PATH,
+                        'INFO',
+                        'Successfully updated programs: '
+                    )
+                )
+                assert GeoLocation.objects.count() == 1
