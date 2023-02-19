@@ -8,6 +8,7 @@
 # Alexander Eroshkin <gjrfytne@gmail.com>, 2019
 # А <alex7y88@gmail.com>, 2016
 # d08dbdb9faa4b94765d9c831db092996_8d79b48 <3addc0d51adc0d627356bc3706eefb88_456717>, 2016
+# Dmitry Broover, 2022
 # e3360004 e3360004 <e3360004@nwytg.net>, 2018
 # SpaceOyster, 2016
 # Irina Fedulova <istartlin@gmail.com>, 2020
@@ -30,7 +31,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Виктор, 2022\n"
+"Last-Translator: Dmitry Broover, 2022\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
