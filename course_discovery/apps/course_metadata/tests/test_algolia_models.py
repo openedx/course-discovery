@@ -17,7 +17,7 @@ from course_discovery.apps.course_metadata.models import CourseRunStatus, Course
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
     DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory, ProgramTypeFactory,
-    SeatFactory, SeatTypeFactory, SubjectFactory
+    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -373,6 +373,30 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         if type_slug:
             course.type = CourseTypeFactory(slug=type_slug)
         assert course.product_display_on_org_page == display_on_org_page
+
+    @ddt.data((AlgoliaProxyCourse, 'source_1'), (AlgoliaProxyProgram, 'source_2'))
+    @ddt.unpack
+    def test_product_source_with_non_empty_source(self, model_factory, product_source):
+        """
+        Verify the product source is returned as expected.
+        """
+        product = model_factory(
+            partner=self.__class__.edxPartner,
+            product_source=SourceFactory(name=product_source)
+        )
+        assert product.product_source.name == product_source
+
+    @ddt.data((AlgoliaProxyCourse, None), (AlgoliaProxyProgram, None))
+    @ddt.unpack
+    def test_product_source_with_empty_source(self, model_factory, product_source):
+        """
+        Verify the product source is returned as None if not present.
+        """
+        product = model_factory(
+            partner=self.__class__.edxPartner,
+            product_source=product_source
+        )
+        assert product.product_source is None
 
 
 @ddt.ddt
