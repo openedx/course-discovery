@@ -1,4 +1,6 @@
 import logging
+import time
+from datetime import datetime, timezone
 
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
@@ -344,6 +346,15 @@ def update_course_data_from_event(**kwargs):
     if not course_data or not isinstance(course_data, CourseCatalogData):
         logger.error('Received null or incorrect data from COURSE_CATALOG_INFO_CHANGED.')
         return
+
+    event_metadata = kwargs.get('metadata')
+    if event_metadata:
+        logger.info(f"metadata located for COURSE_CATALOG_INFO_CHANGED for course run {course_data.course_key}")
+        event_timestamp = event_metadata.time
+        time_diff = datetime.now(tz=timezone.utc) - event_timestamp
+        if time_diff.seconds < settings.EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS:
+            logger.info("COURSE_CATALOG_INFO_CHANGED event received within the delay applicable window.")
+            time.sleep(settings.EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS)
 
     # Handle optional fields.
     schedule_data = course_data.schedule_data

@@ -8,10 +8,11 @@ import pytest
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
 from openedx_events.content_authoring.data import CourseCatalogData, CourseScheduleData
+from openedx_events.event_bus import EventsMetadata
 from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
@@ -856,3 +857,23 @@ class TestCourseDataUpdateSignal(TestCase):
         with self.assertLogs('course_discovery.apps.course_metadata.data_loaders.api') as captured_logs:
             update_course_data_from_event(catalog_info=catalog_data)
             assert 'An error occurred while updating' in captured_logs.output[1]
+
+    @mock.patch('time.sleep')
+    def test_event_processing_delay(self, sleep_patch):
+        """
+        Verify that event processing is artificially delayed if the event is received within delay
+        applicable time window.
+        """
+        metadata = EventsMetadata(event_type='catalog-data-changed', minorversion=0)
+        with override_settings(EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS=120):
+            with self.assertLogs(LOGGER_NAME) as logger:
+                update_course_data_from_event(
+                    catalog_info=self.catalog_data,
+                    metadata=metadata
+                )
+                assert f"metadata located for COURSE_CATALOG_INFO_CHANGED " \
+                       f"for course run {self.course_key}" in logger.output[0]
+                assert "COURSE_CATALOG_INFO_CHANGED event received within the " \
+                       "delay applicable window." in logger.output[1]
+
+        sleep_patch.assert_called_once_with(60)
