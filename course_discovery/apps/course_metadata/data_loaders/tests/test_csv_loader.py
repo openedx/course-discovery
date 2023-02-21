@@ -261,7 +261,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @responses.activate
     def test_archived_flow_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that the loader archives courses not in input data.
+        Verify that the loader archives courses not in input data against the provided product source only.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
@@ -269,15 +269,24 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_image_response()
 
         additional_metadata_one = AdditionalMetadataFactory(product_status="Published")
-        _ = CourseFactory(
+        CourseFactory(
             key='test+123', partner=self.partner, type=self.course_type,
-            draft=False, additional_metadata=additional_metadata_one
+            draft=False, additional_metadata=additional_metadata_one,
+            product_source=self.source
         )
 
         additional_metadata_two = AdditionalMetadataFactory(product_status="Published")
-        _ = CourseFactory(
+        CourseFactory(
             key='test+124', partner=self.partner, type=self.course_type,
-            draft=False, additional_metadata=additional_metadata_two
+            draft=False, additional_metadata=additional_metadata_two,
+            product_source=self.source
+        )
+
+        additional_metadata__source_2 = AdditionalMetadataFactory(product_status="Published")
+        CourseFactory(
+            key='test+125', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata_two,
+            product_source=SourceFactory(slug='ext_source_2')
         )
 
         with NamedTemporaryFile() as csv:
@@ -302,13 +311,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         (
                             LOGGER_PATH,
                             'INFO',
-                            'Archived 2 products in discovery.'
+                            f'Archived 2 products in CSV Ingestion for source {self.source.slug} and product type '
+                            f'{CourseType.EXECUTIVE_EDUCATION_2U}.'
                         ),
                     )
 
                     # Verify the existence of both draft and non-draft versions
-                    assert Course.everything.count() == 3
-                    assert AdditionalMetadata.objects.count() == 3
+                    assert Course.everything.count() == 4
+                    assert AdditionalMetadata.objects.count() == 4
 
                     course = Course.everything.get(key=self.COURSE_KEY)
                     stats = loader.get_ingestion_stats()
@@ -327,6 +337,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     # asserting separately due to random sort order
                     assert set(archived_products) == {additional_metadata_one.external_identifier,
                                                       additional_metadata_two.external_identifier}
+
+                    # Assert that a product status with different product source is not affected in Archive flow.
+                    additional_metadata__source_2.refresh_from_db()
+                    assert additional_metadata__source_2.product_status == "Published"
 
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
