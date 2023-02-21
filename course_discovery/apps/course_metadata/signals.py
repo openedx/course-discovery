@@ -349,11 +349,11 @@ def update_course_data_from_event(**kwargs):
 
     event_metadata = kwargs.get('metadata')
     if event_metadata:
-        logger.info(f"metadata located for COURSE_CATALOG_INFO_CHANGED for course run {course_data.course_key}")
         event_timestamp = event_metadata.time
         time_diff = datetime.now(tz=timezone.utc) - event_timestamp
         if time_diff.seconds < settings.EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS:
-            logger.info("COURSE_CATALOG_INFO_CHANGED event received within the delay applicable window.")
+            logger.debug(f"COURSE_CATALOG_INFO_CHANGED event received within the delay "
+                         f"applicable window for course run {course_data.course_key}.")
             time.sleep(settings.EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS)
 
     # Handle optional fields.
