@@ -98,7 +98,7 @@ class CSVDataLoader(AbstractDataLoader):
         try:
             if use_gspread_client:
                 # TODO: add unit tests
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][self.product_source.slug]
                 gspread_client = GspreadClient()
                 self.reader = gspread_client.read_data(product_type_config)
             else:
