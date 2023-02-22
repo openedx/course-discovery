@@ -181,6 +181,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_ingest_verified_deadline(self, mock_push_to_ecomm):
         """ Verify the method ingests data from the Courses API. """
         TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
         api_data = self.mock_api()
 
         assert Course.objects.count() == 0
@@ -252,6 +253,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         end date changes if bypass switch is active.
         """
         TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
         api_data = self.mock_api()
         assert Course.objects.count() == 0
         assert CourseRun.objects.count() == 0
