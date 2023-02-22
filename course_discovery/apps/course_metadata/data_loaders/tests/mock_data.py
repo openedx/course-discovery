@@ -3283,7 +3283,7 @@ VALID_GEOTARGETING_CSV_DICT = {
 VALID_GEOLOCATION_CSV_DICT = {
     'UUID': '3f10df65fd0641df9b42ad2cbaeb7fee',
     'PRODUCT TYPE': 'course',
-    'LOCATION NAME': 'Harvard Univeristy',
+    'LOCATION NAME': 'Harvard University',
     'LATITUDE': '40.146339',
-    'LONGTITUDE': '-73.971038',
+    'LONGITUDE': '-73.971038',
 }

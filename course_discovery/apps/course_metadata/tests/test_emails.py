@@ -500,7 +500,12 @@ class TestIngestionEmail(TestCase):
                 'total_products_count': 1,
                 'success_count': 1,
                 'created_products_count': 1,
-                'created_products': [uuid],
+                'created_products': [
+                    {
+                        'uuid': uuid,
+                        'external_course_marketing_type': None,
+                    }
+                ],
             }
         )
 
@@ -513,6 +518,49 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
                 f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></li>"
+            ]
+        )
+
+    def test_email_new_exec_ed_products(self):
+        """
+        Verify the email content for new exec products with the addition of external_course_marketing_type.
+        """
+        uuid = str(uuid4())
+        emails.send_ingestion_email(
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 3,
+                'success_count': 3,
+                'created_products_count': 3,
+                'created_products': [
+                    {
+                        'uuid': uuid,
+                        'external_course_marketing_type': 'sprint',
+                    },
+                    {
+                        'uuid': uuid,
+                        'external_course_marketing_type': 'course_stack',
+                    },
+                    {
+                        'uuid': uuid,
+                        'external_course_marketing_type': 'short_course',
+                    },
+                ],
+            }
+        )
+
+        self._assert_email_content(
+            self.EMAIL_SUBJECT,
+            [
+                "<tr><th>Successful Ingestion</th><td> 3 </td></tr>",
+                "<tr><th>Total data rows</th><td> 3 </td></tr>",
+                "<tr><th>New Products</th><td> 3 </td></tr>",
+                "<tr><th>Updated Products</th><td> 0 </td></tr>",
+                "<h3>New Products</h3>",
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (sprint) </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (course_stack) </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (short_course) </li>"
             ]
         )
 

@@ -254,7 +254,9 @@ class CSVDataLoader(AbstractDataLoader):
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
-            self._register_successful_ingestion(str(course.uuid), is_course_created)
+            self._register_successful_ingestion(
+                str(course.uuid), is_course_created, row.get('external_course_marketing_type', None)
+            )
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
@@ -326,13 +328,18 @@ class CSVDataLoader(AbstractDataLoader):
             'errors': self.error_logs
         }
 
-    def _register_successful_ingestion(self, course_uuid, created):
+    def _register_successful_ingestion(self, course_uuid, created, external_course_marketing_type=None):
         """
         Register the summary of a successful ingestion.
         """
         self.ingestion_summary['success_count'] += 1
         if created:
-            self.ingestion_summary['created_products'].append(course_uuid)
+            self.ingestion_summary['created_products'].append(
+                {
+                    'uuid': course_uuid,
+                    'external_course_marketing_type': external_course_marketing_type,
+                }
+            )
         else:
             self.ingestion_summary['updated_products_count'] += 1
 
@@ -379,6 +386,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
+            related_courses__product_source=self.product_source,
             product_status='Published'
         ).values_list('external_identifier', flat=True)
 
@@ -387,7 +395,10 @@ class CSVDataLoader(AbstractDataLoader):
         archived_products_queryset.update(product_status="Archived")
         self.ingestion_summary['archived_products'] = list(archived_products)
 
-        logger.info("Archived {} products in discovery.".format(len(archived_products)))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info(
+            f"Archived {len(archived_products)} products in CSV Ingestion for source {self.product_source.slug} and "
+            f"product type {self.product_type}."
+        )
         logger.info("Archived Courses External Identifiers:")
         for archived_product in archived_products:
             logger.info(archived_product)
