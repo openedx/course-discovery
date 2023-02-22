@@ -18,7 +18,7 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
     # Below are the minimum required fields needed for successful data upload
     # Additional column names (for info purposes only) may be Product Name, Partner, Notes
     GEOLOCATION_REQUIRED_DATA_FIELDS = [
-        'uuid', 'product_type', 'location_name', 'latitude', 'longtitude',
+        'uuid', 'product_type', 'location_name', 'latitude', 'longitude',
     ]
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
@@ -56,7 +56,7 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
             geolocation = {
                 'location_name': row['location_name'],
                 'lat': row['latitude'],
-                'lng': row['longtitude'],
+                'lng': row['longitude'],
             }
 
             err_message = self.validate_geolocation_data(row)
@@ -89,7 +89,12 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
             action_taken = 'Created'
             existing_geolocation_id = product_obj.geolocation.id if product_obj.geolocation else None  # lint-amnesty
 
-            product_obj.geolocation = GeoLocation.objects.create(**geolocation)
+            geolocation_obj, created = GeoLocation.objects.get_or_create(**geolocation)
+            if created:
+                logger.info(f"Created new geolocation object with id {geolocation_obj.pk} for product {row_uuid}")
+            else:
+                logger.info(f"Using existing geolocation object with id {geolocation_obj.pk} for product {row_uuid}")
+            product_obj.geolocation = geolocation_obj
             product_obj.save()
 
             if existing_geolocation_id:

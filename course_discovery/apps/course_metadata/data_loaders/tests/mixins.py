@@ -178,13 +178,13 @@ class GeotargetingCSVLoaderMixin:
         """
         setup test-only course.
         """
-        CourseFactory(uuid=course_uuid, location_restriction=None)
+        CourseFactory(uuid=course_uuid, location_restriction=None, geolocation=None)
 
     def _setup_program(self, program_uuid):
         """
-        setup test-only course.
+        setup test-only program.
         """
-        ProgramFactory(uuid=program_uuid, location_restriction=None)
+        ProgramFactory(uuid=program_uuid, location_restriction=None, geolocation=None)
 
     CSV_DATA_KEYS_ORDER = [
         'UUID',
@@ -226,7 +226,7 @@ class GeolocationCSVLoaderMixin(GeotargetingCSVLoaderMixin):
         'PRODUCT TYPE',
         'LOCATION NAME',
         'LATITUDE',
-        'LONGTITUDE',
+        'LONGITUDE',
     ]
 
 
