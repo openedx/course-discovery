@@ -90,6 +90,8 @@ class MockContenfulDegreeResponse:
         self.mock_contentful_degree_entry = create_contentful_entry('degreeDetailPage', {
             'internalName': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
             'uuid': 'test-uuid',
+            'excluded_from_search': False,
+            'excluded_from_seo': False,
             'seo': seo_entry,
             'hero': hero_entry,
             'modules': [
@@ -104,6 +106,8 @@ class MockContenfulDegreeResponse:
             'test-uuid': {
                 'page_title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                 'subheading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'excluded_from_search': False,
+                'excluded_from_seo': False,
                 'about_the_program': {
                     'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                     'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
@@ -202,6 +206,8 @@ def create_bootcamp_mock_response_data():
     return create_contentful_entry('bootCampPage', {
         'internalName': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
         'uuid': 'test-uuid',
+        'excluded_from_search': False,
+        'excluded_from_seo': False,
         'seo': seo_entry,
         'hero': hero_entry,
         'modules': [
@@ -228,6 +234,8 @@ class MockContentfulBootcampResponse:
             'test-uuid': {
                 'page_title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                 'subheading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'excluded_from_search': False,
+                'excluded_from_seo': False,
                 'hero_text_list': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit Lorem ipsum: dolor sit '
                                   'amet, consectetur adipiscing elit Lorem ipsum: dolor sit amet, consectetur '
                                   'adipiscing elit Lorem ipsum: dolor sit amet, consectetur adipiscing elit',
