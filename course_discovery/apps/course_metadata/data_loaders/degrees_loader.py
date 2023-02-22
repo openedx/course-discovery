@@ -229,7 +229,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
         self.ingestion_summary['success_count'] += 1
         if created:
-            self.ingestion_summary['created_products'].append(program_uuid)
+            self.ingestion_summary['created_products'].append({
+                'uuid': program_uuid
+            })
         else:
             self.ingestion_summary['updated_products_count'] += 1
 

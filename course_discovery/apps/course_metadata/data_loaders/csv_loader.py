@@ -254,7 +254,9 @@ class CSVDataLoader(AbstractDataLoader):
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
-            self._register_successful_ingestion(str(course.uuid), is_course_created)
+            self._register_successful_ingestion(
+                str(course.uuid), is_course_created, row.get('external_course_marketing_type', None)
+            )
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
@@ -326,13 +328,18 @@ class CSVDataLoader(AbstractDataLoader):
             'errors': self.error_logs
         }
 
-    def _register_successful_ingestion(self, course_uuid, created):
+    def _register_successful_ingestion(self, course_uuid, created, external_course_marketing_type=None):
         """
         Register the summary of a successful ingestion.
         """
         self.ingestion_summary['success_count'] += 1
         if created:
-            self.ingestion_summary['created_products'].append(course_uuid)
+            self.ingestion_summary['created_products'].append(
+                {
+                    'uuid': course_uuid,
+                    'external_course_marketing_type': external_course_marketing_type,
+                }
+            )
         else:
             self.ingestion_summary['updated_products_count'] += 1
 
