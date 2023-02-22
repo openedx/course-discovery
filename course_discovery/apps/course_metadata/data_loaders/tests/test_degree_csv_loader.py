@@ -166,7 +166,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     'failure_count': 0,
                     'updated_products_count': 0,
                     'created_products_count': 1,
-                    'created_products': [str(degree.uuid)],
+                    'created_products': [{'uuid': str(degree.uuid)}],
                     'errors': loader.error_logs
                 }
 
