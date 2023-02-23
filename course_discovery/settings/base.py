@@ -658,25 +658,29 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
 }
 
 GETSMARTER_CLIENT_CREDENTIALS = {
-    'CLIENT_ID' : '',
-    'CLIENT_SECRET' : '',
-    'API_URL' : '',
-    'PROVIDER_URL' : '',
-    'PRODUCTS_DETAILS_URL' : '',
+    'CLIENT_ID': '',
+    'CLIENT_SECRET': '',
+    'API_URL': '',
+    'PROVIDER_URL': '',
+    'PRODUCTS_DETAILS_URL': '',
 }
 
 PRODUCT_METADATA_MAPPING = {
-    'EXECUTIVE_EDUCATION': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+    'executive-education-2u': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
-    'BOOTCAMPS': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+    'bootcamp-2u': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
     'DEGREES': {
         'SHEET_ID': '',

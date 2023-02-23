@@ -119,7 +119,8 @@ class Command(BaseCommand):
         if product_type:
             logger.info(f"Sending Ingestion stats email for product type {product_type}")
             email_subject = f"{product_type.replace('_', ' ').title()} Data Ingestion"
-            to_users = settings.PRODUCT_METADATA_MAPPING[product_type]['EMAIL_NOTIFICATION_LIST']
+            product_mapping = settings.PRODUCT_METADATA_MAPPING[self.PRODUCT_TYPE_SLUG_MAP[product_type]][source.slug]
+            to_users = product_mapping['EMAIL_NOTIFICATION_LIST']
             ingestion_details = {
                 'ingestion_run_time': ingestion_time,
                 **loader.get_ingestion_stats()
