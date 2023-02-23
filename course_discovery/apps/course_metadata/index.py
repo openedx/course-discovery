@@ -74,7 +74,7 @@ class BaseProductIndex(AlgoliaIndex):
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
-    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
+    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys', 'product_source',
                      'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
@@ -124,7 +124,7 @@ class EnglishProductIndex(BaseProductIndex):
 class SpanishProductIndex(BaseProductIndex):
     language = 'es_419'
 
-    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
+    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys', 'product_source',
                      'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
