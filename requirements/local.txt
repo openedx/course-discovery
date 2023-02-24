@@ -62,9 +62,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.74
+boto3==1.26.77
     # via django-ses
-botocore==1.29.74
+botocore==1.29.77
     # via
     #   boto3
     #   s3transfer
@@ -132,7 +132,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.1.0
+coverage[toml]==7.2.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -413,7 +413,7 @@ factory-boy==3.2.1
     # via -r requirements/test.in
 faker==17.0.0
     # via factory-boy
-fastavro==1.7.1
+fastavro==1.7.2
     # via openedx-events
 filelock==3.9.0
     # via
@@ -430,7 +430,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.78.0
+google-api-python-client==2.79.0
     # via -r requirements/base.in
 google-auth==2.16.1
     # via
@@ -566,9 +566,9 @@ pluggy==1.0.0
     # via
     #   pytest
     #   tox
-polib==1.1.1
+polib==1.2.0
     # via edx-i18n-tools
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.37
     # via click-repl
 protobuf==4.22.0
     # via
@@ -840,7 +840,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.35.1
+taxonomy-connector==1.36.1
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -874,7 +874,7 @@ trio==0.22.0
     #   trio-websocket
 trio-websocket==0.9.2
     # via selenium
-types-toml==0.10.8.4
+types-toml==0.10.8.5
     # via responses
 typing-extensions==4.5.0
     # via
