@@ -37,9 +37,9 @@ beautifulsoup4==4.11.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.74
+boto3==1.26.77
     # via django-ses
-botocore==1.29.74
+botocore==1.29.77
     # via
     #   boto3
     #   s3transfer
@@ -328,7 +328,7 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-fastavro==1.7.1
+fastavro==1.7.2
     # via openedx-events
 filelock==3.9.0
     # via snowflake-connector-python
@@ -340,7 +340,7 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.78.0
+google-api-python-client==2.79.0
     # via -r requirements/base.in
 google-auth==2.16.1
     # via
@@ -439,7 +439,7 @@ pillow==9.4.0
     #   django-stdimage
 platformdirs==3.0.0
     # via zeep
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.37
     # via click-repl
 protobuf==4.22.0
     # via
@@ -606,7 +606,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.35.1
+taxonomy-connector==1.36.1
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
