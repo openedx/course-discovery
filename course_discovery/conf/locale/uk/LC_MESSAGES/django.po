@@ -12,7 +12,7 @@
 # Natalia Vynogradenko <tannaha@gmail.com>, 2017-2018
 # Olga Filipova <chudaol@gmail.com>, 2017
 # Xenia Korshunova <ksuhakorshunova57@gmail.com>, 2016
-# Марина Сульза <marunasulza1398@gmail.com>, 2020
+# Maryna <marunasulza1398@gmail.com>, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
