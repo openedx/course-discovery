@@ -359,7 +359,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             return False
         
         # Emeritus courses should be hidden untill all features finished.
-        if self.product_source == CourseType.EMERITUS:
+        if self.product_source.slug == CourseType.EMERITUS:
             return False
 
         return (len(self.owners) > 0 and
@@ -372,7 +372,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return (self.should_index and
-                self.type.slug != CourseType.BOOTCAMP_2U and self.product_source != CourseType.EMERITUS)
+                self.type.slug != CourseType.BOOTCAMP_2U and \
+                    self.product_source.slug != CourseType.EMERITUS)
 
     @property
     def skills(self):
