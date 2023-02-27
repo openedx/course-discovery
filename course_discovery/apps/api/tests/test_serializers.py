@@ -2589,7 +2589,7 @@ class TestProgramSearchDocumentSerializer(TestCase):
         return {
             'uuid': str(program.uuid),
             'title': program.title,
-            'excluded_from_search': program.excluded_from_search, 
+            'excluded_from_search': program.excluded_from_search,
             'excluded_from_seo': program.excluded_from_seo,
             'subtitle': program.subtitle,
             'type': program.type.name_t,

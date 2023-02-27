@@ -134,7 +134,7 @@ class AlgoliaProxyProduct(Program):
         # Do not index if entry for this object exists in contentful and was set to exclude from search
         if contentful_fields in self.product and self.product.contentful_fields.excluded_from_search:
             return False
-        # Otherwise, look at regular conditions for indexing 
+        # Otherwise, look at regular conditions for indexing
         return getattr(self.product, 'should_index', True)
 
     def should_index_spanish(self):
