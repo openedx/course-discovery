@@ -997,9 +997,9 @@ class ProductValue(TimeStampedModel):
 
 
 class GeoLocation(TimeStampedModel):
-    DECIMAL_PLACES = 6
-    LAT_MAX_DIGITS = 9
-    LNG_MAX_DIGITS = 10
+    DECIMAL_PLACES = 11
+    LAT_MAX_DIGITS = 14
+    LNG_MAX_DIGITS = 14
 
     location_name = models.CharField(
         max_length=128,
