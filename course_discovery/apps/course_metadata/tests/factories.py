@@ -638,6 +638,8 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: f'test-program-{n}')
     uuid = factory.LazyFunction(uuid4)
     subtitle = FuzzyText()
+    excluded_from_search = False
+    excluded_from_seo = False
     marketing_hook = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
     marketing_slug = factory.Sequence(lambda n: f'test-slug-{n}')
