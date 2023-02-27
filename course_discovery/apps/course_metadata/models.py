@@ -1179,14 +1179,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         null=False,
         default=False,
         verbose_name='Excluded From Search (Algolia Indexing)',
-        help_text=_('If this box is checked, this item will not be indexed in Algolia and will not show up in search results.')
+        help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
     )
 
     excluded_from_seo = models.BooleanField(
         null=False,
         default=False,
         verbose_name='Excluded From SEO (noindex tag)',
-        help_text=_('If this box is checked, the About Page will have a meta tag with noindex value, so the page will not be indexed by robots.')
+        help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
 
     class Meta:
@@ -2682,14 +2682,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
         null=False,
         default=False,
         verbose_name='Excluded From Search (Algolia Indexing)',
-        help_text=_('If this box is checked, this item will not be indexed in Algolia and will not show up in search results.')
+        help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
     )
 
     excluded_from_seo = models.BooleanField(
         null=False,
         default=False,
         verbose_name='Excluded From SEO (noindex tag)',
-        help_text=_('If this box is checked, the About Page will have a meta tag with noindex value, so the page will not be indexed by robots.')
+        help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
     taxi_form = models.OneToOneField(
         TaxiForm,
