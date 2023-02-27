@@ -2233,6 +2233,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'course_length': course.course_length,
             'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
+            'product_source': course.product_source.slug,
         }
 
         serializer = self.serialize_course(course, request)
@@ -2328,6 +2329,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'modified': course.modified,
             'course_length': course.course_length,
             'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
+            'product_source': course.product_source.slug,
         }
         if is_post_request:
             del expected['outcome']
@@ -2394,6 +2396,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'course_length': course.course_length,
             'external_course_marketing_type': course.additional_metadata.external_course_marketing_type,
+            'product_source': course.product_source.slug,
         }
 
 
