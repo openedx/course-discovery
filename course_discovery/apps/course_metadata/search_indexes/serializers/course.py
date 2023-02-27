@@ -156,6 +156,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'course_length',
             'enterprise_subscription_inclusion',
             'external_course_marketing_type',
+            'product_source',
         )
 
 

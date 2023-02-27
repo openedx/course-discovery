@@ -55,6 +55,7 @@ class CourseDocument(BaseCourseDocument):
     enterprise_subscription_inclusion = fields.BooleanField()
     course_length = fields.KeywordField()
     external_course_marketing_type = fields.KeywordField(multi=True)
+    product_source = fields.KeywordField(multi=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -135,6 +136,9 @@ class CourseDocument(BaseCourseDocument):
 
     def prepare_external_course_marketing_type(self, obj):
         return obj.additional_metadata.external_course_marketing_type if obj.additional_metadata else None
+
+    def prepare_product_source(self, obj):
+        return obj.product_source.slug if obj.product_source else None
 
     class Django:
         """
