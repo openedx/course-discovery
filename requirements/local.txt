@@ -62,9 +62,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.77
+boto3==1.26.79
     # via django-ses
-botocore==1.29.77
+botocore==1.29.79
     # via
     #   boto3
     #   s3transfer
@@ -132,7 +132,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.0
+coverage[toml]==7.2.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -223,7 +223,7 @@ django-config-models==2.3.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
     # via -r requirements/base.in
 django-countries==7.5.1
     # via -r requirements/base.in
@@ -411,7 +411,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==17.0.0
+faker==17.3.0
     # via factory-boy
 fastavro==1.7.2
     # via openedx-events
@@ -673,7 +673,7 @@ python-memcached==1.59
     # via -r requirements/test.in
 python-monkey-business==1.0.0
     # via django-nested-admin
-python-slugify==8.0.0
+python-slugify==8.0.1
     # via
     #   -r requirements/base.in
     #   code-annotations
@@ -929,7 +929,7 @@ xss-utils==0.4.0
     # via -r requirements/base.in
 zeep==4.2.1
     # via simple-salesforce
-zipp==3.14.0
+zipp==3.15.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
