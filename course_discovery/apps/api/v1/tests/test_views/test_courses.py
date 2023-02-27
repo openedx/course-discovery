@@ -1978,9 +1978,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert self.course.geolocation is None
 
     @ddt.data(
-        (45, 45, 'Location Alpha', {'lat': '45.000000', 'lng': '45.000000', 'location_name': 'Location Alpha'}),
-        (60, 60, 'Python Isle', {'lat': '60.000000', 'lng': '60.000000', 'location_name': 'Python Isle'}),
-        (70, 60, 'Villa Django', {'lat': '70.000000', 'lng': '60.000000', 'location_name': 'Villa Django'}),
+        (-47.9735, 23.95, 'Alps', {'lat': '-47.97350000000', 'lng': '23.95000000000', 'location_name': 'Alps'}),
+        (-60, 60, 'Python Isle', {'lat': '-60.00000000000', 'lng': '60.00000000000', 'location_name': 'Python Isle'}),
+        (70, 60, 'Villa Django', {'lat': '70.00000000000', 'lng': '60.00000000000', 'location_name': 'Villa Django'}),
     )
     @ddt.unpack
     def test_update_geolocation__valid_data(self, lat, lng, location_name, expected_response):
@@ -2002,8 +2002,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         geolocation = self.course.draft_version.geolocation
         assert geolocation is not None
         assert geolocation.location_name == location_name
-        assert geolocation.lng == lng
-        assert geolocation.lat == lat
+        assert geolocation.lng.to_eng_string() == expected_response['lng']
+        assert geolocation.lat.to_eng_string() == expected_response['lat']
 
     @responses.activate
     def test_options(self):

@@ -56,8 +56,8 @@ def delegate_attributes(cls):
     '''
 
     product_type_fields = ['product_type']
-    search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
-                     'tertiary_description']
+    search_fields = ['partner_names', 'partner_keys', 'product_title', 'product_source', 'primary_description',
+                     'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
                     'product_allowed_in', 'product_blocked_in']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
@@ -67,8 +67,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields'
-                     ]
+                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields',]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -198,6 +197,10 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
         if self.organization_logo_override:
             return getattr(self.organization_logo_override, 'url', None)
         return None
+
+    @property
+    def product_source(self):
+        return self.product_source.slug if self.product_source else None
 
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
