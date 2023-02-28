@@ -162,6 +162,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'course_type': {'field': 'course_type', 'enabled': True},
         'enterprise_subscription_inclusion': {'field': 'enterprise_subscription_inclusion', 'enabled': True},
         'external_course_marketing_type': {'field': 'external_course_marketing_type', 'enabled': True},
+        'product_source': {'field': 'product_source', 'enabled': True},
         'first_enrollable_paid_seat_price': {'field': 'first_enrollable_paid_seat_price', 'enabled': True},
         'language': {'field': 'language.raw', 'enabled': True},
         'level_type': {'field': 'level_type.raw', 'enabled': True},
@@ -200,6 +201,9 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         },
         'external_course_marketing_type': {
             'field': 'external_course_marketing_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
+        },
+        'product_source': {
+            'field': 'product_source', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
         },
         'first_enrollable_paid_seat_price': {
             'field': 'first_enrollable_paid_seat_price',
