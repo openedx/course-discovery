@@ -564,6 +564,7 @@ class CourseType(TimeStampedModel):
     EMPTY = 'empty'
     EXECUTIVE_EDUCATION_2U = 'executive-education-2u'
     BOOTCAMP_2U = 'bootcamp-2u'
+    EMERITUS = 'emeritus'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
