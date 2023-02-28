@@ -1085,6 +1085,8 @@ class MinimalProgramSerializerTests(TestCase):
             'language_override': program.language_override.code,
             'labels': ['topic'] if include_labels else [],
             'program_duration_override': program.program_duration_override,
+            'excluded_from_seo': program.excluded_from_seo,
+            'excluded_from_search': program.excluded_from_search
         }
 
     def test_data(self):

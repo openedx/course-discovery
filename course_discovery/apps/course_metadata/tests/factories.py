@@ -380,6 +380,8 @@ class CourseFactory(SalesforceRecordFactory):
     geolocation = factory.SubFactory(GeoLocationFactory)
     location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
     in_year_value = factory.SubFactory(ProductValueFactory)
+    excluded_from_seo = False
+    excluded_from_search = False
 
     class Meta:
         model = Course
