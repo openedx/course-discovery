@@ -133,6 +133,8 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'key': course.key,
             'uuid': str(course.uuid),
             'title': course.title,
+            'excluded_from_search': course.excluded_from_search,
+            'excluded_from_seo': course.excluded_from_seo,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'entitlements': [],
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
