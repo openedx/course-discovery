@@ -132,14 +132,17 @@ class AlgoliaProxyProduct(Program):
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
         # Do not index if entry for this object exists in contentful and was set to exclude from search
-        if getattr(self.product, 'contentful_fields', False) and self.product.contentful_fields.excluded_from_search:
+        if hasattr(self.product, 'contentful_fields') and
+        hasattr(self.product.contentful_fields, 'excluded_from_search'):
             return False
         # Otherwise, look at regular conditions for indexing
         return getattr(self.product, 'should_index', True)
 
     def should_index_spanish(self):
-        if getattr(self.product, 'contentful_fields', False) and self.product.contentful_fields.excluded_from_search:
+        if hasattr(self.product, 'contentful_fields') and
+        hasattr(self.product.contentful_fields, 'excluded_from_search'):
             return False
+
         return getattr(self.product, 'should_index_spanish', True)
 
 
