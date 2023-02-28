@@ -358,7 +358,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.product_external_status == ExternalProductStatus.Archived:
             return False
         
-        # Emeritus courses should be hidden untill all features finished.
+        # WS-3723, Emeritus courses should be hidden untill all features finished.
         if self.product_source.slug == CourseType.EMERITUS:
             return False
 
@@ -374,6 +374,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return (self.should_index and
                 self.type.slug != CourseType.BOOTCAMP_2U and \
                     self.product_source.slug != CourseType.EMERITUS)
+    # WS-3723, Excludes Emeritus courses.
 
     @property
     def skills(self):
