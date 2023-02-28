@@ -687,7 +687,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     product_meta = ProductMetaSerializer(required=False, allow_null=True)
     start_date = serializers.DateTimeField()
     end_date = serializers.DateTimeField()
-    registration_deadline = serializers.DateTimeField()
+    registration_deadline = serializers.DateTimeField(allow_null=True)
     variant_id = serializers.UUIDField(allow_null=True)
 
     @classmethod
