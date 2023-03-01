@@ -346,6 +346,9 @@ class GeoLocationSerializer(BaseModelSerializer):
     class Meta:
         model = GeoLocation
         fields = ('lat', 'lng', 'location_name')
+        # set validators to empty to override the Unique Constraint Validator
+        # to handle this in update_geolocation in api/serializer`
+        validators = []
 
 
 class PositionSerializer(BaseModelSerializer):
@@ -1447,7 +1450,10 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
-        if instance.geolocation:
+        geo_location_entry = GeoLocation.objects.filter(**geolocation).first()
+        if geo_location_entry:
+            instance.geolocation = geo_location_entry
+        elif instance.geolocation:
             GeoLocation.objects.filter(id=instance.geolocation.id).update(**geolocation)
             instance.refresh_from_db()
         else:

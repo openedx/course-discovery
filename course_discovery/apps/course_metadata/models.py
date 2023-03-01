@@ -997,6 +997,9 @@ class ProductValue(TimeStampedModel):
 
 
 class GeoLocation(TimeStampedModel):
+    """
+    Model to keep Geographic location for Products.
+    """
     DECIMAL_PLACES = 11
     LAT_MAX_DIGITS = 14
     LNG_MAX_DIGITS = 14
@@ -1030,7 +1033,7 @@ class GeoLocation(TimeStampedModel):
 
     @property
     def coordinates(self):
-        return (self.lat, self.lng)
+        return self.lat, self.lng
 
 
 class AbstractLocationRestrictionModel(TimeStampedModel):
