@@ -133,6 +133,8 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'key': course.key,
             'uuid': str(course.uuid),
             'title': course.title,
+            'excluded_from_search': course.excluded_from_search,
+            'excluded_from_seo': course.excluded_from_seo,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
             'entitlements': [],
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
@@ -1083,6 +1085,8 @@ class MinimalProgramSerializerTests(TestCase):
             'language_override': program.language_override.code,
             'labels': ['topic'] if include_labels else [],
             'program_duration_override': program.program_duration_override,
+            'excluded_from_seo': program.excluded_from_seo,
+            'excluded_from_search': program.excluded_from_search
         }
 
     def test_data(self):
@@ -1439,6 +1443,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'specializations': expected_specializations,
             'program_duration_override': degree.program_duration_override,
             'display_on_org_page': degree.display_on_org_page,
+            'excluded_from_seo': degree.excluded_from_seo,
+            'excluded_from_search': degree.excluded_from_search,
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -2592,6 +2598,8 @@ class TestProgramSearchDocumentSerializer(TestCase):
         return {
             'uuid': str(program.uuid),
             'title': program.title,
+            'excluded_from_search': program.excluded_from_search,
+            'excluded_from_seo': program.excluded_from_seo,
             'subtitle': program.subtitle,
             'type': program.type.name_t,
             'marketing_url': program.marketing_url,

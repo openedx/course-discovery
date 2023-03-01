@@ -72,6 +72,8 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     weeks_to_complete_min = fields.IntegerField()
     weeks_to_complete_max = fields.IntegerField()
     is_2u_degree_program = fields.BooleanField()
+    excluded_from_seo = fields.BooleanField()
+    excluded_from_search = fields.BooleanField()
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)

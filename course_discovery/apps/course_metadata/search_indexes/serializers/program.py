@@ -60,6 +60,8 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
                 'weeks_to_complete_min',
                 'search_card_display',
                 'is_2u_degree_program',
+                'excluded_from_search',
+                'excluded_from_seo',
             )
         )
 

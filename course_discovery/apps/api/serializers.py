@@ -1176,7 +1176,8 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion')
+                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion',
+                  'excluded_from_seo', 'excluded_from_search')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1339,7 +1340,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
             'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
-            'product_source',
+            'product_source', 'excluded_from_search', 'excluded_from_seo'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1854,7 +1855,8 @@ class DegreeSerializer(BaseModelSerializer):
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
             'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
-            'specializations', 'program_duration_override', 'display_on_org_page'
+            'specializations', 'program_duration_override', 'display_on_org_page',
+            'excluded_from_search', 'excluded_from_seo'
         )
 
     def get_micromasters_path(self, degree):
@@ -1926,7 +1928,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels', 'taxi_form', 'program_duration_override'
+            'labels', 'taxi_form', 'program_duration_override', 'excluded_from_search', 'excluded_from_seo'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -2157,7 +2159,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
-            'product_source',
+            'product_source', 'excluded_from_search', 'excluded_from_seo'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 
