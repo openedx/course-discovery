@@ -305,6 +305,30 @@ class Organization(CachedMixin, TimeStampedModel):
             raise e
 
 
+class OrganizationMapping(models.Model):
+    """
+    Model to map an internal organization to the corresponding organization in an external product source.
+    organization: Internal organization
+    source: External product source
+    external_organization_code: Organization code in an external product source
+    """
+    organization = models.ForeignKey('Organization', models.CASCADE)
+    source = models.ForeignKey('Source', models.CASCADE)
+    external_organization_code = models.CharField(
+        max_length=255,
+        help_text=_('Corresponding organization code in an external product source')
+    )
+
+    def __str__(self):
+        return f'{self.source.name} - {self.external_organization_code} -> {self.organization.name}'
+
+    class Meta:
+        """
+        Meta options.
+        """
+        unique_together = ('source', 'external_organization_code')
+
+
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)

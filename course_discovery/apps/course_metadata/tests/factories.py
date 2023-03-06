@@ -534,6 +534,15 @@ class OrganizationFactory(SalesforceRecordFactory):
         model = Organization
 
 
+class OrganizationMappingFactory(factory.django.DjangoModelFactory):
+    organization = factory.SubFactory(OrganizationFactory)
+    source = factory.SubFactory(SourceFactory)
+    external_organization_code = FuzzyText()
+
+    class Meta:
+        model = OrganizationMapping
+
+
 @factory.django.mute_signals(post_save)
 class OrganizationFactoryNoSignals(OrganizationFactory):
     pass

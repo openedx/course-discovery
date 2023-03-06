@@ -37,9 +37,9 @@ beautifulsoup4==4.11.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.81
+boto3==1.26.84
     # via django-ses
-botocore==1.29.81
+botocore==1.29.84
     # via
     #   boto3
     #   s3transfer
@@ -93,7 +93,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   pyjwt
     #   pyopenssl
@@ -266,7 +266,7 @@ djangorestframework-xml==2.0.0
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==1.0.0
+drf-flex-fields==1.0.1
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
@@ -322,7 +322,7 @@ elasticsearch==7.13.4
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.0
+elasticsearch-dsl==7.4.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -342,7 +342,7 @@ google-api-core==2.11.0
     # via google-api-python-client
 google-api-python-client==2.80.0
     # via -r requirements/base.in
-google-auth==2.16.1
+google-auth==2.16.2
     # via
     #   google-api-core
     #   google-api-python-client
@@ -428,6 +428,7 @@ packaging==23.0
     # via
     #   django-nine
     #   drf-yasg
+    #   snowflake-connector-python
 pandas==1.5.3
     # via taxonomy-connector
 pbr==5.11.1
@@ -437,7 +438,7 @@ pillow==9.4.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.0.0
+platformdirs==3.1.0
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
@@ -587,7 +588,7 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==3.0.0
+snowflake-connector-python==3.0.1
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
