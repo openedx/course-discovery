@@ -938,3 +938,12 @@ class BulkUploadTagsConfigurationAdmin(admin.ModelAdmin):
     Admin for BulkUploadTagsConfig model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(OrganizationMapping)
+class OrganizationMappingAdmin(admin.ModelAdmin):
+    """
+    Admin settings to handle OrganizationMapping.
+    """
+    list_display = ('organization', 'source', 'organization_external_key')
+    search_fields = ('organization__key', 'source__name', 'organization_external_key')
