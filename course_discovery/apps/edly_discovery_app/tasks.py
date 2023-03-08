@@ -1,5 +1,7 @@
 from celery.task import task
 from celery.utils.log import get_task_logger
+from django.core import management
+
 
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader,
@@ -30,3 +32,7 @@ def run_dataloader(partner, course_id, service):
         max_workers=1,
         course_id=course_id
     ).ingest()
+
+    if service == 'wordpress':
+        management.call_command('update_index', '--disable-change-limit')
+        management.call_command('remove_unused_indexes')
