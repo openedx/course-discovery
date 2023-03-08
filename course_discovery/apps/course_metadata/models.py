@@ -305,6 +305,27 @@ class Organization(CachedMixin, TimeStampedModel):
             raise e
 
 
+class OrganizationMapping(models.Model):
+    """
+    Model to map external/third party organization codes to organizations internal to Discovery.
+    """
+    organization = models.ForeignKey('Organization', models.CASCADE)
+    source = models.ForeignKey('Source', models.CASCADE)
+    organization_external_key = models.CharField(
+        max_length=255,
+        help_text=_('Corresponding organization code in an external product source')
+    )
+
+    def __str__(self):
+        return f'{self.source.name} - {self.organization_external_key} -> {self.organization.name}'
+
+    class Meta:
+        """
+        Meta options.
+        """
+        unique_together = ('source', 'organization_external_key')
+
+
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)

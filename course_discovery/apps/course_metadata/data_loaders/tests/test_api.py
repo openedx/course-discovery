@@ -149,6 +149,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_ingest(self, partner_uses_publisher, on_new_publisher, mock_logger):
         """ Verify the method ingests data from the Courses API. """
         TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
         api_data = self.mock_api()
         if not partner_uses_publisher:
             self.partner.publisher_url = None
@@ -1116,6 +1117,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_ingest(self):
         """ Verify the method ingests data from the Organizations API. """
         TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
         api_data = self.mock_api()
         assert Program.objects.count() == 0
 
