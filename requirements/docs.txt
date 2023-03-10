@@ -6,13 +6,13 @@
 #
 alabaster==0.7.13
     # via sphinx
-babel==2.11.0
+babel==2.12.1
     # via sphinx
 certifi==2022.12.7
     # via
     #   elasticsearch
     #   requests
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
     # via requests
 django-elasticsearch-dsl==7.3
     # via -r requirements/docs.in
@@ -25,7 +25,7 @@ elasticsearch==7.13.4
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.0
+elasticsearch-dsl==7.4.1
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl

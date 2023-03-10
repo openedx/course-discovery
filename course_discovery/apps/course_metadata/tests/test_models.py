@@ -34,7 +34,7 @@ from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
     AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseRunType, CourseType, Curriculum,
     CurriculumCourseMembership, CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline,
-    Endorsement, Organization, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
+    Endorsement, Organization, OrganizationMapping, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -42,7 +42,7 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
-    SeatTypeFactory
+    SeatTypeFactory, SourceFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -1380,6 +1380,42 @@ class OrganizationTests(TestCase):
 
         program.refresh_from_db()
         assert program.enterprise_subscription_inclusion is False
+
+
+class OrganizationMappingTests(TestCase):
+    """ Tests for the OrganizationMapping model. """
+
+    def setUp(self):
+        super().setUp()
+        self.test_external_org_code = 'test_org'
+        self.test_source = SourceFactory()
+        self.org = factories.OrganizationFactory()
+        self.org_mapping = factories.OrganizationMappingFactory(
+            organization=self.org,
+            organization_external_key=self.test_external_org_code,
+            source=self.test_source
+        )
+
+    def test_str(self):
+        """ Verify the string representation of the model. """
+        expected = f'{self.org_mapping.source.name} - {self.org_mapping.organization_external_key} -> {self.org_mapping.organization.name}'  # pylint: disable=line-too-long
+        assert str(self.org_mapping) == expected
+
+    def test_get_organziation_from_org_mapping(self):
+        """ Verify the method returns the organization for the given external organization code and source. """
+        assert OrganizationMapping.objects.get(
+            source=self.test_source, organization_external_key=self.test_external_org_code
+        ).organization == self.org
+
+    def test_unique_together_constraint_for_org_mapping(self):
+        """ Verify the unique_together constraint for the model. """
+        test_org = factories.OrganizationFactory()
+        with pytest.raises(IntegrityError):
+            factories.OrganizationMappingFactory(
+                organization=test_org,
+                organization_external_key=self.test_external_org_code,
+                source=self.test_source
+            )
 
 
 @ddt.ddt

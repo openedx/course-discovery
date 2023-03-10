@@ -21,12 +21,12 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
-    Fact, ProductMeta, Seat
+    Fact, GeoLocation, ProductMeta, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
-    CourseTypeFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory
+    CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -42,7 +42,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
         self.verified_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
-        self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type)
+        self.course = CourseFactory(
+            partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type, geolocation=None
+        )
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)
         self.mock_access_token()
@@ -2004,6 +2006,28 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert geolocation.location_name == location_name
         assert geolocation.lng.to_eng_string() == expected_response['lng']
         assert geolocation.lat.to_eng_string() == expected_response['lat']
+
+    def test_update_geolocation_already_existing(self):
+        """
+        Verify that no new entry is created upon sending the same coordinates of an already existing geolocation entry.
+        Previously, it was causing a Unique Constraint error.
+        """
+        location_name = 'Alps'
+        lat = -47.97350000000
+        lng = 23.95000000000
+        self.course.geolocation = GeoLocationFactory.create(
+            location_name=location_name, lat=lat, lng=lng
+        )
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        self.course.save()
+        assert self.course.draft_version is None
+        course_data = {'geolocation': {'lat': lat, 'lng': lng, 'location_name': location_name}, 'draft': False}
+        response = self.client.patch(url, course_data, format='json')
+        content = response.json()
+        self.course.refresh_from_db()
+        assert response.status_code == 200
+        assert content['geolocation'] == {'lat': '-47.97350000000', 'lng': '23.95000000000', 'location_name': 'Alps'}
+        assert GeoLocation.objects.count() == 1
 
     @responses.activate
     def test_options(self):

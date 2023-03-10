@@ -112,3 +112,5 @@ GETSMARTER_CLIENT_CREDENTIALS = {
     'PROVIDER_URL' : 'https://auth-test.com',
     'PRODUCTS_DETAILS_URL' : 'https://test-getsmarter.com/api/v1/products?detail=2',
 }
+
+DEFAULT_PRODUCT_SOURCE_SLUG = 'test-source'

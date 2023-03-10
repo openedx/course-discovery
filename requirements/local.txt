@@ -25,7 +25,7 @@ asn1crypto==1.5.1
     # via
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.14.2
+astroid==2.15.0
     # via
     #   pylint
     #   pylint-celery
@@ -45,7 +45,7 @@ attrs==21.4.0
     #   semgrep
     #   trio
     #   zeep
-babel==2.11.0
+babel==2.12.1
     # via sphinx
 backoff==2.2.1
     # via -r requirements/base.in
@@ -62,9 +62,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.79
+boto3==1.26.86
     # via django-ses
-botocore==1.29.79
+botocore==1.29.86
     # via
     #   boto3
     #   s3transfer
@@ -124,7 +124,7 @@ code-annotations==1.3.0
     #   edx-toggles
 colorama==0.4.6
     # via semgrep
-contentful==1.13.1
+contentful==2.1.1
     # via -r requirements/base.in
 coreapi==2.3.3
     # via drf-yasg
@@ -136,7 +136,7 @@ coverage[toml]==7.2.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   paramiko
     #   pyjwt
@@ -333,7 +333,7 @@ docutils==0.19
     # via sphinx
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==1.0.0
+drf-flex-fields==1.0.1
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
@@ -367,7 +367,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==3.9.4
+edx-event-bus-kafka==3.9.6
     # via -r requirements/base.in
 edx-i18n-tools==0.9.2
     # via -r requirements/local.in
@@ -395,7 +395,7 @@ elasticsearch==7.13.4
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.0
+elasticsearch-dsl==7.4.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -411,7 +411,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==17.3.0
+faker==17.6.0
     # via factory-boy
 fastavro==1.7.2
     # via openedx-events
@@ -430,9 +430,9 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.79.0
+google-api-python-client==2.80.0
     # via -r requirements/base.in
-google-auth==2.16.1
+google-auth==2.16.2
     # via
     #   google-api-core
     #   google-api-python-client
@@ -525,7 +525,7 @@ oauthlib==3.2.2
     #   getsmarter-api-clients
     #   requests-oauthlib
     #   social-auth-core
-openedx-events==5.1.0
+openedx-events==6.0.0
     # via
     #   edx-event-bus-kafka
     #   taxonomy-connector
@@ -540,6 +540,7 @@ packaging==21.3
     #   drf-yasg
     #   pytest
     #   semgrep
+    #   snowflake-connector-python
     #   sphinx
     #   tox
 pandas==1.5.3
@@ -550,14 +551,14 @@ path==16.6.0
     # via edx-i18n-tools
 pbr==5.11.1
     # via stevedore
-peewee==3.15.4
+peewee==3.16.0
     # via semgrep
 pillow==9.4.0
     # via
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.0.0
+platformdirs==3.1.0
     # via
     #   pylint
     #   virtualenv
@@ -568,9 +569,9 @@ pluggy==1.0.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-prompt-toolkit==3.0.37
+prompt-toolkit==3.0.38
     # via click-repl
-protobuf==4.22.0
+protobuf==4.22.1
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -607,7 +608,7 @@ pyjwt[crypto]==2.6.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.16.2
+pylint==2.16.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -637,7 +638,7 @@ pyrsistent==0.19.3
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==7.2.1
+pytest==7.2.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -799,7 +800,7 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.0.0
+snowflake-connector-python==3.0.1
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
@@ -840,7 +841,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.36.1
+taxonomy-connector==1.36.2
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -866,7 +867,7 @@ tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/test.in
-tqdm==4.64.1
+tqdm==4.65.0
     # via semgrep
 trio==0.22.0
     # via
@@ -907,7 +908,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.19.0
+virtualenv==20.20.0
     # via tox
 wcmatch==8.4.1
     # via semgrep
@@ -921,7 +922,7 @@ websocket-client==0.59.0
     # via
     #   docker
     #   docker-compose
-wrapt==1.14.1
+wrapt==1.15.0
     # via astroid
 wsproto==1.2.0
     # via trio-websocket
