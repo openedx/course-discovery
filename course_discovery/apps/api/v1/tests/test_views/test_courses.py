@@ -2009,7 +2009,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert geolocation.lng.to_eng_string() == expected_response['lng']
         assert geolocation.lat.to_eng_string() == expected_response['lat']
 
-    def test_update_geolocation_already_existing(self):
+    def test_update_geolocation__reuse_existing(self):
         """
         Verify that no new entry is created upon sending the same coordinates of an already existing geolocation entry.
         Previously, it was causing a Unique Constraint error.
@@ -2029,6 +2029,52 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.course.refresh_from_db()
         assert response.status_code == 200
         assert content['geolocation'] == {'lat': '-47.97350000000', 'lng': '23.95000000000', 'location_name': 'Alps'}
+        assert GeoLocation.objects.count() == 1
+
+    def test_update_geolocation__different_coordinates(self):
+        """
+        Verify that when changing geolocation information for a course via API, a new Geoloc object is created if
+        related entry is not present and existing geoloc object is left untouched.
+        """
+        location_name = 'Alps'
+        lat = -47.97350000000
+        lng = 23.95000000000
+        self.course.geolocation = GeoLocationFactory.create(
+            location_name=location_name, lat=lat, lng=lng
+        )
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        self.course.save()
+        assert self.course.draft_version is None
+        course_data = {'geolocation': {'lat': lat, 'lng': lng + 1, 'location_name': 'New'}, 'draft': False}
+        response = self.client.patch(url, course_data, format='json')
+        content = response.json()
+        self.course.refresh_from_db()
+        assert response.status_code == 200
+        assert content['geolocation'] == {'lat': '-47.97350000000', 'lng': '24.95000000000', 'location_name': 'New'}
+        assert GeoLocation.objects.count() == 2
+
+    def test_update_geolocation__validation_error(self):
+        """
+        Verify that if a geolocation object with same coordinates but different name exists, the validation
+        error is raised.
+        """
+        location_name = 'Alps'
+        lat = -47.97350000000
+        lng = 23.95000000000
+        self.course.geolocation = GeoLocationFactory.create(
+            location_name=location_name, lat=lat, lng=lng
+        )
+        self.course.save()
+        assert self.course.draft_version is None
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        course_data = {'geolocation': {'lat': lat, 'lng': lng, 'location_name': 'New location'}, 'draft': False}
+        response = self.client.patch(url, course_data, format='json')
+
+        expected_error_message = f"Geolocation object with " \
+                                 f"lat: -47.97350000000, lng: 23.95000000000 exists with name Alps"
+        assert response.status_code == 400
+        assert expected_error_message in response.data
         assert GeoLocation.objects.count() == 1
 
     @responses.activate
