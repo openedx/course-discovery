@@ -636,3 +636,16 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         """
         program = AlgoliaProxyProgramFactory()
         assert program.product_meta_title is None
+
+    @ddt.data((AlgoliaProxyCourse, 'source_1'), (AlgoliaProxyProgram, 'source_2'))
+    @ddt.unpack
+    @override_settings(EXCLUDED_COURSE=[])
+    def test_product_source_exclude(self, model_factory, product_source):
+        """
+        Verify the course is indexed with excluded course
+        """
+        course = model_factory(
+            partner=self.__class__.edxPartner,
+            product_source=SourceFactory(name=product_source)
+        )
+        assert len(course.product_source.name) > 0

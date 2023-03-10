@@ -2,6 +2,7 @@ import datetime
 import itertools
 
 import pytz
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
 from django.utils.translation import override
@@ -50,7 +51,6 @@ def delegate_attributes(cls):
     Class decorator. For all Algolia fields, when my_instance.attribute is accessed, get the attribute off
     my_instance.product rather than my_instance. This allows us to combine two different models into one index. If
     my_instance.product doesn't have the attribute, attempts to access it will just return None.
-
     This doesn't work as well for field names that exist on the underlying Course and Program models so those
     fields are prefixed with 'product_' to make them Algolia-specific
     '''
@@ -105,6 +105,12 @@ def get_location_restriction(location_restriction):
     # Combine list of country and state codes in order to make filtering in Algolia easier
     states = ['US-' + state for state in location_restriction.states]
     return location_restriction.countries + states
+
+
+def is_excluded_product_sources_check(source):
+    if source in settings.EXCLUDED_COURSE:
+        return True
+    return False
 
 
 @delegate_attributes
@@ -358,6 +364,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.product_external_status == ExternalProductStatus.Archived:
             return False
 
+        # WS-3723, Emeritus courses should be hidden untill all features finished.
+        if is_excluded_product_sources_check(self.product_source.slug):
+            return False
+
         return (len(self.owners) > 0 and
                 self.active_url_slug and
                 self.partner.name == 'edX' and
@@ -367,8 +377,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def should_index_spanish(self):
+        if is_excluded_product_sources_check(self.product_source.slug):
+            return False
+
         return (self.should_index and
                 self.type.slug != CourseType.BOOTCAMP_2U)
+    # WS-3723, Excludes Emeritus courses.
 
     @property
     def skills(self):
