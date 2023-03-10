@@ -2071,8 +2071,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         course_data = {'geolocation': {'lat': lat, 'lng': lng, 'location_name': 'New location'}, 'draft': False}
         response = self.client.patch(url, course_data, format='json')
 
-        expected_error_message = f"Geolocation object with " \
-                                 f"lat: -47.97350000000, lng: 23.95000000000 exists with name Alps"
+        expected_error_message = "Geolocation object with lat: -47.97350000000, " \
+                                 "lng: 23.95000000000 exists with name Alps"
         assert response.status_code == 400
         assert expected_error_message in response.data
         assert GeoLocation.objects.count() == 1
