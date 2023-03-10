@@ -1,5 +1,5 @@
 import datetime
-from unittest import mock, skip
+from unittest import mock
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -17,6 +17,7 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
@@ -34,9 +35,10 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
-class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
+class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin, APITestCase):
     def setUp(self):
         super().setUp()
+        self.mock_access_token()
         self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -47,11 +49,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         )
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)
-        self.mock_access_token()
+        self.refresh_index()
 
     def tearDown(self):
-        self.client.logout()
         super().tearDown()
+        self.client.logout()
 
     def mock_ecommerce_publication(self):
         url = f'{self.course.partner.ecommerce_api_url}publication/'
@@ -259,7 +261,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             self.serialize_course(Course.objects.all(), many=True)
         )
 
-    @skip('elasticsearch has some sort of failure and returns 0 records with status 400')
+    @responses.activate
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
         title = 'Some random title'
