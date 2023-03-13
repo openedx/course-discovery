@@ -26,7 +26,8 @@ class Command(BaseCommand):
 
     PRODUCT_TYPE_SLUG_MAP = {
         'EXECUTIVE_EDUCATION': CourseType.EXECUTIVE_EDUCATION_2U,
-        'BOOTCAMPS': CourseType.BOOTCAMP_2U
+        'BOOTCAMPS': CourseType.BOOTCAMP_2U,
+        'BOOTCAMPS_EDX': CourseType.BOOTCAMP_EDX
     }
 
     def add_arguments(self, parser):
@@ -46,7 +47,7 @@ class Command(BaseCommand):
             help='Product Type to ingest',
             type=str,
             required=True,
-            choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS']
+            choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS', 'BOOTCAMPS_EDX']
         )
         parser.add_argument(
             '--product_source',

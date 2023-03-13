@@ -682,6 +682,14 @@ PRODUCT_METADATA_MAPPING = {
             'EMAIL_NOTIFICATION_LIST': []
         }
     },
+    'bootcamp-edx': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
     'DEGREES': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
