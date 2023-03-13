@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import IntegrityError, models, transaction
-from django.db.models import F, Q
+from django.db.models import F, Q, UniqueConstraint
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries import countries as COUNTRIES
@@ -3281,6 +3281,40 @@ class Program(PkSearchableMixin, TimeStampedModel):
             # so that a background task in taxonomy update the program skills.
             logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
             UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
+
+
+class ProgramSubscription(PkSearchableMixin, TimeStampedModel):
+    """Model for storing program subscription eligibility"""
+    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True, verbose_name=_('ID'))
+    program = models.OneToOneField(Program, on_delete=models.CASCADE, related_name='subscription', db_index=True)
+    subscription_eligible = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.program} subscription ({'eligible' if self.subscription_eligible else 'not eligible'})"
+
+
+class ProgramSubscriptionPrice(TimeStampedModel):
+    """Model for storing program subscription prices"""
+    PRICE_FIELD_CONFIG = {
+        'decimal_places': 2,
+        'max_digits': 10,
+        'null': False,
+        'default': 0.00,
+    }
+
+    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True, verbose_name=_('ID'))
+    program_subscription = models.ForeignKey(ProgramSubscription, related_name='prices',
+                                             on_delete=models.CASCADE, db_index=True)
+    price = models.DecimalField(**PRICE_FIELD_CONFIG)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="USD")
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['program_subscription', 'currency'], name='unique_subscription_currency')
+        ]
+
+    def __str__(self):
+        return f"{self.program_subscription.program} has subscription Price {self.price} {self.currency}"
 
 
 class Ranking(TimeStampedModel):

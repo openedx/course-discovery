@@ -2526,6 +2526,27 @@ class ProgramTests(TestCase):
         assert self.program.program_duration_override is not None
 
 
+class ProgramSubscriptionTests(TestCase):
+
+    def test_str(self):
+        program_subscription = factories.ProgramSubscriptionFactory()
+        expected_output = f"{program_subscription.program} subscription (not eligible)"
+        self.assertEqual(str(program_subscription), expected_output)
+
+    def test_subscription_eligible_default(self):
+        subscription = factories.ProgramSubscriptionFactory()
+        self.assertFalse(subscription.subscription_eligible)
+
+
+class ProgramSubscriptionPriceTests(TestCase):
+
+    def test_str(self):
+        program_subscription_price = factories.ProgramSubscriptionPriceFactory()
+        expected_output = f"{program_subscription_price.program_subscription.program}" \
+            " has subscription Price 0.0 USD - US Dollar"
+        self.assertEqual(str(program_subscription_price), expected_output)
+
+
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""
 

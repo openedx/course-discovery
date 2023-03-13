@@ -947,3 +947,22 @@ class OrganizationMappingAdmin(admin.ModelAdmin):
     """
     list_display = ('organization', 'source', 'organization_external_key')
     search_fields = ('organization__key', 'source__name', 'organization_external_key')
+
+
+@admin.register(ProgramSubscription)
+class ProgramSubscriptionAdmin(admin.ModelAdmin):
+    """
+    Admin settings for ProgramSubscription
+    """
+    readonly_fields = ('uuid', )
+    search_fields = ("program__uuid", "program__title", "subscription_eligible")
+
+
+@admin.register(ProgramSubscriptionPrice)
+class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
+    """
+    Admin settings for ProgramSubscriptionPrice
+    """
+    readonly_fields = ('uuid', )
+    search_fields = ("program_subscription__program__title", "program_subscription__program__uuid",
+                     "price", "currency__name")
