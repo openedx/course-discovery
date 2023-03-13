@@ -1450,12 +1450,23 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
-        geo_location_entry = GeoLocation.objects.filter(**geolocation).first()
-        if geo_location_entry:
-            instance.geolocation = geo_location_entry
-        elif instance.geolocation:
-            GeoLocation.objects.filter(id=instance.geolocation.id).update(**geolocation)
-            instance.refresh_from_db()
+        """
+        Handle geolocation for the course instance.
+
+        * Filter geolocation object against provided longitude & latitude.
+        * If object is found
+            * verify the name of object is same. Otherwise, raise the validation error
+            * If name is same, assign geolocation to course.
+        * If geolocation is not found, create new geolocation object
+        """
+        geolocation_entry = GeoLocation.objects.filter(lat=geolocation['lat'], lng=geolocation['lng']).first()
+        if geolocation_entry:
+            if geolocation_entry.location_name != geolocation['location_name']:
+                raise serializers.ValidationError(
+                    f"Geolocation object with lat: {geolocation['lat']}, lng: {geolocation['lng']} exists with "
+                    f"name {geolocation_entry.location_name}"
+                )
+            instance.geolocation = geolocation_entry
         else:
             instance.geolocation = GeoLocation.objects.create(**geolocation)
 
