@@ -37,9 +37,9 @@ beautifulsoup4==4.11.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.86
+boto3==1.26.89
     # via django-ses
-botocore==1.29.86
+botocore==1.29.89
     # via
     #   boto3
     #   s3transfer
@@ -266,7 +266,7 @@ djangorestframework-xml==2.0.0
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==1.0.1
+drf-flex-fields==1.0.2
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
@@ -328,7 +328,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-fastavro==1.7.2
+fastavro==1.7.3
     # via openedx-events
 filelock==3.9.0
     # via snowflake-connector-python
@@ -418,7 +418,7 @@ oauthlib==3.2.2
     #   getsmarter-api-clients
     #   requests-oauthlib
     #   social-auth-core
-openedx-events==6.0.0
+openedx-events==7.0.0
     # via
     #   edx-event-bus-kafka
     #   taxonomy-connector
@@ -438,7 +438,7 @@ pillow==9.4.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.1.0
+platformdirs==3.1.1
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
@@ -626,7 +626,7 @@ uritemplate==4.1.1
     #   coreapi
     #   drf-yasg
     #   google-api-python-client
-urllib3==1.26.14
+urllib3==1.26.15
     # via
     #   botocore
     #   elasticsearch
