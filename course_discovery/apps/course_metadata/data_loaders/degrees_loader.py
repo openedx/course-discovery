@@ -13,7 +13,7 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
 )
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
-    Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
+    Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType, Source,
     Specialization, Subject
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_program_image
@@ -56,7 +56,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
     def __init__(
         self, partner, api_url=None, max_workers=None, is_threadsafe=False,
-        csv_path=None, csv_file=None, args_from_env=None, product_type=None
+        csv_path=None, csv_file=None, args_from_env=None, product_type=None, product_source='edx'
     ):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
@@ -69,6 +69,12 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             'updated_products_count': 0,
             'created_products': [],
         }
+
+        try:
+            self.product_source = Source.objects.get(slug=product_source)
+        except Source.DoesNotExist:
+            logger.exception(f"Unable to locate source with slug {product_source}")
+            raise
 
         for error_log_key in DEGREE_LOADER_ERROR_LOG_SEQUENCE:
             self.error_logs.setdefault(error_log_key, [])
@@ -267,6 +273,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "overview": data['overview'],
             "organization_short_code_override": data.get('organization_short_code_override', ''),
             "partner": self.partner,
+            "product_source": self.product_source
 
         }
         degree, created = Degree.objects.update_or_create(

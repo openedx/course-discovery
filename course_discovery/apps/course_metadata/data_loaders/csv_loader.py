@@ -60,7 +60,7 @@ class CSVDataLoader(AbstractDataLoader):
 
     def __init__(
         self, partner, api_url=None, max_workers=None, is_threadsafe=False,
-        csv_path=None, csv_file=None, use_gspread_client=None, product_type='audit', product_source='openedx'
+        csv_path=None, csv_file=None, use_gspread_client=None, product_type='audit', product_source='edx'
     ):
         """
         Arguments:

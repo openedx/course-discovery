@@ -67,7 +67,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [INVALID_DEGREE_CSV_DICT])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -90,7 +90,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_DEGREE_ORGANIZATION_DATA])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -111,7 +111,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_PROGRAM_TYPE_DATA])
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
                 self._assert_default_logs(log_capture)
                 log_capture.check_present(
@@ -136,7 +136,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
 
                 self._assert_default_logs(log_capture)
@@ -169,6 +169,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     'created_products': [{'uuid': str(degree.uuid)}],
                     'errors': loader.error_logs
                 }
+                assert degree.product_source == self.product_source
 
     def test_ingest_flow_for_preexisting_degree(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
@@ -188,7 +189,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
 
                 self._assert_default_logs(log_capture)
@@ -220,6 +221,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     'created_products': [],
                     'errors': loader.error_logs
                 }
+                assert degree.product_source == self.product_source
 
     def test_ingest_flow_for_minimal_degree_data(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
@@ -234,7 +236,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
 
                 self._assert_default_logs(log_capture)
@@ -268,6 +270,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.additional_metadata.organic_url == 'http://example.com/organic-page.html'
                 assert degree.specializations.count() == 2
                 assert degree.status == ProgramStatus.Unpublished
+                assert degree.product_source == self.product_source
 
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -287,7 +290,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
                 loader.ingest()
 
                 self._assert_default_logs(log_capture)
@@ -310,3 +313,17 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         ' {degree_slug}.'.format(degree_slug=self.DEGREE_SLUG)
                     )
                 )
+
+    def test_invalid_product_source(self, _jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that no degree is created for an invalid product source
+        """
+        self._setup_organization(self.partner)
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.INVALID_PROGRAM_TYPE_DATA])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
+                loader.ingest()
+                self._assert_default_logs(log_capture)
+                self.assertRaisesMessage(Exception, 'abc')
+                assert Degree.objects.count() == 0
