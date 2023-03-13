@@ -13,7 +13,7 @@ from course_discovery.apps.api.cache import api_change_receiver, set_api_timesta
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
 from course_discovery.apps.course_metadata.emails import send_ingestion_email
-from course_discovery.apps.course_metadata.models import DegreeDataLoaderConfiguration
+from course_discovery.apps.course_metadata.models import DegreeDataLoaderConfiguration, Source
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
 logger = logging.getLogger(__name__)
@@ -47,6 +47,12 @@ class Command(BaseCommand):
             help='Link to the Data Spreadsheet',
             type=bool,
         )
+        parser.add_argument(
+            '--product_source',
+            help='Slug of product source with which ingested degrees are to be linked.',
+            type=str,
+            required=True
+        )
 
     def handle(self, *args, **options):
         """
@@ -58,12 +64,18 @@ class Command(BaseCommand):
         csv_file = degree_loader_config.csv_file if degree_loader_config.is_enabled() else None
         product_type = options.get('product_type', None)
         args_from_env = options.get('args_from_env', None)
+        product_source = options.get('product_source', None)
 
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
+            source = Source.objects.get(slug=product_source)
         except Partner.DoesNotExist:
             raise CommandError(  # pylint: disable=raise-missing-from
                 "Unable to locate partner with code {}".format(partner_short_code)
+            )
+        except Source.DoesNotExist:
+            raise CommandError(  # pylint: disable=raise-missing-from
+                "Unable to locate Product Source with code {}".format(product_source)
             )
 
         # The signal disconnect has been taken from refresh_course_metadata management command.
@@ -78,7 +90,7 @@ class Command(BaseCommand):
         try:
             loader = DegreeCSVDataLoader(
                 partner, csv_path=csv_path, csv_file=csv_file,
-                args_from_env=args_from_env, product_type=product_type
+                args_from_env=args_from_env, product_type=product_type, product_source=source.slug
             )
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             ingestion_time = datetime.now()

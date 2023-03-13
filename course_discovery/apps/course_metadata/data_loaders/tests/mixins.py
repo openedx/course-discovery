@@ -91,6 +91,7 @@ class DegreeCSVLoaderMixin:
         super().setUp()
         self.program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
         self.marketing_text = "<ul><li>ABC</li><li>D&E</li><li>Harvard CS50</li></ul>"
+        self.product_source = SourceFactory(slug='text-source')
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
         """

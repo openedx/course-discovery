@@ -47,6 +47,17 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         with self.assertRaisesMessage(CommandError, 'Unable to locate partner with code invalid-partner-code'):
             call_command(
                 'import_degree_data', '--partner_code', 'invalid-partner-code',
+                '--product_source', self.product_source.slug,
+            )
+
+    def test_missing_source(self, _jwt_decode_patch):
+        """
+        Test that the command raises CommandError if no partner is present against the provided short code.
+        """
+        with self.assertRaisesMessage(CommandError, 'Unable to locate Product Source with code invalid-product-source'):
+            call_command(
+                'import_degree_data', '--partner_code', self.partner.short_code,
+                '--product_source', 'invalid-product-source',
             )
 
     def test_invalid_csv_path(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -59,6 +70,7 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         ):
             call_command(
                 'import_degree_data', '--partner_code', self.partner.short_code, '--csv_path', 'no-path',
+                '--product_source', self.product_source.slug,
             )
 
     def test_no_csv_file(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -71,6 +83,7 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         ):
             call_command(
                 'import_degree_data', '--partner_code', self.partner.short_code,
+                '--product_source', self.product_source.slug,
             )
 
     @responses.activate
@@ -88,7 +101,8 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             call_command(
                 'import_degree_data',
                 '--partner_code', self.partner.short_code,
-                '--product_type', 'DEGREES'
+                '--product_type', 'DEGREES',
+                '--product_source', self.product_source.slug,
             )
             log_capture.check_present(
                 (
