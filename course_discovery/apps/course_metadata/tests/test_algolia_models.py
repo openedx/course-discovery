@@ -150,6 +150,23 @@ class TestAlgoliaDataMixin():
         )
         return course
 
+    def create_blocked_course_run(self, **kwargs):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner,
+                                           product_source=SourceFactory(name='blocked'))
+
+        course_run = CourseRunFactory(
+            course=course,
+            start=self.YESTERDAY,
+            end=self.YESTERDAY,
+            status=CourseRunStatus.Published,
+            **kwargs
+        )
+        SeatFactory(
+            course_run=course_run,
+            type=SeatTypeFactory.audit(),
+        )
+        return course
+
     def attach_published_course_run(self, course, run_type="archived", **kwargs):
         if run_type == 'current and ends within two weeks':
             course_start = self.ONE_MONTH_AGO
@@ -397,6 +414,18 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             product_source=product_source
         )
         assert product.product_source is None
+
+    @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=[])
+    def test_product_source_excluded(self):
+        course = self.create_blocked_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        assert course.should_index
+
+    @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=['blocked'])
+    def test_product_source_shoud_excluded(self):
+        course = self.create_blocked_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        assert not course.should_index
 
 
 @ddt.ddt
