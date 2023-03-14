@@ -379,7 +379,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.product_external_status == ExternalProductStatus.Archived:
             return False
 
-        # WS-3723, Emeritus courses should be hidden untill all features finished.
+        # WS-3723, Emeritus courses should be hidden until all features finished.
         if is_excluded_product_sources_check(self.product_source.slug):
             return False
 
