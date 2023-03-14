@@ -1199,6 +1199,20 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
     )
 
+    excluded_from_search = models.BooleanField(
+        null=False,
+        default=False,
+        verbose_name='Excluded From Search (Algolia Indexing)',
+        help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
+    )
+
+    excluded_from_seo = models.BooleanField(
+        null=False,
+        default=False,
+        verbose_name='Excluded From SEO (noindex tag)',
+        help_text=_('If checked, the About Page will have a meta tag with noindex value')
+    )
+
     class Meta:
         unique_together = (
             ('partner', 'uuid', 'draft'),
@@ -2687,6 +2701,19 @@ class Program(PkSearchableMixin, TimeStampedModel):
     )
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
+    )
+    excluded_from_search = models.BooleanField(
+        null=False,
+        default=False,
+        verbose_name='Excluded From Search (Algolia Indexing)',
+        help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
+    )
+
+    excluded_from_seo = models.BooleanField(
+        null=False,
+        default=False,
+        verbose_name='Excluded From SEO (noindex tag)',
+        help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
     taxi_form = models.OneToOneField(
         TaxiForm,

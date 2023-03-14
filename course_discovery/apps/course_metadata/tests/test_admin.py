@@ -319,8 +319,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
-            'field-uuid', 'field-title', 'field-subtitle', 'field-marketing_hook',
-            'field-status', 'field-type', 'field-partner', 'field-banner_image',
+            'field-uuid', 'field-title', 'field-subtitle',
+            'field-marketing_hook', 'field-status', 'field-type', 'field-partner', 'field-banner_image',
             'field-banner_image_url', 'field-card_image', 'field-marketing_slug', 'field-overview',
             'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete',
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
@@ -332,7 +332,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
             'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
-            'field-program_duration_override', 'field-product_source', 'field-ofac_comment'
+            'field-program_duration_override', 'field-product_source', 'field-ofac_comment',
+            'field-excluded_from_search', 'field-excluded_from_seo',
         ]
         assert actual == expected
 
