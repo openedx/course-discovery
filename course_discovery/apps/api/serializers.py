@@ -1381,6 +1381,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         else:
             instance.facts.clear()
             for fact in facts_data:
+                # skip objects that do not have a truthy heading
+                if 'heading' not in fact or not fact['heading']:
+                    continue
                 # we can query all orphan facts and use one of them but that is more computation
                 # therefore, just checking if a fact with same data exists
                 facts_queryset = Fact.objects.filter(**fact)
