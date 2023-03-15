@@ -148,9 +148,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
             flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
             flag = get_waffle_flag_model().get(flag_name)
             if flag.is_active(request):
-                return self.readonly_fields
+                # add product_source to readonly_fields only if course is already created because
+                # we don't want to allow user to change product_source for existing course.
+                return self.readonly_fields + ('product_source')
 
-        return self.readonly_fields + ('uuid',)
+        return (self.readonly_fields + ('uuid', 'product_source')
+                if obj else self.readonly_fields + ('uuid',))
 
     def get_change_actions(self, request, object_id, form_url):
         """
@@ -375,6 +378,12 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     change_actions = ('refresh_program_skills', )
 
     save_error = False
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Make product_source field readonly if program obj is already created.
+        """
+        return self.readonly_fields + ('product_source',) if obj else self.readonly_fields
 
     def get_urls(self):
         """

@@ -49,6 +49,8 @@ class ProgramAdminForm(forms.ModelForm):
         self.fields['type'].required = True
         self.fields['marketing_slug'].required = True
         self.fields['courses'].required = False
+        if self.fields.get('product_source'):
+            self.fields['product_source'].required = True
 
     def clean(self):
 
@@ -91,6 +93,11 @@ class CourseAdminForm(forms.ModelForm):
         model = Course
         fields = '__all__'
         exclude = ('slug', 'url_slug', )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.fields.get('product_source'):
+            self.fields['product_source'].required = True
 
 
 class CourseRunAdminForm(forms.ModelForm):
