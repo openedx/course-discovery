@@ -553,7 +553,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     {**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, 'organization': test_org.key}
                 ]
             )
-
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,

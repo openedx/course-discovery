@@ -31,7 +31,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
-    Seat, Video
+    Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -183,6 +183,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             'number': request.data.get('number'),
             'org': request.data.get('org'),
             'type': request.data.get('type'),
+            'product_source': request.data.get('product_source'),
         }
         url_slug = request.data.get('url_slug', '')
 
@@ -195,6 +196,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if not CourseType.objects.filter(uuid=course_creation_fields['type']).exists():
             error_message += _('Course Type [{course_type}] does not exist. ').format(
                 course_type=course_creation_fields['type'])
+        if not Source.objects.get(slug=course_creation_fields['product_source']):
+            error_message += _('Product Source [{product_source}] does not exist. ').format(
+                product_source=course_creation_fields['product_source'])
+
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 

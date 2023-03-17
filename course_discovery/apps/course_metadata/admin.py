@@ -940,6 +940,7 @@ class SourceAdmin(admin.ModelAdmin):
     Admin for Source model.
     """
     list_display = ('id', 'name', 'slug', 'description')
+    readonly_fields = ('slug',)
 
 
 @admin.register(BulkUploadTagsConfig)

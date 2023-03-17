@@ -201,8 +201,8 @@ class CSVDataLoader(AbstractDataLoader):
                 logger.error(error_message)
                 self._register_ingestion_error(CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
                 continue
-
-            self.add_product_source(course)
+            if not is_course_created:
+                self.add_product_source(course)
 
             is_draft = self.get_draft_flag(course_run)
             logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
@@ -354,6 +354,7 @@ class CSVDataLoader(AbstractDataLoader):
         which will be used as input for course creation via course api.
         """
         pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        product_source = self.product_source.slug if self.product_source else None
 
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
@@ -366,6 +367,7 @@ class CSVDataLoader(AbstractDataLoader):
             'org': data['organization'],
             'title': data['title'],
             'number': data['number'],
+            'product_source': product_source,
             'type': str(course_type.uuid),
             'prices': pricing,
             'course_run': course_run_creation_fields

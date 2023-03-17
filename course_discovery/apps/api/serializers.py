@@ -1282,7 +1282,16 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
-    product_source = SourceSerializer(required=False)
+    product_source = serializers.SlugRelatedField(required=False, slug_field='slug', queryset=Source.objects.all())
+
+    def to_representation(self, instance):
+        """
+        Conversion of the source slug to the source serializer data
+        """
+        representation = super().to_representation(instance)
+        if 'product_source' in representation:
+            representation['product_source'] = SourceSerializer(Source.objects.get(slug=representation['product_source'])).data  # pylint: disable=line-too-long
+        return representation
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1342,7 +1351,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
             'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo'
         )
-        read_only_fields = ('data_modified_timestamp',)
+        read_only_fields = ('enterprise_subscription_inclusion', 'product_source', 'data_modified_timestamp')
         extra_kwargs = {
             'partner': {'write_only': True}
         }
@@ -1421,17 +1430,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.product_meta.keywords.set(keywords, clear=True)
             instance.product_meta.save()
 
-    def update_product_source(self, instance, product_source):
-
-        if instance.product_source:
-            Source.objects.filter(id=instance.product_source.id).update(
-                **product_source)
-        else:
-            instance.product_source = Source.objects.create(
-                **product_source,
-            )
-            instance.save()
-
     def update_additional_metadata(self, instance, additional_metadata):
 
         facts = additional_metadata.pop('facts', None)
@@ -1504,9 +1502,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                 self.update_location_restriction(instance, location_restriction_data)
         if 'in_year_value' in validated_data:
             self.update_in_year_value(instance, validated_data.pop('in_year_value'))
-        if 'product_source' in validated_data:
-            self.update_product_source(
-                instance, validated_data.pop('product_source'))
         return super().update(instance, validated_data)
 
 
@@ -2101,7 +2096,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     in_year_value = ProductValueSerializer(required=False)
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
-    product_source = SourceSerializer(required=False)
+    product_source = SourceSerializer(required=False, read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2166,24 +2161,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
             'product_source', 'excluded_from_search', 'excluded_from_seo'
         )
-        read_only_fields = ('enterprise_subscription_inclusion',)
-
-    def update_product_source(self, instance, product_source):
-
-        if instance.product_source:
-            Source.objects.filter(
-                id=instance.product_source.id).update(**product_source)
-        else:
-            instance.product_source = Source.objects.create(
-                **product_source,
-            )
-            instance.save()
-
-    def update(self, instance, validated_data):
-        if 'product_source' in validated_data:
-            self.update_product_source(
-                instance, validated_data.pop('product_source'))
-        return super().update(instance, validated_data)
+        read_only_fields = ('enterprise_subscription_inclusion', 'product_source',)
 
 
 class PathwaySerializer(BaseModelSerializer):

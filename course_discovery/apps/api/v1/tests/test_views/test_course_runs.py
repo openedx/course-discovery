@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
-    PersonFactory, ProgramFactory, SeatFactory, TrackFactory
+    PersonFactory, ProgramFactory, SeatFactory, SourceFactory, TrackFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -32,6 +32,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def setUp(self):
         super().setUp()
         self.user = UserFactory(is_staff=True)
+        self.product_source = SourceFactory(name='test source')
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course_run_2 = CourseRunFactory(course__key='Test+Course', course__partner=self.partner)
@@ -880,6 +881,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'number': 'test101',
             'org': OrganizationFactory(key='test-key').key,
             'type': str(original_course_type.uuid),
+            'product_source': self.product_source.slug,
             'prices': {} if original_seat_type == 'audit' else {original_seat_type: 49},
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
@@ -939,6 +941,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'org': OrganizationFactory(key='test-key').key,
             'type': str(course_type.uuid),
             'prices': {Seat.VERIFIED: 49},
+            'product_source': self.product_source.slug,
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=-1),

@@ -34,11 +34,11 @@ class AbstractHeadingBlurbModelFactory(factory.django.DjangoModelFactory):
 
 
 class SourceFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Source
-
     name = FuzzyText()
     description = FuzzyText()
+
+    class Meta:
+        model = Source
 
 
 class ImageFactory(AbstractMediaModelFactory):

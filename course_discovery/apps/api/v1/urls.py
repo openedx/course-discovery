@@ -19,6 +19,7 @@ from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
+from course_discovery.apps.api.v1.views.sources import SourceViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
@@ -51,6 +52,7 @@ router.register(r'course_editors', CourseEditorViewSet, basename='course_editor'
 router.register(r'course_runs', CourseRunViewSet, basename='course_run')
 router.register(r'collaborators', CollaboratorViewSet, basename='collaborator')
 router.register(r'organizations', OrganizationViewSet, basename='organization')
+router.register(r'sources', SourceViewSet, basename='source')
 router.register(r'people', PersonViewSet, basename='person')
 router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'topics', TopicViewSet, basename='topic')
