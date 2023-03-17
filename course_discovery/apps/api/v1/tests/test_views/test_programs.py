@@ -274,6 +274,34 @@ class TestProgramViewSet(SerializationMixin):
 
         self.assert_list_results(url, expected, 27)
 
+    def test_filter_by_timestamp(self):
+        """
+        Verify that the endpoint filters programs based on modified timestamp.
+        """
+        program1 = ProgramFactory(partner=self.partner)
+        program2 = ProgramFactory(partner=self.partner)
+        program3 = ProgramFactory(partner=self.partner)
+
+        timestamp_now = datetime.datetime.now().isoformat()
+        for programobj in [program1, program2, program3]:
+            programobj.subtitle = 'test update'
+            programobj.save()
+
+        url = f"{self.list_path}?timestamp={timestamp_now}"
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 3
+
+        # programs saved without modification do not show up in filtering
+        timestamp_now = datetime.datetime.now().isoformat()
+        for programobj in [program1, program2, program3]:
+            programobj.save()
+
+        url = f"{self.list_path}?timestamp={timestamp_now}"
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 0
+
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
         expected = ProgramFactory.create_batch(2, partner=self.partner)

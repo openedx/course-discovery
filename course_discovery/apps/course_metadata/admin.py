@@ -353,7 +353,7 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     ordering = ('uuid', 'title', 'status')
     readonly_fields = (
         'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
-        'enterprise_subscription_inclusion', 'ofac_comment'
+        'enterprise_subscription_inclusion', 'ofac_comment', 'data_modified_timestamp'
     )
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
@@ -370,7 +370,7 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
         'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation', 'program_duration_override',
-        'product_source', 'ofac_comment', 'excluded_from_search', 'excluded_from_seo'
+        'product_source', 'ofac_comment', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo'
     )
     change_actions = ('refresh_program_skills', )
 

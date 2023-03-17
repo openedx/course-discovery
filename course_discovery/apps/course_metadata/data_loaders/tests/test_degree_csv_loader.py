@@ -314,7 +314,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
                 )
 
-    def test_invalid_product_source(self, _jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_invalid_product_source(self, _jwt_decode_patch):
         """
         Verify that no degree is created for an invalid product source
         """

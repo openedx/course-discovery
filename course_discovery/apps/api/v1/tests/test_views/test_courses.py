@@ -397,6 +397,34 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert response.status_code == 200
         assert len(response.data['results']) == expected_length
 
+    def test_list_courses__timestamped_filtering(self):
+        """
+        Verify the courses returned are filtered when timestamp filter is provided.
+        """
+        course1 = CourseFactory(partner=self.partner, title='Test Course 1', key='edX+exEd', additional_metadata=None)
+        course2 = CourseFactory(partner=self.partner, title='Test Course 2', key='edX+bcmp', additional_metadata=None)
+        course3 = CourseFactory(partner=self.partner, title='Test Course 3', key='edX+ver', additional_metadata=None)
+
+        timestamp_now = datetime.datetime.now().isoformat()
+        for courseobj in [self.course, course1, course2, course3]:
+            courseobj.short_description = 'test update'
+            courseobj.save()
+
+        url = f"{reverse('api:v1:course-list')}?editable=1&timestamp={timestamp_now}"
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 4
+
+        # courses saved without modification do not show up in filtering
+        timestamp_now = datetime.datetime.now().isoformat()
+        for courseobj in [self.course, course1, course2, course3]:
+            courseobj.save()
+
+        url = f"{reverse('api:v1:course-list')}?editable=1&timestamp={timestamp_now}"
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 0
+
     def test_unsubmitted_status(self):
         """ Verify we support composite status 'unsubmitted' (unpublished & unarchived). """
         self.course.delete()

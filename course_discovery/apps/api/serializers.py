@@ -1340,8 +1340,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
             'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
-            'product_source', 'excluded_from_search', 'excluded_from_seo'
+            'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo'
         )
+        read_only_fields = ('data_modified_timestamp',)
         extra_kwargs = {
             'partner': {'write_only': True}
         }
@@ -1928,9 +1929,10 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels', 'taxi_form', 'program_duration_override', 'excluded_from_search', 'excluded_from_seo'
+            'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
+            'excluded_from_search', 'excluded_from_seo'
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
+        read_only_fields = ('uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp')
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)

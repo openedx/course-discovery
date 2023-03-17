@@ -76,6 +76,37 @@ class TestCourse(TestCase):
         course.image = None
         assert course.image_url == course.card_image_url
 
+    def test_data_modified_timestamp_model_field_change(self):
+        """
+        Verify data modified timestamp changes on direct course model field changes.
+        """
+        course = factories.CourseFactory()
+        data_modified_timestamp = course.data_modified_timestamp
+        course.short_description = 'Testing change'
+        course.save()
+        assert data_modified_timestamp < course.data_modified_timestamp
+
+    def test_data_modified_timestamp_model_related_field_change(self):
+        """
+        Verify data modified timestamp changes on related field changes in Course model.
+        """
+        course = factories.CourseFactory(
+            additional_metadata=AdditionalMetadataFactory(external_identifier='identifier_1')
+        )
+        data_modified_timestamp = course.data_modified_timestamp
+        course.additional_metadata.product_status = 'Archived'
+        course.save()
+        assert data_modified_timestamp < course.data_modified_timestamp
+
+    def test_data_modified_timestamp_no_change(self):
+        """
+        Verify that saving a course object without any changes does not update data modified timestamp.
+        """
+        course = factories.CourseFactory()
+        data_modified_timestamp = course.data_modified_timestamp
+        course.save()
+        assert data_modified_timestamp == course.data_modified_timestamp
+
     def test_original_image_url(self):
         course = factories.CourseFactory()
         assert course.original_image_url == course.image.url
@@ -2033,6 +2064,34 @@ class ProgramTests(TestCase):
         actual_languages = self.program.languages
         assert len(actual_languages) > 0
         assert actual_languages == expected_languages
+
+    def test_data_modified_timestamp_change_model_field(self):
+        """
+        Verify data modified timestamp changes on direct program model field changes.
+        """
+        program = ProgramFactory()
+        data_modified_timestamp = program.data_modified_timestamp
+        program.min_hours_effort_per_week = 12
+        program.save()
+        assert data_modified_timestamp < program.data_modified_timestamp
+
+    def test_data_modified_timestamp_change_model_related_field(self):
+        """
+        Verify last modified timestamp changes on related program model field changes.
+        """
+        program = ProgramFactory()
+        data_modified_timestamp = program.data_modified_timestamp
+        program.geolocation.location_name = 'New Location name'
+        program.save()
+        assert data_modified_timestamp < program.data_modified_timestamp
+
+    def test_data_modified_timestamp_no_change(self):
+        """
+        Verify that saving a program object without any changes does not update data modified timestamp.
+        """
+        data_modified_timestamp = self.program.data_modified_timestamp
+        self.program.save()
+        assert data_modified_timestamp == self.program.data_modified_timestamp
 
     def test_transcript_languages(self):
         expected_transcript_languages = itertools.chain.from_iterable(

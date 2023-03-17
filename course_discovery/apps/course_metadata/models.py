@@ -24,6 +24,7 @@ from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
 from localflavor.us.us_states import CONTIGUOUS_STATES
+from model_utils import FieldTracker
 from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
@@ -44,6 +45,7 @@ from course_discovery.apps.course_metadata.choices import (
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
+from course_discovery.apps.course_metadata.model_utils import has_model_changed
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -248,6 +250,14 @@ class Organization(CachedMixin, TimeStampedModel):
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
     def clean(self):
         if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
             raise ValidationError(_('Please do not use any spaces or special characters other than period, '
@@ -335,6 +345,14 @@ class Image(AbstractMediaModel):
 class Video(AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, models.CASCADE, null=True, blank=True)
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
 
     def __str__(self):
         return f'{self.src}: {self.description}'
@@ -672,6 +690,14 @@ class Topic(TranslatableModel, TimeStampedModel):
         )
         ordering = ['created']
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
     def validate_unique(self, *args, **kwargs):
         super().validate_unique(*args, **kwargs)
         qs = Topic.objects.filter(partner=self.partner_id)
@@ -718,6 +744,14 @@ class ProductMeta(TimeStampedModel):
         help_text=_('SEO Meta tags for Products'),
     )
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
     def __str__(self):
         return self.title
 
@@ -741,6 +775,13 @@ class TaxiForm(TimeStampedModel):
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     subtitle = models.CharField(max_length=255, default=None, null=True, blank=True)
     post_submit_url = models.URLField(null=True, blank=True)
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
 
 
 class AdditionalMetadata(TimeStampedModel):
@@ -810,6 +851,15 @@ class AdditionalMetadata(TimeStampedModel):
         choices=ExternalCourseMarketingType.choices,
         validators=[ExternalCourseMarketingType.validator]
     )
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        external_keys = [self.product_meta,]
+        return has_model_changed(self.field_tracker, external_keys=external_keys)
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
@@ -1015,6 +1065,13 @@ class ProductValue(TimeStampedModel):
             'International value per click in U.S. dollars.'
         )
     )
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
 
 
 class GeoLocation(TimeStampedModel):
@@ -1056,6 +1113,14 @@ class GeoLocation(TimeStampedModel):
     def coordinates(self):
         return self.lat, self.lng
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
 
 class AbstractLocationRestrictionModel(TimeStampedModel):
     ALLOWLIST = 'allowlist'
@@ -1081,6 +1146,13 @@ class CourseLocationRestriction(AbstractLocationRestrictionModel):
 
     We have to set this as a foreign key field on course rather than a one to one relationship, due to draft courses.
     """
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
 
 
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
@@ -1192,8 +1264,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         ProductValue, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
 
-    everything = CourseQuerySet.as_manager()
-    objects = DraftManager.from_queryset(CourseQuerySet)()
+    data_modified_timestamp = models.DateTimeField(
+        default=None, null=True, blank=True, help_text=_('The last time this course was modified in the database.')
+    )
+
     enterprise_subscription_inclusion = models.BooleanField(
         null=True,
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
@@ -1213,6 +1287,28 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
 
+    everything = CourseQuerySet.as_manager()
+    objects = DraftManager.from_queryset(CourseQuerySet)()
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        external_keys = [
+            self.canonical_course_run,
+            self.additional_metadata,
+            self.geolocation,
+            self.location_restriction,
+            self.in_year_value,
+            self.video,
+        ]
+        excluded_fields = [
+            'data_modified_timestamp',
+        ]
+        return has_model_changed(self.field_tracker, external_keys, excluded_fields=excluded_fields)
+
     class Meta:
         unique_together = (
             ('partner', 'uuid', 'draft'),
@@ -1230,10 +1326,23 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 return False
         return True
 
-    # there have to be two saves because in order to check for if this is included in the
-    # subscription catalog, we need the id that is created on save to access the many-to-many fields
-    # and then need to update the boolean in the record based on conditional logic
+    def update_data_modified_timestamp(self):
+        """
+        Update the data_modified_timestamp field to the current time if the course has changed.
+        """
+        if not self.data_modified_timestamp:
+            # If the course has never been saved, set the data_modified_timestamp to the current time.
+            self.data_modified_timestamp = datetime.datetime.now(pytz.UTC)
+        elif self.has_changed:
+            self.data_modified_timestamp = datetime.datetime.now(pytz.UTC)
+
     def save(self, *args, **kwargs):
+        """
+        There have to be two saves because in order to check for if this is included in the
+        subscription catalog, we need the id that is created on save to access the many-to-many fields
+        and then need to update the boolean in the record based on conditional logic
+        """
+        self.update_data_modified_timestamp()
         super().save(*args, **kwargs)
         self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
         kwargs['force_insert'] = False
@@ -1592,6 +1701,14 @@ class CourseEditor(TimeStampedModel):
     user = models.ForeignKey(get_user_model(), models.CASCADE, related_name='courses_edited')
     course = models.ForeignKey(Course, models.CASCADE, related_name='editors')
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
     class Meta:
         unique_together = ('user', 'course',)
 
@@ -1812,6 +1929,14 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         'has_ofac_restrictions',
         'ofac_comment',
     )
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
 
     class Meta:
         unique_together = (
@@ -2486,6 +2611,14 @@ class Seat(DraftModelMixin, TimeStampedModel):
     sku = models.CharField(max_length=128, null=True, blank=True)
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
     history = HistoricalRecords()
 
     class Meta:
@@ -2744,6 +2877,25 @@ class Program(PkSearchableMixin, TimeStampedModel):
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
     )
     ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
+    data_modified_timestamp = models.DateTimeField(
+        default=None, blank=True, null=True, help_text=_('The last time this program was modified.')
+    )
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        excluded_fields = [
+            'data_modified_timestamp',
+        ]
+        external_keys = [
+            self.geolocation,
+            self.in_year_value,
+            self.taxi_form,
+        ]
+        return has_model_changed(self.field_tracker, external_keys, excluded_fields)
 
     objects = ProgramQuerySet.as_manager()
 
@@ -3064,6 +3216,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 return False
         return True
 
+    def update_data_modified_timestamp(self):
+        """
+        Update the data_modified_timestamp field to the current time if the program has changed.
+        """
+        if not self.data_modified_timestamp:
+            self.data_modified_timestamp = datetime.datetime.now(pytz.UTC)
+        elif self.has_changed:
+            self.data_modified_timestamp = datetime.datetime.now(pytz.UTC)
+
     def save(self, *args, **kwargs):
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
@@ -3072,6 +3233,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
             # Pop to clean the kwargs for the base class save call below
             not suppress_publication
         )
+
+        self.update_data_modified_timestamp()
+
         if self.is_active:
             # only call the trigger flow for published programs to avoid
             # unnecessary fetch calls in the method every time a program is saved.
