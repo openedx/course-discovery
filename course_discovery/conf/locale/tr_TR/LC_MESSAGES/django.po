@@ -6,7 +6,7 @@
 # Translators:
 # Translators:
 # e3b3f2a569bf1a7e02f24d7ea86f47f5, 2016
-# Ali Işıngör <ali@artistanbul.io>, 2017-2022
+# Ali Işıngör <ali@artistanbul.io>, 2017-2023
 # Çağan Aydınoğlu <aydinoglucagan@gmail.com>, 2022
 # Eray <justmannndu@gmail.com>, 2021
 # Eymen Erdem <eymen.erdem@ug.bilkent.edu.tr>, 2019
@@ -18,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Çağan Aydınoğlu <aydinoglucagan@gmail.com>, 2022\n"
+"Last-Translator: Ali Işıngör <ali@artistanbul.io>, 2017-2023\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -79,7 +79,7 @@ msgstr ""
 
 #: apps/api/serializers.py:1550
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "Ders kimliklerini boole değerlerine eşleyen sözlük"
 
 #: apps/api/serializers.py:1967
 msgid "Languages that course runs in this program are offered in."
@@ -95,15 +95,15 @@ msgstr "Bu programdaki derslerin sahip olduğu altyazı dilleri."
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "Studio'da [{key}] için ders yayını görüntüsü ayarlanırken bir hata oluştu. Diğer tüm alanlar Studio'ya başarıyla kaydedildi."
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "Hem editable=1 hem de aq parametresinin belirtilmesi desteklenmez."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "Sorgu parametrelerinize bir Course_uuid eklemelisiniz."
 
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:192
 #, python-brace-format
@@ -154,7 +154,7 @@ msgstr "[{key}] anahtarına sahip olan ders zaten mevcut."
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
-msgstr ""
+msgstr "Ders oluşturma başarısız oldu. Ders URL yolu \"[{url_slug}]\" zaten kullanımda. Lütfen bu alanı güncelleyin ve tekrar deneyin."
 
 #: apps/api/v1/views/courses.py:276
 msgid ""
@@ -167,7 +167,7 @@ msgstr ""
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
 "in use. Please update this field and try again."
-msgstr ""
+msgstr "Ders düzenleme başarısız oldu. Ders URL yolu \"[{url_slug}]\" zaten kullanımda. Lütfen bu alanı güncelleyin ve tekrar deneyin."
 
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
@@ -179,11 +179,11 @@ msgstr "Katalog adı"
 
 #: apps/catalogs/models.py:18
 msgid "Query to retrieve Course Run catalog contents"
-msgstr ""
+msgstr "Ders yayını katalog içeriklerini almak için sorgula"
 
 #: apps/catalogs/models.py:22
 msgid "Query to retrieve Program catalog contents"
-msgstr ""
+msgstr "Program katalog içeriklerini almak için sorgula"
 
 #: apps/catalogs/models.py:25
 msgid "Include archived courses"
@@ -237,7 +237,7 @@ msgstr "dönem {period_choices} seçeneklerinden biri olmalı."
 
 #: apps/core/forms.py:26
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr ""
+msgstr "'oran', '100/saat' gibi Django Rest Framework tarafından tanımlanan biçimde olmalıdır."
 
 #: apps/core/models.py:16
 msgid "Full Name"
@@ -262,7 +262,7 @@ msgstr "Kısa Kod"
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr "Bu İş Ortağı'nı tanımlayacak uygun bir kısaisim/kod (Örn. yönetim komutları için)"
+msgstr "Bu İş Ortağı'nı tanımlayacak uygun bir kod/slug (Örn. yönetim komutları için)"
 
 #: apps/core/models.py:55
 msgid "Courses API URL"
@@ -312,7 +312,7 @@ msgstr "Publisher URL"
 msgid ""
 "The base URL of your publisher service, if used. Example: "
 "https://publisher.example.com/"
-msgstr ""
+msgstr "Kullanılıyorsa, yayıncı hizmetinizin temel URL'si. Örnek: https://publisher.example.com/"
 
 #: apps/core/models.py:78
 msgid "LMS URL"
@@ -326,7 +326,7 @@ msgstr "LMS Yönetici URL"
 msgid ""
 "The public URL of your LMS Django admin. Example: https://lms-"
 "internal.example.com/admin"
-msgstr ""
+msgstr "LMS Django yöneticinizin genel URL'si. Örnek: https://lms-internal.example.com/admin"
 
 #: apps/core/models.py:83
 msgid "Analytics API URL"
@@ -373,7 +373,7 @@ msgstr "Vaka Kaydı Türü Kimliği"
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr ""
+msgstr "{model} pazarlama sitesinde yayınlanırken bir hata oluştu. Lütfen tekrar deneyin. Hata devam ederse, lütfen Mühendislik Ekibi ile iletişime geçin."
 
 #: apps/course_metadata/admin.py:51
 msgid "eligible for one-click purchase"
@@ -393,7 +393,7 @@ msgstr "Dahil edilen ders yayınları"
 
 #: apps/course_metadata/admin.py:636
 msgid "Edit course run exclusions"
-msgstr ""
+msgstr "Hariç tutulan ders yayınlarını düzenle"
 
 #: apps/course_metadata/admin.py:638
 msgid "(save and continue editing to create a link)"
@@ -416,7 +416,7 @@ msgstr "Şimdi mevcut"
 #: apps/course_metadata/algolia_models.py:90
 #: apps/course_metadata/models.py:1942
 msgid "Upcoming"
-msgstr "Gelen"
+msgstr "Yakında"
 
 #: apps/course_metadata/algolia_models.py:92
 #: apps/course_metadata/models.py:1936
@@ -490,19 +490,19 @@ msgstr "Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:51
 msgid "Paid Executive Education"
-msgstr ""
+msgstr "Ödenmiş Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:52
 msgid "Unpaid Executive Education"
-msgstr ""
+msgstr "Ödenmemiş Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:53
 msgid "Paid Bootcamp"
-msgstr ""
+msgstr "Ödenmiş Bootcamp"
 
 #: apps/course_metadata/choices.py:54
 msgid "Unpaid Bootcamp"
-msgstr ""
+msgstr "Ödenmemiş Bootcamp"
 
 #: apps/course_metadata/choices.py:58
 msgid "Platform"
@@ -547,28 +547,28 @@ msgstr ""
 msgid ""
 "Not sending notification email for template {template} because no "
 "organization is defined for course {course}"
-msgstr ""
+msgstr "{kurs} dersi için herhangi bir kuruluş tanımlanmadığından {template} şablonu için bildirim e-postası gönderilmiyor"
 
 #: apps/course_metadata/emails.py:38
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no project "
 "coordinator is defined for organization {org}"
-msgstr ""
+msgstr "{org} kuruluşu için proje koordinatörü tanımlanmadığından {template} şablonu için bildirim e-postası gönderilmiyor"
 
 #: apps/course_metadata/emails.py:91
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no publisher "
 "URL is defined for partner {partner}"
-msgstr ""
+msgstr "İş ortağı {partner} için yayıncı URL'si tanımlanmadığından {şablon} şablonu için bildirim e-postası gönderilmiyor"
 
 #: apps/course_metadata/emails.py:99
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no studio URL"
 " is defined for partner {partner}"
-msgstr ""
+msgstr "İş ortağı {partner} için studio URL'si tanımlanmadığından {şablon} şablonu için bildirim e-postası gönderilmiyor"
 
 #: apps/course_metadata/emails.py:165
 msgid "legal team"
@@ -614,7 +614,7 @@ msgstr "Programlar ancak bir banner görseline sahip olduktan sonra etkinleştir
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:15
 msgid "Tag to add to courses"
-msgstr ""
+msgstr "Derslere eklenecek etiket"
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:16
 msgid "UUIDs of courses to tag"
@@ -815,7 +815,7 @@ msgstr "Geçersiz argümanlar"
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
 msgid "Cannot remove active url_slug {url_slug}"
-msgstr ""
+msgstr "Etkin url_slug {url_slug} kaldırılamıyor"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:60
 #, python-brace-format
@@ -849,17 +849,17 @@ msgstr "Lütfen bu alanda nokta, altçizgi ve tire dışında herhangi bir boşl
 
 #: apps/course_metadata/models.py:188
 msgid "If populated, this field will overwrite name in platform."
-msgstr ""
+msgstr "Doldurulursa, bu alan platformdaki adın üzerine yazılacaktır."
 
 #: apps/course_metadata/models.py:193
 msgid "Spanish Description"
-msgstr "İspanyolca Tanım"
+msgstr "İspanyolca Açıklama"
 
 #: apps/course_metadata/models.py:194
 msgid ""
 "For seo, this field allows for alternate spanish description to be manually "
 "inputted"
-msgstr ""
+msgstr "SEO için bu alan, alternatif İspanyolca açıklamanın elle girilmesine izin verir."
 
 #: apps/course_metadata/models.py:219 apps/course_metadata/models.py:1014
 #: apps/course_metadata/models.py:1601
@@ -933,7 +933,7 @@ msgstr ""
 msgid ""
 "Who gets paid for the course? Platform is the site owner, Organization is "
 "the school."
-msgstr ""
+msgstr "Ders için kim para alıyor? Platform site sahibidir, Organizasyon okuldur."
 
 #: apps/course_metadata/models.py:537
 msgid "Sets the order for displaying Course Run Types."
@@ -971,7 +971,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:678
 msgid "The identifier for a product variant."
-msgstr ""
+msgstr "Ürün varyantının tanımlayıcısı."
 
 #: apps/course_metadata/models.py:727
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1012,27 +1012,27 @@ msgstr ""
 
 #: apps/course_metadata/models.py:878
 msgid "International Value Per Click"
-msgstr ""
+msgstr "Tıklama Başına Uluslararası Değer"
 
 #: apps/course_metadata/models.py:879
 msgid "International value per click in U.S. dollars."
-msgstr ""
+msgstr "ABD doları cinsinden tıklama başına uluslararası değer."
 
 #: apps/course_metadata/models.py:893
 msgid "Latitude"
-msgstr ""
+msgstr "Enlem"
 
 #: apps/course_metadata/models.py:899
 msgid "Longitude"
-msgstr ""
+msgstr "Boylam"
 
 #: apps/course_metadata/models.py:917
 msgid "Allowlist"
-msgstr ""
+msgstr "Güvenilir Liste"
 
 #: apps/course_metadata/models.py:918
 msgid "Blocklist"
-msgstr ""
+msgstr "Engelliler Listesi"
 
 #: apps/course_metadata/models.py:950
 msgid ""
@@ -1185,7 +1185,7 @@ msgstr "Program için kısa, açıklayıcı bir altbaşlık."
 
 #: apps/course_metadata/models.py:2385
 msgid "A brief hook for the marketing website"
-msgstr ""
+msgstr "Pazarlama sitesi için kısa bir açılış cümlesi"
 
 #: apps/course_metadata/models.py:2388
 msgid "The lifecycle status of this Program."
@@ -1205,18 +1205,18 @@ msgstr "Bu kutucuk seçili olmadığında, dersler yukarıdaki seçim kutusundak
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
-msgstr ""
+msgstr "Bu alan artık kullanımdan kaldırılmıştır (ECOM-6021). Bu programa ait bir dersi tamamlamak için gereken tahmini hafta sayısı."
 
 #: apps/course_metadata/models.py:2438
 msgid "DEPRECATED: Use the card image field"
-msgstr ""
+msgstr "KALDIRILDI: Kart resmi alanını kullanın"
 
 #: apps/course_metadata/models.py:2445
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
-msgstr ""
+msgstr "Bu alan, eğitmenlerin program sayfalarında görüntüleneceği sırayı belirlemek için API istemcileri tarafından kullanılabilir. Bu listedeki eğitmenler, bu programla ilişkili diğer tüm derslerden önce görünmelidir."
 
 #: apps/course_metadata/models.py:2456
 msgid "The description of credit redemption for courses in program"
@@ -1234,19 +1234,19 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2468
 msgid "Total number of learners who have enrolled in courses this program"
-msgstr ""
+msgstr "Bu programdaki derslere kaydolan öğrencilerin toplam sayısı"
 
 #: apps/course_metadata/models.py:2473
 msgid ""
 "Total number of learners who have enrolled in courses in this program in the"
 " last 6 months"
-msgstr ""
+msgstr "Bu program içindeki derslere son 6 ay içinde kaydolan toplam öğrenci sayısı"
 
 #: apps/course_metadata/models.py:2478
 msgid ""
 "Number of credits a learner will earn upon successful completion of the "
 "program"
-msgstr ""
+msgstr "Programı başarıyla tamamlayan bir öğrencinin kazanacağı kredi sayısı"
 
 #: apps/course_metadata/models.py:2482
 msgid ""
@@ -1359,7 +1359,7 @@ msgstr "Micromasters açılış sayfasına URL"
 
 #: apps/course_metadata/models.py:3000
 msgid "Micromasters verbose title"
-msgstr ""
+msgstr "Micromasters ayrıntılı başlık"
 
 #: apps/course_metadata/models.py:3006
 msgid "Micromasters descriptive paragraph"
@@ -1367,7 +1367,7 @@ msgstr "Micromasters açıklayıcı paragraf"
 
 #: apps/course_metadata/models.py:3019
 msgid "Customized background image for the MicroMasters section."
-msgstr ""
+msgstr "MicroMasters bölümü için özelleştirilmiş arka plan resmi."
 
 #: apps/course_metadata/models.py:3023
 msgid ""
@@ -1405,7 +1405,7 @@ msgstr "Sertifika"
 
 #: apps/course_metadata/models.py:3105
 msgid "Checkmark"
-msgstr ""
+msgstr "Onay işareti"
 
 #: apps/course_metadata/models.py:3106
 msgid "Clock"
@@ -1437,7 +1437,7 @@ msgstr "Kitap"
 
 #: apps/course_metadata/models.py:3113
 msgid "Mortar Board"
-msgstr ""
+msgstr "Mezuniyet Kepi"
 
 #: apps/course_metadata/models.py:3114
 msgid "Star"
@@ -1445,23 +1445,23 @@ msgstr "Yıldız"
 
 #: apps/course_metadata/models.py:3115
 msgid "Trophy"
-msgstr ""
+msgstr "Kupa"
 
 #: apps/course_metadata/models.py:3119
 msgid "Icon FA class"
-msgstr ""
+msgstr "Font Awesome simge class"
 
 #: apps/course_metadata/models.py:3120
 msgid "Paired text"
-msgstr ""
+msgstr "Eşleştirilmiş metin"
 
 #: apps/course_metadata/models.py:3139
 msgid "Deadline applies for this semester (e.g. Spring 2019"
-msgstr ""
+msgstr "Bu dönem için son tarih geçerlidir (örn. Bahar 2019"
 
 #: apps/course_metadata/models.py:3143
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
-msgstr ""
+msgstr "Son tarihi açıklar (örn. Erken Kabul Son Tarihi)"
 
 #: apps/course_metadata/models.py:3147
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
@@ -1537,7 +1537,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3501
 msgid "Course Run IDs"
-msgstr ""
+msgstr "Ders Yayını Kimlikleri"
 
 #: apps/course_metadata/models.py:3517
 msgid "Profile Image UUIDs"
@@ -1702,7 +1702,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:10
 #, python-format
 msgid "Publisher page: %(course_page_url)s"
-msgstr ""
+msgstr "Publisher sayfası: %(course_page_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:14
 #, python-format
@@ -1765,7 +1765,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:28
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:16
 msgid "The course run about page is now published."
-msgstr ""
+msgstr "Ders yayını hakkında sayfası şimdi yayınlandı."
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:6
 #, python-format
@@ -1834,11 +1834,11 @@ msgstr ""
 
 #: apps/learner_pathway/choices.py:7
 msgid "Inactive"
-msgstr ""
+msgstr "Etkin değil"
 
 #: apps/learner_pathway/models.py:85
 msgid "Title of the learner pathway."
-msgstr ""
+msgstr "Öğrenci patikasının başlığı."
 
 #: apps/learner_pathway/models.py:88
 msgid "Course/Program associated pathways also appear in search results"
@@ -1850,39 +1850,39 @@ msgstr ""
 
 #: apps/learner_pathway/models.py:119
 msgid "Learner Pathway"
-msgstr ""
+msgstr "Öğrenci Patikası"
 
 #: apps/learner_pathway/models.py:120
 msgid "Learner Pathways"
-msgstr ""
+msgstr "Öğrenci Patikaları"
 
 #: apps/learner_pathway/models.py:166
 msgid "Minimum number of nodes to complete this step of the pathway"
-msgstr ""
+msgstr "Patikanın bu adımını tamamlamak için minimum düğüm sayısı"
 
 #: apps/learner_pathway/models.py:170
 msgid "Learner Pathway Step"
-msgstr ""
+msgstr "Öğrenci Patikası Adımı"
 
 #: apps/learner_pathway/models.py:171
 msgid "Learner Pathway Steps"
-msgstr ""
+msgstr "Öğrenci Patikası Adımları"
 
 #: apps/learner_pathway/models.py:238
 msgid "Learner Pathway Course"
-msgstr ""
+msgstr "Öğrenci Patikası Dersi"
 
 #: apps/learner_pathway/models.py:239
 msgid "Learner Pathway Courses"
-msgstr ""
+msgstr "Öğrenci Patikası Dersleri"
 
 #: apps/learner_pathway/models.py:276
 msgid "Learner Pathway Program"
-msgstr ""
+msgstr "Öğrenci Patikası Programı"
 
 #: apps/learner_pathway/models.py:277
 msgid "Learner Pathway Programs"
-msgstr ""
+msgstr "Öğrenci Patikası Programları"
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
@@ -1909,38 +1909,38 @@ msgstr ""
 
 #: apps/taxonomy_support/models.py:32
 msgid "Ratio of number of common skills and total skill count."
-msgstr ""
+msgstr "Ortak beceri ve toplam beceri sayılarının birbirine oranı."
 
 #: apps/taxonomy_support/models.py:35
 msgid ""
 "Count of common skills between the original course and recommended course."
-msgstr ""
+msgstr "Özgün ders ile önerilen ders arasındaki ortak becerilerin sayısı."
 
 #: apps/taxonomy_support/models.py:38
 msgid "Ratio of number of common subjects and total subject count."
-msgstr ""
+msgstr "Ortak konu ve toplam konu sayılarının birbirine oranı."
 
 #: apps/taxonomy_support/models.py:41
 msgid ""
 "Count of common subjects between the original course and recommended course."
-msgstr ""
+msgstr "Özgün ders ile önerilen ders arasındaki ortak konuların sayısı."
 
 #: apps/taxonomy_support/models.py:46
 msgid "Course Recommendation"
-msgstr ""
+msgstr "Ders Önerisi"
 
 #: apps/taxonomy_support/models.py:47
 msgid "Course Recommendations"
-msgstr ""
+msgstr "Ders Önerileri"
 
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
-msgstr ""
+msgstr "Yayınlanan tüm dersler için öneriler ekler"
 
 #: apps/taxonomy_support/models.py:58
 msgid ""
 "Adds recommendations for courses created or modified in the past num days"
-msgstr ""
+msgstr "Belirli bir gün içinde oluşturulan veya değiştirilen dersler için öneriler ekler"
 
 #: urls.py:32
 msgid "Discovery Service Administration"

@@ -20,6 +20,7 @@
 # johmik <mikulasc@in.tum.de>, 2016
 # 9e6d57405f548b8b8d60fb744413d707, 2017
 # Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2021
+# Steve Ebanghus, 2023
 # Tobi, 2020
 msgid ""
 msgstr ""
@@ -27,7 +28,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2021\n"
+"Last-Translator: Steve Ebanghus, 2023\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
