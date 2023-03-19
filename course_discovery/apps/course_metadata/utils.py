@@ -898,7 +898,7 @@ def fetch_getsmarter_products():
     )
     try:
         response = getsmarter_api_client.request(method='GET',
-                                                 url=settings.GETSMARTER_CLIENT_CREDENTIALS['PRODUCTS_DETAILS_URL'])
+                                                 url=f"{settings.GETSMARTER_CLIENT_CREDENTIALS['PRODUCTS_DETAILS_URL']}?detail=2")  # pylint: disable=line-too-long
         response.raise_for_status()
         response = response.json()
 
