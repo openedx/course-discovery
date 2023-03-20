@@ -10,6 +10,7 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.choices import ExternalCourseMarketingType
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
@@ -252,7 +253,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'failure_count': 0,
                         'updated_products_count': 0,
                         'created_products_count': 1,
-                        'created_products': [{'uuid': str(course.uuid), 'external_course_marketing_type': None}],
+                        'created_products': [
+                            {'uuid': str(course.uuid), 'external_course_marketing_type': 'short_course'}
+                        ],
                         'archived_products_count': 0,
                         'archived_products': [],
                         'errors': loader.error_logs
@@ -329,7 +332,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'failure_count': 0,
                         'updated_products_count': 0,
                         'created_products_count': 1,
-                        'created_products': [{'uuid': str(course.uuid), 'external_course_marketing_type': None}],
+                        'created_products': [
+                            {'uuid': str(course.uuid), 'external_course_marketing_type': 'short_course'}
+                        ],
                         'archived_products_count': 2,
                         'errors': loader.error_logs
                     }
@@ -703,6 +708,64 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
                     assert course.subjects.first().slug == "computer-science"
                     assert course.additional_metadata.product_meta is None
+
+    @data(
+        (['certificate_header', 'certificate_text', 'stat1_text'],
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "certificate_header, certificate_text, stat1_text"',
+         ExternalCourseMarketingType.ShortCourse
+         ),
+        (['certificate_header', 'certificate_text', 'stat1_text'],
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "stat1_text"',
+         ExternalCourseMarketingType.Sprint
+         ),
+    )
+    @unpack
+    def test_data_validation__exec_education_external_marketing_types(
+            self, missing_fields, expected_message, external_course_marketing_type, _jwt_decode_patch
+    ):
+        """
+        Verify data validation of executive education course with different external course marketing types
+        """
+        self._setup_prerequisites(self.partner)
+        course_type = ('Executive Education(2U)', 'executive-education-2u')
+        product_source = 'ext_source'
+        if not CourseType.objects.filter(name=course_type[0], slug=course_type[1]).exists():
+            CourseTypeFactory(name=course_type[0], slug=course_type[1])
+
+        if not Source.objects.filter(slug=product_source).exists():
+            SourceFactory(slug=product_source)
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': course_type[0],
+            'external_course_marketing_type': external_course_marketing_type
+        }
+        # Set data fields to be empty
+        for field in missing_fields:
+            csv_data[field] = ''
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [csv_data])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = CSVDataLoader(
+                    self.partner, csv_path=csv.name, product_type=course_type[1], product_source=product_source
+                )
+                loader.ingest()
+
+                self._assert_default_logs(log_capture)
+
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        expected_message
+                    )
+                )
+
+                assert Course.everything.count() == 0
+                assert CourseRun.everything.count() == 0
 
     @data(
         (['primary_subject', 'image', 'long_description'],
