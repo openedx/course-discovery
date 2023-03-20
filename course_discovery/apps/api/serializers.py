@@ -41,8 +41,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
     Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
-    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject,
-    TaxiForm, Topic, Track, Video
+    Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice, ProgramType, Ranking, Seat,
+    SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1871,6 +1871,38 @@ class DegreeSerializer(BaseModelSerializer):
         return list(degree.specializations.values_list('value', flat=True))
 
 
+class ProgramSubscriptionPriceSerializer(BaseModelSerializer):
+    """
+    Serializer for the ``ProgramSubscriptionPrice`` model.
+    """
+    currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
+
+    class Meta:
+        model = ProgramSubscriptionPrice
+        fields = ['price', 'currency']
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.select_related('currency')
+
+
+class ProgramSubscriptionSerializer(BaseModelSerializer):
+    """
+    Serializer for the ``ProgramSubscription`` model.
+    """
+    prices = ProgramSubscriptionPriceSerializer(many=True)
+
+    class Meta:
+        model = ProgramSubscription
+        fields = ['subscription_eligible', 'prices']
+
+    @classmethod
+    def prefetch_queryset(cls, queryset=None):
+        return queryset.prefetch_related(
+            'prices',
+        )
+
+
 class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, BaseModelSerializer):
     """
     Basic program serializer
@@ -1896,6 +1928,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
     labels = TagListSerializerField()
     taxi_form = TaxiFormSerializer()
+    subscription = ProgramSubscriptionSerializer()
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1918,6 +1951,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'authoring_organizations',
             'degree',
             'curricula',
+            'subscription',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 
@@ -1930,7 +1964,8 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
             'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
-            'excluded_from_search', 'excluded_from_seo'
+            'excluded_from_search', 'excluded_from_seo','subscription',
+
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp')
 
@@ -2021,6 +2056,26 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         if obj.card_image:
             return obj.card_image.url
         return obj.card_image_url
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Remove subscription object and get its nested properties
+        subscription = data.pop('subscription', {})
+        if not subscription:
+            data['subscription_eligible'] = False
+            data['subscriptions_prices'] = []
+            return data
+
+        print (subscription)
+        subscription_eligible = subscription.get('subscription_eligible', False)
+        subscription_prices = subscription.get('prices', [])
+
+        # Add subscription properties to data object
+        data['subscription_eligible'] = subscription_eligible
+        data['subscriptions_prices'] = subscription_prices
+
+        return data
 
 
 class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
