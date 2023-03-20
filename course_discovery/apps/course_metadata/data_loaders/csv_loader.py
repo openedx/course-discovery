@@ -278,6 +278,11 @@ class CSVDataLoader(AbstractDataLoader):
             required_fields.extend(
                 settings.CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS[course_type.slug][self.product_source.slug]
             )
+            # Remove some fields for specific external course marketing type
+            external_course_marketing_type = data.get('external_course_marketing_type', '')
+            if external_course_marketing_type == ExternalCourseMarketingType.Sprint:
+                required_fields.remove('certificate_header')
+                required_fields.remove('certificate_text')
 
         for field in required_fields:
             if not (field in data and data[field]):
