@@ -25,7 +25,7 @@ from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdm
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Degree, Person, Position, Program, ProgramType
+from course_discovery.apps.course_metadata.models import Degree, Person, Position, Program, ProgramType, Source
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -40,6 +40,7 @@ class AdminTests(SiteMixin, TestCase):
         cls.user = UserFactory(is_staff=True, is_superuser=True)
         cls.course_runs = factories.CourseRunFactory.create_batch(3)
         cls.courses = [course_run.course for course_run in cls.course_runs]
+        cls.product_source = factories.SourceFactory()
 
         cls.excluded_course_run = factories.CourseRunFactory(course=cls.courses[0])
         cls.program = factories.ProgramFactory(
@@ -59,7 +60,8 @@ class AdminTests(SiteMixin, TestCase):
             'type': self.program.type.id,
             'status': status,
             'marketing_slug': marketing_slug,
-            'partner': self.program.partner.id
+            'partner': self.program.partner.id,
+            'product_source': self.product_source.id,
         }
 
     def assert_form_valid(self, data, files):
@@ -282,6 +284,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         )
 
         self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.product_source = factories.SourceFactory(name='Test Source')
         self._login()
 
     def _login(self):
@@ -347,7 +350,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             partner=Partner.objects.first(),
             status=ProgramStatus.Unpublished,
             type=ProgramType.objects.first(),
-            marketing_slug='foo'
+            marketing_slug='foo',
+            product_source=Source.objects.first(),
         )
         self.browser.find_element(By.ID, 'id_title').send_keys(program.title)
         self.browser.find_element(By.ID, 'id_subtitle').send_keys(program.subtitle)
@@ -356,6 +360,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self._select_option('id_status', program.status)
         self._select_option('id_type', str(program.type.id))
         self._select_option('id_partner', str(program.partner.id))
+        self._select_option('id_product_source', str(program.product_source.id))
         self._submit_program_form()
 
         actual = Program.objects.latest()
@@ -366,6 +371,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         assert actual.type == program.type
         assert actual.partner == program.partner
         assert actual.program_duration_override == program.program_duration_override
+        assert actual.product_source == program.product_source
 
     def test_program_update(self):
         self._navigate_to_edit_page()
