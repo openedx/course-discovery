@@ -9,15 +9,16 @@ from django.test import TestCase, override_settings
 from pytz import UTC
 
 from conftest import TEST_DOMAIN
-from course_discovery.apps.core.models import Partner
+from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
-    DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory, ProgramTypeFactory,
-    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
+    DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
+    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -427,6 +428,20 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
 
+    def test_course_subscription_eligibility(self):
+        """
+        Verify the subscription eligible attribute for courses is None.
+        """
+        course = AlgoliaProxyCourseFactory()
+        assert course.subscription_eligible is None
+
+    def test_course_subscription_prices(self):
+        """
+        Verify the subscription prices attribute for courses is empty list.
+        """
+        course = AlgoliaProxyCourseFactory()
+        assert len(course.subscription_prices) == 0
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -665,3 +680,32 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         """
         program = AlgoliaProxyProgramFactory()
         assert program.product_meta_title is None
+
+    @ddt.data(None, True, False)
+    def test_program_subscription_eligibility(self, subscription_eligible):
+        """
+        Verify the subscription eligible attribute for program is set correctly.
+        """
+        program = AlgoliaProxyProgramFactory()
+        program.subscription = None if subscription_eligible is None else \
+            ProgramSubscriptionFactory(subscription_eligible=subscription_eligible)
+        self.assertEqual(program.subscription_eligible, subscription_eligible)
+
+    @ddt.data(
+        None,
+        {'prices': [{'price': 10.00, 'currency': 'USD'}]},
+        {'prices': [{'price': 10.00, 'currency': 'USD'}, {'price': 20.00, 'currency': 'EUR'}]}
+    )
+    def test_program_subscription_prices(self, prices_data):
+        if prices_data:
+            subscription = ProgramSubscriptionFactory(subscription_eligible=True)
+            for price in prices_data['prices']:
+                currency = Currency.objects.get(code=price['currency'])
+                ProgramSubscriptionPriceFactory(program_subscription=subscription,
+                                                price=price['price'], currency=currency)
+                program = AlgoliaProxyProgramFactory(subscription=subscription)
+
+            assert program.subscription_prices is not None
+        else:
+            program = AlgoliaProxyProgramFactory(subscription=None)
+            assert len(program.subscription_prices) == 0

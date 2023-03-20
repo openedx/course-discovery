@@ -67,7 +67,8 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields',]
+                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields',
+                     'subscription_eligible', 'subscription_prices',]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -404,6 +405,16 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             return self.advertised_course_run.start.timestamp()
         return None  # Algolia will deprioritize entries where a ranked field is empty
 
+    @property
+    def subscription_eligible(self):
+        """ Courses do not have subscription_eligible attribute. Returning None explicitly"""
+        return None
+
+    @property
+    def subscription_prices(self):
+        """ Courses do not have subscription_prices attribute. Returning empty list explicitly"""
+        return []
+
 
 class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
@@ -601,6 +612,20 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         any Algolia indexing issues.
         """
         return None
+
+    @property
+    def subscription_eligible(self):
+        if hasattr(self, 'subscription'):
+            return self.subscription.subscription_eligible
+        return None
+
+    @property
+    def subscription_prices(self):
+        if hasattr(self, 'subscription') and hasattr(self.subscription, 'prices'):
+            prices = self.subscription.prices.all()
+            data = [{'price': price.price, 'currency': price.currency.code} for price in prices]
+            return data
+        return []
 
 
 class SearchDefaultResultsConfiguration(models.Model):
