@@ -740,6 +740,20 @@ class ProgramFactory(ProgramBaseFactory):
     status = ProgramStatus.Active
 
 
+class ProgramSubscriptionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProgramSubscription
+
+    program = factory.SubFactory(ProgramFactory)
+
+
+class ProgramSubscriptionPriceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProgramSubscriptionPrice
+
+    program_subscription = factory.SubFactory(ProgramSubscriptionFactory)
+
+
 class SpecializationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Specialization
