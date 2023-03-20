@@ -92,7 +92,7 @@ class EnglishProductIndex(BaseProductIndex):
                      ('product_organization_logo_override', 'organization_logo_override'),
                      ('product_meta_title', 'meta_title'), ('product_display_on_org_page', 'display_on_org_page'),
                      'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags',
-                     'skills', 'contentful_fields','subscription_eligibility','subscription_prices',)
+                     'skills', 'contentful_fields', 'subscription_eligibility', 'subscription_prices',)
 
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -117,7 +117,7 @@ class EnglishProductIndex(BaseProductIndex):
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
-    index_name = 'product'
+    index_name = 'dev_aht_index'
     should_index = 'should_index'
 
 
@@ -143,7 +143,7 @@ class SpanishProductIndex(BaseProductIndex):
                      ('product_organization_logo_override', 'organization_logo_override'),
                      ('product_meta_title', 'meta_title'), ('product_display_on_org_page', 'display_on_org_page'),
                      'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills',
-                     'contentful_fields','subscription_eligibility','subscription_prices',)
+                     'contentful_fields', 'subscription_eligibility', 'subscription_prices',)
 
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix
@@ -169,7 +169,7 @@ class SpanishProductIndex(BaseProductIndex):
         ],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
-    index_name = 'spanish_product'
+    index_name = 'dev_aht_spanish'
     should_index = 'should_index_spanish'
 
 

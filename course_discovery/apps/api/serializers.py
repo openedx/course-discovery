@@ -1964,7 +1964,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
             'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
-            'excluded_from_search', 'excluded_from_seo','subscription',
+            'excluded_from_search', 'excluded_from_seo', 'subscription',
 
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp')
@@ -2067,7 +2067,6 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             data['subscriptions_prices'] = []
             return data
 
-        print (subscription)
         subscription_eligible = subscription.get('subscription_eligible', False)
         subscription_prices = subscription.get('prices', [])
 

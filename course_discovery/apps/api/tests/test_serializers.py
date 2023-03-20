@@ -1088,7 +1088,9 @@ class MinimalProgramSerializerTests(TestCase):
             'labels': ['topic'] if include_labels else [],
             'program_duration_override': program.program_duration_override,
             'excluded_from_seo': program.excluded_from_seo,
-            'excluded_from_search': program.excluded_from_search
+            'excluded_from_search': program.excluded_from_search,
+            'subscription_eligible': False,
+            'subscription_prices': [],
         }
 
     def test_data(self):
@@ -1156,7 +1158,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             ).data,
             'in_year_value': ProductValueSerializer(program.in_year_value).data,
             'skill_names': [],
-            'skills': []
+            'skills': [],
+            'subscription_eligible': False,
+            'subscription_prices': [],
         })
         return expected
 
