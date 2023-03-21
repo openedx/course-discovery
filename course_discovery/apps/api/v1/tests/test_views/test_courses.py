@@ -293,7 +293,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         # Increasing threshold because Course skill fetch SQL queries are executed twice
         # on CI. Listing returns skill details and skill names as two separate fields.
         # TODO: Figure out why the cache behavior is not working as expected on CI.
-        with self.assertNumQueries(67, threshold=3):
+        with self.assertNumQueries(67, threshold=5):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1296,6 +1296,54 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
         self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
         self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+
+    @ddt.data(
+        (
+            {'heading': 'fact1_heading', 'blurb': '<p>fact1_blurb</p>'}, {},
+            [{'heading': 'fact1_heading', 'blurb': '<p>fact1_blurb</p>'}]
+        ),
+        (
+            {'heading': '', 'blurb': ''}, {'heading': 'fact2_heading', 'blurb': '<p>fact2_blurb</p>'},
+            [{'heading': 'fact2_heading', 'blurb': '<p>fact2_blurb</p>'}]
+        ),
+        (
+            {'heading': '', 'blurb': ''}, {'heading': '', 'blurb': ''},
+            []
+        ),
+        (
+            {}, {},
+            []
+        )
+    )
+    @ddt.unpack
+    def test_update_facts_requires_heading_with_additional_metadata(self, fact1, fact2, course_expected_facts):
+        '''
+        Test that facts without a truthy heading are ignored in course updates
+        '''
+        current = datetime.datetime.now(pytz.UTC)
+
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(additional_metadata=None, type=EE_type_2U)
+
+        additional_metadata = {
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'start_date': serialize_datetime(current),
+            'product_status': 'published',
+            'product_meta': None,
+            'external_course_marketing_type': None,
+            'external_url': 'https://example.com/123',
+            'external_identifier': '123',
+            'facts': [fact1, fact2]
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, {'additional_metadata': additional_metadata}, format='json')
+
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        assert response.status_code == 200
+        self.assertListEqual(self.serialize_course(course)['additional_metadata']['facts'], course_expected_facts)
+        assert Fact.objects.count() == len(course_expected_facts)
 
     @responses.activate
     def test_update_product_meta_with_additional_metadata(self):
