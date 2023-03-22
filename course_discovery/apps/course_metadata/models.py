@@ -1274,14 +1274,16 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
 
     excluded_from_search = models.BooleanField(
-        null=False,
+        null=True,
+        blank=True,
         default=False,
         verbose_name='Excluded From Search (Algolia Indexing)',
         help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
     )
 
     excluded_from_seo = models.BooleanField(
-        null=False,
+        null=True,
+        blank=True,
         default=False,
         verbose_name='Excluded From SEO (noindex tag)',
         help_text=_('If checked, the About Page will have a meta tag with noindex value')
@@ -2836,14 +2838,16 @@ class Program(PkSearchableMixin, TimeStampedModel):
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
     excluded_from_search = models.BooleanField(
-        null=False,
+        null=True,
+        blank=True,
         default=False,
         verbose_name='Excluded From Search (Algolia Indexing)',
         help_text=_('If checked, this item will not be indexed in Algolia and will not show up in search results.')
     )
 
     excluded_from_seo = models.BooleanField(
-        null=False,
+        null=True,
+        blank=True,
         default=False,
         verbose_name='Excluded From SEO (noindex tag)',
         help_text=_('If checked, the About Page will have a meta tag with noindex value')
