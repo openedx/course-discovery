@@ -365,7 +365,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             return False
 
         # WS-3723, Emeritus courses should be hidden until all features finished.
-        if is_excluded_product_sources_check(self.product_source.slug):
+        if self.product_source and is_excluded_product_sources_check(self.product_source.slug):
             return False
 
         return (len(self.owners) > 0 and
@@ -377,7 +377,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def should_index_spanish(self):
-        if is_excluded_product_sources_check(self.product_source.slug):
+        if self.product_source and is_excluded_product_sources_check(self.product_source.slug):
             return False
 
         return (self.should_index and
