@@ -38,3 +38,6 @@ edx-drf-extensions < 8.3.0
 
 # Pinning sphinx as new major release is causing error while installing requirements.
 sphinx<6.0.0
+
+# This dependency is causing issues with semgrep CI, failing on metadata checks
+cairocffi < 1.5.0
