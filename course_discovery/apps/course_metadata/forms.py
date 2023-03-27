@@ -26,14 +26,16 @@ class ProgramAdminForm(forms.ModelForm):
                 attrs={
                     'data-minimum-input-length': 3,
                     'class': 'sortable-select',
-                }
+                },
+                forward=['product_source'],
             ),
             'credit_backing_organizations': SortedModelSelect2Multiple(
                 url='admin_metadata:organisation-autocomplete',
                 attrs={
                     'data-minimum-input-length': 3,
                     'class': 'sortable-select',
-                }
+                },
+                forward=['product_source'],
             ),
             'instructor_ordering': SortedModelSelect2Multiple(
                 url='admin_metadata:person-autocomplete',
