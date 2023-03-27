@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-09 20:35+0000\n"
+"POT-Creation-Date: 2023-03-27 17:43+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -506,7 +506,8 @@ msgstr "Àväïläßlé nöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 msgid "Upcoming"
 msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
 
-#: apps/course_metadata/algolia_models.py apps/course_metadata/models.py
+#: apps/course_metadata/algolia_models.py apps/course_metadata/choices.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Archived"
 msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -526,7 +527,7 @@ msgstr "Àwäïtïng Ìntérnäl Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя �
 msgid "Reviewed"
 msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/course_metadata/choices.py
 msgid "Published"
 msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -598,6 +599,30 @@ msgstr "Plätförm Ⱡ'σяєм ιρѕυм ∂#"
 #: apps/course_metadata/choices.py
 msgid "Organization"
 msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Short"
+msgstr "Shört Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Medium"
+msgstr "Médïüm Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Long"
+msgstr "Löng Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "Short Course"
+msgstr "Shört Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Sprint"
+msgstr "Sprïnt Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Course Stack"
+msgstr "Çöürsé Stäçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/data_loaders/course_type.py
 #, python-brace-format
@@ -1083,6 +1108,12 @@ msgstr ""
 "ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
+msgid "Corresponding organization code in an external product source"
+msgstr ""
+"Çörréspöndïng örgänïzätïön çödé ïn än éxtérnäl prödüçt söürçé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "LevelType model translations"
 msgstr "LévélTýpé mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
@@ -1110,10 +1141,26 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Name of the external source."
+msgstr "Nämé öf thé éxtérnäl söürçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "Description of the external source."
+msgstr ""
+"Désçrïptïön öf thé éxtérnäl söürçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Programs of these types will be OFAC restricted"
+msgstr ""
+"Prögräms öf thésé týpés wïll ßé ÖFÀÇ réstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "ProgramType model translations"
@@ -1169,6 +1216,26 @@ msgid "Topic model translations"
 msgstr "Töpïç mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/models.py
+msgid "SEO Meta tags for Products"
+msgstr "SÉÖ Métä tägs för Prödüçts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The ID of the Taxi Form (by 2U) that would be rendered in place of the "
+"hubspot capture form"
+msgstr ""
+"Thé ÌD öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïn pläçé öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
+"hubspot capture form"
+msgstr ""
+"Thé gröüpïng öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïnstéäd öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
 msgid "The URL of the paid landing page on external site"
 msgstr ""
 "Thé ÛRL öf thé päïd ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
@@ -1187,6 +1254,12 @@ msgstr ""
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
+msgid "The ends date of the external course offering for marketing purpose"
+msgstr ""
+"Thé énds däté öf thé éxtérnäl çöürsé öfférïng för märkétïng pürpösé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
 msgid "The suggested deadline for enrollment for marketing purpose"
 msgstr ""
 "Thé süggéstéd déädlïné för énröllmént för märkétïng pürpösé Ⱡ'σяєм ιρѕυм "
@@ -1197,6 +1270,23 @@ msgid "The identifier for a product variant."
 msgstr ""
 "Thé ïdéntïfïér för ä prödüçt värïänt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "Course override"
+msgstr "Çöürsé övérrïdé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/models.py
+msgid "This field allows for override the default course term"
+msgstr ""
+"Thïs fïéld ällöws för övérrïdé thé défäült çöürsé térm Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field contain external course marketing type specific to product lines"
+msgstr ""
+"Thïs fïéld çöntäïn éxtérnäl çöürsé märkétïng týpé spéçïfïç tö prödüçt lïnés "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1280,6 +1370,14 @@ msgstr ""
 "çöürsé kéý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/models.py
+msgid ""
+"The actual duration of this course as experienced by learners who complete "
+"it."
+msgstr ""
+"Thé äçtüäl dürätïön öf thïs çöürsé äs éxpérïénçéd ßý léärnérs whö çömplété "
+"ït. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
 msgid "Add the course image"
 msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
@@ -1312,12 +1410,32 @@ msgid "Additional Information"
 msgstr "Àddïtïönäl Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/course_metadata/models.py
+msgid "The last time this course was modified in the database."
+msgstr ""
+"Thé läst tïmé thïs çöürsé wäs mödïfïéd ïn thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
 msgstr ""
 "Thïs fïéld sïgnïfïés ïf thïs çöürsé ïs ïn thé éntérprïsé süßsçrïptïön "
 "çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid ""
+"If checked, this item will not be indexed in Algolia and will not show up in"
+" search results."
+msgstr ""
+"Ìf çhéçkéd, thïs ïtém wïll nöt ßé ïndéxéd ïn Àlgölïä änd wïll nöt shöw üp ïn"
+" séärçh résülts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "If checked, the About Page will have a meta tag with noindex value"
+msgstr ""
+"Ìf çhéçkéd, thé Àßöüt Pägé wïll hävé ä métä täg wïth nöïndéx välüé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "Future"
@@ -1327,11 +1445,11 @@ msgstr "Fütüré Ⱡ'σяєм ιρѕυ#"
 msgid "Past"
 msgstr "Päst Ⱡ'σяєм ι#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Blocked"
 msgstr "Blöçkéd Ⱡ'σяєм ιρѕυм #"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Unrestricted"
 msgstr "Ûnréstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -1440,7 +1558,7 @@ msgstr ""
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
 msgstr ""
 "Àdd ÖFÀÇ réstrïçtïön téxt tö thé FÀQ séçtïön öf thé Märkétïng sïté Ⱡ'σяєм "
@@ -1454,7 +1572,7 @@ msgstr ""
 "Thïs çälçülätéd fïéld sïgnïfïés ïf thïs çöürsé rün ïs ïn thé éntérprïsé "
 "süßsçrïptïön çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Current"
 msgstr "Çürrént Ⱡ'σяєм ιρѕυм #"
 
@@ -1636,11 +1754,29 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
+"Useful field to overwrite the duration of a program. It can be a text "
+"describing a period of time, Ex: 6-9 months."
+msgstr ""
+"Ûséfül fïéld tö övérwrïté thé dürätïön öf ä prögräm. Ìt çän ßé ä téxt "
+"désçrïßïng ä pérïöd öf tïmé, Éx: 6-9 mönths. Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid ""
 "Pick a tag/label from the suggestions. To make a new tag, add a comma after "
 "the tag name."
 msgstr ""
 "Pïçk ä täg/läßél fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér "
 "thé täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid "The last time this program was modified."
+msgstr ""
+"Thé läst tïmé thïs prögräm wäs mödïfïéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "ID"
+msgstr "ÌD Ⱡ'σя#"
 
 #: apps/course_metadata/models.py
 msgid "The actual rank number"
@@ -1717,22 +1853,6 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
-msgid ""
-"The ID of the Taxi Form (by 2U) that would be rendered in place of the "
-"hubspot capture form"
-msgstr ""
-"Thé ÌD öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïn pläçé öf thé "
-"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
-
-#: apps/course_metadata/models.py
-msgid ""
-"The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
-"hubspot capture form"
-msgstr ""
-"Thé gröüpïng öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïnstéäd öf thé "
-"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/course_metadata/models.py
 msgid "URL to micromasters landing page"
 msgstr ""
 "ÛRL tö mïçrömästérs ländïng pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -1777,6 +1897,14 @@ msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 "Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Designates whether the degree should be displayed on the owning "
+"organization's page"
+msgstr ""
+"Désïgnätés whéthér thé dégréé shöüld ßé dïspläýéd ön thé öwnïng "
+"örgänïzätïön's pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/models.py
 msgid "The redirect URL of the degree on external site"
@@ -1948,8 +2076,14 @@ msgstr ""
 "whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє#"
 
-#: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py
+msgid "It expects the data will be provided in a csv file format "
+msgstr ""
+"Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät  Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
@@ -2017,6 +2151,7 @@ msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
 msgid "Home"
 msgstr "Hömé Ⱡ'σяєм ι#"
 
@@ -2028,6 +2163,11 @@ msgstr "Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
 msgid "Refresh Course Skills"
 msgstr "Réfrésh Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
+msgid "Refresh Program Skills"
+msgstr "Réfrésh Prögräm Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html
 #, python-format
@@ -2304,6 +2444,12 @@ msgstr ""
 "¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/views.py
+msgid "The refresh program skills task triggered successfully."
+msgstr ""
+"Thé réfrésh prögräm skïlls täsk trïggéréd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/views.py
 msgid "The refresh course skills task triggered successfully."
 msgstr ""
 "Thé réfrésh çöürsé skïlls täsk trïggéréd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя "
@@ -2466,6 +2612,10 @@ msgid ""
 msgstr ""
 "Àdds réçömméndätïöns för çöürsés çréätéd ör mödïfïéd ïn thé päst nüm däýs "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/taxonomy_support/providers.py
+msgid "No partner object found!"
+msgstr "Nö pärtnér ößjéçt föünd! Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: urls.py
 msgid "Discovery Service Administration"
