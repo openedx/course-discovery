@@ -28,7 +28,7 @@ jobs:
           result-encoding: string
 
       - name: Build and push Dev Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v1
         with:
           push: true
           username: ${{ secrets.DOCKERHUB_USERNAME }}
