@@ -1289,7 +1289,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         Conversion of the source slug to the source serializer data
         """
         representation = super().to_representation(instance)
-        if 'product_source' in representation:
+        if representation.get('product_source'):
             representation['product_source'] = SourceSerializer(Source.objects.get(slug=representation['product_source'])).data  # pylint: disable=line-too-long
         return representation
 
