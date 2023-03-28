@@ -39,7 +39,11 @@ class CourseRunAutocomplete(autocomplete.Select2QuerySetView):
 class OrganizationAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.is_staff:
-            qs = Organization.objects.all()
+            product_source = self.forwarded.get('product_source', None)
+            if product_source:
+                qs = Organization.objects.filter(organizationmapping__source=product_source)
+            else:
+                qs = Organization.objects.all()
 
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(name__icontains=self.q))

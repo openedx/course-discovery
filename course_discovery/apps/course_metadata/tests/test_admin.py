@@ -328,15 +328,15 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete',
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
-            'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
-            'field-hidden', 'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements',
-            'field-job_outlook_items', 'field-expected_learning_items', 'field-instructor_ordering',
-            'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value',
-            'field-organization_short_code_override', 'field-organization_logo_override',
+            'field-product_source', 'field-authoring_organizations', 'field-credit_backing_organizations',
+            'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
+            'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
+            'field-instructor_ordering', 'field-enrollment_count', 'field-recent_enrollment_count',
+            'field-credit_value', 'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
             'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
-            'field-program_duration_override', 'field-product_source', 'field-ofac_comment',
-            'field-data_modified_timestamp', 'field-excluded_from_search', 'field-excluded_from_seo'
+            'field-program_duration_override', 'field-ofac_comment', 'field-data_modified_timestamp',
+            'field-excluded_from_search', 'field-excluded_from_seo'
         ]
         assert actual == expected
 
