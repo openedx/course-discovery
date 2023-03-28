@@ -27,7 +27,7 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
-    SeatFactory, SeatTypeFactory, SubjectFactory
+    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -44,6 +44,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
         self.verified_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
+        self.product_source = SourceFactory(name='test source')
         self.course = CourseFactory(
             partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type, geolocation=None
         )
@@ -666,6 +667,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 'number': 'test101',
                 'org': self.org.key,
                 'type': str(self.audit_type.uuid),
+                'product_source': str(self.product_source.slug),
             }
             course_data.update(data or {})
         else:
@@ -679,6 +681,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 'number': 'test101',
                 'org': self.org.key,
                 'type': str(self.audit_type.uuid),
+                'product_source': str(self.product_source.slug),
                 'course_run': {
                     'start': '2001-01-01T00:00:00Z',
                     'end': datetime.datetime.now() + datetime.timedelta(days=1),
@@ -776,6 +779,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'org': self.org.key,
             'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid),
             'prices': {'verified': 77.77},
+            'product_source': str(self.product_source.slug),
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=1),
@@ -876,6 +880,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'number': 'test101',
             'org': self.org.key,
             'type': str(self.verified_type.uuid),
+            'product_source': str(self.product_source.slug),
             'prices': {'verified': 77},
         }
         response = self.create_course(data, update=False)
@@ -897,6 +902,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'number': 'test101',
             'org': self.org.key,
             'type': str(self.audit_type.uuid),
+            'product_source': str(self.product_source.slug),
         }
         response = self.create_course(data, update=False)
 
@@ -933,6 +939,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 'title': 'Course title',
                 'org': self.org.key,
                 'type': str(self.audit_type.uuid),
+                'product_source': str(self.product_source.slug),
             },
             update=False
         )
@@ -952,6 +959,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'number': 'test101',
             'org': self.org.key,
             'type': '00000000-0000-0000-0000-000000000000',
+            'product_source': str(self.product_source.slug),
         }
         response = self.create_course(data, update=False)
         assert response.status_code == 400
@@ -967,21 +975,23 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     @ddt.data(
         (
             {'title': 'Course title', 'number': 'test101', 'org': 'fake org',
-             'type': '00000000-0000-0000-0000-000000000000'},
+             'type': '00000000-0000-0000-0000-000000000000', 'product_source': 'test-source'},
             'Incorrect data sent. Organization [fake org] does not exist. '
             'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
         (
-            {'title': 'Course title', 'org': 'edX', 'type': '00000000-0000-0000-0000-000000000000'},
+            {'title': 'Course title', 'org': 'edX', 'type': '00000000-0000-0000-0000-000000000000',
+             'product_source': 'test-source'},
             'Incorrect data sent. Missing value for: [number]. '
             'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
         (
-            {'title': 'Course title', 'org': 'fake org', 'type': 'audit'},
+            {'title': 'Course title', 'org': 'fake org', 'type': 'audit', 'product_source': 'test-source'},
             'Incorrect data sent. Missing value for: [number]. Organization [fake org] does not exist.'
         ),
         (
-            {'number': 'test101', 'org': 'fake org', 'type': '00000000-0000-0000-0000-000000000000'},
+            {'number': 'test101', 'org': 'fake org', 'type': '00000000-0000-0000-0000-000000000000',
+             'product_source': 'test-source'},
             'Incorrect data sent. Missing value for: [title]. Organization [fake org] does not exist. '
             'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
@@ -1409,6 +1419,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'key': self.course.key,
             'type': str(self.verified_type.uuid),
             'prices': {'verified': '77.32'},
+            'product_source': str(self.course.product_source.slug),
         }
 
         response = self.client.patch(url, course_data, format='json')
