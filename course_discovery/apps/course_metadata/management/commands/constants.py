@@ -1720,3 +1720,59 @@ course_keys = ['AdelaideX+Addiction',
                'W3Cx+CSS.0x',
                'W3Cx+HTML5.1x',
                'W3Cx+HTML5.2x']
+
+STARTER_COURSES = [
+    {
+        "title": "Differential Equations",
+        "number": "M12",
+        "subjects": ["math", "engineering"],
+        "type": "verified-audit",
+        "prices": {"verified": "1.95"},
+        "publish": True,
+        "course_run": {
+            "run_type": "verified-audit",
+        },
+    },
+    {
+        "title": "Quantum Entanglement",
+        "number": "P315",
+        "subjects": ["physics"],
+        "type": "credit-verified-audit",
+        "prices": {"verified": "2.00", "credit": "2.00"},
+        "publish": True,
+        "course_run": {
+            "run_type": "credit-verified-audit",
+        },
+    },
+    {
+        "title": "Works of Ivan Turgenev",
+        "number": "L153",
+        "subjects": ["literature"],
+        "type": "honor",
+        "prices": {},
+        "publish": False,
+        "course_run": {
+            "run_type": "honor",
+        },
+    },
+    {
+        "title": "How Bulbs Work?",
+        "number": "E202",
+        "subjects": ["design"],
+        "type": "professional",
+        "prices": {"professional": "10.50"},
+        "publish": False,
+        "course_run": {
+            "run_type": "professional",
+        },
+    },
+]
+
+STARTER_SUBJECTS = [
+    'Architecture', 'Art & Culture', 'Biology & Life Sciences', 'Business & Management',
+    'Chemistry', 'Communication', 'Computer Science', 'Data Analysis & Statistics', 'Design',
+    'Economics & Finance', 'Education & Teacher Training', 'Electronics', 'Energy & Earth Sciences',
+    'Engineering', 'Environmental Studies', 'Ethics', 'Food & Nutrition', 'Health & Safety', 'History',
+    'Humanities', 'Language', 'Law', 'Literature', 'Math', 'Medicine', 'Music', 'Philanthropy',
+    'Philosophy & Ethics', 'Physics', 'Science', 'Social Sciences'
+]
