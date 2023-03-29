@@ -60,9 +60,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.99
+boto3==1.26.101
     # via django-ses
-botocore==1.29.99
+botocore==1.29.101
     # via
     #   boto3
     #   s3transfer
@@ -416,7 +416,7 @@ faker==18.3.1
     # via factory-boy
 fastavro==1.7.3
     # via openedx-events
-filelock==3.10.6
+filelock==3.10.7
     # via
     #   snowflake-connector-python
     #   tox
@@ -431,9 +431,9 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.82.0
+google-api-python-client==2.83.0
     # via -r requirements/base.in
-google-auth==2.16.3
+google-auth==2.17.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -629,7 +629,7 @@ pynacl==1.5.0
     # via
     #   edx-django-utils
     #   paramiko
-pyopenssl==23.1.0
+pyopenssl==23.1.1
     # via snowflake-connector-python
 pyparsing==3.0.9
     # via
@@ -683,7 +683,7 @@ python-stdnum==1.18
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2023.2
+pytz==2023.3
     # via
     #   -r requirements/base.in
     #   babel
@@ -843,7 +843,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.36.2
+taxonomy-connector==1.36.3
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -861,7 +861,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.6
+tomlkit==0.11.7
     # via pylint
 tox==3.28.0
     # via
@@ -875,7 +875,7 @@ trio==0.22.0
     #   trio-websocket
 trio-websocket==0.10.2
     # via selenium
-types-pyyaml==6.0.12.8
+types-pyyaml==6.0.12.9
     # via responses
 typing-extensions==4.5.0
     # via
