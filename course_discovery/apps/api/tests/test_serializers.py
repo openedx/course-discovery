@@ -37,7 +37,7 @@ from course_discovery.apps.api.serializers import (
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.core.models import User
+from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
@@ -61,8 +61,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
     DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
     IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
     PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramTypeFactory, RankingFactory,
-    SeatFactory, SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramSubscriptionFactory,
+    ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
+    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1088,7 +1089,9 @@ class MinimalProgramSerializerTests(TestCase):
             'labels': ['topic'] if include_labels else [],
             'program_duration_override': program.program_duration_override,
             'excluded_from_seo': program.excluded_from_seo,
-            'excluded_from_search': program.excluded_from_search
+            'excluded_from_search': program.excluded_from_search,
+            'subscription_eligible': None,
+            'subscription_prices': [],
         }
 
     def test_data(self):
@@ -1156,7 +1159,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             ).data,
             'in_year_value': ProductValueSerializer(program.in_year_value).data,
             'skill_names': [],
-            'skills': []
+            'skills': [],
+            'subscription_eligible': None,
+            'subscription_prices': [],
         })
         return expected
 
@@ -1461,6 +1466,22 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'card_image_url': '/media/test_card.jpg'
         })
         self.assertDictEqual(serializer.data, expected)
+
+    def test_data_without_subscription(self):
+        program = self.create_program()
+        request = make_request()
+        serializer = self.serializer_class(program, context={'request': request})
+        self.assertIsNone(serializer.data['subscription_eligible'])
+
+    def test_data_with_subscription(self):
+        program = self.create_program()
+        program.subscription = ProgramSubscriptionFactory(subscription_eligible=True)
+        currency = Currency.objects.get(code='USD')
+        ProgramSubscriptionPriceFactory(program_subscription=program.subscription, price=20.0, currency=currency)
+        request = make_request()
+        serializer = self.serializer_class(program, context={'request': request})
+        self.assertIsNotNone(serializer.data['subscription_eligible'])
+        self.assertIsNotNone(serializer.data['subscription_prices'])
 
 
 class PathwaySerialzerTests(TestCase):

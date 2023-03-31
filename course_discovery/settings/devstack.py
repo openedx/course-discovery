@@ -92,4 +92,3 @@ if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
 
 DISCOVERY_BASE_URL = "http://edx.devstack.discovery:18381"
-

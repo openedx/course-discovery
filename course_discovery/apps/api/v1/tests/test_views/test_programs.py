@@ -258,7 +258,7 @@ class TestProgramViewSet(SerializationMixin):
         program_type_name = 'foo'
         program = ProgramFactory(type__name_t=program_type_name, partner=self.partner)
         url = self.list_path + '?type=' + program_type_name
-        self.assert_list_results(url, [program], 18)
+        self.assert_list_results(url, [program], 21)
 
         url = self.list_path + '?type=bar'
         self.assert_list_results(url, [], 5)
@@ -336,10 +336,10 @@ class TestProgramViewSet(SerializationMixin):
         retired = ProgramFactory(status=ProgramStatus.Retired, partner=self.partner)
 
         url = self.list_path + '?status=active'
-        self.assert_list_results(url, [active], 18)
+        self.assert_list_results(url, [active], 21)
 
         url = self.list_path + '?status=retired'
-        self.assert_list_results(url, [retired], 18)
+        self.assert_list_results(url, [retired], 21)
 
         url = self.list_path + '?status=active&status=retired'
         self.assert_list_results(url, [active, retired], 27)
@@ -350,16 +350,16 @@ class TestProgramViewSet(SerializationMixin):
         not_hidden = ProgramFactory(hidden=False, partner=self.partner)
 
         url = self.list_path + '?hidden=True'
-        self.assert_list_results(url, [hidden], 18)
+        self.assert_list_results(url, [hidden], 21)
 
         url = self.list_path + '?hidden=False'
-        self.assert_list_results(url, [not_hidden], 18)
+        self.assert_list_results(url, [not_hidden], 21)
 
         url = self.list_path + '?hidden=1'
-        self.assert_list_results(url, [hidden], 18)
+        self.assert_list_results(url, [hidden], 21)
 
         url = self.list_path + '?hidden=0'
-        self.assert_list_results(url, [not_hidden], 18)
+        self.assert_list_results(url, [not_hidden], 21)
 
     def test_filter_by_marketing_slug(self):
         """ The endpoint should support filtering programs by marketing slug. """
@@ -375,13 +375,13 @@ class TestProgramViewSet(SerializationMixin):
         program.marketing_slug = SLUG
         program.save()
 
-        self.assert_list_results(url, [program], 25)
+        self.assert_list_results(url, [program], 28)
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 24, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 27, extra_context={'exclude_utm': 1})
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
