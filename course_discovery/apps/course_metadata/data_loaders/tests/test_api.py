@@ -1153,6 +1153,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @responses.activate
     def test_ingest_with_existing_banner_image(self):
         TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
         programs = self.mock_api()
 
         for program_data in programs:

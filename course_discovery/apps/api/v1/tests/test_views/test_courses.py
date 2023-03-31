@@ -409,6 +409,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         timestamp_now = datetime.datetime.now().isoformat()
         for courseobj in [self.course, course1, course2, course3]:
             courseobj.short_description = 'test update'
+            courseobj.draft = True
             courseobj.save()
 
         url = f"{reverse('api:v1:course-list')}?editable=1&timestamp={timestamp_now}"

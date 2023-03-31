@@ -39,6 +39,9 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
+from course_discovery.apps.course_metadata.signals import (
+    connect_course_data_modified_timestamp_related_models, disconnect_course_data_modified_timestamp_related_models
+)
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
@@ -55,6 +58,17 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 @pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 @ddt.ddt
 class TestCourse(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
     def test_str(self):
         course = factories.CourseFactory()
         assert str(course), f'{course.key}: {course.title}'
@@ -80,21 +94,32 @@ class TestCourse(TestCase):
         """
         Verify data modified timestamp changes on direct course model field changes.
         """
-        course = factories.CourseFactory()
+        course = factories.CourseFactory(draft=True)
         data_modified_timestamp = course.data_modified_timestamp
         course.short_description = 'Testing change'
         course.save()
         assert data_modified_timestamp < course.data_modified_timestamp
+
+    def test_data_modified_timestamp_model_non_draft(self):
+        """
+        Verify data modified timestamp does not change for non-draft course change.
+        """
+        course = factories.CourseFactory(draft=False)
+        data_modified_timestamp = course.data_modified_timestamp
+        course.short_description = 'Testing change'
+        course.save()
+        assert data_modified_timestamp == course.data_modified_timestamp
 
     def test_data_modified_timestamp_model_related_field_change(self):
         """
         Verify data modified timestamp changes on related field changes in Course model.
         """
         course = factories.CourseFactory(
+            draft=True,
             additional_metadata=AdditionalMetadataFactory(external_identifier='identifier_1')
         )
         data_modified_timestamp = course.data_modified_timestamp
-        course.additional_metadata.product_status = 'Archived'
+        course.additional_metadata = AdditionalMetadataFactory(external_identifier='identifier_2')
         course.save()
         assert data_modified_timestamp < course.data_modified_timestamp
 
@@ -478,6 +503,16 @@ class TestCourseEditor(TestCase):
 @ddt.ddt
 class CourseRunTests(OAuth2Mixin, TestCase):
     """ Tests for the `CourseRun` model. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
 
     def setUp(self):
         """
@@ -1020,6 +1055,22 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         factories.SeatFactory.create(course_run=course_run)
         assert course_run.is_marketable == expected
         assert course_run.could_be_marketable == expected
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if a course run has any updates since last save, the modified timestamp will be updated
+        for Course.
+        """
+        course_run = CourseRunFactory(draft=True, max_effort=9)
+        course_timestamp = course_run.course.data_modified_timestamp
+        course_run.max_effort = 10
+        course_run.update_product_data_modified_timestamp()
+        assert course_timestamp < course_run.course.data_modified_timestamp
+        course_run.save()
+
+        course_timestamp = course_run.course.data_modified_timestamp
+        course_run.update_product_data_modified_timestamp()
+        assert course_timestamp == course_run.course.data_modified_timestamp
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -1573,6 +1624,239 @@ class AbstractValueModelTests(TestCase):
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
         assert str(instance) == value
+
+
+class CertificateInfoTests(TestCase):
+    """ Tests for CertificateInfo. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_str(self):
+        heading = 'test heading'
+        blurb = '<p>test blurb<p>'
+
+        instance = factories.CertificateInfoFactory(heading='', blurb=blurb)
+        assert str(instance) == blurb
+
+        instance = factories.CertificateInfoFactory(heading=heading, blurb=blurb)
+        assert str(instance) == heading
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if CertInfo is changed since last save, the data modified timestamp for related course of
+        additional metadata will be updated.
+        """
+        cert_info = factories.CertificateInfoFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                certificate_info=cert_info
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        cert_info.heading = 'updated heading'
+        cert_info.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        cert_info.save()
+        course_timestamp = course.data_modified_timestamp
+        cert_info.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class ProductMetaTests(TestCase):
+    """ Tests for ProductMeta. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if ProductMeta is changed since last save, the data modified timestamp for related course of
+        additional metadata will be updated.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        product_meta.title = 'updated heading'
+        product_meta.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        product_meta.save()
+        course_timestamp = course.data_modified_timestamp
+        product_meta.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class ProductValueTests(TestCase):
+    """ Tests for ProductValue. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if ProductValue is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        product_value = factories.ProductValueFactory(per_lead_usa=50)
+        course = factories.CourseFactory(
+            draft=True,
+            in_year_value=product_value
+        )
+        course_timestamp = course.data_modified_timestamp
+        product_value.per_lead_usa = 100
+        product_value.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        product_value.save()
+        course_timestamp = course.data_modified_timestamp
+        product_value.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+    def test_defaults(self):
+        product_value = factories.ProductValue()
+        assert product_value.per_click_international == product_value.per_click_usa == 5
+        assert product_value.per_lead_international == product_value.per_lead_usa == 0
+
+
+class GeoLocationTests(TestCase):
+    """ Tests for GeoLocation. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if GeoLocation is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        geoloc = factories.GeoLocationFactory(location_name='loc 1')
+        course = factories.CourseFactory(
+            draft=True,
+            geolocation=geoloc
+        )
+        course_timestamp = course.data_modified_timestamp
+        geoloc.location_name = 'location 2'
+        geoloc.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        geoloc.save()
+        course_timestamp = course.data_modified_timestamp
+        geoloc.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class CourseLocationRestrictionTests(TestCase):
+    """ Tests for CourseLocationRestriction. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if CourseLocationRestriction is changed since last save, the data modified timestamp
+        for related course will be updated.
+        """
+        location_restriction = factories.CourseLocationRestrictionFactory(restriction_type='allowlist')
+        course = factories.CourseFactory(
+            draft=True,
+            location_restriction=location_restriction
+        )
+        course_timestamp = course.data_modified_timestamp
+        location_restriction.restriction_type = 'blacklist'
+        location_restriction.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        location_restriction.save()
+        course_timestamp = course.data_modified_timestamp
+        location_restriction.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class AdditionalMetadataTests(TestCase):
+    """ Tests for AdditionalMetadata. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if AdditionalMetadata is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        course_timestamp = course.data_modified_timestamp
+        additional_metadata.course_term_override = 'Programme'
+        additional_metadata.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        additional_metadata.save()
+        course_timestamp = course.data_modified_timestamp
+        additional_metadata.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
 
 
 class AbstractTitleDescriptionModelTests(TestCase):
@@ -2605,6 +2889,15 @@ class ProgramTypeTests(TestCase):
 
 class CourseEntitlementTests(TestCase):
     """ Tests of the CourseEntitlement model. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
 
     def setUp(self):
         super().setUp()
@@ -2618,6 +2911,23 @@ class CourseEntitlementTests(TestCase):
         factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
         with pytest.raises(IntegrityError):
             factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if draft entitlement is changed since last save, the data modified timestamp for related course
+        will be updated.
+        """
+        course = factories.CourseFactory(draft=True)
+        entitlement = factories.CourseEntitlementFactory(course=course, mode=self.mode, draft=True, price=50)
+        course_timestamp = course.data_modified_timestamp
+        entitlement.price = 100
+        entitlement.update_product_data_modified_timestamp()
+        assert course_timestamp < course.data_modified_timestamp
+
+        entitlement.save()
+        course_timestamp = course.data_modified_timestamp
+        entitlement.update_product_data_modified_timestamp()
+        assert course_timestamp == course.data_modified_timestamp
 
 
 class EndorsementTests(TestCase):
@@ -3031,15 +3341,3 @@ class TestCourseRecommendations(TestCase):
         assert course2_recs[0].key == 'course3'
         assert course2_recs[1].key == 'course6'
         assert course2_recs[2].key == 'course4'
-
-
-class ProductValueTests(TestCase):
-    """ Tests of the ProductValue model. """
-
-    def setUp(self):
-        super().setUp()
-        self.product_value = factories.ProductValue()
-
-    def test_defaults(self):
-        assert self.product_value.per_click_international == self.product_value.per_click_usa == 5
-        assert self.product_value.per_lead_international == self.product_value.per_lead_usa == 0
