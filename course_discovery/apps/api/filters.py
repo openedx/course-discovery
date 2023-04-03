@@ -99,15 +99,20 @@ class CourseFilter(filters.FilterSet):
         statuses = set(value.split(','))
         or_queries = []  # a list of Q() expressions to add to our filter as alternatives to status check
 
+        now = datetime.datetime.now(pytz.UTC)
         if 'in_review' in statuses:  # any of our review statuses
             statuses.remove('in_review')
             statuses.add(CourseRunStatus.LegalReview)
             statuses.add(CourseRunStatus.InternalReview)
+
         if 'unsubmitted' in statuses:  # unpublished and unarchived
             statuses.remove('unsubmitted')
             # "is not archived" logic stolen from CourseRun.has_ended
-            now = datetime.datetime.now(pytz.UTC)
             or_queries.append(Q(course_runs__status=CourseRunStatus.Unpublished) & ~Q(course_runs__end__lt=now))
+
+        if 'archived' in statuses:  # unpublished and archived
+            statuses.remove('archived')
+            or_queries.append(Q(course_runs__status=CourseRunStatus.Unpublished) & Q(course_runs__end__lt=now))
 
         status_check = Q(course_runs__status__in=statuses)
         for query in or_queries:

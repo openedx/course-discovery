@@ -1496,12 +1496,16 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         """
         Returns all unique course run status values inside this course.
 
-        Note that it skips hidden and archived courses - this list is typically used for presentational purposes.
+        Note that it skips hidden courses - this list is typically used for presentational purposes.
         """
+        statuses = []
         now = datetime.datetime.now(pytz.UTC)
-        runs = self.course_runs.exclude(hidden=True).exclude(status=CourseRunStatus.Unpublished, end__lt=now)
-        statuses = runs.values_list('status', flat=True).distinct().order_by('status')
-        return list(statuses)
+        runs = self.course_runs.exclude(hidden=True)
+        if runs.filter(status=CourseRunStatus.Unpublished, end__lt=now).exists():
+            statuses = ['archived']
+            runs = runs.exclude(status=CourseRunStatus.Unpublished, end__lt=now)
+        statuses += list(runs.values_list('status', flat=True).distinct().order_by('status'))
+        return statuses
 
     def unpublish_inactive_runs(self, published_runs=None):
         """
