@@ -60,9 +60,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.103
+boto3==1.26.104
     # via django-ses
-botocore==1.29.103
+botocore==1.29.104
     # via
     #   boto3
     #   s3transfer
@@ -413,7 +413,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==18.3.1
+faker==18.3.2
     # via factory-boy
 fastavro==1.7.3
     # via openedx-events
@@ -555,7 +555,7 @@ pbr==5.11.1
     # via stevedore
 peewee==3.16.0
     # via semgrep
-pillow==9.4.0
+pillow==9.5.0
     # via
     #   -r requirements/base.in
     #   cairosvg

@@ -37,9 +37,9 @@ beautifulsoup4==4.12.0
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.103
+boto3==1.26.104
     # via django-ses
-botocore==1.29.103
+botocore==1.29.104
     # via
     #   boto3
     #   s3transfer
@@ -436,7 +436,7 @@ pandas==1.5.3
     # via taxonomy-connector
 pbr==5.11.1
     # via stevedore
-pillow==9.4.0
+pillow==9.5.0
     # via
     #   -r requirements/base.in
     #   cairosvg
