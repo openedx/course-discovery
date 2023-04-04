@@ -2059,7 +2059,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         data = super().to_representation(instance)
 
         # Remove subscription object and get its nested properties
-        subscription = data.pop('subscription')
+        subscription = data.pop('subscription', None)
         # For keeping the structure of data consistent even if some program hasn't been marked
         # as either subscription eligible or not yet we explicitly send None.
 
