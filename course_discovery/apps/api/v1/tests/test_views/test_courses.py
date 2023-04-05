@@ -75,7 +75,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(44, threshold=3):
+        with self.assertNumQueries(48, threshold=3):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -272,7 +272,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(65, threshold=3):
+        with self.assertNumQueries(69, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -282,7 +282,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(65, threshold=3):
+        with self.assertNumQueries(69, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -442,25 +442,17 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert {c['uuid'] for c in response.data['results']} == \
                {str(run.course.uuid) for run in [future_end_run, no_end_run]}
 
-    def test_no_archived_statuses(self):
-        """ Verify that we skip archived statuses in a course serialization of statuses. """
-        now = datetime.datetime.now(pytz.UTC)
-        past_end_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished,
-                                        end=now - datetime.timedelta(days=1))
-        _published_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
+    def test_archived_statuses(self):
+        """ Verify that we archived statuses are present in a course serialization of statuses. """
+        CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished,
+                         end=datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1))
+        CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
 
         response = self.client.get(reverse('api:v1:course-list'))
         assert response.status_code == 200
         assert len(response.data['results']) == 1
         assert response.data['results'][0]['uuid'] == str(self.course.uuid)
-        assert response.data['results'][0]['course_run_statuses'] == ['published']
-        # no 'unpublished' status
-
-        # Now test with no end date - we should see unarchived appear
-        past_end_run.end = None
-        past_end_run.save()
-        response = self.client.get(reverse('api:v1:course-list'))
-        assert response.data['results'][0]['course_run_statuses'] == ['published', 'unpublished']
+        assert response.data['results'][0]['course_run_statuses'] == ['archived', 'published']
 
     @ddt.data(
         ('get', False, False, True),

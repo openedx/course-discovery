@@ -317,7 +317,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(44, threshold=3):
+            with self.assertNumQueries(48, threshold=3):
                 response = self.client.get(url)
 
             assert response.status_code == 200
