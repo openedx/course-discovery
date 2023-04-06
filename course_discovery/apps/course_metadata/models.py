@@ -3428,6 +3428,11 @@ class Program(PkSearchableMixin, TimeStampedModel):
             logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
             UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
 
+    def mark_ofac_restricted(self):
+        self.has_ofac_restrictions = True
+        self.ofac_comment = f"Program type {self.type.slug} is OFAC restricted for {self.product_source.name}"
+        self.save()
+
 
 class ProgramSubscription(PkSearchableMixin, TimeStampedModel):
     """Model for storing program subscription eligibility"""
