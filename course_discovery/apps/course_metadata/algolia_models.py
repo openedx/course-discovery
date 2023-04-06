@@ -131,10 +131,7 @@ class AlgoliaProxyProduct(Program):
 
     @property
     def coordinates(self):
-        geolocation = getattr(self.product, 'geolocation', None)
-        if geolocation:
-            return getattr(geolocation, 'coordinates', None)
-        return None
+        return self.coordinates
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
@@ -202,6 +199,13 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     @property
     def product_source(self):
         return self.product_source.slug if self.product_source else None
+
+    @property
+    def coordinates(self):
+        geolocation = getattr(self, 'geolocation', None)
+        if geolocation:
+            return getattr(geolocation, 'coordinates', None)
+        return 38.951302, -76.873100
 
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
