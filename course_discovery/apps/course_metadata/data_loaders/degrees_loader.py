@@ -283,6 +283,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             defaults=data_dict
         )
 
+        if degree.product_source and \
+                degree.product_source.ofac_restricted_program_types.filter(id=program_type.id).exists():
+            degree.mark_ofac_restricted()
+
         logger.info("Degree with slug {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             degree.marketing_slug,
             "created" if created else "updated",
