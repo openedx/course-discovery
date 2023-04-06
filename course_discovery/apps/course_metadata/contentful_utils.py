@@ -399,6 +399,9 @@ def fetch_and_transform_degree_contentful_data():
 
     for degree_entry in contentful_degree_page_entries:
         product_uuid = degree_entry.uuid
+        if product_uuid in transformed_degree_data:
+            continue
+        uuid_list = getattr(degree_entry, 'uuid_list', [])
         excluded_from_search = getattr(degree_entry, 'excluded_from_search', False)
         excluded_from_seo = getattr(degree_entry, 'excluded_from_seo', False)
         page_title = degree_entry.seo.page_title
@@ -432,5 +435,8 @@ def fetch_and_transform_degree_contentful_data():
             faq_module = get_faq_module(
                 degree_entry.modules[module_list.index('faqModule')].faqs)
             transformed_degree_data[product_uuid].update({'faq_items': faq_module})
+
+        for uuid in uuid_list:  # Share the same about page info from Contentful between different uuids
+            transformed_degree_data[uuid] = transformed_degree_data[product_uuid]
 
     return transformed_degree_data
