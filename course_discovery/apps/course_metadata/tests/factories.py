@@ -263,6 +263,19 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
         return super()._create(model_class, *args, **kwargs)
 
 
+class CourseReviewsFactory(factory.django.DjangoModelFactory):
+    course_key = FuzzyText()
+    reviews_count = FuzzyInteger(1)
+    avg_course_rating = FuzzyDecimal(0.0, 5.0)
+    confident_learners_percentage = FuzzyDecimal(0.0, 100.0)
+    most_common_goal = 'Change careers'
+    most_common_goal_learners_percentage = FuzzyDecimal(0.0, 100.0)
+    total_enrollments = FuzzyInteger(1)
+
+    class Meta:
+        model = CourseReview
+
+
 class ProgramSkillFactory(factory.django.DjangoModelFactory):
     program_uuid = factory.LazyFunction(uuid4)
     skill = factory.SubFactory(SkillFactory)
