@@ -3,7 +3,7 @@ import re
 
 from django.conf import settings
 from django.core import validators
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
@@ -30,8 +30,8 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
-    Seat, Source, Video
+    AdditionalMetadata, Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug,
+    Organization, Program, Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -522,3 +522,25 @@ class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithRecommendationsSerializer
     queryset = serializers.MinimalCourseSerializer.prefetch_queryset()
+
+
+class AdditionalMetadataFieldOptionsViewSet(viewsets.ViewSet):
+    """
+    A viewset that retrieves all the choices of a specific attributes in AdditionalMetadata model.
+    """
+    permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
+
+    def list(self, request, *args, **kwargs):
+        """ Return a list of all choices of specific attributes in AdditionalMetadata model."""
+        attributes = request.query_params.getlist('attribute')
+        if not attributes:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        choices = {}
+        for attribute in attributes:
+            try:
+                field = AdditionalMetadata._meta.get_field(attribute)
+            except FieldDoesNotExist:
+                logger.warning('Attribute [%s] does not exist in AdditionalMetadata model.', attribute)
+                continue
+            choices[attribute] = field.choices
+        return Response(choices)

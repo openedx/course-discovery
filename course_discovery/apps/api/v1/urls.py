@@ -11,7 +11,9 @@ from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.comments import CommentViewSet
 from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
-from course_discovery.apps.api.v1.views.courses import CourseRecommendationViewSet, CourseViewSet
+from course_discovery.apps.api.v1.views.courses import (
+    AdditionalMetadataFieldOptionsViewSet, CourseRecommendationViewSet, CourseViewSet
+)
 from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.level_types import LevelTypeViewSet
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
@@ -44,6 +46,8 @@ urlpatterns = [
 ]
 
 router = routers.SimpleRouter()
+router.register(r'additional_metadata_field_options', AdditionalMetadataFieldOptionsViewSet,
+                basename='additional_metadata_field_options')
 router.register(r'catalogs', CatalogViewSet)
 router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'courses', CourseViewSet, basename='course')

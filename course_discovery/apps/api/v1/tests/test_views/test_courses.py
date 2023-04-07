@@ -379,7 +379,6 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     def test_list_courses_course_type_filter(self, course_type, expected_length):
         """
         Verify the endpoint returns a list of courses filtered by correct course type.
-
         * For explicit type slugs, only those courses are returned
         * For open-courses, all except bootcamps and executive education are returned
         * For an incorrect slug, no filtering is the done and default list is returned.
@@ -2239,3 +2238,86 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
         response = self.client.get(url)
         assert response.status_code == 200
+
+
+@ddt.ddt
+class AdditionalMetadataFieldOptionsViewSetTests(APITestCase):
+    """
+    Tests for the AdditionalMetadataFieldOptionsViewSet view set. This view set is used to
+    return a list of options for additional metadata fields passed in the query params.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('api:v1:additional_metadata_field_options-list')
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.non_staff_user = UserFactory()
+        self.request.user = self.user
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    @ddt.data('product_status', 'external_course_marketing_type')
+    def test_authentication_required(self, field):
+        """
+        Verify that authentication is required to access the endpoint.
+        """
+        response = self.client.get(self.url, {'attribute': field})
+        assert response.status_code == 200
+
+        self.client.logout()
+        response = self.client.get(self.url, {'attribute': field})
+        assert response.status_code == 401
+
+    @ddt.data(
+        ('product_status', {
+            "product_status": [["archived", "Archived"], ["published", "Published"]]
+        }),
+        ('external_course_marketing_type', {
+            "external_course_marketing_type":
+                [["short_course", "Short Course"], ["sprint", "Sprint"], ["course_stack", "Course Stack"]]
+        })
+    )
+    @ddt.unpack
+    def test_assert_response_valid(self, attr, expected_output):
+        """
+        Verify that the response is valid for the given attribute and expected output.
+        """
+        response = self.client.get(self.url, {'attribute': attr})
+        assert response.status_code == 200
+        self.assertEqual(response.json(), expected_output)
+
+    def test_assert_attribute_required(self):
+        """
+        Verify that the attribute is required to access the endpoint.
+        """
+        response = self.client.get(self.url)
+        assert response.status_code == 400
+
+    def test_assert_attribute_not_exist(self):
+        """
+        Verify that the attribute is required to access the endpoint.
+        """
+        response = self.client.get(
+            self.url, {'attribute': 'invalid_attribute'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {})
+
+    def test_assert_response_with_multiple_attributes(self):
+        """
+        Verify that the response is valid for the given attribute and expected output.
+        """
+        response = self.client.get(
+            self.url,
+            {'attribute': ['product_status', 'external_course_marketing_type']}
+        )
+        assert response.status_code == 200
+        self.assertEqual(response.json(), {
+            "product_status": [
+                ["archived", "Archived"],
+                ["published", "Published"]
+            ],
+            "external_course_marketing_type": [
+                ["short_course", "Short Course"],
+                ["sprint", "Sprint"],
+                ["course_stack", "Course Stack"]
+            ]
+        })
