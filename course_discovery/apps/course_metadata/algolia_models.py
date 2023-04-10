@@ -212,10 +212,6 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     class Meta:
         proxy = True
-    
-    @property
-    def product_external_url(self):
-        return self.additional_metadata.external_url if self.additional_metadata else None
 
     @property
     def product_type(self):
