@@ -423,10 +423,26 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.should_index
 
     @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=['blocked'])
-    def test_product_source_shoud_excluded(self):
+    def test_product_source_should_excluded(self):
         course = self.create_blocked_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
+
+    @ddt.data(AlgoliaProxyCourse, AlgoliaProxyProgram)
+    def test_external_url_when_present(self, model_factory):
+        product = model_factory(
+            partner=self.__class__.edxPartner,
+            additional_metadata=AdditionalMetadataFactory(external_url='https://external-url.com'),
+        )
+        assert product.product_external_url is 'https://external-url.com'
+
+    @ddt.data(AlgoliaProxyCourse, AlgoliaProxyProgram)
+    def test_external_url_when_no_additional_metadata_is_present(self, model_factory):
+        product = model_factory(
+            partner=self.__class__.edxPartner,
+            additional_metadata=None,
+        )
+        assert product.product_external_url is None
 
     def test_course_subscription_eligibility(self):
         """
