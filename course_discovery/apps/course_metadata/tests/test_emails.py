@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 from uuid import uuid4
 
@@ -13,6 +14,7 @@ from testfixtures import LogCapture, StringComparison
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.models import CourseEditor, CourseRunStatus, CourseType
+from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, PartnerFactory
 )
@@ -409,6 +411,7 @@ class TestIngestionEmail(TestCase):
     USER_EMAILS = ['edx@example.com']
     EXEC_ED_PRODUCT = 'EXECUTIVE_EDUCATION'
     BOOTCAMP_PRODUCT = 'BOOTCAMPS'
+    PRODUCTS_DATA = MOCK_PRODUCTS_DATA
 
     def setUp(self):
         super().setUp()
@@ -466,6 +469,28 @@ class TestIngestionEmail(TestCase):
                 f"See below for the ingestion stats.</p>",
             ]
         )
+
+    def test_email_with_file_attachment(self):
+        """
+        Verify the email has the file attachment.
+        """
+        emails.send_ingestion_email(
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 1,
+                'success_count': 1,
+                'updated_products_count': 1,
+                'products_json': self.PRODUCTS_DATA
+            },
+        )
+
+        email = mail.outbox[0]
+        assert email.attachments is not None
+        assert len(email.attachments) == 1
+        assert email.attachments[0][0] == 'products.json'
+        assert email.attachments[0][1] == json.dumps(self.PRODUCTS_DATA, indent=2)
+        assert email.attachments[0][2] == 'application/json'
 
     def test_email_no_ingestion_failure(self):
         """
