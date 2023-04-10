@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 from itertools import product
 from unittest import mock
 
@@ -12,13 +13,14 @@ from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
+from course_discovery.apps.api.serializers import CourseWithProgramsSerializer
 from course_discovery.apps.api.utils import (
-    StudioAPI, cast2int, decode_image_data, get_query_param, increment_character, increment_str
+    StudioAPI, cast2int, decode_image_data, get_query_param, increment_character, increment_str, reviewable_data_has_changed
 )
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory, GeoLocationFactory
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
 
@@ -248,3 +250,29 @@ class IncrementStringTests:
     @ddt.unpack
     def test_increment_str(self, value, expected):
         assert increment_str(value) == expected
+
+
+class TestReviewableDataHasChanged(TestCase):
+    def setUp(self):
+        self.geoloc = GeoLocationFactory(location_name="Himalayas", lat=24.32, lng=36.45)
+        self.location_restriction = CourseLocationRestrictionFactory(restriction_type="allowlist", countries=["BV", "IO"], states=[])
+        self.course = CourseFactory(geolocation=self.geoloc, location_restriction=self.location_restriction)
+        self.serializer = CourseWithProgramsSerializer()
+
+    def test_geolocation_change(self):
+        fields_changed = reviewable_data_has_changed(self.course, {"geolocation": {"location_name": "Nanga Parbat", "lat": Decimal(14.32), "lng": Decimal(28.32)}}.items(), serializer=self.serializer)
+        assert fields_changed == ["geolocation"]
+
+    def test_location_restriction_change(self):
+        fields_changed = reviewable_data_has_changed(self.course, {
+            "geolocation": {"location_name": "Himalayas", "lat": Decimal('24.32'), "lng": Decimal('36.45')},
+            "location_restriction": {"restriction_type": "allowlist", "countries": ["BV"], "states": []}
+            }.items(), serializer=self.serializer)
+        assert fields_changed == ["location_restriction"]
+
+    def test_no_change(self):
+        fields_changed = reviewable_data_has_changed(self.course, {
+            "geolocation": {"location_name": "Himalayas", "lat": Decimal('24.32'), "lng": Decimal('36.45')},
+            "location_restriction": {"restriction_type": "allowlist", "countries": ["BV", "IO"], "states": []}
+            }.items(), serializer=self.serializer)
+        assert fields_changed == []

@@ -362,7 +362,8 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         changed_fields = reviewable_data_has_changed(
             course_run,
             serializer.validated_data.items(),
-            CourseRun.STATUS_CHANGE_EXEMPT_FIELDS
+            CourseRun.STATUS_CHANGE_EXEMPT_FIELDS,
+            serializer
         )
         response = self._update_course_run(course_run, draft, bool(changed_fields),
                                            serializer, request, prices, upgrade_deadline_override,)

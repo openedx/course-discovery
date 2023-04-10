@@ -87,7 +87,7 @@ def update_query_params_with_body_data(func_to_decorate):
     return wrapper
 
 
-def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
+def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None, serializer=None):
     """
     Check whether serialized data for the object has changed.
 
@@ -103,8 +103,34 @@ def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
     changed_fields = []
     exempt_fields = exempt_fields or []
     for key, new_value in [x for x in new_key_vals if x[0] not in exempt_fields]:
+        changed = False
         original_value = getattr(obj, key, None)
-        if isinstance(new_value, list):
+
+        if isinstance(new_value, dict):
+            # Get the serializer field class used for this key
+            serializer_class = serializer.get_fields()[key].__class__
+
+            # Obtain the serialized dict for the already existing state in the database.
+            old_dict_value = serializer_class(original_value).data
+            # We wish to compare this with incoming data(i.e compare new_value with old_dict_value)
+            # to identify any differences. However there is one minor hiccup. The representation of 
+            # the incoming data maybe different from the serialized data using the instance in the 
+            # database even when there are no "actual" changes. This can happen because a serializer 
+            # field's to_representation and to_internal_value can give differing data e.g In the case of 
+            # a decimal field, data coming from network is deserialized as type decimal.Decimal whereas
+            # if we serialize such a field from db we get type string. To move around this we again 
+            # serialize old_dict_value before comparing. 
+            old_dict_serializer = serializer_class(data=old_dict_value)
+            if old_dict_serializer.is_valid():
+                old_dict_value = old_dict_serializer.validated_data
+            else:
+                continue
+
+            for prop in new_value:
+                if new_value[prop] != old_dict_value[prop]:
+                    changed = True
+                    break
+        elif isinstance(new_value, list):
             field_class = obj.__class__._meta.get_field(key).__class__
             original_value_elements = original_value.all()
             if len(new_value) != original_value_elements.count():

@@ -57,7 +57,7 @@ def writable_request_wrapper(method):
             content = str(e)
             if hasattr(e, 'content'):
                 content = e.content.decode('utf8') if isinstance(e.content, bytes) else e.content
-            msg = _('Failed to set data: {}').format(content)
+            msg = _('Faileding to set data: {} {}').format(content, type(e))
             logger.exception(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
     return inner
@@ -379,7 +379,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
-        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items(), serializer=serializer)
         changed = changed or bool(changed_fields)
 
         if url_slug:

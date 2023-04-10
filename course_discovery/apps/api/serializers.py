@@ -325,7 +325,7 @@ class VideoSerializer(MediaSerializer):
 
 class GeoLocationSerializer(BaseModelSerializer):
     """Serializer for the ``GeoLocation`` model."""
-    location_name = serializers.CharField(allow_null=True, max_length=128)
+    location_name = serializers.CharField(allow_blank=True, allow_null=True, max_length=128)
     lat = serializers.DecimalField(
         max_digits=GeoLocation.LAT_MAX_DIGITS,
         decimal_places=GeoLocation.DECIMAL_PLACES,
@@ -686,7 +686,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
 
     facts = FactSerializer(many=True)
-    certificate_info = CertificateInfoSerializer()
+    certificate_info = CertificateInfoSerializer(allow_null=True)
     product_meta = ProductMetaSerializer(required=False, allow_null=True)
     start_date = serializers.DateTimeField()
     end_date = serializers.DateTimeField()
