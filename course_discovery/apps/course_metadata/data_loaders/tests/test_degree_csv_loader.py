@@ -6,6 +6,7 @@ from unittest import mock
 
 import ddt
 import responses
+from django.test import override_settings
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -54,6 +55,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         )
 
+    @override_settings(DEGREE_VARIANTS_FIELD_MAP={'text-source': ['courses']})
     @ddt.data('identifier', 'card_image_url', 'title', 'paid_landing_page_url', 'organic_url', 'courses')
     def test_validation_failure(self, missing_key, jwt_decode_patch):  # pylint: disable=unused-argument
         """
