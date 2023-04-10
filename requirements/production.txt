@@ -31,15 +31,15 @@ attrs==22.2.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.in
-beautifulsoup4==4.12.0
+beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.104
+boto3==1.26.109
     # via django-ses
-botocore==1.29.104
+botocore==1.29.109
     # via
     #   boto3
     #   s3transfer
@@ -333,7 +333,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl-drf
 fastavro==1.7.3
     # via openedx-events
-filelock==3.10.7
+filelock==3.11.0
     # via snowflake-connector-python
 future==0.18.3
     # via pyjwkest
@@ -343,9 +343,9 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.83.0
+google-api-python-client==2.84.0
     # via -r requirements/base.in
-google-auth==2.17.1
+google-auth==2.17.2
     # via
     #   google-api-core
     #   google-api-python-client
@@ -362,7 +362,7 @@ googleapis-common-protos==1.59.0
     # via google-api-core
 greenlet==2.0.2
     # via gevent
-gspread==5.7.2
+gspread==5.8.0
     # via -r requirements/base.in
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -376,7 +376,7 @@ idna==3.4
     # via
     #   requests
     #   snowflake-connector-python
-importlib-metadata==6.1.0
+importlib-metadata==6.2.1
     # via
     #   -r requirements/base.in
     #   markdown
@@ -432,7 +432,7 @@ packaging==23.0
     #   django-nine
     #   drf-yasg
     #   snowflake-connector-python
-pandas==1.5.3
+pandas==2.0.0
     # via taxonomy-connector
 pbr==5.11.1
     # via stevedore
@@ -622,6 +622,8 @@ typing-extensions==4.5.0
     # via
     #   django-countries
     #   snowflake-connector-python
+tzdata==2023.3
+    # via pandas
 unicodecsv==0.14.1
     # via djangorestframework-csv
 uritemplate==4.1.1
