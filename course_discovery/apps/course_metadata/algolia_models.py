@@ -67,7 +67,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title', 'product_display_on_org_page', 'product_external_url', 
+                     'product_meta_title', 'product_display_on_org_page', 'product_external_url',
                      'contentful_fields', 'subscription_eligible', 'subscription_prices',]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
@@ -148,7 +148,7 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
 
     class Meta:
         abstract = True
-    
+
     @property
     def product_external_url(self):
         return self.additional_metadata.external_url if self.additional_metadata else None
