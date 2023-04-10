@@ -171,9 +171,7 @@ class AbstractHeadingBlurbModel(TimeStampedModel):
     blurb = NullHtmlField()
 
     def __str__(self):
-        if self.heading:
-            return self.heading
-        return self.blurb
+        return self.heading if self.heading else f"{self.blurb}"
 
     class Meta:
         abstract = True
