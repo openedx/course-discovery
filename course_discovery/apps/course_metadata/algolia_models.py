@@ -150,10 +150,6 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
         abstract = True
 
     @property
-    def product_external_url(self):
-        return self.additional_metadata.external_url if self.additional_metadata else None
-
-    @property
     def product_title(self):
         return self.title
 
@@ -359,6 +355,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     def product_display_on_org_page(self):
         # Only courses display on organization pages
         return self.product_type == 'Course'
+
+    @property
+    def product_external_url(self):
+        return self.additional_metadata.external_url if self.additional_metadata else None
 
     @property
     def should_index(self):
@@ -630,6 +630,13 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             data = [{'price': price.price, 'currency': price.currency.code} for price in prices]
             return data
         return []
+
+    @property
+    def product_external_url(self):
+        if hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata'):
+            return self.degree.additional_metadata.external_url
+        else:
+            return None
 
 
 class SearchDefaultResultsConfiguration(models.Model):
