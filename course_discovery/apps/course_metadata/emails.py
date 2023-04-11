@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 from urllib.parse import urljoin
 
@@ -314,6 +315,7 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             product_type (str): the product whose ingestion has been run
             ingestion_details (dict): Stats of ingestion, along with reported errors
     """
+    products_json = ingestion_details.pop('products_json', None)
     context = {
         **ingestion_details,
         'product_type': product_type,
@@ -331,6 +333,9 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
         subject, plain_content, settings.PUBLISHER_FROM_EMAIL, to_users
     )
     email_msg.attach_alternative(html_content, 'text/html')
+    if products_json:
+        products_json = json.dumps(products_json, indent=2)
+        email_msg.attach(filename='products.json', content=products_json, mimetype='application/json')
 
     try:
         email_msg.send()

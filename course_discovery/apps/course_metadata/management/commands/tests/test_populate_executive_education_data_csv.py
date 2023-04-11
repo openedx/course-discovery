@@ -6,6 +6,7 @@ import json
 from datetime import date
 from tempfile import NamedTemporaryFile
 
+import mock
 import responses
 from django.conf import settings
 from django.core.management import CommandError, call_command
@@ -114,6 +115,38 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             body=json.dumps(self.SUCCESS_API_RESPONSE),
             status=200,
         )
+
+    def mock_get_smarter_client_response(self):
+        """
+        Mock get_smarter_client response with success response.
+        """
+        return self.SUCCESS_API_RESPONSE
+
+    @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
+    def test_successful_file_data_population_with_getsmarter_flag(self, mock_get_smarter_client):
+        """
+        Verify the successful population has data from API response if getsmarter flag is provided.
+        """
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = self.mock_get_smarter_client_response()  # pylint: disable=line-too-long
+        with LogCapture(LOGGER_PATH) as log_capture:
+            output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
+                '--use_getsmarter_api_client', True,
+            )
+            output_csv.seek(0)
+            reader = csv.DictReader(open(output_csv.name, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
+            data_row = next(reader)
+            self._assert_api_response(data_row)
+
+            log_capture.check_present(
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Data population and transformation completed for CSV row title CSV Course'
+                ),
+            )
 
     @responses.activate
     def test_successful_file_data_population_with_input_csv(self):
@@ -264,7 +297,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         Test that the command raises CommandError if both auth token and input JSON are missing.
         """
         with self.assertRaisesMessage(
-                CommandError, 'auth_token or dev_input_json should be provided to perform data transformation.'
+                CommandError,
+                'auth_token or dev_input_json or getsmarter_flag should be provided to perform data transformation.'
         ):
             output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
             call_command(
