@@ -37,9 +37,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.109
+boto3==1.26.110
     # via django-ses
-botocore==1.29.109
+botocore==1.29.110
     # via
     #   boto3
     #   s3transfer
@@ -376,7 +376,7 @@ idna==3.4
     # via
     #   requests
     #   snowflake-connector-python
-importlib-metadata==6.2.1
+importlib-metadata==6.3.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -610,7 +610,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.37.0
+taxonomy-connector==1.37.1
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify

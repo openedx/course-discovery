@@ -59,9 +59,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.109
+boto3==1.26.110
     # via django-ses
-botocore==1.29.109
+botocore==1.29.110
     # via
     #   boto3
     #   s3transfer
@@ -465,7 +465,7 @@ idna==3.4
     #   trio
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.2.1
+importlib-metadata==6.3.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -596,7 +596,7 @@ pycryptodomex==3.17
     # via
     #   pyjwkest
     #   snowflake-connector-python
-pygments==2.14.0
+pygments==2.15.0
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
@@ -843,7 +843,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.37.0
+taxonomy-connector==1.37.1
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
