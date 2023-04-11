@@ -434,7 +434,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             partner=self.__class__.edxPartner,
             additional_metadata=AdditionalMetadataFactory(external_url='https://external-url.com'),
         )
-        assert product.product_external_url is 'https://external-url.com'
+        assert product.product_external_url == 'https://external-url.com'
 
     @ddt.data(AlgoliaProxyCourse, AlgoliaProxyProgram)
     def test_external_url_when_no_additional_metadata_is_present(self, model_factory):
