@@ -90,6 +90,7 @@ class MockContenfulDegreeResponse:
         self.mock_contentful_degree_entry = create_contentful_entry('degreeDetailPage', {
             'internalName': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
             'uuid': 'test-uuid',
+            'uuid_list': ['test-uuid1', 'test-uuid2', 'test-uuid3'],
             'excluded_from_search': False,
             'excluded_from_seo': False,
             'seo': seo_entry,
@@ -102,37 +103,42 @@ class MockContenfulDegreeResponse:
             ]
         })
 
-        self.degree_transformed_data = {
-            'test-uuid': {
-                'page_title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                'subheading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                'excluded_from_search': False,
-                'excluded_from_seo': False,
-                'about_the_program': {
-                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'checkmarked_items': ['Lorem ipsum: dolor sit amet, consectetur adipiscing elit']
-                },
-                'featured_products': {
-                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'introduction': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'product_list': [{
-                        'header': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                        'description': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
-                    }]
-                },
-                'placement_about_section': {
-                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'body_text': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
-                },
-                'faq_items': [{
-                    'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
-                              ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
-                              ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
-                              ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+        self.degree_sample_contentful_entry = {
+            'page_title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+            'subheading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+            'excluded_from_search': False,
+            'excluded_from_seo': False,
+            'about_the_program': {
+                'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'checkmarked_items': ['Lorem ipsum: dolor sit amet, consectetur adipiscing elit']
+            },
+            'featured_products': {
+                'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'introduction': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'product_list': [{
+                    'header': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'description': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
                 }]
-            }
+            },
+            'placement_about_section': {
+                'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'body_text': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
+            },
+            'faq_items': [{
+                'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                          ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                          ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                          ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+            }]
+        }
+
+        self.degree_transformed_data = {
+            'test-uuid': self.degree_sample_contentful_entry,
+            'test-uuid1': self.degree_sample_contentful_entry,
+            'test-uuid2': self.degree_sample_contentful_entry,
+            'test-uuid3': self.degree_sample_contentful_entry
         }
 
 
