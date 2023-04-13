@@ -68,6 +68,7 @@ class MockContenfulDegreeResponse:
             'internalName': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
             'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
             'introduction': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+            'introRichText': {'nodeType': 'document', 'data': {}, 'content': [{'nodeType': 'paragraph', 'data': {}, 'content': [{'value': 'Rich Text 1', 'nodeType': 'text', 'marks': [{'type': 'bold'}], 'data': {}}, {'value': ' Rich Text 2', 'nodeType': 'text', 'marks': [], 'data': {}}]}]},
             'productList': create_contentful_entry('textListModule', {
                 'title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                 'theme': 'background-white',
@@ -115,7 +116,7 @@ class MockContenfulDegreeResponse:
             },
             'featured_products': {
                 'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                'introduction': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                'introduction': 'Rich Text 1 Rich Text 2',
                 'product_list': [{
                     'header': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                     'description': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
