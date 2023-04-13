@@ -423,10 +423,20 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.should_index
 
     @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=['blocked'])
-    def test_product_source_shoud_excluded(self):
+    def test_product_source_should_excluded(self):
         course = self.create_blocked_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
+
+    def test_external_url_when_present(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.additional_metadata = AdditionalMetadataFactory(external_url='https://external-url.com')
+        assert course.product_external_url == 'https://external-url.com'
+
+    def test_external_url_when_no_additional_metadata_is_present(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.additional_metadata = None
+        assert course.product_external_url is None
 
     def test_course_subscription_eligibility(self):
         """
@@ -709,3 +719,20 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         else:
             program = AlgoliaProxyProgramFactory(subscription=None)
             assert len(program.subscription_prices) == 0
+
+    def test_external_url_when_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory()
+        degree.additional_metadata = DegreeAdditionalMetadataFactory(external_url='https://external-url.com')
+        program.degree = degree
+        assert program.product_external_url == 'https://external-url.com'
+
+    def test_external_url_when_no_additional_metadata_is_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory()
+        program.degree = degree
+        assert program.product_external_url is None
+
+    def test_external_url_when_no_degree_is_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        assert program.product_external_url is None
