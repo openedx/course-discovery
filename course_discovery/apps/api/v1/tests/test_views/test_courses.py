@@ -294,7 +294,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         # Increasing threshold because Course skill fetch SQL queries are executed twice
         # on CI. Listing returns skill details and skill names as two separate fields.
         # TODO: Figure out why the cache behavior is not working as expected on CI.
-        with self.assertNumQueries(67, threshold=5):
+        with self.assertNumQueries(62, threshold=5):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
