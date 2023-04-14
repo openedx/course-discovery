@@ -518,6 +518,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content for new products.
         """
         uuid = str(uuid4())
+        url_slug = 'course-slug-1'
         emails.send_ingestion_email(
             self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
             {
@@ -529,6 +530,7 @@ class TestIngestionEmail(TestCase):
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': None,
+                        'url_slug': url_slug,
                     }
                 ],
             }
@@ -542,7 +544,7 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} </li>"
             ]
         )
 
@@ -551,6 +553,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content for new exec products with the addition of external_course_marketing_type.
         """
         uuid = str(uuid4())
+        url_slug = 'course-slug-1'
         emails.send_ingestion_email(
             self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
             {
@@ -562,14 +565,17 @@ class TestIngestionEmail(TestCase):
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'sprint',
+                        'url_slug': url_slug,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'course_stack',
+                        'url_slug': url_slug,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'short_course',
+                        'url_slug': url_slug,
                     },
                 ],
             }
@@ -583,9 +589,12 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (sprint) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (course_stack) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> (short_course) </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"(sprint) </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"(course_stack) </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"(short_course) </li>"
             ]
         )
 
