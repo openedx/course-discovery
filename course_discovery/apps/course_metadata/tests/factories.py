@@ -955,6 +955,11 @@ class DegreeDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
         model = DegreeDataLoaderConfiguration
 
 
+class ProgramDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProgramDataLoaderConfiguration
+
+
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig
