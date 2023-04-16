@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-27 17:43+0000\n"
+"POT-Creation-Date: 2023-04-16 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -177,6 +177,13 @@ msgid "Course Type [{course_type}] does not exist. "
 msgstr ""
 "Çöürsé Týpé [{course_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєт#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Product Source [{product_source}] does not exist. "
+msgstr ""
+"Prödüçt Söürçé [{product_source}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυ#"
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
