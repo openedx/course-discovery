@@ -146,15 +146,15 @@ class TestContentfulUtils(TestCase):
 
     def test_get_aggregated_data_from_contentful__degree(self):
         mock_degree_response = MockContenfulDegreeResponse()
-        expected_data = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,' \
-                        ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit' \
-                        ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,' \
-                        ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit' \
-                        ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,' \
-                        ' consectetur adipiscing elit Lorem ipsum: dolor sit amet, consectetur adipiscing elit' \
-                        ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,' \
-                        ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit' \
-                        ' Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
+        expected_data = 'faq question Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Placement about heading Lorem ipsum: dolor sit amet, consectetur adipiscing elit ' \
+                        'Featured product heading Rich Text 1 Rich Text 2 Featured product list text header ' \
+                        'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
 
         assert aggregate_contentful_data({}, 'uuid_123') is None
         assert aggregate_contentful_data(
@@ -172,3 +172,26 @@ class TestContentfulUtils(TestCase):
         transformed_data = fetch_and_transform_degree_contentful_data()
         self.assertDictEqual(
             transformed_data, mock_degree_response.degree_transformed_data)
+
+    @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
+                return_value=[MockContenfulDegreeResponse().mock_contentful_degree_missing_rich_text])
+    def test_transform_degree_contentful_data__missing_rich_text(self, *args):
+        """
+        Test transform_degree_contentful_data fall backs to introduction if rich text intro is not present.
+        """
+        expected_response = {}
+        for key, transformed_data in MockContenfulDegreeResponse().degree_transformed_data.items():
+            expected_response[key] = {
+                **transformed_data,
+                'featured_products': {
+                    'heading': 'Featured product heading',
+                    'introduction': 'Featured product introduction',
+                    'product_list': [{
+                        'header': 'Featured product list text header',
+                        'description': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
+                    }]
+                },
+            }
+
+        transformed_data = fetch_and_transform_degree_contentful_data()
+        self.assertDictEqual(expected_response, transformed_data)
