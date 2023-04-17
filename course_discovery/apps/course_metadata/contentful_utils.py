@@ -251,10 +251,12 @@ def get_partnership_module(partnership_module):
 
 def get_featured_products_module(featured_products_module):
     """
-        Given a Contentful fetaured products module, extracts related data and returns them in the form of a dict.
+    Given a Contentful featured products module, extracts related data and returns them in the form of a dict.
     """
     featured_products_heading = featured_products_module.heading
-    featured_products_introduction = featured_products_module.introduction
+    featured_products_introduction_rich_text = rich_text_to_plain_text(
+        getattr(featured_products_module, 'intro_rich_text', {})
+    )
     featured_products_list = []
     if featured_products_module.product_list:
         for item in featured_products_module.product_list.text_list_items:
@@ -264,7 +266,8 @@ def get_featured_products_module(featured_products_module):
             })
     return {
         'heading': featured_products_heading,
-        'introduction': featured_products_introduction,
+        'introduction': featured_products_introduction_rich_text or getattr(
+            featured_products_module, 'introduction', ''),
         'product_list': featured_products_list,
     }
 
@@ -399,6 +402,9 @@ def fetch_and_transform_degree_contentful_data():
 
     for degree_entry in contentful_degree_page_entries:
         product_uuid = degree_entry.uuid
+        if product_uuid in transformed_degree_data:
+            continue
+        uuid_list = getattr(degree_entry, 'uuid_list', [])
         excluded_from_search = getattr(degree_entry, 'excluded_from_search', False)
         excluded_from_seo = getattr(degree_entry, 'excluded_from_seo', False)
         page_title = degree_entry.seo.page_title
@@ -432,5 +438,8 @@ def fetch_and_transform_degree_contentful_data():
             faq_module = get_faq_module(
                 degree_entry.modules[module_list.index('faqModule')].faqs)
             transformed_degree_data[product_uuid].update({'faq_items': faq_module})
+
+        for uuid in uuid_list:  # Share the same about page info from Contentful between different uuids
+            transformed_degree_data[uuid] = transformed_degree_data[product_uuid]
 
     return transformed_degree_data

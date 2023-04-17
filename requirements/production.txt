@@ -25,7 +25,7 @@ asn1crypto==1.5.1
     #   snowflake-connector-python
 async-timeout==4.0.2
     # via redis
-attrs==22.2.0
+attrs==23.1.0
     # via
     #   openedx-events
     #   zeep
@@ -37,9 +37,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.109
+boto3==1.26.114
     # via django-ses
-botocore==1.29.109
+botocore==1.29.114
     # via
     #   boto3
     #   s3transfer
@@ -95,7 +95,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==40.0.1
+cryptography==40.0.2
     # via
     #   pyjwt
     #   pyopenssl
@@ -289,7 +289,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.3.0
+edx-django-utils==5.4.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -337,15 +337,15 @@ filelock==3.11.0
     # via snowflake-connector-python
 future==0.18.3
     # via pyjwkest
-getsmarter-api-clients==0.4.0
+getsmarter-api-clients==0.5.0
     # via -r requirements/base.in
 gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.84.0
+google-api-python-client==2.85.0
     # via -r requirements/base.in
-google-auth==2.17.2
+google-auth==2.17.3
     # via
     #   google-api-core
     #   google-api-python-client
@@ -376,7 +376,7 @@ idna==3.4
     # via
     #   requests
     #   snowflake-connector-python
-importlib-metadata==6.2.1
+importlib-metadata==6.4.1
     # via
     #   -r requirements/base.in
     #   markdown
@@ -427,7 +427,7 @@ openedx-events==7.0.0
     #   taxonomy-connector
 oscrypto==1.3.0
     # via snowflake-connector-python
-packaging==23.0
+packaging==23.1
     # via
     #   django-nine
     #   drf-yasg
@@ -445,7 +445,7 @@ platformdirs==3.2.0
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
-protobuf==4.22.1
+protobuf==4.22.3
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -601,7 +601,7 @@ social-auth-core==4.4.1
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.4
+soupsieve==2.4.1
     # via beautifulsoup4
 sqlparse==0.4.3
     # via django
@@ -610,7 +610,7 @@ stevedore==5.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.37.0
+taxonomy-connector==1.37.1
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify

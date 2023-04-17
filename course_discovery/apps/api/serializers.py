@@ -1426,7 +1426,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.product_meta = ProductMeta.objects.create(**product_meta_data)
             instance.save()
 
-        if keywords and instance.product_meta:
+        if instance.product_meta and keywords is not None:
             instance.product_meta.keywords.set(keywords, clear=True)
             instance.product_meta.save()
 
