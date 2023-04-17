@@ -252,6 +252,11 @@ class CSVDataLoader(AbstractDataLoader):
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
                     continue
 
+            if course_run.status == CourseRunStatus.Unpublished:
+                course_run.refresh_from_db()
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=['status'])
+
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
