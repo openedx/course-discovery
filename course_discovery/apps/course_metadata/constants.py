@@ -120,3 +120,17 @@ SNOWFLAKE_POPULATE_COURSE_LENGTH_QUERY = '''
     from
         courses
 '''
+
+
+SNOWFLAKE_REFRESH_COURSE_REVIEWS_QUERY = '''
+    select
+        COURSE_KEY,
+        REVIEWS_COUNT,
+        AVG_COURSE_RATING,
+        CONFIDENT_LEARNERS_PERCENTAGE,
+        MOST_COMMON_GOAL,
+        MOST_COMMON_GOAL_LEARNERS_PERCENTAGE,
+        TOTAL_ENROLLMENTS_IN_LAST_12_MONTHS
+    from
+        prod.enterprise.course_reviews
+'''

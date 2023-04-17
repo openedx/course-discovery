@@ -602,6 +602,10 @@ EMSI_API_BASE_URL = 'https://emsiservices.com'
 EMSI_CLIENT_ID = ''
 EMSI_CLIENT_SECRET = ''
 
+# Settings related to Snowflake
+SNOWFLAKE_ACCOUNT = 'edx.us-east-1'
+SNOWFLAKE_DATABASE = 'prod'
+
 
 ################################### BEGIN CELERY ###################################
 

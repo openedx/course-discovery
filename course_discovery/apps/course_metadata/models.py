@@ -2570,6 +2570,51 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         self.save()
 
 
+class CourseReview(TimeStampedModel):
+    """ CourseReview model to save Outcome Survey analytics coming from Snowflake. """
+
+    CHANGE_CAREERS = 'changecareers'
+    JOB_ADVANCEMENT = 'jobadvancement'
+    LEARN_VALUABLE_SKILLS = 'valuableskills'
+    LEARN_FOR_FUN = 'learnforfun'
+
+    COMMON_GOAL_CHOICES = (
+        (CHANGE_CAREERS, _('Change careers')),
+        (JOB_ADVANCEMENT, _('Job advancement')),
+        (LEARN_VALUABLE_SKILLS, _('Learn valuable skills')),
+        (LEARN_FOR_FUN, _('Learn for fun')),
+    )
+
+    course_key = models.CharField(max_length=255, primary_key=True)
+    reviews_count = models.IntegerField(
+        help_text='Total number of survey responses associated with a course'
+    )
+    avg_course_rating = models.DecimalField(
+        decimal_places=6,
+        max_digits=7,
+        help_text='Average rating of the course on a 5 star scale'
+    )
+    confident_learners_percentage = models.DecimalField(
+        decimal_places=6,
+        max_digits=9,
+        help_text='Percentage of learners who are confident this course will help them reach their goals ("Extremely'
+                  ' confident" or "Very confident" on survey)'
+    )
+    most_common_goal = models.CharField(
+        max_length=255,
+        help_text='Most common goal is determined by goal most selected by learners for that course',
+        choices=COMMON_GOAL_CHOICES
+    )
+    most_common_goal_learners_percentage = models.DecimalField(
+        decimal_places=6,
+        max_digits=9,
+        help_text='Percentage of learners who selected the most common goal'
+    )
+    total_enrollments = models.IntegerField(
+        help_text='Total no. of enrollments in the course in past 12 months'
+    )
+
+
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
 
