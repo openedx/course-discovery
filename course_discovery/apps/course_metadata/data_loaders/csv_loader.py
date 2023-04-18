@@ -291,7 +291,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         for field in required_fields:
             if not (field in data and data[field]):
-                missing_fields.append(field)
+                missing_fields.append(settings.GEAG_API_INGESTION_FIELDS_MAPPING.get(field) or field)
 
         if missing_fields:
             return ', '.join(missing_fields)
