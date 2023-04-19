@@ -49,7 +49,7 @@
         <ul>
             {% for new_product in created_products %}
                 {% if product_type != "DEGREES" %}
-                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a>{% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}</li>
+                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a><pre> - </pre>{{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}</li>
                 {% else %}
                     <li>{{ new_product.uuid }}</li>
                 {% endif %}
@@ -83,6 +83,9 @@
 {% endif %}
 
 <p>
-    <strong>Note: For queries or comments, reach out to {{ingestion_contact_email}} via email.</strong>
+    <strong>Note: Products are ingested in Catalog and currently not published.
+        The changes will be live on http://edx.org once {{marketing_service_name}} build runs.
+        The average turnaround time is between 24 to 48 hours.
+        For queries or comments, reach out to {{ingestion_contact_email}} via email.</strong>
 </p>
 {% endblock body %}

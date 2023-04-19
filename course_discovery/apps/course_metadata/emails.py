@@ -320,7 +320,8 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
         **ingestion_details,
         'product_type': product_type,
         'publisher_url': partner.publisher_url,
-        'ingestion_contact_email': settings.LOADER_INGESTION_CONTACT_EMAIL
+        'ingestion_contact_email': settings.LOADER_INGESTION_CONTACT_EMAIL,
+        'marketing_service_name': settings.MARKETING_SERVICE_NAME
     }
     txt_template = 'course_metadata/email/loader_ingestion.txt'
     html_template = 'course_metadata/email/loader_ingestion.html'
