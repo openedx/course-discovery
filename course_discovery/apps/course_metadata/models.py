@@ -1280,7 +1280,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
-    history = HistoricalRecords(excluded_fields=['slug', 'url_slug'])
+    history = HistoricalRecords(excluded_fields=['url_slug'])
 
     # TODO Remove this field.
     number = models.CharField(
@@ -4130,3 +4130,23 @@ class BackfillCourseRunSlugsConfig(SingletonModel):
 
 class BulkUpdateImagesConfig(SingletonModel):
     image_urls = models.TextField(blank=True)
+
+
+class DeduplicateHistoryConfig(SingletonModel):
+    """
+    Configuration for the deduplicate_course_metadata_history management command.
+    """
+    class Meta:
+        verbose_name = 'deduplicate_course_metadata_history argument'
+
+    cache_timeout = 0
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "course_metadata.CourseRun '
+                  '-v=3 --dry  --excluded_fields url_slug --m 26280"',
+        default='',
+    )
+
+    def __str__(self):
+        return self.arguments
