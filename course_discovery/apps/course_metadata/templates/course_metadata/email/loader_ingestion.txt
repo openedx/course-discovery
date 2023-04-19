@@ -12,7 +12,7 @@ Archived Products: {{ archived_products_count }}
 {% if created_products_count > 0 %}
 New Products
 {% for new_product in created_products %}
-{{ new_product.uuid }} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}
+{{ new_product.uuid }} - {{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}
 {% endfor %}
 {% endif %}
 {% if created_products_count > 0 %}
@@ -27,4 +27,5 @@ Ingestion Failures
 {{ error_message }}
 {% endfor %}{% endfor %}
 {% endif %}
-Note: For queries or comments, reach out to {{ingestion_contact_email}} via email.
+Note: Products are ingested in Catalog and currently not published. The changes will be live on http://edx.org once {{marketing_service_name}} build runs. The average turnaround time is between 24 to 48 hours.
+For queries or comments, reach out to {{ingestion_contact_email}} via email.

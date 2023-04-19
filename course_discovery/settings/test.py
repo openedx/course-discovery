@@ -60,6 +60,7 @@ ENABLE_PUBLISHER = True
 PUBLISHER_FROM_EMAIL = 'test@example.com'
 
 LOADER_INGESTION_CONTACT_EMAIL = 'test@example.com'
+MARKETING_SERVICE_NAME = 'Publisher'
 
 # Set to 0 to disable edx-django-sites-extensions to retrieve
 # the site from cache and risk working with outdated information.
