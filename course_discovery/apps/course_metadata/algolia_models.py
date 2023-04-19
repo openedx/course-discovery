@@ -211,6 +211,7 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
             return getattr(geolocation, 'coordinates', None)
         return ALGOLIA_DEFAULT_GEO_COORDINATES
 
+
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     class Meta:

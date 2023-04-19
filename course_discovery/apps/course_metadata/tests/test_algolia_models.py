@@ -467,6 +467,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = AlgoliaProxyCourseFactory(geolocation=None)
         assert course.coordinates == (38.951302, -76.8731)
 
+
 @ddt.ddt
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
