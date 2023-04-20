@@ -775,7 +775,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
          ('Executive Education(2U)', 'executive-education-2u'),
          'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
-         'The missing data elements are "image, long_description, primary_subject"'
+         'The missing data elements are "cardUrl, long_description, primary_subject"'
          ),
         (['publish_date', 'organic_url', 'stat1_text'],
          ('Executive Education(2U)', 'executive-education-2u'),
@@ -793,7 +793,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
          ('Bootcamp(2U)', 'bootcamp-2u'),
          'ext_source',
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
-         'The missing data elements are "image, long_description, primary_subject"'
+         'The missing data elements are "cardUrl, long_description, primary_subject"'
          ),
         (['redirect_url', 'organic_url'],
          ('Bootcamp(2U)', 'bootcamp-2u'),
