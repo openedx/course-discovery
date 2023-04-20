@@ -1056,12 +1056,12 @@ class ProductValue(TimeStampedModel):
         )
     )
     per_click_usa = models.IntegerField(
-        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Click'), help_text=_(
+        null=True, blank=True, default=5, verbose_name=_('U.S. Value Per Click'), help_text=_(
             'U.S. value per click in U.S. dollars.'
         )
     )
     per_click_international = models.IntegerField(
-        null=True, blank=True, default=0, verbose_name=_('International Value Per Click'), help_text=_(
+        null=True, blank=True, default=5, verbose_name=_('International Value Per Click'), help_text=_(
             'International value per click in U.S. dollars.'
         )
     )
