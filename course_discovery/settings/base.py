@@ -688,10 +688,12 @@ PRODUCT_METADATA_MAPPING = {
         }
     },
     'DEGREES': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
 }
 
