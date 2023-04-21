@@ -6,6 +6,7 @@ from unittest import mock
 import responses
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
+from django.test import override_settings
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -87,6 +88,7 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
 
     @responses.activate
+    @override_settings(PRODUCT_METADATA_MAPPING={'DEGREES': {'text-source': {'EMAIL_NOTIFICATION_LIST': []}}})
     @mock.patch('course_discovery.apps.course_metadata.management.commands.import_degree_data.send_ingestion_email')
     def test_success_flow(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
         """
