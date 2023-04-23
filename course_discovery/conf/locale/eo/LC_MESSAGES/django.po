@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-16 20:35+0000\n"
+"POT-Creation-Date: 2023-04-23 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1600,6 +1600,22 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: apps/course_metadata/models.py
+msgid "Change careers"
+msgstr "Çhängé çäréérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/course_metadata/models.py
+msgid "Job advancement"
+msgstr "Jöß ädvänçémént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/models.py
+msgid "Learn valuable skills"
+msgstr "Léärn välüäßlé skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Learn for fun"
+msgstr "Léärn för fün Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
