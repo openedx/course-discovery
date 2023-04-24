@@ -44,6 +44,3 @@ cairocffi < 1.5.0
 
 # 1.0.0 has breaking changes
 requests-toolbelt==0.10.1
-
-# 4.0.0 introduces some breaking changes  which will be resolved in a followup PR
-edx-event-bus-kafka==3.9.6
