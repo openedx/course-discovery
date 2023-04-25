@@ -106,6 +106,12 @@ CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS.update(
     }
 )
 
+GEAG_API_INGESTION_FIELDS_MAPPING = {
+    'title': 'altName, name',
+    'number': 'abbreviation',
+    'image': 'cardUrl'
+}
+
 GETSMARTER_CLIENT_CREDENTIALS = {
     'CLIENT_ID' : 'test_id',
     'CLIENT_SECRET' : 'test_secret',

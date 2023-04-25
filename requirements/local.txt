@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file=requirements/local.txt requirements/local.in
 #
+accessible-pygments==0.0.4
+    # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
 algoliasearch==1.20.0
@@ -43,7 +45,9 @@ attrs==21.4.0
     #   trio
     #   zeep
 babel==2.12.1
-    # via sphinx
+    # via
+    #   pydata-sphinx-theme
+    #   sphinx
 backoff==2.2.1
     # via -r requirements/base.in
 bcrypt==4.0.1
@@ -51,6 +55,7 @@ bcrypt==4.0.1
 beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.in
+    #   pydata-sphinx-theme
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
@@ -330,7 +335,9 @@ dockerpty==0.4.1
 docopt==0.6.2
     # via docker-compose
 docutils==0.19
-    # via sphinx
+    # via
+    #   pydata-sphinx-theme
+    #   sphinx
 drf-extensions==0.7.1
     # via -r requirements/base.in
 drf-flex-fields==1.0.2
@@ -384,8 +391,6 @@ edx-rest-api-client==5.5.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-sphinx-theme==3.1.0
-    # via -r requirements/docs.in
 edx-toggles==5.0.0
     # via edx-event-bus-kafka
 elasticsearch==7.13.4
@@ -539,6 +544,7 @@ packaging==21.3
     #   django-nine
     #   docker
     #   drf-yasg
+    #   pydata-sphinx-theme
     #   pytest
     #   semgrep
     #   snowflake-connector-python
@@ -596,8 +602,13 @@ pycryptodomex==3.17
     # via
     #   pyjwkest
     #   snowflake-connector-python
+pydata-sphinx-theme==0.13.3
+    # via sphinx-book-theme
 pygments==2.15.0
-    # via sphinx
+    # via
+    #   accessible-pygments
+    #   pydata-sphinx-theme
+    #   sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
 pyjwt[crypto]==2.6.0
@@ -783,7 +794,6 @@ six==1.16.0
     #   edx-django-release-util
     #   edx-drf-extensions
     #   edx-lint
-    #   edx-sphinx-theme
     #   elasticsearch-dsl
     #   google-auth
     #   google-auth-httplib2
@@ -821,7 +831,10 @@ sphinx==5.3.0
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/docs.in
-    #   edx-sphinx-theme
+    #   pydata-sphinx-theme
+    #   sphinx-book-theme
+sphinx-book-theme==1.0.1
+    # via -r requirements/docs.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -881,6 +894,7 @@ typing-extensions==4.5.0
     # via
     #   astroid
     #   django-countries
+    #   pydata-sphinx-theme
     #   pylint
     #   semgrep
     #   snowflake-connector-python

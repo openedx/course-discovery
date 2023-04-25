@@ -4,10 +4,16 @@
 #
 #    pip-compile --output-file=requirements/docs.txt requirements/docs.in
 #
+accessible-pygments==0.0.4
+    # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
 babel==2.12.1
-    # via sphinx
+    # via
+    #   pydata-sphinx-theme
+    #   sphinx
+beautifulsoup4==4.12.2
+    # via pydata-sphinx-theme
 certifi==2022.12.7
     # via
     #   elasticsearch
@@ -17,9 +23,9 @@ charset-normalizer==3.1.0
 django-elasticsearch-dsl==7.3
     # via -r requirements/docs.in
 docutils==0.19
-    # via sphinx
-edx-sphinx-theme==3.1.0
-    # via -r requirements/docs.in
+    # via
+    #   pydata-sphinx-theme
+    #   sphinx
 elasticsearch==7.13.4
     # via
     #   -c requirements/common_constraints.txt
@@ -40,9 +46,16 @@ jinja2==3.1.2
 markupsafe==2.1.2
     # via jinja2
 packaging==23.1
-    # via sphinx
+    # via
+    #   pydata-sphinx-theme
+    #   sphinx
+pydata-sphinx-theme==0.13.3
+    # via sphinx-book-theme
 pygments==2.15.0
-    # via sphinx
+    # via
+    #   accessible-pygments
+    #   pydata-sphinx-theme
+    #   sphinx
 python-dateutil==2.8.2
     # via elasticsearch-dsl
 pytz==2023.3
@@ -52,17 +65,21 @@ requests==2.28.2
 six==1.16.0
     # via
     #   django-elasticsearch-dsl
-    #   edx-sphinx-theme
     #   elasticsearch-dsl
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
+soupsieve==2.4
+    # via beautifulsoup4
 sphinx==5.3.0
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/docs.in
-    #   edx-sphinx-theme
+    #   pydata-sphinx-theme
+    #   sphinx-book-theme
+sphinx-book-theme==1.0.1
+    # via -r requirements/docs.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -75,6 +92,8 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+typing-extensions==4.5.0
+    # via pydata-sphinx-theme
 urllib3==1.26.15
     # via
     #   elasticsearch

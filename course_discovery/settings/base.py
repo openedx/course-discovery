@@ -688,10 +688,12 @@ PRODUCT_METADATA_MAPPING = {
         }
     },
     'DEGREES': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
 }
 
@@ -718,3 +720,5 @@ EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS = 60
 EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS = 60
 
 ALGOLIA_INDEX_EXCLUDED_SOURCES = []
+
+DEGREE_VARIANTS_FIELD_MAP = {}
