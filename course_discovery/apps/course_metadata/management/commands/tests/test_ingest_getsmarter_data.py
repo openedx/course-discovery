@@ -44,7 +44,8 @@ class IngestGetSmarterDataCommandTests(TestCase):
             mock_call_command.assert_any_call(
                 'populate_executive_education_data_csv',
                 use_getsmarter_api_client=True,
-                output_csv=mock.ANY
+                output_csv=mock.ANY,
+                product_source=self.source.slug,
             )
             mock_call_command.assert_any_call(
                 'import_course_metadata',
