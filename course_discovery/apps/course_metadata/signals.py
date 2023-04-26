@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime, timezone
 
+import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
@@ -18,14 +19,16 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
+    AdditionalMetadata, CertificateInfo, Course, CourseEntitlement, CourseLocationRestriction, CourseRun, Curriculum,
+    CurriculumCourseMembership, CurriculumProgramMembership, GeoLocation, Organization, ProductMeta, ProductValue,
+    Program
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
 from course_discovery.apps.course_metadata.tasks import update_org_program_and_courses_ent_sub_inclusion
-from course_discovery.apps.course_metadata.utils import get_salesforce_util
+from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, get_salesforce_util
 
 logger = logging.getLogger(__name__)
 
@@ -378,3 +381,78 @@ def update_course_data_from_event(**kwargs):
     partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
     data_loader = CoursesApiDataLoader(partner, enable_api=False)
     data_loader.process_single_course_run(body)
+
+
+def course_m2m_changed(sender, instance, action, **kwargs):
+    """
+    If the course m2m fields have been changed, update the data modified timestamp for related Course obj.
+
+    TODO: This is not activated yet. All the fields are sorted M2M and the pre_add always had
+    mutation even if  nothing was changed.
+    @receiver(m2m_changed, sender=Course.subjects.through)
+    @receiver(m2m_changed, sender=Course.collaborators.through)
+    """
+    if action in ['pre_add', 'pre_remove'] and instance.draft:
+        logger.info(f"{sender} has been updated for course {instance.key}.")
+        Course.everything.filter(key=instance.key).update(
+            data_modified_timestamp=datetime.now(pytz.UTC)
+        )
+        instance.refresh_from_db()
+
+
+@receiver(m2m_changed, sender=CourseRun.transcript_languages.through)
+def course_run_m2m_changed(sender, instance, action, **kwargs):
+    """
+    If the course run m2m fields have been changed, update the data modified timestamp for related Course obj.
+
+    # TODO:This is not activated yet for CourseRun.Staff.That field is sorted M2M and the pre_add always had
+    mutation even if  nothing was changed.
+    @receiver(m2m_changed, sender=CourseRun.staff.through)
+    """
+    if action in ['pre_add', 'pre_remove'] and instance.draft:
+        logger.info(f"{sender} has been updated for course run {instance.key}.")
+        Course.everything.filter(key=instance.course.key).update(
+            data_modified_timestamp=datetime.now(pytz.UTC)
+        )
+        instance.course.refresh_from_db()
+
+
+def connect_course_data_modified_timestamp_related_models():
+    """
+    This wrapper is used to connect Course model's related models (ForeignKey)
+    whose data change should update data_modified_timestamp in Course model.
+    """
+    for model in [
+        AdditionalMetadata,
+        CertificateInfo,
+        CourseRun,
+        CourseLocationRestriction,
+        CourseEntitlement,
+        GeoLocation,
+        Organization,
+        ProductMeta,
+        ProductValue,
+    ]:
+        pre_save.connect(data_modified_timestamp_update, sender=model)
+
+
+def disconnect_course_data_modified_timestamp_related_models():
+    """
+    This wrapper is used to disconnect Course model's related models (ForeignKey)
+    whose data change should update data_modified_timestamp in Course model. This
+    is to be used in unit tests to disconnect these signals.
+    """
+    for model in [
+        AdditionalMetadata,
+        CertificateInfo,
+        CourseRun,
+        CourseLocationRestriction,
+        CourseEntitlement,
+        GeoLocation,
+        ProductMeta,
+        ProductValue,
+    ]:
+        pre_save.disconnect(data_modified_timestamp_update, sender=model)
+
+
+connect_course_data_modified_timestamp_related_models()

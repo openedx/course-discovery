@@ -912,3 +912,17 @@ def fetch_getsmarter_products():
     except Exception as ex:  # pylint: disable=broad-except
         logger.error(f"Failed to retrieve products from getsmarter API: {ex}")
     return products
+
+
+def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Receiver function to trigger update data modified timestamp on Course or Program
+    from one of their related models in reverse(ForeignKey or M2M).
+
+    This wrapper expects the following two things on a model instance:
+     * Field tracker
+     * A method called update_product_data_modified_stamp which will be implemented by each model
+     depending upon its relation with Course/Program.
+    """
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
+        instance.update_product_data_modified_timestamp()
