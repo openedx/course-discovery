@@ -3031,3 +3031,15 @@ class TestCourseRecommendations(TestCase):
         assert course2_recs[0].key == 'course3'
         assert course2_recs[1].key == 'course6'
         assert course2_recs[2].key == 'course4'
+
+
+class ProductValueTests(TestCase):
+    """ Tests of the ProductValue model. """
+
+    def setUp(self):
+        super().setUp()
+        self.product_value = factories.ProductValue()
+
+    def test_defaults(self):
+        assert self.product_value.per_click_international == self.product_value.per_click_usa == 5
+        assert self.product_value.per_lead_international == self.product_value.per_lead_usa == 0

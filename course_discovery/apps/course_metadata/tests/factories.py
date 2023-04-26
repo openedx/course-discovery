@@ -318,11 +318,6 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
 
 class ProductValueFactory(factory.django.DjangoModelFactory):
-    per_click_usa = FuzzyInteger(100)
-    per_click_international = FuzzyInteger(100)
-    per_lead_usa = FuzzyInteger(100)
-    per_lead_international = FuzzyInteger(100)
-
     class Meta:
         model = ProductValue
 
