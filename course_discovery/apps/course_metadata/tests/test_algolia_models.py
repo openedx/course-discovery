@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
     DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
     ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory,
-    SourceFactory, SubjectFactory
+    SourceFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -451,6 +451,29 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         """
         course = AlgoliaProxyCourseFactory()
         assert len(course.subscription_prices) == 0
+
+    def test_course_key(self):
+        """
+        Verify the course key is returned for course.
+        """
+        product_key = 'test+TestCourse'
+        product = AlgoliaProxyCourseFactory(
+            partner=self.__class__.edxPartner,
+            key=product_key
+        )
+        assert product.product_key is product_key
+
+    def test_product_marketing_video_url(self):
+        """
+        Verify the product marketing video url is returned for course.
+        """
+        product_marketing_video_url = 'example.com/video_url'
+        video = VideoFactory(src=product_marketing_video_url)
+        product = AlgoliaProxyCourseFactory(
+            partner=self.__class__.edxPartner,
+            video=video
+        )
+        assert product.product_marketing_video_url is product_marketing_video_url
 
 
 @ddt.ddt
