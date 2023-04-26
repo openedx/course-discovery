@@ -920,6 +920,14 @@ class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
 
+@admin.register(ProgramSubscriptionConfiguration)
+class ProgramSubscriptionConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for ProgramDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
 @admin.register(GeotargetingDataLoaderConfiguration)
 class GeotargetingDataLoaderConfigurationAdmin(admin.ModelAdmin):
     """
