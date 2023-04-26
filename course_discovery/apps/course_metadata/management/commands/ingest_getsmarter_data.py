@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 logger.info(
                     'Populating executive education data CSV file at path: %s', csv_path)
                 call_command('populate_executive_education_data_csv',
-                             use_getsmarter_api_client=True, output_csv=csv_path)
+                             use_getsmarter_api_client=True, output_csv=csv_path, product_source=product_source)
                 logger.info(
                     'Ingesting executive education data from CSV file at path: %s', csv_path)
                 call_command('import_course_metadata', csv_path=csv_path,
