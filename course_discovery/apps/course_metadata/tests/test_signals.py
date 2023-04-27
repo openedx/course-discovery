@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
     BulkUploadTagsConfig, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
-    DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
+    DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
     MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
     RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
@@ -60,7 +60,7 @@ class TestCacheInvalidation:
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
                          AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
                          LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig,
-                         BulkUploadTagsConfig, CSVDataLoaderConfiguration, ]:
+                         BulkUploadTagsConfig, CSVDataLoaderConfiguration, DeduplicateHistoryConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

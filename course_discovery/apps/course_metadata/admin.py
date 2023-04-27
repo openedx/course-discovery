@@ -885,7 +885,7 @@ for model in (Image, SyllabusItem, PersonSocialNetwork, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
               MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
-              BackfillCourseRunSlugsConfig, BulkUpdateImagesConfig):
+              BackfillCourseRunSlugsConfig, BulkUpdateImagesConfig, DeduplicateHistoryConfig):
     admin.site.register(model)
 
 
