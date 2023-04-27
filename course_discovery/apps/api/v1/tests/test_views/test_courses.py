@@ -1611,6 +1611,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
                      '42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://new-videos-r-us/watch?t_s=5'},
+            'geolocation': {'location_name': 'Antarctica', 'lng': '32.86', 'lat': '34.21'},
+            'location_restriction': {'restriction_type': 'blocklist', 'countries': ['AL'], 'states': ['AZ']}
         }
         response = self.client.patch(url, patch_data, format='json')
         assert response.status_code == 200

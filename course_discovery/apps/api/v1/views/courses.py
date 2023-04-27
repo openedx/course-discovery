@@ -384,7 +384,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
-        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed_fields = reviewable_data_has_changed(
+            course,
+            serializer.validated_data.items(),
+            Course.STATUS_CHANGE_EXEMPT_FIELDS
+        )
         changed = changed or bool(changed_fields)
 
         if url_slug:
