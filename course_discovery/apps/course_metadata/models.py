@@ -1345,6 +1345,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
 
+    # Changing these fields at the course level will not trigger re-reviews
+    # on related course runs that are already in the scheduled state
+    STATUS_CHANGE_EXEMPT_FIELDS = [
+        'geolocation',
+        'location_restriction',
+        'additional_metadata'
+    ]
+
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
 
