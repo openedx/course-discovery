@@ -377,12 +377,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             img_name, img_data = decode_image_data(org_logo_override_image)
             course.organization_logo_override.save(img_name, img_data)
 
-        if data.get('collaborators'):
-            collaborators_uuids = data.get('collaborators')
-            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuids)
-            course.collaborators.add(*collaborators)
-
-        # If price didnt change, check the other fields on the course
+        # If price didn't change, check the other fields on the course
         # (besides image and video, they are popped off above)
         changed_fields = reviewable_data_has_changed(
             course,
