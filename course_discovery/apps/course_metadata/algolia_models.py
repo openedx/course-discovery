@@ -12,7 +12,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
+    AbstractLocationRestrictionModel, Course, CourseType, ProductValue, Program, ProgramType
 )
 from course_discovery.apps.course_metadata.utils import transform_skills_data
 
@@ -166,29 +166,23 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     def product_recent_enrollment_count(self):
         return self.recent_enrollment_count
 
+    # For product_value_per_*, return default values if in_year_value is None to ensure that products don't get lost
+    # in the ranking
     @property
     def product_value_per_click_usa(self):
-        if self.in_year_value:
-            return self.in_year_value.per_click_usa
-        return None
+        return getattr(self.in_year_value, 'per_click_usa', ProductValue.DEFAULT_VALUE_PER_CLICK)
 
     @property
     def product_value_per_click_international(self):
-        if self.in_year_value:
-            return self.in_year_value.per_click_international
-        return None
+        return getattr(self.in_year_value, 'per_click_international', ProductValue.DEFAULT_VALUE_PER_CLICK)
 
     @property
     def product_value_per_lead_usa(self):
-        if self.in_year_value:
-            return self.in_year_value.per_lead_usa
-        return None
+        return getattr(self.in_year_value, 'per_lead_usa', ProductValue.DEFAULT_VALUE_PER_LEAD)
 
     @property
     def product_value_per_lead_international(self):
-        if self.in_year_value:
-            return self.in_year_value.per_lead_international
-        return None
+        return getattr(self.in_year_value, 'per_lead_international', ProductValue.DEFAULT_VALUE_PER_LEAD)
 
     @property
     def product_organization_short_code_override(self):
