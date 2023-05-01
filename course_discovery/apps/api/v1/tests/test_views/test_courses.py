@@ -409,6 +409,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         timestamp_now = datetime.datetime.now().isoformat()
         for courseobj in [self.course, course1, course2, course3]:
             courseobj.short_description = 'test update'
+            courseobj.draft = True
             courseobj.save()
 
         url = f"{reverse('api:v1:course-list')}?editable=1&timestamp={timestamp_now}"
@@ -1610,6 +1611,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
                      '42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://new-videos-r-us/watch?t_s=5'},
+            'geolocation': {'location_name': 'Antarctica', 'lng': '32.86', 'lat': '34.21'},
+            'location_restriction': {'restriction_type': 'blocklist', 'countries': ['AL'], 'states': ['AZ']}
         }
         response = self.client.patch(url, patch_data, format='json')
         assert response.status_code == 200
@@ -2162,7 +2165,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(40, threshold=0):
+        with self.assertNumQueries(41, threshold=0):
             response = self.client.options(url)
         assert response.status_code == 200
 

@@ -6,6 +6,7 @@ from unittest import mock
 
 import ddt
 import responses
+from django.test import override_settings
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -54,6 +55,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         )
 
+    @override_settings(DEGREE_VARIANTS_FIELD_MAP={'text-source': ['courses']})
     @ddt.data('identifier', 'card_image_url', 'title', 'paid_landing_page_url', 'organic_url', 'courses')
     def test_validation_failure(self, missing_key, jwt_decode_patch):  # pylint: disable=unused-argument
         """
@@ -327,3 +329,20 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 self._assert_default_logs(log_capture)
                 self.assertRaisesMessage(Exception, 'abc')
                 assert Degree.objects.count() == 0
+
+    def test_ofac_restricted_programs(self, _jwt_decode_patch):
+        """
+        Verify that degree is ofac restricted and active if program type exist in restricted types
+        """
+        self._setup_prerequisites(self.partner)
+        self.product_source.ofac_restricted_program_types.add(self.program_type)
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
+                loader.ingest()
+                self._assert_default_logs(log_capture)
+                degree = Degree.objects.first()
+                assert degree.has_ofac_restrictions
+                assert degree.ofac_comment == f"Program type {self.program_type.slug} is OFAC restricted " \
+                                              f"for {self.product_source.name}"

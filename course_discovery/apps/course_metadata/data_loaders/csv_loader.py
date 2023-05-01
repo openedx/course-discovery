@@ -252,6 +252,11 @@ class CSVDataLoader(AbstractDataLoader):
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
                     continue
 
+            if course_run.status == CourseRunStatus.Unpublished:
+                course_run.refresh_from_db()
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=['status'])
+
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
@@ -286,7 +291,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         for field in required_fields:
             if not (field in data and data[field]):
-                missing_fields.append(field)
+                missing_fields.append(settings.GEAG_API_INGESTION_FIELDS_MAPPING.get(field) or field)
 
         if missing_fields:
             return ', '.join(missing_fields)

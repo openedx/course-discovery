@@ -24,10 +24,10 @@ logger = logging.getLogger(__name__)
 class DegreeCSVDataLoader(AbstractDataLoader):
     """ Loads the degrees from the csv file """
 
-    DEGREE_REQUIRED_DATA_FIELDS = [
+    DEGREE_REQUIRED_FIELDS = [
         'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
         'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
-        'identifier', 'overview', 'courses',
+        'identifier', 'overview',
     ]
 
     # Define the error type and error messages for various required data models for Degree ingestion
@@ -82,7 +82,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         try:
             if args_from_env:
                 # TODO: add unit tests
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][self.product_source.slug]
                 gspread_client = GspreadClient()
                 self.reader = gspread_client.read_data(product_type_config)
             else:
@@ -190,8 +190,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         data dictionary and return a comma separated string of missing data fields.
         """
         missing_fields = []
-
-        for field in self.DEGREE_REQUIRED_DATA_FIELDS:
+        degree_variants = settings.DEGREE_VARIANTS_FIELD_MAP.copy()
+        source_fields = self.DEGREE_REQUIRED_FIELDS + degree_variants.get(self.product_source.slug, [])
+        for field in source_fields:
             if not (field in data and data[field]):
                 missing_fields.append(field)
 
@@ -281,6 +282,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
         )
+
+        if degree.product_source and \
+                degree.product_source.ofac_restricted_program_types.filter(id=program_type.id).exists():
+            degree.mark_ofac_restricted()
 
         logger.info("Degree with slug {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             degree.marketing_slug,

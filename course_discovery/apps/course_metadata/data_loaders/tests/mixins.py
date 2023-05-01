@@ -303,7 +303,7 @@ class CSVLoaderMixin:
         # Loader does not publish newly created course or a course that has not reached published status.
         # That's why only the draft version of the course run exists.
         'draft': True,
-        'status': CourseRunStatus.Unpublished,
+        'status': CourseRunStatus.LegalReview,
         'length': 10,
         'minimum_effort': 4,
         'maximum_effort': 10,

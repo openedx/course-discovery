@@ -364,10 +364,10 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     # ordering the field display on admin page.
     fields = (
-        'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
-        'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
-        'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
-        'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'product_source',
+        'uuid', 'title', 'subtitle', 'marketing_hook', 'product_source', 'type', 'status', 'partner', 'banner_image',
+        'banner_image_url', 'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video',
+        'total_hours_of_effort', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
+        'courses', 'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs',
         'authoring_organizations', 'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden',
         'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items', 'expected_learning_items',
         'instructor_ordering', 'enrollment_count', 'recent_enrollment_count', 'credit_value',
@@ -447,6 +447,8 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         try:
+            if obj.product_source.ofac_restricted_program_types.filter(id=obj.type.id).exists():
+                obj.mark_ofac_restricted()
             super().save_model(request, obj, form, change)
         except (MarketingSitePublisherException, MarketingSiteAPIClientException):
             self.save_error = True
@@ -845,11 +847,11 @@ class DegreeAdmin(admin.ModelAdmin):
     )
     # ordering the field display on admin page.
     fields = (
-        'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',
-        'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
-        'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
-        'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
+        'product_source', 'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug',
+        'card_image_url', 'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking',
+        'campus_image', 'title', 'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview',
+        'rankings', 'application_requirements', 'prerequisite_coursework', 'lead_capture_image',
+        'lead_capture_list_name', 'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
         'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
         'program_duration_override', 'display_on_org_page',
@@ -885,7 +887,7 @@ for model in (Image, SyllabusItem, PersonSocialNetwork, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
               MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
-              BackfillCourseRunSlugsConfig, BulkUpdateImagesConfig):
+              BackfillCourseRunSlugsConfig, BulkUpdateImagesConfig, DeduplicateHistoryConfig):
     admin.site.register(model)
 
 
@@ -914,6 +916,14 @@ class CSVDataLoaderConfigurationAdmin(admin.ModelAdmin):
 class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
     """
     Admin for DegreeDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(ProgramSubscriptionConfiguration)
+class ProgramSubscriptionConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for ProgramDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 

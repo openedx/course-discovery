@@ -37,12 +37,12 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
-    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
-    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
-    DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
-    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
-    Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice, ProgramType, Ranking, Seat,
-    SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
+    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseReview, CourseRun,
+    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree,
+    DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image,
+    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
+    ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice,
+    ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -2624,3 +2624,19 @@ class MetadataWithType(MetadataWithRelatedChoices):
             return self.create_type_options(info)
 
         return info
+
+
+class CourseReviewSerializer(serializers.ModelSerializer):
+    most_common_goal = serializers.CharField(source='get_most_common_goal_display')
+
+    class Meta:
+        model = CourseReview
+        fields = (
+            'course_key',
+            'reviews_count',
+            'avg_course_rating',
+            'confident_learners_percentage',
+            'most_common_goal',
+            'most_common_goal_learners_percentage',
+            'total_enrollments'
+        )

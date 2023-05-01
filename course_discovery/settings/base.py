@@ -688,11 +688,18 @@ PRODUCT_METADATA_MAPPING = {
         }
     },
     'DEGREES': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
+}
+
+SUBSCRIPTION_METADATA_MAPPING = {
+    'SHEET_ID': '',
+    'INPUT_TAB_ID': '',
 }
 
 DEFAULT_PRODUCT_SOURCE_SLUG = ''
@@ -718,3 +725,5 @@ EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS = 60
 EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS = 60
 
 ALGOLIA_INDEX_EXCLUDED_SOURCES = []
+
+DEGREE_VARIANTS_FIELD_MAP = {}

@@ -72,7 +72,8 @@ def delegate_attributes(cls):
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
                      'product_meta_title', 'product_display_on_org_page', 'product_external_url',
-                     'contentful_fields', 'subscription_eligible', 'subscription_prices',]
+                     'contentful_fields', 'subscription_eligible', 'subscription_prices', 'product_key',
+                     'product_marketing_video_url', ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -426,6 +427,14 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     def subscription_prices(self):
         """ Courses do not have subscription_prices attribute. Returning empty list explicitly"""
         return []
+
+    @property
+    def product_key(self):
+        return self.key
+
+    @property
+    def product_marketing_video_url(self):
+        return self.video.src if self.video else None
 
 
 class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):

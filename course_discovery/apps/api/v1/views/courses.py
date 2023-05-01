@@ -351,6 +351,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.entitlements.exclude(mode__in=entitlement_types).delete()
             course.entitlements.set(entitlements)
 
+            # If entitlement has changed, get updated course object from DB that has new value for
+            # data modified timestamp.
+            if changed:
+                course.refresh_from_db()
+
         # Save video if a new video source is provided, also allow removing the video from course
         if video_data:
             video_url = video_data.get('src')
@@ -379,7 +384,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
-        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed_fields = reviewable_data_has_changed(
+            course,
+            serializer.validated_data.items(),
+            Course.STATUS_CHANGE_EXEMPT_FIELDS
+        )
         changed = changed or bool(changed_fields)
 
         if url_slug:
