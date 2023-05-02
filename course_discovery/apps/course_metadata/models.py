@@ -1348,9 +1348,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     # Changing these fields at the course level will not trigger re-reviews
     # on related course runs that are already in the scheduled state
     STATUS_CHANGE_EXEMPT_FIELDS = [
+        'additional_metadata',
         'geolocation',
+        'in_year_value',
         'location_restriction',
-        'additional_metadata'
     ]
 
     everything = CourseQuerySet.as_manager()
