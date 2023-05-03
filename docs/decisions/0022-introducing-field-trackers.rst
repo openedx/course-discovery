@@ -35,7 +35,7 @@ A challenge with data_modified_timestamp field is identifying how to track chang
 
 FieldTracker will be added to select models inside various course-discovery apps. The `save()` method of Course and Program models will be overridden, checking if any change has been observed as well as editable `ForeignKeys`. If there is a change, the `data_modified_timestamp` will be updated to the current timestamp.
 
-Lets consider the following example. In our `couse_discovery.apps.course_metadata.models` we have a `Course` Model. The changes mentioned above will look similar to following:
+Lets consider the following example. In our `course_discovery.apps.course_metadata.models` we have a `Course` Model. The changes mentioned above will look similar to following:
 
 
 .. code-block::
