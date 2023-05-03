@@ -12,7 +12,7 @@ class Command(BaseCommand):
     Set 'is_marketable' to False for existing CourseRunType instances.
     ./manage.py change_is_marketable_to_false
     """
-    help = 'Change status is_marketable in available types to False for existing CourseRunType instances'
+    help = 'Change status is_marketable in available types to False for existing CourseRunType instances.'
 
     def handle(self, *args, **options):
         self.change_is_marketable_in_course_run_type()
