@@ -41,3 +41,6 @@ sphinx<6.0.0
 
 # This dependency is causing issues with semgrep CI, failing on metadata checks
 cairocffi < 1.5.0
+
+# 1.0.0 has breaking changes
+requests-toolbelt==0.10.1
