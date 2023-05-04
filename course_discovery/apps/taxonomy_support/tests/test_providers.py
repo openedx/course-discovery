@@ -30,12 +30,13 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.test import TestCase
 from taxonomy.validators import (
-    CourseMetadataProviderValidator, ProgramMetadataProviderValidator, XBlockMetadataProviderValidator
+    CourseMetadataProviderValidator, CourseRunMetadataProviderValidator, ProgramMetadataProviderValidator,
+    XBlockMetadataProviderValidator
 )
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
 
 
 class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
@@ -51,6 +52,18 @@ class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
         courses = CourseFactory.create_batch(3)
         course_metadata_validator = CourseMetadataProviderValidator(
             [str(course.uuid) for course in courses]
+        )
+
+        # Run all the validations, note that an assertion error will be raised if any of the validation fail.
+        course_metadata_validator.validate()
+
+    def test_validate_course_run_metadata(self):
+        """
+        Validate that there are no integration issues.
+        """
+        courses = CourseRunFactory.create_batch(3)
+        course_metadata_validator = CourseRunMetadataProviderValidator(
+            [str(course.key) for course in courses]
         )
 
         # Run all the validations, note that an assertion error will be raised if any of the validation fail.
