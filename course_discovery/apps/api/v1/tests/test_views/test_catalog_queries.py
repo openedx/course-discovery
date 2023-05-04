@@ -4,10 +4,11 @@ from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 
 
-class CatalogQueryViewSetTests(APITestCase):
+class CatalogQueryViewSetTests(ElasticsearchTestMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -16,6 +17,7 @@ class CatalogQueryViewSetTests(APITestCase):
         self.course_run = CourseRunFactory(course=self.course, key='simple/key/run')
         self.url_base = reverse('api:v1:catalog-query_contains')
         self.error_message = 'CatalogQueryContains endpoint requires query and identifiers list(s)'
+        self.refresh_index()
 
     def test_contains_single_course_run(self):
         """ Verify that a single course_run is contained in a query. """
