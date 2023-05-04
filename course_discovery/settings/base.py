@@ -594,6 +594,7 @@ MEDIA_STORAGE_BACKEND = {
 
 # Settings related to the taxonomy_support
 TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_COURSE_RUN_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseRunMetadataProvider'
 TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryProgramMetadataProvider'
 TAXONOMY_XBLOCK_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryXBlockMetadataProvider'
 TAXONOMY_XBLOCK_SUPPORTED_TYPES = ['video', 'vertical']
