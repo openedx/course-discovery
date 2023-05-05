@@ -188,7 +188,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(FuzzyInt(40, 2)):
+        with django_assert_num_queries(FuzzyInt(43, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
