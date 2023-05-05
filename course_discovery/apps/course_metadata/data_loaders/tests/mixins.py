@@ -50,6 +50,7 @@ class DegreeCSVLoaderMixin:
     """
     DEGREE_TITLE = 'Test Degree'
     DEGREE_SLUG = 'test-degree'
+    EXTERNAL_IDENTIFIER = '123456'
 
     CSV_DATA_KEYS_ORDER = [
         'identifier',
