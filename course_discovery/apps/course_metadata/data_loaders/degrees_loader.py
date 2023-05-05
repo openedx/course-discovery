@@ -139,14 +139,15 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             if not (org and program_type and primary_subject_override and level_type_override and language_override):
                 continue
 
-            # get degree object from slug and external_identifier
+            # get degree object from external_identifier and product source
             degree = Degree.objects.filter(
-                marketing_slug=degree_slug, partner=self.partner,
-                additional_metadata__external_identifier=row['identifier']
+                partner=self.partner,
+                additional_metadata__external_identifier=row['identifier'],
+                product_source=self.product_source
             ).first()
 
-            logger.info("Degree {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree_slug,
+            logger.info("Degree with external identifier {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
+                row['identifier'],
                 "is" if degree else "is not",
                 "Creating new" if not degree else "Updating existing"
             ))
@@ -276,11 +277,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "overview": data['overview'],
             "organization_short_code_override": data.get('organization_short_code_override', ''),
             "partner": self.partner,
-            "product_source": self.product_source
-
+            "product_source": self.product_source,
+            "marketing_slug": data['slug'],
         }
+
         degree, created = Degree.objects.update_or_create(
-            marketing_slug=data['slug'],
             additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
         )
