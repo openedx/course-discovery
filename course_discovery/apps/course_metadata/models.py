@@ -570,6 +570,7 @@ class CourseRunType(TimeStampedModel):
     UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
     PAID_BOOTCAMP = 'paid-bootcamp'
     UNPAID_BOOTCAMP = 'unpaid-bootcamp'
+    VIDEO_CLIP = 'video-clip'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
@@ -603,6 +604,7 @@ class CourseType(TimeStampedModel):
     EMPTY = 'empty'
     EXECUTIVE_EDUCATION_2U = 'executive-education-2u'
     BOOTCAMP_2U = 'bootcamp-2u'
+    VIDEO_CLIP = 'video-clip'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
