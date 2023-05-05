@@ -555,6 +555,7 @@ class CourseRunType(TimeStampedModel):
     - "Verified and Audit"
     - "Audit only"
     - "Masters only"
+    - "Video clip"
 
     See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
     """
@@ -2714,6 +2715,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
     UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
     PAID_BOOTCAMP = 'paid-bootcamp'
     UNPAID_BOOTCAMP = 'unpaid-bootcamp'
+    VIDEO_CLIP = 'video-clip'
     ENTITLEMENT_MODES = [
         VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION,
         PAID_BOOTCAMP
