@@ -409,7 +409,7 @@ def course_run_m2m_changed(sender, instance, action, **kwargs):
     mutation even if  nothing was changed.
     @receiver(m2m_changed, sender=CourseRun.staff.through)
     """
-    if hasattr(instance, 'course') and action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] and instance.draft:
+    if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] and instance.draft:
         logger.info(f"{sender} has been updated for course run {instance.key}.")
         Course.everything.filter(key=instance.course.key).update(
             data_modified_timestamp=datetime.now(pytz.UTC)
