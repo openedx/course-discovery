@@ -71,9 +71,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.125
+boto3==1.26.129
     # via django-ses
-botocore==1.29.125
+botocore==1.29.129
     # via
     #   boto3
     #   s3transfer
@@ -91,7 +91,7 @@ celery==5.2.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   elasticsearch
     #   requests
@@ -304,7 +304,7 @@ django-stdimage==5.3.0
     #   -r requirements/base.in
 django-storages==1.13.2
     # via -r requirements/base.in
-django-taggit==3.1.0
+django-taggit==4.0.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
@@ -334,7 +334,7 @@ djangorestframework-csv==2.1.1
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==6.0.1
+docker[ssh]==6.1.1
     # via docker-compose
 docker-compose==1.29.2
     # via -r requirements/local.in
@@ -425,9 +425,9 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==18.6.1
+faker==18.6.2
     # via factory-boy
-fastavro==1.7.3
+fastavro==1.7.4
     # via openedx-events
 filelock==3.12.0
     # via
@@ -442,7 +442,7 @@ frozenlist==1.3.3
     #   aiosignal
 future==0.18.3
     # via pyjwkest
-getsmarter-api-clients==0.5.0
+getsmarter-api-clients==0.5.1
     # via -r requirements/base.in
 glom==22.1.0
     # via semgrep
@@ -550,7 +550,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.6
     # via taxonomy-connector
-openedx-events==7.0.0
+openedx-events==7.1.0
     # via
     #   edx-event-bus-kafka
     #   taxonomy-connector
@@ -597,7 +597,7 @@ polib==1.2.0
     # via edx-i18n-tools
 prompt-toolkit==3.0.38
     # via click-repl
-protobuf==4.22.3
+protobuf==4.22.4
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -639,7 +639,7 @@ pyjwt[crypto]==2.6.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.17.3
+pylint==2.17.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -740,7 +740,7 @@ rcssmin==1.1.1
     # via django-compressor
 redis==4.5.4
     # via -r requirements/base.in
-requests==2.29.0
+requests==2.30.0
     # via
     #   -r requirements/base.in
     #   algoliasearch
@@ -784,13 +784,13 @@ rjsmin==1.2.1
     # via django-compressor
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.22
+ruamel-yaml==0.17.24
     # via
     #   drf-yasg
     #   semgrep
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
-s3transfer==0.6.0
+s3transfer==0.6.1
     # via boto3
 selenium==4.9.0
     # via -r requirements/test.in
