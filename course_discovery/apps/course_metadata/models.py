@@ -1077,23 +1077,30 @@ class ProductValue(TimeStampedModel):
     """
     ProductValue model, with fields related to projected value for a product.
     """
+    DEFAULT_VALUE_PER_LEAD = 0
+    DEFAULT_VALUE_PER_CLICK = 5
+
     per_lead_usa = models.IntegerField(
-        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Lead'), help_text=_(
+        null=True, blank=True, default=DEFAULT_VALUE_PER_LEAD,
+        verbose_name=_('U.S. Value Per Lead'), help_text=_(
             'U.S. value per lead in U.S. dollars.'
         )
     )
     per_lead_international = models.IntegerField(
-        null=True, blank=True, default=0, verbose_name=_('International Value Per Lead'), help_text=_(
+        null=True, blank=True, default=DEFAULT_VALUE_PER_LEAD,
+        verbose_name=_('International Value Per Lead'), help_text=_(
             'International value per lead in U.S. dollars.'
         )
     )
     per_click_usa = models.IntegerField(
-        null=True, blank=True, default=5, verbose_name=_('U.S. Value Per Click'), help_text=_(
+        null=True, blank=True, default=DEFAULT_VALUE_PER_CLICK,
+        verbose_name=_('U.S. Value Per Click'), help_text=_(
             'U.S. value per click in U.S. dollars.'
         )
     )
     per_click_international = models.IntegerField(
-        null=True, blank=True, default=5, verbose_name=_('International Value Per Click'), help_text=_(
+        null=True, blank=True, default=DEFAULT_VALUE_PER_CLICK,
+        verbose_name=_('International Value Per Click'), help_text=_(
             'International value per click in U.S. dollars.'
         )
     )
@@ -1348,9 +1355,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     # Changing these fields at the course level will not trigger re-reviews
     # on related course runs that are already in the scheduled state
     STATUS_CHANGE_EXEMPT_FIELDS = [
+        'additional_metadata',
         'geolocation',
+        'in_year_value',
         'location_restriction',
-        'additional_metadata'
     ]
 
     everything = CourseQuerySet.as_manager()

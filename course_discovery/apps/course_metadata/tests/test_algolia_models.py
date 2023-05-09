@@ -13,7 +13,7 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType
+from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
     DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
@@ -490,6 +490,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         assert product.product_marketing_video_url is product_marketing_video_url
 
+    def test_null_in_year_value(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        course.in_year_value = None
+        assert course.product_value_per_click_usa == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert course.product_value_per_click_international == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert course.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
+        assert course.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -789,3 +798,11 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_external_url_when_no_degree_is_present(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         assert program.product_external_url is None
+
+    def test_null_in_year_value(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        program.in_year_value = None
+        assert program.product_value_per_click_usa == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert program.product_value_per_click_international == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert program.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
+        assert program.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
