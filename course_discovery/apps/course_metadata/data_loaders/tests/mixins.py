@@ -8,7 +8,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
-    PartnerFactory, ProgramFactory, SeatTypeFactory, SourceFactory, SubjectFactory, TrackFactory
+    OrganizationMappingFactory, PartnerFactory, ProductValueFactory, ProgramFactory, SeatTypeFactory, SourceFactory,
+    SubjectFactory, TrackFactory
 )
 
 
@@ -192,6 +193,76 @@ class GeotargetingCSVLoaderMixin:
         'PRODUCT TYPE',
         'INCLUDE OR EXCLUDE',
         'Countries',
+    ]
+
+    def _write_csv(self, csv, lines_dict_list, headers=None):
+        """
+        Helper method to write given list of data dictionaries to csv, including the csv header.
+        """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
+        header = ''
+        lines = ''
+        for key in headers:
+            title_case_key = key.replace('_', ' ').title()
+            header = '{}{},'.format(header, title_case_key)
+        header = f"{header[:-1]}\n"
+
+        for line_dict in lines_dict_list:
+            for key in headers:
+                lines = '{}"{}",'.format(lines, line_dict[key])
+            lines = f"{lines[:-1]}\n"
+
+        csv.write(header.encode())
+        csv.write(lines.encode())
+        csv.seek(0)
+        return csv
+
+
+class ProductValueCSVLoaderMixin:
+    """
+    Mixin to contain various variables and methods used for ProductValueCSVDataLoader testing.
+    """
+    def _setup_course(self, course_uuid, with_product_value=False):
+        """
+        setup test-only course.
+        """
+        if with_product_value:
+            CourseFactory(uuid=course_uuid)
+        else:
+            CourseFactory(uuid=course_uuid, in_year_value=None)
+
+    def _setup_program(self, program_uuid, with_product_value=False):
+        """
+        setup test-only program.
+        """
+        if with_product_value:
+            ProgramFactory(uuid=program_uuid)
+        else:
+            ProgramFactory(uuid=program_uuid, in_year_value=None)
+
+    def _setup_course_with_product_value(self, course_uuid, product_value=None):
+        """
+        setup test-only course.
+        """
+        CourseFactory(uuid=course_uuid, in_year_value=product_value)
+
+    def _setup_program_with_product_value(self, program_uuid, product_value=None):
+        """
+        setup test-only program.
+        """
+        ProgramFactory(uuid=program_uuid, in_year_value=product_value)
+
+    def _set_up_product_value(self):
+        return ProductValueFactory()
+
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'PER CLICK USA',
+        'PER CLICK INTERNATIONAL',
+        'PER LEAD USA',
+        'PER LEAD INTERNATIONAL',
     ]
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
