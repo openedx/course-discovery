@@ -3215,7 +3215,8 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     "meta_description": "SEO Description",
     "meta_keywords": "Keyword 1, Keyword 2",
     "slug": "",
-    'external_course_marketing_type': "short_course"
+    'external_course_marketing_type': "short_course",
+    'product_status': "scheduled"
 }
 
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {

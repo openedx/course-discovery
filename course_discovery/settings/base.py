@@ -741,3 +741,6 @@ JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_
 OPENAI_API_KEY = 'I am an api key'
 
 NOTIFY_SLUG_UPDATE_RECIPIENTS = []
+INGESTION_ARCHIVAL_FLOW_SOURCE_TYPE_CONFIG = {
+    'no-archive-source-slug': ['executive-education-2u']
+}

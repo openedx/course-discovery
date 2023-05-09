@@ -71,6 +71,12 @@ class ExternalProductStatus(DjangoChoices):
     """
     Archived = ChoiceItem('archived', _('Archived'))
     Published = ChoiceItem('published', _('Published'))
+    Active = ChoiceItem('active', _('Active'))
+    Scheduled = ChoiceItem('scheduled', _('Scheduled'))
+    Planned = ChoiceItem('planned', _('Planned'))
+    Marketing_Test = ChoiceItem('market_testing', _('Marketing Test'))
+    Cancelled = ChoiceItem('cancelled', _('Cancelled'))
+    Completed = ChoiceItem('completed', _('Completed'))
 
 
 class ExternalCourseMarketingType(DjangoChoices):

@@ -873,6 +873,9 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @ddt.data(
         (ExternalProductStatus.Archived, 'Archived'),
         (ExternalProductStatus.Published, 'Current'),
+        (ExternalProductStatus.Marketing_Test, 'Upcoming'),
+        (ExternalProductStatus.Completed, 'Archived'),
+        (ExternalProductStatus.Scheduled, 'Starting Soon'),
     )
     @ddt.unpack
     def test_external_course_availability(self, product_status, expected_availability):

@@ -352,6 +352,41 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert additional_metadata__source_2.product_status == ExternalProductStatus.Published
 
     @responses.activate
+    def test_not_archived_for_non_archival_sources(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader does not archive products with non-archival sources
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        additional_metadata = AdditionalMetadataFactory(product_status=ExternalProductStatus.Published)
+        CourseFactory(
+            key='test+123', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata,
+            product_source=SourceFactory(slug='no-archive-source-slug')
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            with mock.patch.object(
+                    CSVDataLoader,
+                    '_call_course_api',
+                    self.mock_call_course_api
+            ):
+                loader = CSVDataLoader(
+                    self.partner,
+                    csv_path=csv.name,
+                    product_type=CourseType.EXECUTIVE_EDUCATION_2U,
+                    product_source="no-archive-source-slug"
+                )
+                loader.ingest()
+
+                additional_metadata.refresh_from_db()
+                assert additional_metadata.product_status == ExternalProductStatus.Published
+
+    @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that the loader uses False draft flag for a published course run.
@@ -851,3 +886,30 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                 assert Course.everything.count() == 0
                 assert CourseRun.everything.count() == 0
+
+    @responses.activate
+    def test_ingest_product_status(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the product_status field is appropriately ingested in additional_metadata.
+        """
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'product_status': ExternalProductStatus.Completed
+        }
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [csv_data])
+            with mock.patch.object(
+                    CSVDataLoader,
+                    '_call_course_api',
+                    self.mock_call_course_api
+            ):
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                loader.ingest()
+
+                assert Course.everything.count() == 1
+                assert CourseRun.everything.count() == 1
+                course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                assert course.additional_metadata.product_status == ExternalProductStatus.Completed

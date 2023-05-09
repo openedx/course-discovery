@@ -16,6 +16,7 @@ import requests
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
+from course_discovery.apps.course_metadata.choices import ExternalProductStatus
 from course_discovery.apps.course_metadata.data_loaders import utils
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
@@ -40,7 +41,7 @@ class Command(BaseCommand):
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type'
+        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'product_status',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -314,6 +315,7 @@ class Command(BaseCommand):
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
             'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
             'variant_id': product_dict['variant']['id'],
+            'product_status': product_dict['variant'].get('status', ExternalProductStatus.Published), # Remove this default later
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
             'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),

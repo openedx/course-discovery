@@ -2411,10 +2411,17 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         Property to get course availability for external courses using product status.
         """
         additional_metadata = self.course.additional_metadata
-        if additional_metadata.product_status == ExternalProductStatus.Published:
-            return _('Current')
-        return _('Archived')
-
+        PRODUCT_STATUS_AVAILABILITY_MAPPING = {
+            ExternalProductStatus.Published: _('Current'),
+            ExternalProductStatus.Active: _('Current'),
+            ExternalProductStatus.Scheduled: _('Starting Soon'),
+            ExternalProductStatus.Planned: _('Upcoming'),
+            ExternalProductStatus.Marketing_Test: _('Upcoming'),
+            ExternalProductStatus.Archived: _('Archived')
+        }
+        
+        return PRODUCT_STATUS_AVAILABILITY_MAPPING.get(additional_metadata.product_status, _('Archived'))
+    
     @property
     def get_video(self):
         return self.video or self.course.video

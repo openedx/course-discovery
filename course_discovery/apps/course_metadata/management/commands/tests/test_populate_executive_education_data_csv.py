@@ -61,6 +61,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     "finalPrice": "1998",
                     "startDate": "2022-03-06",
                     "regCloseDate": "2022-02-06",
+                    "status": "active",
                 },
                 "curriculum": {
                     "heading": "Course curriculum",
@@ -380,3 +381,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Meta Keywords'] == 'Keyword 1, Keyword 2'
         assert data_row['Slug'] == 'csv-course-slug'
         assert data_row['External Course Marketing Type'] == "short_course"
+        assert data_row['Product Status'] == "active"

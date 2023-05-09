@@ -398,6 +398,9 @@ class CSVDataLoader(AbstractDataLoader):
         if self.product_type not in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]:
             return
 
+        if self.product_type in settings.INGESTION_ARCHIVAL_FLOW_SOURCE_TYPE_CONFIG.get(self.product_source.slug, []):
+            return
+
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
             related_courses__product_source=self.product_source,
@@ -742,7 +745,7 @@ class CSVDataLoader(AbstractDataLoader):
             'external_identifier': data['external_identifier'],
             'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
             'end_date': self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
-            'product_status': ExternalProductStatus.Published,  # By-default, the product status is set to published.
+            'product_status': data.get('product_status', ExternalProductStatus.Published),
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
         organic_url = data.get('organic_url', '')

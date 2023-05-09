@@ -369,9 +369,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
-        # Archived Executive Education courses should not be indexed
+
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and \
-                self.product_external_status == ExternalProductStatus.Archived:
+                self.product_external_status in [ExternalProductStatus.Archived,
+                                                 ExternalProductStatus.Cancelled,
+                                                 ExternalProductStatus.Completed]:
             return False
 
         # WS-3723, Emeritus courses should be hidden until all features finished.

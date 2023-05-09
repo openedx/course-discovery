@@ -121,3 +121,7 @@ GETSMARTER_CLIENT_CREDENTIALS = {
 }
 
 DEFAULT_PRODUCT_SOURCE_SLUG = 'test-source'
+
+INGESTION_ARCHIVAL_FLOW_SOURCE_TYPE_CONFIG = {
+    'no-archive-source-slug': ['executive-education-2u']
+}

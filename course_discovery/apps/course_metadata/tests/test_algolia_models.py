@@ -366,12 +366,17 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
     @ddt.data(
         (ExternalProductStatus.Published, True),
-        (ExternalProductStatus.Archived, False)
+        (ExternalProductStatus.Archived, False),
+        (ExternalProductStatus.Cancelled, False),
+        (ExternalProductStatus.Completed, False),
+        (ExternalProductStatus.Active, True),
+        (ExternalProductStatus.Marketing_Test, True),
     )
     @ddt.unpack
     def test_product_external_status(self, external_status, should_index):
         """
-        If an Exec Ed course has an external product status of "Archived", it should not be indexed
+        If an Exec Ed course has an external product status of "archived", "cancelled",
+        or "completed", it should not be indexed
         """
         course = self.create_course_with_basic_active_course_run()
         course.type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
