@@ -16,7 +16,7 @@ from course_discovery.apps.course_metadata.choices import ExternalProductStatus,
 from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
-    DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
+    DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
     ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory,
     SourceFactory, SubjectFactory, VideoFactory
 )
@@ -452,6 +452,21 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = AlgoliaProxyCourseFactory()
         assert len(course.subscription_prices) == 0
 
+    def test_course_coordinates_match_geolocation(self):
+        """
+        Verify the course's coordinates match its associated geolocation
+        """
+        geolocation = GeoLocationFactory()
+        course = AlgoliaProxyCourseFactory(geolocation=geolocation)
+        assert course.coordinates == geolocation.coordinates
+
+    def test_default_course_coordinates_if_no_geolocation(self):
+        """
+        Verify default course coordinates if geolocation is None
+        """
+        course = AlgoliaProxyCourseFactory(geolocation=None)
+        assert course.coordinates == (38.951302, -76.8731)
+
     def test_course_key(self):
         """
         Verify the course key is returned for course.
@@ -751,6 +766,21 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         else:
             program = AlgoliaProxyProgramFactory(subscription=None)
             assert len(program.subscription_prices) == 0
+
+    def test_coordinates_match_geolocation(self):
+        """
+        Verify the program's coordinates match its associated geolocation
+        """
+        geolocation = GeoLocationFactory()
+        program = AlgoliaProxyProgramFactory(geolocation=geolocation)
+        assert program.coordinates == geolocation.coordinates
+
+    def test_default_coordinates_if_no_geolocation(self):
+        """
+        Verify default program coordinates if geolocation is None
+        """
+        program = AlgoliaProxyProgramFactory(geolocation=None)
+        assert program.coordinates == (38.951302, -76.8731)
 
     def test_external_url_when_present(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
