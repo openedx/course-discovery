@@ -131,3 +131,56 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             assert degree.card_image.read() == image_content
             self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
             email_patch.assert_called_once()
+
+    @responses.activate
+    @override_settings(PRODUCT_METADATA_MAPPING={'DEGREES': {'text-source': {'EMAIL_NOTIFICATION_LIST': []}}})
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_degree_data.send_ingestion_email')
+    def test_success_flow_with_org_mapping(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
+        """
+        self._setup_prerequisites(self.partner, True)
+        _, image_content = self.mock_image_response()
+
+        csv_file_content = ','.join(list(mock_data.DEGREE_WITH_ORG_KEY_COLLISION_CSV_DICT)) + '\n'
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mock_data.DEGREE_WITH_ORG_KEY_COLLISION_CSV_DICT.values()))
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        _ = DegreeDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            call_command(
+                'import_degree_data',
+                '--partner_code', self.partner.short_code,
+                '--product_type', 'DEGREES',
+                '--product_source', self.product_source.slug,
+            )
+            log_capture.check_present(
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
+                )
+            )
+            log_capture.check_present(
+                (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.'),
+                (LOGGER_PATH, 'INFO', 'Sending Ingestion stats email for product type DEGREES'),
+            )
+
+            assert Degree.objects.count() == 1
+            assert Program.objects.count() == 1
+            assert Curriculum.objects.count() == 1
+
+            degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+            program = Program.objects.get(degree=degree, partner=self.partner)
+            curriculam = Curriculum.objects.get(program=program)
+
+            assert degree.specializations.count() == 2
+            assert curriculam.marketing_text == self.marketing_text
+            assert degree.card_image.read() == image_content
+            self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
+            email_patch.assert_called_once()

@@ -3090,6 +3090,26 @@ VALID_DEGREE_CSV_DICT = {
     'organization_short_code_override': 'Org Override',
 }
 
+# degree data containing organization_key which is already existing in the DB.
+DEGREE_WITH_ORG_KEY_COLLISION_CSV_DICT = {
+    'identifier': '123456',
+    'title': 'Test Degree',
+    'card_image_url': 'https://example.com/image.jpg',
+    'product_type': 'masters',
+    'organization_key': 'ext-key',
+    'slug': 'test-degree',
+    'paid_landing_page_url': 'http://example.com/landing-page.html',
+    'organic_url': 'http://example.com/organic-page.html',
+    'overview': 'Test Degree Overview',
+    'specializations': 'Marketing | Finance',
+    'courses': 'ABC|D&E|Harvard CS50',
+    'course_level': 'Intermediate',
+    'primary_subject': 'Computer Science',
+    'content_language': 'English - United States',
+    'organization_logo_override': 'https://example.com/image.jpg',
+    'organization_short_code_override': 'Org Override',
+}
+
 VALID_PROGRAM_SUBSCRIPTION_DICT = {
     'uuid': '0668c6f0-5dcf-41dc-80cd-6222d2de4df0',
     'title': 'Test Program',

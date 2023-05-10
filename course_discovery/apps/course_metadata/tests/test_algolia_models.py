@@ -153,7 +153,7 @@ class TestAlgoliaDataMixin():
 
     def create_blocked_course_run(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner,
-                                           product_source=SourceFactory(name='blocked'))
+                                           product_source=SourceFactory(slug='blocked'))
 
         course_run = CourseRunFactory(
             course=course,
