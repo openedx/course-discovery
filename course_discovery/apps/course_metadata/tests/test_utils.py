@@ -767,13 +767,19 @@ class TestDownloadAndSaveImage(TestCase):
         )
         return image_url, body
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_course_image__using_drive_link(self, mock_get_file_from_drive_link):
+    def test_download_and_save_course_image__using_drive_link(self, mock_get_file_from_drive_link, mock_logger):
         """ Verify that download_and_save_course_image will save image in course model using drive link """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
+        data_field = 'image'
         course = CourseFactory(card_image_url=image_url, image=None)
         mock_get_file_from_drive_link.return_value = ('image/jpeg', self.IMG_CONTENT)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is True
+        assert download_and_save_course_image(
+            course, course.card_image_url, data_field=data_field, headers=None) is True
+        mock_logger.info.assert_called_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.card_image_url == image_url
@@ -781,40 +787,56 @@ class TestDownloadAndSaveImage(TestCase):
         assert course.image.read() == self.IMG_CONTENT
         assert str(course.uuid) in course.image.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__using_request_library(self):
+    def test_download_and_save_course_image__using_request_library(self, mock_logger):
         """ Verify that download_and_save_course_image will save image in course model using request response """
         image_url = 'https://example.com/image.jpg'
+        data_field = 'image'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, content = self.mock_image_response()
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is True
+        mock_logger.info.assert_called_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image is not None
         assert course.image.read() == content
         assert str(course.uuid) in course.image.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
     @responses.activate
-    def test_download_and_save_course_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_course_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link, mock_logger):  # pylint: disable=line-too-long
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         course = CourseFactory(card_image_url=image_url, image=None)
-        mock_get_file_from_drive_link.return_value = ('text/plain', b'invalid')
+        content_type, content = ('text/plain', b'invalid')
+        mock_get_file_from_drive_link.return_value = (content_type, content)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
+        mock_logger.error.assert_called_with(
+            'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.',
+            course.key, course.card_image_url, content_type
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image.name == ''
         assert not bool(course.image)
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__with_invalid_content_type_using_request_library(self):
+    def test_download_and_save_course_image__with_invalid_content_type_using_request_library(self, mock_logger):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
+        mock_logger.error.assert_called_with(
+            'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.',
+            course.key, course.card_image_url, 'text/plain'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image.name == ''
@@ -872,32 +894,42 @@ class TestDownloadAndSaveImage(TestCase):
         assert program.card_image.name == ''
         assert not bool(program.card_image)
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__for_organization_logo_override_using_request_library(self):
+    def test_download_and_save_course_image__for_organization_logo_override_using_request_library(self, mock_logger):
         """
         Verify that download_and_save_course_image will save image in course model
         for organization_logo_override using request response
         """
         image_url = 'https://www.example.com/image.jpg'
+        data_field = 'organization_logo_override'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, content = self.mock_image_response(url=image_url)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='organization_logo_override', headers=None) is True  # pylint: disable=line-too-long
+        assert download_and_save_course_image(course, course.card_image_url, data_field=data_field) is True
+        mock_logger.info.assert_called_once_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.organization_logo_override.read() == content
         assert course.organization_logo_override is not None
         assert str(course.uuid) in course.organization_logo_override.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_course_image__for_organization_logo_override_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_course_image__for_organization_logo_override_using_drive_link(self, mock_get_file_from_drive_link, mock_logger):  # pylint: disable=line-too-long
         """
         Verify that download_and_save_course_image will save image in course model
         for organization_logo_override using drive link
         """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
+        data_field = 'organization_logo_override'
         course = CourseFactory(card_image_url=image_url, image=None)
         mock_get_file_from_drive_link.return_value = ('image/png', self.IMG_CONTENT)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='organization_logo_override', headers=None) is True  # pylint: disable=line-too-long
+        assert download_and_save_course_image(course, course.card_image_url, data_field=data_field) is True
+        mock_logger.info.assert_called_once_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.organization_logo_override is not None

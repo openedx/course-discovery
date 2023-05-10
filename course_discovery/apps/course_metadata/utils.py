@@ -753,7 +753,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
                 else:
                     logger.error('Update organization logo override failed for course [%s]', course.key)
                     return False
-            logger.info('Image for course [%s] successfully updated.', course.key)
+            logger.info(f'Image for course {course.key} successfully updated in {data_field} field')
             return True
         else:
             msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
