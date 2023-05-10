@@ -17,6 +17,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -24,7 +25,7 @@ from course_discovery.apps.course_metadata.models import Course, CourseEditor, C
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory
+    OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
@@ -726,6 +727,16 @@ class UtilsTests(TestCase):
 
         output = transform_skills_data(input_data)
         assert output == expected_data
+
+    def test_validate_org_map_method(self):
+        partner = PartnerFactory.create(lms_url='http://127.0.0.1:8000')
+        source = SourceFactory(slug='text-source', name='text-source')
+        org = OrganizationFactory(name='edx', key='edx', partner=partner)
+        OrganizationMappingFactory(
+            organization=org, source=source, organization_external_key='ext-key'
+        )
+        key = map_external_org_code_to_internal_org_code('ext-key', source.slug)
+        assert key == org.key
 
 
 class TestConvertSvgToPngFromUrl(TestCase):

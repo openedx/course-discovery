@@ -19,15 +19,10 @@ class PopulateDefaultProductSourceTests(TestCase):
     """
     default_product_source_slug = settings.DEFAULT_PRODUCT_SOURCE_SLUG
 
-    def generate_slug_name_from_slug(self, slug):
-        """ Generate source name from slug """
-        return slug.strip().replace('-', ' ')
-
     def setUp(self):
         super().setUp()
-        self.default_product_source = self.generate_slug_name_from_slug(self.default_product_source_slug)
-        self.default_product_source = SourceFactory.create(name=self.default_product_source)
-        self.external_test_product_source = SourceFactory.create(name='test')
+        self.default_product_source = SourceFactory.create(slug=self.default_product_source_slug)
+        self.external_test_product_source = SourceFactory.create(slug='test')
 
     def tearDown(self):
         super().tearDown()
@@ -43,7 +38,7 @@ class PopulateDefaultProductSourceTests(TestCase):
             call_command('populate_default_product_source')
             for course in courses:
                 course.refresh_from_db()
-                assert course.product_source.name == self.default_product_source.name
+                assert course.product_source.slug == self.default_product_source.slug
             assert len(courses) == Course.everything.filter(product_source=self.default_product_source).count()
             mock_logger.info.assert_has_calls([
                 mock.call(f'Updated {len(courses)} courses with default product_source'),
@@ -62,7 +57,7 @@ class PopulateDefaultProductSourceTests(TestCase):
             call_command('populate_default_product_source', '--product_type', 'program')
             for program in programs:
                 program.refresh_from_db()
-                assert program.product_source.name == self.default_product_source.name
+                assert program.product_source.slug == self.default_product_source.slug
             assert len(programs) == Program.objects.filter(product_source=self.default_product_source).count()
             mock_logger.info.assert_has_calls([
                 mock.call(f'Updated {len(programs)} programs with default product_source'),
