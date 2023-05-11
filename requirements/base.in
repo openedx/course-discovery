@@ -5,7 +5,7 @@ cairosvg
 contentful
 django
 django-admin-sortable2
-django-autocomplete-light==3.9.0rc1
+django-autocomplete-light
 django-choices
 django-compressor
 django-config-models
