@@ -257,7 +257,7 @@ class SubjectSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Subject.objects.all().prefetch_related('translations')
+        return Subject.objects.prefetch_related('translations')
 
     class Meta:
         model = Subject
@@ -883,7 +883,8 @@ class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all Programs when the
         # queryset passed in happens to be empty.
-        return queryset if queryset is not None else Program.objects.all()
+        queryset = queryset if queryset is not None else Program.objects.all()
+        return queryset.select_related('type').prefetch_related('type__translations')
 
     class Meta:
         model = Program
@@ -987,12 +988,13 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     course_uuid = serializers.ReadOnlyField(source='course.uuid', default=None)
     content_language = serializers.SlugRelatedField(
         required=False, allow_null=True, slug_field='code', source='language',
-        queryset=LanguageTag.objects.all().order_by('name'),
+        queryset=LanguageTag.objects.prefetch_related('translations').order_by('name'),
         help_text=_('Language in which the course is administered')
     )
     content_language_search_facet_name = serializers.SerializerMethodField()
     transcript_languages = serializers.SlugRelatedField(
-        required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all().order_by('name')
+        required=False, many=True, slug_field='code',
+        queryset=LanguageTag.objects.prefetch_related('translations').order_by('name')
     )
     video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
@@ -1020,7 +1022,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video').prefetch_related(
+        return queryset.select_related('language', 'video', 'expected_program_type').prefetch_related(
             'course__level_type',
             'transcript_languages',
             'video__image',
@@ -1252,7 +1254,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     level_type = SlugRelatedTranslatableField(required=False, allow_null=True, slug_field='name_t',
                                               queryset=LevelType.objects.all())
     subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
-                                                  queryset=Subject.objects.all(),
+                                                  queryset=SubjectSerializer.prefetch_queryset(),
                                                   read_serializer=SubjectSerializer())
     prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
@@ -1321,12 +1323,13 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'location_restriction'
         ).prefetch_related(
             'expected_learning_items',
+            'level_type__translations',
             'prerequisites',
-            'subjects',
             'collaborators',
             'topics',
             'url_slug_history',
             'url_redirects',
+            'editors',
             cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             'canonical_course_run',
             'canonical_course_run__seats',
@@ -1336,6 +1339,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
+            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset())
         )
 
     class Meta(MinimalCourseSerializer.Meta):
@@ -1520,28 +1524,9 @@ class CourseWithProgramsSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-        return queryset.select_related(
-            'level_type',
-            'video',
-            'video__image',
-            'partner',
-            'canonical_course_run',
-            'type',
-            'geolocation',
-            'in_year_value',
-            'location_restriction'
-        ).prefetch_related(
-            '_official_version',
-            'expected_learning_items',
-            'prerequisites',
-            'topics',
-            'url_slug_history',
-            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
-            cls.prefetch_course_runs(CourseRunSerializer, course_runs),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
-            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+        queryset = super().prefetch_queryset(partner=partner, queryset=queryset, course_runs=course_runs)
+        return queryset.prefetch_related(
             Prefetch('programs', queryset=NestedProgramSerializer.prefetch_queryset(queryset=programs)),
-            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
     def get_advertised_course_run_uuid(self, course):

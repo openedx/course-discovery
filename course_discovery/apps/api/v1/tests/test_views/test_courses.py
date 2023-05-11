@@ -272,7 +272,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(69, threshold=3):
+        with self.assertNumQueries(52, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -282,7 +282,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(69, threshold=3):
+        with self.assertNumQueries(51, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -294,7 +294,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         # Increasing threshold because Course skill fetch SQL queries are executed twice
         # on CI. Listing returns skill details and skill names as two separate fields.
         # TODO: Figure out why the cache behavior is not working as expected on CI.
-        with self.assertNumQueries(67, threshold=5):
+        with self.assertNumQueries(51, threshold=5):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -2165,7 +2165,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(41, threshold=0):
+        with self.assertNumQueries(44, threshold=0):
             response = self.client.options(url)
         assert response.status_code == 200
 
