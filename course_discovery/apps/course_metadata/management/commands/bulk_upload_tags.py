@@ -99,7 +99,6 @@ class Command(BaseCommand):
             return
 
         for obj in query_set:
-            # pylint: disable=logging-not-lazy
             logger.info(f'Setting tags for {product_type} with uuid -{product_uuid}: {tags}')
             getattr(obj, field).set(tags)
             obj.save()
