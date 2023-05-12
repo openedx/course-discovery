@@ -1158,6 +1158,8 @@ class GeoLocation(TimeStampedModel):
 
     @property
     def coordinates(self):
+        if (self.lat is None or self.lng is None):
+            return None
         return self.lat, self.lng
 
     field_tracker = FieldTracker()

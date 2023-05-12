@@ -134,9 +134,8 @@ class AlgoliaProxyProduct(Program):
             contentful_product = contentful_data[product_uuid]
             self.product.contentful_fields = contentful_product
 
-    @property
     def coordinates(self):
-        return self.coordinates
+        return self.product.coordinates()
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
@@ -203,7 +202,7 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     def coordinates(self):
         geolocation = getattr(self, 'geolocation', None)
         if geolocation:
-            return getattr(geolocation, 'coordinates', None)
+            return getattr(geolocation, 'coordinates', ALGOLIA_DEFAULT_GEO_COORDINATES)
         return ALGOLIA_DEFAULT_GEO_COORDINATES
 
 
