@@ -16,6 +16,11 @@ IMAGE_TYPES = {
 }
 
 ALLOWED_ANCHOR_TAG_ATTRIBUTES = ['href', 'title', 'target', 'rel']
+ALLOWED_PARAGRAPH_TAG_ATTRIBUTES = ['dir', 'lang']
+HTML_TAGS_ATTRIBUTE_WHITELIST = {
+    'a': ALLOWED_ANCHOR_TAG_ATTRIBUTES,
+    'p': ALLOWED_PARAGRAPH_TAG_ATTRIBUTES,
+}
 
 DRIVE_LINK_PATTERNS = [r"https://docs\.google\.com/uc\?id=\w+",
                        r"https://drive\.google\.com/file/d/\w+/view?usp=sharing"]

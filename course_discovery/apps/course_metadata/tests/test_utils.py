@@ -641,6 +641,9 @@ class UtilsTests(TestCase):
         ('<script>Script</script>', ''),
         ('NB&nbsp;SP', '<p>NBSP</p>'),
 
+        # Make sure to add dir attribute to p tags if they are in attribute list
+        ('<p dir="rtl" class="float">Directed paragraph</p>', '<p dir="rtl">Directed paragraph</p>'),
+
         # Make sure that only spans with lang tags are preserved in the saved string
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
