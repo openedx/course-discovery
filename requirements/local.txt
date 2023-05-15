@@ -31,7 +31,7 @@ asn1crypto==1.5.1
     # via
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.15.4
+astroid==2.15.5
     # via
     #   pylint
     #   pylint-celery
@@ -71,9 +71,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.132
+boto3==1.26.133
     # via django-ses
-botocore==1.29.132
+botocore==1.29.133
     # via
     #   boto3
     #   s3transfer
@@ -223,7 +223,7 @@ django-admin-sortable2==1.0.4
     #   -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
-django-autocomplete-light==3.9.5
+django-autocomplete-light==3.9.7
     # via -r requirements/base.in
 django-choices==1.7.2
     # via
@@ -237,7 +237,7 @@ django-config-models==2.3.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
-django-cors-headers==3.14.0
+django-cors-headers==4.0.0
     # via -r requirements/base.in
 django-countries==7.5.1
     # via -r requirements/base.in
@@ -335,7 +335,7 @@ djangorestframework-csv==2.1.1
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==6.1.1
+docker[ssh]==6.1.2
     # via docker-compose
 docker-compose==1.29.2
     # via -r requirements/local.in
@@ -587,7 +587,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via
     #   pylint
     #   virtualenv
@@ -688,7 +688,7 @@ pytest-responses==0.5.1
     # via -r requirements/test.in
 pytest-split==0.8.1
     # via -r requirements/local.in
-pytest-xdist==3.2.1
+pytest-xdist==3.3.0
     # via -r requirements/test.in
 python-dateutil==2.8.2
     # via

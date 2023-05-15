@@ -44,9 +44,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.132
+boto3==1.26.133
     # via django-ses
-botocore==1.29.132
+botocore==1.29.133
     # via
     #   boto3
     #   s3transfer
@@ -167,7 +167,7 @@ django-admin-sortable2==1.0.4
     #   -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
-django-autocomplete-light==3.9.5
+django-autocomplete-light==3.9.7
     # via -r requirements/base.in
 django-choices==1.7.2
     # via
@@ -181,7 +181,7 @@ django-config-models==2.3.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
-django-cors-headers==3.14.0
+django-cors-headers==4.0.0
     # via -r requirements/base.in
 django-countries==7.5.1
     # via -r requirements/base.in
@@ -463,7 +463,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
