@@ -36,7 +36,6 @@ class AbstractHeadingBlurbModelFactory(factory.django.DjangoModelFactory):
 class SourceFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     description = FuzzyText()
-    slug = FuzzyText()
 
     class Meta:
         model = Source
