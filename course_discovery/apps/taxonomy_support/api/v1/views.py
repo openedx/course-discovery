@@ -1,6 +1,7 @@
 from rest_framework import permissions
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.taxonomy_support.api.v1.serializers import CourseRecommendationsSerializer
@@ -12,6 +13,8 @@ class CourseRecommendationsAPIView(ListAPIView):
     Example:
         GET discovery.edx.org/taxonomy/api/v1/course_recommendations/edX+DemoX/
     """
+    throttle_classes = [UserRateThrottle]
+    throttle_rate = '150/hour'
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Course.objects.all()
     serializer_class = CourseRecommendationsSerializer
