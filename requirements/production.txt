@@ -447,7 +447,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.6
     # via taxonomy-connector
-openedx-events==7.2.0
+openedx-events==7.3.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
