@@ -11,6 +11,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     DEGREE_LOADER_ERROR_LOG_SEQUENCE, DegreeCSVIngestionErrorMessages, DegreeCSVIngestionErrors
 )
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType, Source,
@@ -119,7 +120,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
-            org = self._get_object(Organization, "key", row['organization_key'], degree_slug)
+            org_key = map_external_org_code_to_internal_org_code(row['organization_key'], self.product_source.slug)
+            org = self._get_object(Organization, "key", org_key, degree_slug)
             program_type = self._get_object(ProgramType, "slug", program_type, degree_slug)
             primary_subject_override = self._get_object(
                 Subject, "translations__name",

@@ -17,7 +17,7 @@ from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
 from course_discovery.apps.course_metadata.data_loaders import utils
-from course_discovery.apps.course_metadata.models import OrganizationMapping
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
 
 logger = logging.getLogger(__name__)
@@ -96,35 +96,6 @@ class Command(BaseCommand):
             help='Product source to be used for mapping external organization code to internal organization code'
         )
 
-    def map_external_org_code_to_internal_org_code(self, external_org_code, product_source):
-        """
-        Map external organization code to internal organization code if it exists in OrganizationMapping table else
-        return the external organization code.
-
-        Keyword Arguments:
-            external_org_code (str): External organization code
-            product_source (str): Product source
-
-        Returns:
-            str: Internal organization code if it exists in OrganizationMapping table else return external organization
-        """
-        org_mapping = OrganizationMapping.objects.filter(
-            organization_external_key=external_org_code,
-            source__name=product_source
-        )
-        if org_mapping:
-            logger.info(
-                "Found corresponding internal organization against external org_code [%s] and product_source [%s]",
-                external_org_code, product_source
-            )
-            return org_mapping.first().organization.key
-        else:
-            logger.warning(
-                "No internal organization found against external org_code [%s] and product_source [%s]",
-                external_org_code, product_source
-            )
-            return external_org_code
-
     def handle(self, *args, **options):
         input_csv = options.get('input_csv')
         output_csv = options.get('output_csv')
@@ -177,7 +148,7 @@ class Command(BaseCommand):
                 else:
                     row = {}
                 if getsmarter_flag:
-                    product['organization'] = self.map_external_org_code_to_internal_org_code(
+                    product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
                 output_dict = self.get_transformed_data(row, product)
                 output_writer = self.write_csv_row(output_writer, output_dict)
