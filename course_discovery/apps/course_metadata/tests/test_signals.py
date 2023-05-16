@@ -865,7 +865,7 @@ class TestCourseDataUpdateSignal(TestCase):
         applicable time window.
         """
         metadata = EventsMetadata(event_type='catalog-data-changed', minorversion=0)
-        with override_settings(EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS=120):
+        with override_settings(EVENT_BUS_MESSAGE_DELAY_THRESHOLD_SECONDS=120):
             with self.assertLogs(LOGGER_NAME, level="DEBUG") as logger:
                 update_course_data_from_event(
                     catalog_info=self.catalog_data,
@@ -874,4 +874,4 @@ class TestCourseDataUpdateSignal(TestCase):
                 assert f"COURSE_CATALOG_INFO_CHANGED event received within the " \
                        f"delay applicable window for course run {self.course_key}." in logger.output[0]
 
-        sleep_patch.assert_called_once_with(settings.EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS)
+        sleep_patch.assert_called_once_with(settings.EVENT_BUS_PROCESSING_DELAY_SECONDS)
