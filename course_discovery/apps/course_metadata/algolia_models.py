@@ -135,7 +135,7 @@ class AlgoliaProxyProduct(Program):
             self.product.contentful_fields = contentful_product
 
     def coordinates(self):
-        return self.product.coordinates()
+        return self.product.coordinates
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
