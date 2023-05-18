@@ -401,12 +401,12 @@ class CSVDataLoader(AbstractDataLoader):
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
             related_courses__product_source=self.product_source,
-            product_status='Published'
+            product_status=ExternalProductStatus.Published,
         ).values_list('external_identifier', flat=True)
 
         archived_products = set(all_product_additional_metadatas).difference(course_external_identifiers)
         archived_products_queryset = AdditionalMetadata.objects.filter(external_identifier__in=archived_products)
-        archived_products_queryset.update(product_status="Archived")
+        archived_products_queryset.update(product_status=ExternalProductStatus.Archived)
         self.ingestion_summary['archived_products'] = list(archived_products)
 
         logger.info(
