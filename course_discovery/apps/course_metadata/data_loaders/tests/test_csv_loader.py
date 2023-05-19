@@ -10,7 +10,7 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.choices import ExternalCourseMarketingType
+from course_discovery.apps.course_metadata.choices import ExternalCourseMarketingType, ExternalProductStatus
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
@@ -273,21 +273,21 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_ecommerce_publication(self.partner)
         self.mock_image_response()
 
-        additional_metadata_one = AdditionalMetadataFactory(product_status="Published")
+        additional_metadata_one = AdditionalMetadataFactory(product_status=ExternalProductStatus.Published)
         CourseFactory(
             key='test+123', partner=self.partner, type=self.course_type,
             draft=False, additional_metadata=additional_metadata_one,
             product_source=self.source
         )
 
-        additional_metadata_two = AdditionalMetadataFactory(product_status="Published")
+        additional_metadata_two = AdditionalMetadataFactory(product_status=ExternalProductStatus.Published)
         CourseFactory(
             key='test+124', partner=self.partner, type=self.course_type,
             draft=False, additional_metadata=additional_metadata_two,
             product_source=self.source
         )
 
-        additional_metadata__source_2 = AdditionalMetadataFactory(product_status="Published")
+        additional_metadata__source_2 = AdditionalMetadataFactory(product_status=ExternalProductStatus.Published)
         CourseFactory(
             key='test+125', partner=self.partner, type=self.course_type,
             draft=False, additional_metadata=additional_metadata_two,
@@ -349,7 +349,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     # Assert that a product status with different product source is not affected in Archive flow.
                     additional_metadata__source_2.refresh_from_db()
-                    assert additional_metadata__source_2.product_status == "Published"
+                    assert additional_metadata__source_2.product_status == ExternalProductStatus.Published
 
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
