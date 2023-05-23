@@ -67,19 +67,29 @@ class Command(BaseCommand):
             program_uuid = row.get('uuid', None)
 
             price = Decimal(row.get('subscription_price', None).strip('$'))
+            subscription_eligible = row.get('subscription_eligible', None)
+
+            if subscription_eligible not in ['TRUE', 'FALSE']:
+                logger.info(f"Skipped record: {program_uuid} because of invalid subscription eligibility value")
+                continue
+
             try:
+                subscription_eligible = subscription_eligible == 'TRUE'
                 program = Program.objects.get(uuid=program_uuid)
+                default_params = {
+                    'subscription_eligible': subscription_eligible
+                }
                 subscription, _ = ProgramSubscription.objects.update_or_create(
-                    program=program, subscription_eligible=True
+                    program=program, defaults=default_params
                 )
                 subscription_price, created = ProgramSubscriptionPrice.objects.update_or_create(
                     program_subscription=subscription, price=price
                 )
                 created_or_updated = 'created' if created else 'updated'
-                logger.info('Program located with slug: %s.Its subscription with price: %s USD is %s',
-                            program.marketing_slug, subscription_price.price, created_or_updated)
+                logger.info(f"Program located with slug: {program.marketing_slug}."
+                            f"Its subscription with price: {subscription_price.price} USD is {created_or_updated}")
             except Program.DoesNotExist:
-                logger.exception("Unable to locate Program instance with code %s", program_uuid)
+                logger.exception(f"Unable to locate Program instance with code {program_uuid}")
 
     def transform_dict_keys(self, data):
         """
