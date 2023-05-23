@@ -81,9 +81,9 @@ class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):
     @staticmethod
     def get_course_runs(course_run_keys):  # lint-amnesty, pylint: disable=arguments-differ
         """
-        Get list of courses matching the given course run keys and return them in the form of CourseRunContent.
+        Get list of course runs matching the given course run keys and return them in the form of CourseRunContent.
         """
-        course_runs = CourseRun.everything.filter(key__in=course_run_keys).distinct()
+        course_runs = CourseRun.objects.filter(key__in=course_run_keys).distinct()
         return [
             CourseRunContent(course_run_key=course_run.key, course_key=course_run.course.key)
             for course_run in course_runs
