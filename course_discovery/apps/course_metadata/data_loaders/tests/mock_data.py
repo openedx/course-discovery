@@ -3114,12 +3114,21 @@ VALID_PROGRAM_SUBSCRIPTION_DICT = {
     'uuid': '0668c6f0-5dcf-41dc-80cd-6222d2de4df0',
     'title': 'Test Program',
     'subscription price': '$79.89',
+    'subscription_eligible': 'TRUE',
 }
 
 INVALID_PROGRAM_SUBSCRIPTION_DICT = {
     'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
     'title': 'Test Program 2',
     'subscription price': '$79.99',
+    'subscription_eligible': 'FALSE',
+}
+
+PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT = {
+    'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
+    'title': 'Test Program 2',
+    'subscription price': '$79.99',
+    'subscription_eligible': 'test-flag',
 }
 
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT

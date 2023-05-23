@@ -44,9 +44,8 @@ class TestManageProgramSubscription(APITestCase):
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
             subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
-            expected_log = 'Program located with slug: {}.Its subscription with price: {} USD is created'.format(
-                self.program.marketing_slug, subscription_price.price
-            )
+            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
+                           f"Its subscription with price: {subscription_price.price} USD is created"
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
             )
@@ -55,9 +54,8 @@ class TestManageProgramSubscription(APITestCase):
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
             subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
-            expected_log = 'Program located with slug: {}.Its subscription with price: {} USD is updated'.format(
-                self.program.marketing_slug, subscription_price.price
-            )
+            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
+                           f"Its subscription with price: {subscription_price.price} USD is updated"
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
             )
@@ -78,9 +76,77 @@ class TestManageProgramSubscription(APITestCase):
 
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
-            expected_log = 'Unable to locate Program instance with code {}'.format(
-                mock_data.INVALID_PROGRAM_SUBSCRIPTION_DICT['uuid']
-            )
+            expected_log = f"Unable to locate Program instance with code " \
+                           f"{mock_data.INVALID_PROGRAM_SUBSCRIPTION_DICT['uuid']}"
             log_capture.check_present(
                 (LOGGER_PATH, 'ERROR', expected_log)
+            )
+
+    def test_record_skipped_if_subscription_eligibility_is_invalid(self):
+        """
+        Test that the log would be captured in case the record is skipped.
+        """
+        csv_file_content = ','.join(list(mock_data.PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT)) + '\n'
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mock_data.PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT.values()))
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        _ = ProgramSubscriptionConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            call_command('manage_program_subscription')
+            expected_log = f"Skipped record: {mock_data.PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT['uuid']} " \
+                           f"because of invalid subscription eligibility value"
+            log_capture.check_present(
+                (LOGGER_PATH, 'INFO', expected_log)
+            )
+
+    def test_subscription_object_should_be_updated_if_created_earlier(self):
+        """
+        Test that the subscription object must be updated if created earlier in case of future update(s)
+        """
+        csv_file_content = ','.join(list(mock_data.VALID_PROGRAM_SUBSCRIPTION_DICT)) + '\n'
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mock_data.VALID_PROGRAM_SUBSCRIPTION_DICT.values()))
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        _ = ProgramSubscriptionConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            call_command('manage_program_subscription')
+            subscription = ProgramSubscription.objects.get(program=self.program)
+            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
+            assert len(ProgramSubscription.objects.all()) == 1
+            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
+                           f"Its subscription with price: {subscription_price.price} USD is created"
+            log_capture.check_present(
+                (LOGGER_PATH, 'INFO', expected_log)
+            )
+
+        mock_data.VALID_PROGRAM_SUBSCRIPTION_DICT['subscription_eligible'] = 'FALSE'
+        csv_file_content = ','.join(list(mock_data.VALID_PROGRAM_SUBSCRIPTION_DICT)) + '\n'
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mock_data.VALID_PROGRAM_SUBSCRIPTION_DICT.values()))
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        _ = ProgramSubscriptionConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            call_command('manage_program_subscription')
+            subscription = ProgramSubscription.objects.get(program=self.program)
+            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
+            assert len(ProgramSubscription.objects.all()) == 1
+            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
+                           f"Its subscription with price: {subscription_price.price} USD is updated"
+            log_capture.check_present(
+                (LOGGER_PATH, 'INFO', expected_log)
             )
