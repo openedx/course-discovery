@@ -29,6 +29,8 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.test import TestCase
+from taxonomy.providers import CourseRunContent
+from taxonomy.providers.utils import get_course_run_metadata_provider
 from taxonomy.validators import (
     CourseMetadataProviderValidator, CourseRunMetadataProviderValidator, ProgramMetadataProviderValidator,
     XBlockMetadataProviderValidator
@@ -36,6 +38,7 @@ from taxonomy.validators import (
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
 
 
@@ -59,15 +62,28 @@ class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
 
     def test_validate_course_run_metadata(self):
         """
-        Validate that there are no integration issues.
+        Validate that there are no integration issues with CourseRunMetadataProvider.
         """
-        courses = CourseRunFactory.create_batch(3)
-        course_metadata_validator = CourseRunMetadataProviderValidator(
-            [str(course.key) for course in courses]
+        course_runs = CourseRunFactory.create_batch(3)
+        course_run_metadata_validator = CourseRunMetadataProviderValidator(
+            [str(course_run.key) for course_run in course_runs]
         )
 
         # Run all the validations, note that an assertion error will be raised if any of the validation fail.
-        course_metadata_validator.validate()
+        course_run_metadata_validator.validate()
+
+    def test_validate_course_run_metadata_returns_published_course_runs_only(self):
+        """
+        Validate that CourseRunMetadataProvider.get_all_published_course_runs returns only published course runs.
+        """
+        course_runs = CourseRunFactory.create_batch(3)
+        expected_course_runs_metadata = [
+            CourseRunContent(course_run_key=course_run.key, course_key=course_run.course.key)
+            for course_run in course_runs
+        ]
+        CourseRunFactory(status=CourseRunStatus.Unpublished)
+        course_runs_metadata = get_course_run_metadata_provider().get_all_published_course_runs()
+        self.assertEqual(list(course_runs_metadata), expected_course_runs_metadata)
 
     @mock.patch('course_discovery.apps.taxonomy_support.providers.fetch_and_transform_degree_contentful_data',
                 return_value={})
