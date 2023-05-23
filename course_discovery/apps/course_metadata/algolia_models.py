@@ -19,6 +19,10 @@ from course_discovery.apps.course_metadata.utils import transform_skills_data
 # Algolia can't filter on an empty list, provide a value we can still filter on
 ALGOLIA_EMPTY_LIST = ['null']
 
+# Every record needs geolocation data to show up in results after we turn on georanking.
+# These are the coordinates of the HQ office in Maryland
+ALGOLIA_DEFAULT_GEO_COORDINATES = 38.951302, -76.873100
+
 
 # Utility methods used by both courses and programs
 def get_active_language_tag(course):
@@ -130,12 +134,8 @@ class AlgoliaProxyProduct(Program):
             contentful_product = contentful_data[product_uuid]
             self.product.contentful_fields = contentful_product
 
-    @property
     def coordinates(self):
-        geolocation = getattr(self.product, 'geolocation', None)
-        if geolocation:
-            return getattr(geolocation, 'coordinates', None)
-        return None
+        return self.product.coordinates
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
@@ -197,6 +197,13 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     @property
     def product_source(self):
         return self.product_source.slug if self.product_source else None
+
+    @property
+    def coordinates(self):
+        geolocation = getattr(self, 'geolocation', None)
+        if geolocation:
+            return getattr(geolocation, 'coordinates', ALGOLIA_DEFAULT_GEO_COORDINATES)
+        return ALGOLIA_DEFAULT_GEO_COORDINATES
 
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):

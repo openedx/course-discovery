@@ -12,10 +12,16 @@ MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 IMAGE_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
-    'image/svg+xml': 'svg'  # SVG image will be converted into PNG, not stored as SVG
+    'image/svg+xml': 'svg',  # SVG image will be converted into PNG, not stored as SVG
+    'application/binary': 'jpg',  # Dropbox binary images are downloaded as JPG
 }
 
 ALLOWED_ANCHOR_TAG_ATTRIBUTES = ['href', 'title', 'target', 'rel']
+ALLOWED_PARAGRAPH_TAG_ATTRIBUTES = ['dir', 'lang']
+HTML_TAGS_ATTRIBUTE_WHITELIST = {
+    'a': ALLOWED_ANCHOR_TAG_ATTRIBUTES,
+    'p': ALLOWED_PARAGRAPH_TAG_ATTRIBUTES,
+}
 
 DRIVE_LINK_PATTERNS = [r"https://docs\.google\.com/uc\?id=\w+",
                        r"https://drive\.google\.com/file/d/\w+/view?usp=sharing"]

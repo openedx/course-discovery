@@ -146,7 +146,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
+                        'Degree with external identifier {} is not located in the database. Creating new degree.'.format(self.EXTERNAL_IDENTIFIER)  # pylint: disable=line-too-long
                     )
                 )
 
@@ -183,7 +183,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         degree = DegreeFactory(
             marketing_slug=self.DEGREE_SLUG, partner=self.partner,
-            type=self.program_type
+            type=self.program_type, product_source=self.product_source
         )
         _ = DegreeAdditionalMetadataFactory(degree=degree, external_identifier='123456')
 
@@ -199,7 +199,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is located in the database. Updating existing degree.'.format(self.DEGREE_SLUG)
+                        'Degree with external identifier {} is located in the database. Updating existing degree.'.format(self.EXTERNAL_IDENTIFIER)  # pylint: disable=line-too-long
                     )
                 )
                 assert Degree.objects.count() == 1
@@ -246,7 +246,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
+                        'Degree with external identifier {} is not located in the database. Creating new degree.'.format(self.EXTERNAL_IDENTIFIER)  # pylint: disable=line-too-long
                     )
                 )
 
@@ -300,7 +300,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
+                        'Degree with external identifier {} is not located in the database. Creating new degree.'.format(self.EXTERNAL_IDENTIFIER)  # pylint: disable=line-too-long
                     )
                 )
 
@@ -346,3 +346,31 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.has_ofac_restrictions
                 assert degree.ofac_comment == f"Program type {self.program_type.slug} is OFAC restricted " \
                                               f"for {self.product_source.name}"
+
+    def test_slug_update_flow__for_existing_degree(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader updates the slugs for existing degree in database.
+        """
+
+        self._setup_prerequisites(self.partner)
+        self.mock_image_response()
+
+        degree = DegreeFactory(
+            marketing_slug=self.DEGREE_SLUG, partner=self.partner,
+            type=self.program_type, product_source=self.product_source
+        )
+        _ = DegreeAdditionalMetadataFactory(degree=degree, external_identifier='123456')
+        updated_slug = 'test-degree-2'
+
+        degree_data = mock_data.VALID_DEGREE_CSV_DICT.copy()
+        degree_data['slug'] = updated_slug
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [degree_data])
+
+            loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
+            loader.ingest()
+
+            assert Degree.objects.count() == 1
+            assert Program.objects.count() == 1
+            assert Curriculum.objects.count() == 1
+            assert Degree.objects.first().marketing_slug == updated_slug

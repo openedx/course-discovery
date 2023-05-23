@@ -6,7 +6,7 @@ import uuid
 
 from django.core.management import BaseCommand, CommandError
 
-from course_discovery.apps.course_metadata.models import BulkUploadTagsConfig, Course, Degree, Program
+from course_discovery.apps.course_metadata.models import BulkUploadTagsConfig, Course, Program
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
     PRODUCT_TYPE_TO_TAGS_FIELD_MAPPING = {
         'course': {'model': Course, 'field': 'topics'},
         'program': {'model': Program, 'field': 'labels'},
-        'degree': {'model': Degree, 'field': 'labels'},
+        'degree': {'model': Program, 'field': 'labels'},
     }
     PRODUCT_TYPES = ['course', 'program', 'degree']
 

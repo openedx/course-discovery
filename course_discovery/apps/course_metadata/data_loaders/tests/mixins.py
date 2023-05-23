@@ -50,6 +50,7 @@ class DegreeCSVLoaderMixin:
     """
     DEGREE_TITLE = 'Test Degree'
     DEGREE_SLUG = 'test-degree'
+    EXTERNAL_IDENTIFIER = '123456'
 
     CSV_DATA_KEYS_ORDER = [
         'identifier',
@@ -117,17 +118,22 @@ class DegreeCSVLoaderMixin:
         csv.seek(0)
         return csv
 
-    def _setup_organization(self, partner):
+    def _setup_organization(self, partner, add_org_map=False):
         """
         setup test-only organization.
         """
-        OrganizationFactory(name='edx', key='edx', partner=partner)
+        org = OrganizationFactory(name='edx', key='edx', partner=partner)
 
-    def _setup_prerequisites(self, partner):
+        if add_org_map:
+            OrganizationMappingFactory(
+                organization=org, organization_external_key='ext-key', source=self.product_source
+            )
+
+    def _setup_prerequisites(self, partner, add_org_map=False):
         """
         Setup pre-reqs for Degree Program.
         """
-        self._setup_organization(partner)
+        self._setup_organization(partner, add_org_map)
 
         intermediate = LevelTypeFactory(name='Intermediate')
         intermediate.set_current_language('en')

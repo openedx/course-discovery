@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.models import Course, Degree, Program
+from course_discovery.apps.course_metadata.models import Course, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     BulkUploadTagsConfigFactory, CourseFactory, DegreeFactory, ProgramFactory
 )
@@ -83,8 +83,9 @@ class BulkUploadTagsCommandTests(TestCase):
         tags_course_2 = [t.name for t in Course.objects.get(uuid=self.course2.uuid).topics.all()]
         tags_course_3 = [t.name for t in Course.objects.get(uuid=self.course3.uuid).topics.all()]
 
-        tags_degree_1 = [t.name for t in Degree.objects.get(uuid=self.degree1.uuid).labels.all()]
-        tags_degree_2 = [t.name for t in Degree.objects.get(uuid=self.degree2.uuid).labels.all()]
+        # Get the tags for the degree's corresponding program.
+        tags_degree_1 = [t.name for t in Program.objects.get(uuid=self.degree1.uuid).labels.all()]
+        tags_degree_2 = [t.name for t in Program.objects.get(uuid=self.degree2.uuid).labels.all()]
 
         tags_program_1 = [t.name for t in Program.objects.get(uuid=self.program1.uuid).labels.all()]
         tags_program_2 = [t.name for t in Program.objects.get(uuid=self.program2.uuid).labels.all()]

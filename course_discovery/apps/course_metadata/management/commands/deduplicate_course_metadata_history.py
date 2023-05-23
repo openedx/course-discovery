@@ -53,6 +53,14 @@ class Command(clean_duplicate_history.Command):
 
         if options['args_from_database']:
             options = self.get_args_from_database()
+
+        # Ignore changes in the `modified` field alongside provided excluded fields.
+        # This does not require overriding _check_and_delete anymore
+        excluded_fields = options.get("excluded_fields")
+        if excluded_fields is None:
+            excluded_fields = []
+        excluded_fields.extend(["modified"])
+        options['excluded_fields'] = excluded_fields
         super().handle(*args, **options)
 
     def _process(self, to_process, date_back=None, dry_run=True):
@@ -94,17 +102,3 @@ class Command(clean_duplicate_history.Command):
 
             for o in model_query.iterator():
                 self._process_instance(o, model, stop_date=stop_date, dry_run=dry_run)
-
-    def _check_and_delete(self, entry1, entry2, dry_run=True):
-        """
-        The body of this method is copied VERBATIM from upstream except for the
-        following change:
-
-        Ignore changes in the `modified` field.
-        """
-        delta = entry1.diff_against(entry2)
-        if set(delta.changed_fields).issubset({"modified"}):  # This is the only line that differs from upstream.
-            if not dry_run:
-                entry1.delete()
-            return 1
-        return 0

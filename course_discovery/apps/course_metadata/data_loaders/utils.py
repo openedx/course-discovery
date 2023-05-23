@@ -2,11 +2,15 @@
 Utils for loaders to format or transform field values.
 """
 import base64
+import logging
 import re
 
 from lxml.html import clean
 
+from course_discovery.apps.course_metadata.models import OrganizationMapping
 from course_discovery.apps.course_metadata.validators import HtmlValidator
+
+logger = logging.getLogger(__name__)
 
 
 class HtmlCleaner():
@@ -105,3 +109,33 @@ def format_base64_strings(data):
         return base64.b64decode(data).decode('utf-8')
     except Exception:  # pylint: disable=broad-except
         return data
+
+
+def map_external_org_code_to_internal_org_code(external_org_code, product_source):
+    """
+    Map external organization code to internal organization code if it exists in OrganizationMapping table else
+    return the external organization code.
+
+    Keyword Arguments:
+        external_org_code (str): External organization code
+        product_source (str): Product source slug
+
+    Returns:
+        str: Internal organization code if it exists in OrganizationMapping table else return external organization
+    """
+    org_mapping = OrganizationMapping.objects.filter(
+        organization_external_key=external_org_code,
+        source__slug=product_source
+    )
+    if org_mapping:
+        logger.info(
+            f'Found corresponding internal organization against external org_code {external_org_code} and '
+            f'product_source {product_source}'
+        )
+        return org_mapping.first().organization.key
+    else:
+        logger.warning(
+            f'No internal organization found against external org_code {external_org_code} and '
+            f'product_source {product_source}'
+        )
+        return external_org_code

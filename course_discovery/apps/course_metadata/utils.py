@@ -22,7 +22,7 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import ALLOWED_ANCHOR_TAG_ATTRIBUTES, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -653,6 +653,37 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
         self.ignore_links = True
         self.in_lang_span = False
         self.images_with_size = True
+        self.is_p_tag_with_dir = False
+
+    def add_and_filter_attrs(self, tag, dict_attrs):
+        """
+        This method adds only allowed attributes to the whitelisted tags
+        """
+        self.outtextf(f'<{tag}')
+        filtered_attrs_list = [
+            (attr, value) for attr, value in dict_attrs.items()
+            if attr in HTML_TAGS_ATTRIBUTE_WHITELIST[tag]
+        ]
+        for attr, value in filtered_attrs_list:
+            self.outtextf(f' {attr}="{value}"')
+        self.outtextf('>')
+
+    def whitelist_html_tags_attribute(self, tag, dict_attrs, start):
+        """
+        This method overrides the default behavior of html2text to include only allowed tags from attr_dict
+        because by default it only includes the href and title attributes for <a> tags and
+        discards the dir attribrute for <p> tags
+        """
+        if tag in HTML_TAGS_ATTRIBUTE_WHITELIST:
+            if start:
+                if HTML_TAGS_ATTRIBUTE_WHITELIST[tag][0] in dict_attrs:
+                    if tag == 'p':
+                        self.is_p_tag_with_dir = True
+                    self.add_and_filter_attrs(tag, dict_attrs)
+            elif (tag == 'p' and self.is_p_tag_with_dir) or (tag == 'a'):
+                if tag == 'p':
+                    self.is_p_tag_with_dir = False
+                self.outtextf(f'</{tag}>')
 
     def handle_tag(self, tag, attrs, start):
         super().handle_tag(tag, attrs, start)
@@ -663,20 +694,7 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
             if not start and self.in_lang_span:
                 self.outtextf('</span>')
                 self.in_lang_span = False
-
-        if tag == 'a':
-            # override the default behavior of html2text to include only allowed tags from attr_dict for <a> tags
-            # because by default it only includes the href and title attributes
-            if attrs and start and 'href' in dict(attrs):
-                self.outtextf('<a')
-                filtered_attrs_list = [
-                    (attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES
-                ]
-                for attr, value in filtered_attrs_list:
-                    self.outtextf(f' {attr}="{value}"')
-                self.outtextf('>')
-            if not start:
-                self.outtextf('</a>')
+        self.whitelist_html_tags_attribute(tag, dict(attrs), start)
 
 
 def clean_html(content):
@@ -753,7 +771,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
                 else:
                     logger.error('Update organization logo override failed for course [%s]', course.key)
                     return False
-            logger.info('Image for course [%s] successfully updated.', course.key)
+            logger.info(f'Image for course {course.key} successfully updated in {data_field} field')
             return True
         else:
             msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
