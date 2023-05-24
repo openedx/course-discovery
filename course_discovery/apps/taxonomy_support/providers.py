@@ -16,14 +16,18 @@ https://openedx.atlassian.net/wiki/spaces/SOL/pages/1814922129/Platform+Agnostic
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from edx_django_utils.db import chunked_queryset
-from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider, XBlockContent, XBlockMetadataProvider
+from taxonomy.providers import (
+    CourseMetadataProvider, CourseRunContent, CourseRunMetadataProvider, ProgramMetadataProvider, XBlockContent,
+    XBlockMetadataProvider
+)
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.contentful_utils import (
     aggregate_contentful_data, fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
 )
-from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
 class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
@@ -67,6 +71,36 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                         course.full_description
                     ),
                 }
+
+
+class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):
+    """
+    Discovery course run metadata provider.
+    """
+
+    @staticmethod
+    def get_course_runs(course_run_keys):  # lint-amnesty, pylint: disable=arguments-differ
+        """
+        Get list of course runs matching the given course run keys and return them in the form of CourseRunContent.
+        """
+        course_runs = CourseRun.objects.filter(key__in=course_run_keys).distinct()
+        return [
+            CourseRunContent(course_run_key=course_run.key, course_key=course_run.course.key)
+            for course_run in course_runs
+        ]
+
+    @staticmethod
+    def get_all_published_course_runs():  # lint-amnesty, pylint: disable=arguments-differ
+        """
+        Get iterator for all published course runs.
+        """
+        all_courses = Course.objects.all()
+        for chunked_courses in chunked_queryset(all_courses):
+            for course in chunked_courses:
+                course_runs = course.course_runs.filter(status=CourseRunStatus.Published).all()
+                for chunked_course_runs in chunked_queryset(course_runs):
+                    for course_run in chunked_course_runs:
+                        yield CourseRunContent(course_run_key=course_run.key, course_key=course.key)
 
 
 class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
