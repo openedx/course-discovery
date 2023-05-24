@@ -940,6 +940,11 @@ class GeolocationDataLoaderConfigurationFactory(factory.django.DjangoModelFactor
         model = GeolocationDataLoaderConfiguration
 
 
+class ProductValueDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductValueDataLoaderConfiguration
+
+
 class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CSVDataLoaderConfiguration
