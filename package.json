@@ -24,6 +24,6 @@
     "webpack-cli": "4.8.0"
   },
   "devDependencies": {
-    "geckodriver": "3.0.1"
+    "geckodriver": "3.0.2"
   }
 }
