@@ -583,6 +583,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             for status in course_status:
                 availability.add(status)
 
+        if self.subscription_eligible:
+            availability.add(_('Available by subscription'))
+
         return list(availability)
 
     @property

@@ -747,6 +747,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.subscription = None if subscription_eligible is None else \
             ProgramSubscriptionFactory(subscription_eligible=subscription_eligible)
         self.assertEqual(program.subscription_eligible, subscription_eligible)
+        if subscription_eligible:
+            assert 'Available by subscription' in program.availability_level
+        else:
+            assert program.availability_level == []
 
     @ddt.data(
         None,
