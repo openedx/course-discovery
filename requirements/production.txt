@@ -19,7 +19,7 @@ algoliasearch-django==1.7.3
     #   -r requirements/base.in
 amqp==5.1.1
     # via kombu
-asgiref==3.6.0
+asgiref==3.7.2
     # via
     #   django
     #   django-countries
@@ -44,13 +44,13 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.137
+boto3==1.26.142
     # via django-ses
-botocore==1.29.137
+botocore==1.29.142
     # via
     #   boto3
     #   s3transfer
-cachetools==5.3.0
+cachetools==5.3.1
     # via google-auth
 cairocffi==1.4.0
     # via
@@ -74,7 +74,7 @@ cffi==1.15.1
     #   cryptography
     #   pynacl
     #   snowflake-connector-python
-charset-normalizer==2.1.1
+charset-normalizer==3.1.0
     # via
     #   aiohttp
     #   requests
@@ -236,7 +236,7 @@ django-simple-history==3.0.0
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-django-solo==2.0.0
+django-solo==2.1.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -260,7 +260,7 @@ django-waffle==3.0.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==1.8.1
+django-webpack-loader==2.0.0
     # via -r requirements/base.in
 djangorestframework==3.14.0
     # via
@@ -313,12 +313,11 @@ edx-django-utils==5.4.0
     #   taxonomy-connector
 edx-drf-extensions==8.2.0
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
 edx-event-bus-kafka==5.1.0
     # via -r requirements/base.in
-edx-event-bus-redis==0.2.1
+edx-event-bus-redis==0.3.1
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -364,9 +363,9 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.86.0
+google-api-python-client==2.87.0
     # via -r requirements/base.in
-google-auth==2.18.1
+google-auth==2.19.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -474,7 +473,7 @@ platformdirs==3.5.1
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
-protobuf==4.23.1
+protobuf==4.23.2
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -557,7 +556,7 @@ redis==4.5.5
     # via
     #   -r requirements/base.in
     #   walrus
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements/base.in
     #   algoliasearch
@@ -592,7 +591,7 @@ rjsmin==1.2.1
     # via django-compressor
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.26
+ruamel-yaml==0.17.28
     # via drf-yasg
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
@@ -625,7 +624,7 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==3.0.3
+snowflake-connector-python==3.0.4
     # via -r requirements/base.in
 social-auth-app-django==5.2.0
     # via
@@ -635,6 +634,8 @@ social-auth-core==4.4.2
     # via
     #   edx-auth-backends
     #   social-auth-app-django
+sortedcontainers==2.4.0
+    # via snowflake-connector-python
 soupsieve==2.4.1
     # via beautifulsoup4
 sqlparse==0.4.4
@@ -654,8 +655,9 @@ tinycss2==1.2.1
     #   cssselect2
 tqdm==4.65.0
     # via openai
-typing-extensions==4.5.0
+typing-extensions==4.6.2
     # via
+    #   asgiref
     #   django-countries
     #   snowflake-connector-python
 tzdata==2023.3
@@ -667,7 +669,7 @@ uritemplate==4.1.1
     #   coreapi
     #   drf-yasg
     #   google-api-python-client
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   botocore
     #   elasticsearch
