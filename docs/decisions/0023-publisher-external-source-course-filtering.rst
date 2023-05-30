@@ -13,7 +13,7 @@ Frontend App Publisher (MFE) uses different APIs in Discovery to view, create an
 This has been an internal tool that only allows Course Editors to perform these actions.
 With the inclusion of other product lines in the Catalog, there has been a need to allow external users to be able to perform actions like viewing and updating their courses through Publisher.
 These external users should have Course Editor access to be able to visit Publisher and should only be able to view and edit their own courses only.
-Currently, these products are created and added in Discovery using `csv_loader`_ and `degrees_loader`_
+Currently, these products are created and added in Discovery using `csv_loader`_ and `degrees_loader`_ (Note: Degrees are not currently being authored on Publisher)
 The external users should not be able to create these products through Publisher.
 
  .. _csv_loader: https://github.com/openedx/course-discovery/blob/master/course_discovery/apps/course_metadata/data_loaders/csv_loader.py
@@ -24,7 +24,7 @@ Decision
 
 The access checks will be implemented using role based authorization using `edx-rbac`_
 
-* A feature-based role will be created for each product line in Discovery. Each role will have product_source(s) and course_type(s) which will be used in permissions and filtering.
+* A feature-based role will be created for each product line in Discovery. Each role will have product_source(s) and course_type(s) which will be used in permissions and filtering. For example, a role named `executive-education-2u` will have product source `2u` and course type `executive-education-2u` assigned to it.
 * The role will be assigned to external users within Discovery. The role will be accessible through an exposed endpoint and that user would only be able to see its assigned role. The role assignment will contain other information, such as the assignment date, the reason for giving access, access history, etc.
 * Publisher will make an additional API call to get the users' assigned role. Based upon the assignment, the behavior of publisher will change.
 
