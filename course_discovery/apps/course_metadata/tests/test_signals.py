@@ -16,20 +16,22 @@ from openedx_events.event_bus import EventsMetadata
 from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
-from course_discovery.apps.core.tests.factories import PartnerFactory
+from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
-    BulkUploadTagsConfig, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
+    BulkUploadTagsConfig, CourseEditor, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
     DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
     MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
     RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
 from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory
+from course_discovery.apps.publisher.tests.factories import GroupFactory, OrganizationExtensionFactory
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
@@ -875,3 +877,121 @@ class TestCourseDataUpdateSignal(TestCase):
                        f"delay applicable window for course run {self.course_key}." in logger.output[0]
 
         sleep_patch.assert_called_once_with(settings.EVENT_BUS_PROCESSING_DELAY_SECONDS)
+
+
+class OrganizationGroupRemovalTests(TestCase):
+    '''
+    Tests for the handle_organization_group_removal signal handler
+    '''
+    def setUp(self):
+        self.user_1 = UserFactory(username="user1")
+        self.user_2 = UserFactory(username="user2")
+        self.user_3 = UserFactory(username="user3")
+
+        self.group_1 = GroupFactory()
+
+        self.org_ext_1 = OrganizationExtensionFactory()
+        self.org_ext_2 = OrganizationExtensionFactory()
+        self.org_ext_3 = OrganizationExtensionFactory()
+
+        self.course_1 = CourseFactory(authoring_organizations=[self.org_ext_1.organization])
+        self.course_2 = CourseFactory(
+            authoring_organizations=[self.org_ext_1.organization, self.org_ext_2.organization]
+        )
+        self.course_3 = CourseFactory(authoring_organizations=[self.org_ext_3.organization])
+
+        self.user_1_course_editor_1 = CourseEditorFactory(user=self.user_1, course=self.course_1)
+        self.user_2_course_editor_1 = CourseEditorFactory(user=self.user_2, course=self.course_1)
+        self.user_2_course_editor_2 = CourseEditorFactory(user=self.user_2, course=self.course_2)
+        self.user_3_course_editor_1 = CourseEditorFactory(user=self.user_3, course=self.course_1)
+        self.user_3_course_editor_2 = CourseEditorFactory(user=self.user_3, course=self.course_3)
+
+    def test_single_authoring_org(self):
+        '''
+        Test that course editor is removed for course with single authoring organization
+        '''
+        with self.assertLogs(LOGGER_NAME, level="INFO") as captured_logs:
+            assert CourseEditor.objects.count() == 5
+            self.user_1.groups.add(self.group_1, self.org_ext_1.group)
+            self.user_1.groups.remove(self.org_ext_1.group)
+            assert CourseEditor.objects.filter(user=self.user_1).count() == 0
+            assert CourseEditor.objects.count() == 4
+            assert (
+                f'User {self.user_1.username} no longer holds editor privileges for course {self.course_1.title}'
+                in captured_logs.output[0]
+            )
+
+    def test_multiple_authoring_orgs(self):
+        '''
+        Test that course editor is not removed for course with multiple authoring
+        orgs if the user is in both orgs and only removed from once
+        '''
+        assert CourseEditor.objects.count() == 5
+        self.user_2.groups.add(self.org_ext_1.group, self.org_ext_2.group)
+        self.user_2.groups.remove(self.org_ext_2.group)
+        assert CourseEditor.objects.filter(user=self.user_2).count() == 2
+        assert CourseEditor.objects.count() == 5
+
+    def test_no_org(self):
+        '''
+        Verify that removal of a group that is not linked to any org
+        has no effect
+        '''
+        assert CourseEditor.objects.count() == 5
+        self.user_1.groups.add(self.group_1, self.org_ext_1.group)
+        self.user_1.groups.remove(self.group_1)
+        assert CourseEditor.objects.filter(user=self.user_1).count() == 1
+        assert CourseEditor.objects.count() == 5
+
+    def test_remove_multiple_groups(self):
+        '''
+        Test that removing multiple groups at once works as expected
+        '''
+        with self.assertLogs(LOGGER_NAME) as captured_logs:
+            assert CourseEditor.objects.count() == 5
+            self.user_3.groups.add(self.org_ext_1.group, self.org_ext_3.group)
+            self.user_3.groups.remove(self.org_ext_1.group, self.org_ext_3.group)
+            assert CourseEditor.objects.filter(user=self.user_3).count() == 0
+            assert CourseEditor.objects.count() == 3
+            assert (
+                f'User {self.user_3.username} no longer holds editor privileges for course {self.course_1.title}'
+                in captured_logs.output[0]
+            )
+            assert (
+                f'User {self.user_3.username} no longer holds editor privileges for course {self.course_3.title}'
+                in captured_logs.output[1]
+            )
+
+    def test_remove_orphan_editors(self):
+        '''
+        Orphan editor instances are CourseEditor instances where the user is not
+        a member of the course's organizations.
+        Test that removing a group for a user deletes the user's orphan editor instances too.
+        '''
+        with self.assertLogs(LOGGER_NAME) as captured_logs:
+            assert CourseEditor.objects.count() == 5
+            self.user_3.groups.add(self.org_ext_3.group)
+            self.user_3.groups.remove(self.org_ext_3.group)
+            assert CourseEditor.objects.filter(user=self.user_3).count() == 0
+            assert CourseEditor.objects.count() == 3
+            assert (
+                f'User {self.user_3.username} no longer holds editor privileges for course {self.course_1.title}'
+                in captured_logs.output[0]
+            )
+            assert (
+                f'User {self.user_3.username} no longer holds editor privileges for course {self.course_3.title}'
+                in captured_logs.output[1]
+            )
+
+    def test_no_reverse_update_trigger(self):
+        '''
+        Test that updating the relation from Group to User does not
+        affect any CourseEditor instances
+        '''
+        assert CourseEditor.objects.count() == 5
+        self.user_1.groups.add(self.group_1, self.org_ext_1.group)
+        self.group_1.user_set.remove(self.user_1)
+        self.org_ext_1.group.user_set.remove(self.user_1)
+        assert self.user_1.groups.count() == 0
+        assert CourseEditor.objects.filter(user=self.user_1).count() == 1
+        assert CourseEditor.objects.count() == 5

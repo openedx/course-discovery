@@ -7,6 +7,7 @@ import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
@@ -19,9 +20,9 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalMetadata, CertificateInfo, Course, CourseEntitlement, CourseLocationRestriction, CourseRun, Curriculum,
-    CurriculumCourseMembership, CurriculumProgramMembership, GeoLocation, Organization, ProductMeta, ProductValue,
-    Program
+    AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
+    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, GeoLocation, Organization, ProductMeta,
+    ProductValue, Program
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
@@ -31,6 +32,7 @@ from course_discovery.apps.course_metadata.tasks import update_org_program_and_c
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, get_salesforce_util
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 
 @receiver(pre_delete, sender=Program)
@@ -453,6 +455,42 @@ def disconnect_course_data_modified_timestamp_related_models():
         ProductValue,
     ]:
         pre_save.disconnect(data_modified_timestamp_update, sender=model)
+
+
+@receiver(m2m_changed, sender=User.groups.through)
+def handle_organization_group_removal(sender, instance, action, pk_set, reverse, **kwargs):  # pylint: disable=unused-argument
+    """
+    When a user is removed from a group, ensure that they are also removed
+    from the course editor roles for any organizations linked to the group
+    """
+
+    if (action != 'pre_remove') or reverse:
+        return
+
+    course_editor_objects = (
+        CourseEditor.objects.filter(user=instance)
+        .select_related('course')
+        .prefetch_related('course__authoring_organizations')
+    )
+    user_org_ids = (
+        instance.groups.exclude(id__in=pk_set)
+        .prefetch_related('organization_extension')
+        .values_list('organization_extension__organization', flat=True)
+    )
+    # Remove the None values occuring due to some groups not having any associated organization_extension
+    user_org_ids = [pk for pk in user_org_ids if pk is not None]
+
+    # In the loop below, for every course editor instance associated to the user,
+    # we calculate the course's authoring organizations and verify if the user
+    # is a part of at least one of those. If not, we remove the course editor instance
+    for course_editor_instance in course_editor_objects:
+        course_authoring_org_ids = {org.id for org in course_editor_instance.course.authoring_organizations.all()}
+        if not course_authoring_org_ids.intersection(user_org_ids):
+            course_editor_instance.delete()
+            logger.info(
+                f"User {instance.username} no longer holds editor privileges "
+                f"for course {course_editor_instance.course.title}"
+            )
 
 
 connect_course_data_modified_timestamp_related_models()
