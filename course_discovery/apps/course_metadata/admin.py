@@ -944,6 +944,14 @@ class GeolocationDataLoaderConfigurationAdmin(admin.ModelAdmin):
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
 
+@admin.register(ProductValueDataLoaderConfiguration)
+class ProductValueDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for ProductValueDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
     """
