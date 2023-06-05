@@ -57,6 +57,8 @@ babel==2.12.1
     #   sphinx
 backoff==2.2.1
     # via -r requirements/base.in
+backports-zoneinfo[tzdata]==0.2.1
+    # via kombu
 bcrypt==4.0.1
     # via paramiko
 beautifulsoup4==4.12.2
@@ -71,9 +73,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.142
+boto3==1.26.146
     # via django-ses
-botocore==1.29.142
+botocore==1.29.146
     # via
     #   boto3
     #   s3transfer
@@ -144,7 +146,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==7.2.6
+coverage[toml]==7.2.7
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -337,7 +339,7 @@ djangorestframework-csv==2.1.1
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==6.1.2
+docker[ssh]==6.1.3
     # via docker-compose
 docker-compose==1.29.2
     # via -r requirements/local.in
@@ -371,7 +373,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.4.0
+edx-django-utils==5.5.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -433,7 +435,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==18.9.0
+faker==18.10.1
     # via factory-boy
 fastavro==1.7.4
     # via openedx-events
@@ -456,9 +458,9 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.87.0
+google-api-python-client==2.88.0
     # via -r requirements/base.in
-google-auth==2.19.0
+google-auth==2.19.1
     # via
     #   google-api-core
     #   google-api-python-client
@@ -523,7 +525,7 @@ jsonschema==3.2.0
     # via
     #   docker-compose
     #   semgrep
-kombu==5.2.4
+kombu==5.3.0
     # via celery
 lazy-object-proxy==1.9.0
     # via astroid
@@ -535,7 +537,7 @@ lxml==4.9.2
     #   zeep
 markdown==3.4.3
     # via -r requirements/base.in
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via jinja2
 mccabe==0.7.0
     # via pylint
@@ -558,7 +560,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.7
     # via taxonomy-connector
-openedx-events==8.0.0
+openedx-events==8.0.1
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -578,7 +580,7 @@ packaging==21.3
     #   snowflake-connector-python
     #   sphinx
     #   tox
-pandas==2.0.1
+pandas==2.0.2
     # via taxonomy-connector
 paramiko==3.2.0
     # via docker
@@ -668,7 +670,7 @@ pynacl==1.5.0
     # via
     #   edx-django-utils
     #   paramiko
-pyopenssl==23.1.1
+pyopenssl==23.2.0
     # via snowflake-connector-python
 pyparsing==3.0.9
     # via
@@ -795,7 +797,7 @@ rjsmin==1.2.1
     # via django-compressor
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.28
+ruamel-yaml==0.17.31
     # via
     #   drf-yasg
     #   semgrep
@@ -891,7 +893,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.39.0
+taxonomy-connector==1.40.0
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -927,17 +929,20 @@ trio-websocket==0.10.2
     # via selenium
 types-pyyaml==6.0.12.10
     # via responses
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   asgiref
     #   astroid
     #   django-countries
+    #   kombu
     #   pydata-sphinx-theme
     #   pylint
     #   semgrep
     #   snowflake-connector-python
 tzdata==2023.3
-    # via pandas
+    # via
+    #   backports-zoneinfo
+    #   pandas
 ujson==5.7.0
     # via python-lsp-jsonrpc
 unicodecsv==0.14.1
