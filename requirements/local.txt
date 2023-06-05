@@ -57,8 +57,10 @@ babel==2.12.1
     #   sphinx
 backoff==2.2.1
     # via -r requirements/base.in
-backports-zoneinfo[tzdata]==0.2.1
-    # via kombu
+backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
+    # via
+    #   -c requirements/constraints.txt
+    #   kombu
 bcrypt==4.0.1
     # via paramiko
 beautifulsoup4==4.12.2

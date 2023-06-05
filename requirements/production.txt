@@ -38,8 +38,10 @@ attrs==23.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.in
-backports-zoneinfo[tzdata]==0.2.1
-    # via kombu
+backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
+    # via
+    #   -c requirements/constraints.txt
+    #   kombu
 beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.in
