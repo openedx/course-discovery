@@ -38,15 +38,19 @@ attrs==23.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.in
+backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
+    # via
+    #   -c requirements/constraints.txt
+    #   kombu
 beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.142
+boto3==1.26.146
     # via django-ses
-botocore==1.29.142
+botocore==1.29.146
     # via
     #   boto3
     #   s3transfer
@@ -300,7 +304,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.4.0
+edx-django-utils==5.5.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -363,9 +367,9 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.87.0
+google-api-python-client==2.88.0
     # via -r requirements/base.in
-google-auth==2.19.0
+google-auth==2.19.1
     # via
     #   google-api-core
     #   google-api-python-client
@@ -417,7 +421,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.1.0
     # via -r requirements/base.in
-kombu==5.2.4
+kombu==5.3.0
     # via celery
 libsass==0.22.0
     # via django-libsass
@@ -427,7 +431,7 @@ lxml==4.9.2
     #   zeep
 markdown==3.4.3
     # via -r requirements/base.in
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via jinja2
 multidict==6.0.4
     # via
@@ -448,7 +452,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.7
     # via taxonomy-connector
-openedx-events==8.0.0
+openedx-events==8.0.1
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -460,7 +464,7 @@ packaging==23.1
     #   django-nine
     #   drf-yasg
     #   snowflake-connector-python
-pandas==2.0.1
+pandas==2.0.2
     # via taxonomy-connector
 pbr==5.11.1
     # via stevedore
@@ -508,7 +512,7 @@ pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pyopenssl==23.1.1
+pyopenssl==23.2.0
     # via snowflake-connector-python
 pyparsing==3.0.9
     # via httplib2
@@ -591,7 +595,7 @@ rjsmin==1.2.1
     # via django-compressor
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.28
+ruamel-yaml==0.17.31
     # via drf-yasg
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
@@ -645,7 +649,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.39.0
+taxonomy-connector==1.40.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -655,13 +659,16 @@ tinycss2==1.2.1
     #   cssselect2
 tqdm==4.65.0
     # via openai
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   asgiref
     #   django-countries
+    #   kombu
     #   snowflake-connector-python
 tzdata==2023.3
-    # via pandas
+    # via
+    #   backports-zoneinfo
+    #   pandas
 unicodecsv==0.14.1
     # via djangorestframework-csv
 uritemplate==4.1.1
