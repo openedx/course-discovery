@@ -373,7 +373,7 @@ class Course(TimeStampedModel):
         },
         help_text=_('Add the course image')
     )
-    slug = AutoSlugField(populate_from='key', editable=True, max_length=200)
+    slug = AutoSlugField(populate_from='key', editable=True, max_length=100)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
 
     # TODO Remove this field.
