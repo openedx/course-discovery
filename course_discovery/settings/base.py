@@ -743,3 +743,6 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
+
+# Settings of Field `AutoSlugField`
+EXTENSIONS_MAX_UNIQUE_QUERY_ATTEMPTS = 200
