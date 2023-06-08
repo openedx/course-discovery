@@ -126,9 +126,9 @@ class ProductValueAdmin(admin.ModelAdmin):
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
-    list_filter = ('partner',)
+    list_filter = ('partner', 'product_source')
     ordering = ('key', 'title',)
-    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
+    readonly_fields = ['enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number']
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
     autocomplete_fields = ['canonical_course_run']
@@ -142,18 +142,21 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """
-        Make UUID field editable for draft if flag is enabled.
+        * Make UUID field editable for draft if flag is enabled.
+        * Make product_source field readonly if the course obj is already created. In case a course
+        without product_source is present, a superuser should be able to edit the product_source.
+
+        By default, product_source & uuid are readonly. Remove them from list if either criteria is met
         """
+        readonly_fields = self.readonly_fields.copy() + ['uuid', 'product_source']
         if obj and obj.draft:
             flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
             flag = get_waffle_flag_model().get(flag_name)
             if flag.is_active(request):
-                # add product_source to readonly_fields only if course is already created because
-                # we don't want to allow user to change product_source for existing course.
-                return self.readonly_fields + ('product_source')
-
-        return (self.readonly_fields + ('uuid', 'product_source')
-                if obj else self.readonly_fields + ('uuid',))
+                readonly_fields.remove('uuid')
+        if (not obj) or (not obj.product_source and request.user.is_superuser):
+            readonly_fields.remove('product_source')
+        return readonly_fields
 
     def get_change_actions(self, request, object_id, form_url):
         """
@@ -352,7 +355,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
-    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
+    list_filter = ('partner', 'type', 'product_source', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')
     readonly_fields = (
         'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
@@ -382,9 +385,12 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """
-        Make product_source field readonly if program obj is already created.
+        Make product_source field readonly if program obj is already created. In case a product without product_source
+        is present, a superuser should be able to edit the product_source.
         """
-        return self.readonly_fields + ('product_source',) if obj else self.readonly_fields
+        if (not obj) or (not obj.product_source and request.user.is_superuser):
+            return self.readonly_fields
+        return self.readonly_fields + ('product_source',)
 
     def get_urls(self):
         """
@@ -447,7 +453,7 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         try:
-            if obj.product_source.ofac_restricted_program_types.filter(id=obj.type.id).exists():
+            if obj.product_source and obj.product_source.ofac_restricted_program_types.filter(id=obj.type.id).exists():
                 obj.mark_ofac_restricted()
             super().save_model(request, obj, form, change)
         except (MarketingSitePublisherException, MarketingSiteAPIClientException):
