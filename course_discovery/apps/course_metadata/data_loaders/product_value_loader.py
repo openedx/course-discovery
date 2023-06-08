@@ -140,8 +140,8 @@ class ProductValueCSVDataLoader(AbstractDataLoader):
         for field in self.PRODUCT_VALUE_DATA_FIELDS:
             if (field in data and data[field]):
                 values[field] = data[field]
-            elif (field in product_value and product_value[field]):
-                values[field] = product_value[field]
+            elif hasattr(product_value, field):
+                values[field] = getattr(product_value, field)
             else:
                 values[field] = 0
         return values
