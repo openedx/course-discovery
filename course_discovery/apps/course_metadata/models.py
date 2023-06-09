@@ -6,9 +6,11 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+import re
 import requests
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from config_models.models import ConfigurationModel
+from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -3954,12 +3956,45 @@ class PersonAreaOfExpertise(AbstractValueModel):
         verbose_name_plural = 'Person Areas of Expertise'
 
 
+SLUG_DISALLOWED_CHARS = re.compile(r'[^-a-zA-Z0-9/]+')
+SLUG_ALLOWED_CHARS = re.compile(r'^[-a-zA-Z0-9_/]+\Z')
+
+
+def slugify_with_slashes(text):
+    return uslugify(text, regex_pattern=SLUG_DISALLOWED_CHARS)
+
+
+validate_slug_with_slashes = RegexValidator(
+    SLUG_ALLOWED_CHARS,
+    # Translators: "letters" means latin letters: a-z and A-Z.
+    _("Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."),
+    "invalid",
+)
+
+
+class SlashSlugField(forms.SlugField):
+    default_validators = [validate_slug_with_slashes]
+
+
+class AutoSlugWithSlashesField(AutoSlugField):
+    default_validators = [validate_slug_with_slashes]
+
+    def formfield(self, **kwargs):
+        return super().formfield(
+            **{
+                "form_class": SlashSlugField,
+                "allow_unicode": self.allow_unicode,
+                **kwargs,
+            }
+        )
+
+
 class CourseUrlSlug(TimeStampedModel):
     course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
     # need to have these on the model separately for unique_together to work, but it should always match course.partner
     partner = models.ForeignKey(Partner, models.CASCADE)
-    url_slug = AutoSlugField(populate_from='course__title', editable=True, slugify_function=uslugify,
-                             overwrite_on_add=False, max_length=255)
+    url_slug = AutoSlugWithSlashesField(populate_from='course__title', editable=True,
+                                        slugify_function=slugify_with_slashes, overwrite_on_add=False, max_length=255)
     is_active = models.BooleanField(default=False)
 
     # useful if a course editor decides to edit a draft and provide a url_slug that has already been associated
@@ -4076,6 +4111,19 @@ class CSVDataLoaderConfiguration(ConfigurationModel):
 class DegreeDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_degree_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
+
+class MigrateCourseSlugConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in migrate_course_slugs.
     """
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0
