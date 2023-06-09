@@ -926,6 +926,14 @@ class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
 
+@admin.register(MigrateCourseSlugConfiguration)
+class MigrateCourseSlugConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for MigrateCourseSlugConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
 @admin.register(ProgramSubscriptionConfiguration)
 class ProgramSubscriptionConfigurationAdmin(admin.ModelAdmin):
     """

@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+import re
 import string
 import uuid
 from tempfile import NamedTemporaryFile
@@ -18,6 +19,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
+from slugify import slugify
 from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
@@ -944,3 +946,17 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
     """
     if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
         instance.update_product_data_modified_timestamp()
+
+
+def validate_slug_format(slug):
+    valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
+    return bool(re.match(valid_slug_pattern, slug))
+
+
+def get_slug_for_course(course):
+    # TODO: error handling in case of missing data
+    primary_subject_slug = course.subjects.first().slug
+    organization_slug = slugify(course.authoring_organizations.first().name)
+    course_title_slug = slugify(course.title)
+    return f"learn/{primary_subject_slug}/{organization_slug}-{course_title_slug}"
+
