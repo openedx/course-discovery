@@ -719,6 +719,24 @@ class TopicTranslation(TranslatedFieldsModel):
 class Fact(AbstractHeadingBlurbModel):
     """ Fact Model """
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Fact update_product_data_modified_timestamp triggered for {self.pk}."
+                f"Updating timestamp for related courses."
+            )
+            Course.everything.filter(additional_metadata__facts__pk=self.pk).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
 
 class CertificateInfo(AbstractHeadingBlurbModel):
     """ Certificate Information Model """
@@ -765,9 +783,12 @@ class ProductMeta(TimeStampedModel):
             return False
         return has_model_changed(self.field_tracker)
 
-    def update_product_data_modified_timestamp(self):
-        if self.has_changed:
-            logger.info(f"Changes detected in ProductMeta {self.pk}, updating related courses")
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"ProductMeta update_product_data_modified_timestamp triggered for {self.pk}."
+                f"Updating timestamp for related courses."
+            )
             Course.everything.filter(additional_metadata__product_meta__pk=self.pk).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -881,11 +902,11 @@ class AdditionalMetadata(TimeStampedModel):
         external_keys = [self.product_meta,]
         return has_model_changed(self.field_tracker, external_keys=external_keys)
 
-    def update_product_data_modified_timestamp(self):
-        if self.has_changed:
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
             logger.info(
-                f"Changes detected in AdditionalMetadata {self.external_identifier}, updating data modified "
-                f"timestamps for related courses."
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered for {self.external_identifier}."
+                f"Updating data modified timestamp for related courses."
             )
             self.related_courses.all().update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)

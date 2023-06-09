@@ -14,6 +14,7 @@ from opaque_keys.edx.keys import CourseKey
 from openedx_events.content_authoring.data import CourseCatalogData, CourseScheduleData
 from openedx_events.event_bus import EventsMetadata
 from pytz import UTC
+from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -880,9 +881,9 @@ class TestCourseDataUpdateSignal(TestCase):
 
 
 class OrganizationGroupRemovalTests(TestCase):
-    '''
+    """
     Tests for the handle_organization_group_removal signal handler
-    '''
+    """
     def setUp(self):
         self.user_1 = UserFactory(username="user1")
         self.user_2 = UserFactory(username="user2")
@@ -907,9 +908,9 @@ class OrganizationGroupRemovalTests(TestCase):
         self.user_3_course_editor_2 = CourseEditorFactory(user=self.user_3, course=self.course_3)
 
     def test_single_authoring_org(self):
-        '''
+        """
         Test that course editor is removed for course with single authoring organization
-        '''
+        """
         with self.assertLogs(LOGGER_NAME, level="INFO") as captured_logs:
             assert CourseEditor.objects.count() == 5
             self.user_1.groups.add(self.group_1, self.org_ext_1.group)
@@ -922,10 +923,10 @@ class OrganizationGroupRemovalTests(TestCase):
             )
 
     def test_multiple_authoring_orgs(self):
-        '''
+        """
         Test that course editor is not removed for course with multiple authoring
         orgs if the user is in both orgs and only removed from once
-        '''
+        """
         assert CourseEditor.objects.count() == 5
         self.user_2.groups.add(self.org_ext_1.group, self.org_ext_2.group)
         self.user_2.groups.remove(self.org_ext_2.group)
@@ -933,10 +934,10 @@ class OrganizationGroupRemovalTests(TestCase):
         assert CourseEditor.objects.count() == 5
 
     def test_no_org(self):
-        '''
+        """
         Verify that removal of a group that is not linked to any org
         has no effect
-        '''
+        """
         assert CourseEditor.objects.count() == 5
         self.user_1.groups.add(self.group_1, self.org_ext_1.group)
         self.user_1.groups.remove(self.group_1)
@@ -944,9 +945,9 @@ class OrganizationGroupRemovalTests(TestCase):
         assert CourseEditor.objects.count() == 5
 
     def test_remove_multiple_groups(self):
-        '''
+        """
         Test that removing multiple groups at once works as expected
-        '''
+        """
         with self.assertLogs(LOGGER_NAME) as captured_logs:
             assert CourseEditor.objects.count() == 5
             self.user_3.groups.add(self.org_ext_1.group, self.org_ext_3.group)
@@ -963,11 +964,11 @@ class OrganizationGroupRemovalTests(TestCase):
             )
 
     def test_remove_orphan_editors(self):
-        '''
-        Orphan editor instances are CourseEditor instances where the user is not
-        a member of the course's organizations.
+        """
         Test that removing a group for a user deletes the user's orphan editor instances too.
-        '''
+
+        Orphan editor instances are CourseEditor instances where the user is not a member of the course's organizations.
+        """
         with self.assertLogs(LOGGER_NAME) as captured_logs:
             assert CourseEditor.objects.count() == 5
             self.user_3.groups.add(self.org_ext_3.group)
@@ -984,10 +985,10 @@ class OrganizationGroupRemovalTests(TestCase):
             )
 
     def test_no_reverse_update_trigger(self):
-        '''
+        """
         Test that updating the relation from Group to User does not
         affect any CourseEditor instances
-        '''
+        """
         assert CourseEditor.objects.count() == 5
         self.user_1.groups.add(self.group_1, self.org_ext_1.group)
         self.group_1.user_set.remove(self.user_1)
@@ -995,3 +996,66 @@ class OrganizationGroupRemovalTests(TestCase):
         assert self.user_1.groups.count() == 0
         assert CourseEditor.objects.filter(user=self.user_1).count() == 1
         assert CourseEditor.objects.count() == 5
+
+
+class DataModifiedTimestampUpdateSignalsTests(TestCase):
+    """
+    This test suite is meant for testing various signal handlers that update data modified timestamps on
+    Course & Program.
+
+      * course_taggable_manager_changed
+      * additional_metadata_facts_changed
+    """
+    def test_product_meta_keywords_change(self):
+        """
+        Verify that updating the keywords on ProductMeta triggers the update_data_modified_timestamp
+        for ProductMeta and updates data_modified_timestamp for related courses.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+
+        with LogCapture(LOGGER_NAME) as log:
+            product_meta.keywords.set(['keyword_1', 'keyword_2'])
+
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"{product_meta.keywords.through} has been updated for ProductMeta {product_meta.pk}."
+            )
+        )
+
+    def test_additional_metadata_fact_addition(self):
+        """
+        Verify that adding Fact objects on AdditionalMetadata triggers the update_data_modified_timestamp
+        for AdditionalMetadata and updates data_modified_timestamp for related courses.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        fact_1 = factories.FactFactory()
+        fact_2 = factories.FactFactory()
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_NAME) as log:
+            additional_metadata.facts.add(fact_1, fact_2)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"{additional_metadata.facts.through} has been updated for "
+                f"AdditionalMetadata {additional_metadata.pk}."
+            )
+        )

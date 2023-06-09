@@ -53,6 +53,8 @@ from course_discovery.apps.course_metadata.utils import logger as utils_logger
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
+LOGGER_PATH = 'course_discovery.apps.course_metadata.models'
+
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
@@ -1701,15 +1703,52 @@ class ProductMetaTests(TestCase):
         )
         course_timestamp = course.data_modified_timestamp
         product_meta.title = 'updated heading'
-        product_meta.update_product_data_modified_timestamp()
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp()
+
         course.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
 
         product_meta.save()
         course_timestamp = course.data_modified_timestamp
         product_meta.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if ProductMeta update_product_data_modified_timestamp is called with bypass_has_changed,
+        the course timestamp is updated, bypassing has_changed requirements.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
 
 
 class ProductValueTests(TestCase):
@@ -1848,15 +1887,48 @@ class AdditionalMetadataTests(TestCase):
         )
         course_timestamp = course.data_modified_timestamp
         additional_metadata.course_term_override = 'Programme'
-        additional_metadata.update_product_data_modified_timestamp()
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
 
         additional_metadata.save()
         course_timestamp = course.data_modified_timestamp
         additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if AdditionalMetadata update_product_data_modified_timestamp is called with bypass_has_changed,
+        the related course timestamp is updated, bypassing has_changed requirements.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
 
 
 class AbstractTitleDescriptionModelTests(TestCase):

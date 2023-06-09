@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
-    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, GeoLocation, Organization, ProductMeta,
+    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Fact, GeoLocation, Organization, ProductMeta,
     ProductValue, Program
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
@@ -402,6 +402,25 @@ def course_m2m_changed(sender, instance, action, **kwargs):
         instance.refresh_from_db()
 
 
+@receiver(m2m_changed, sender=ProductMeta.keywords.through)
+def course_taggable_manager_changed(sender, instance, action, **kwargs):
+    if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
+            and kwargs['pk_set'] and instance._meta.label == 'course_metadata.ProductMeta':
+        logger.info(f"{sender} has been updated for ProductMeta {instance.pk}.")
+        instance.update_product_data_modified_timestamp(bypass_has_changed=True)
+
+
+@receiver(m2m_changed, sender=AdditionalMetadata.facts.through)
+def additional_metadata_facts_changed(sender, instance, action, **kwargs):
+    """
+    Signal handler to update data modified timestamp for related Courses when fact objects are
+    added to AdditionalMetadata instance.
+    """
+    if action == 'pre_add' and not kwargs['reverse']:
+        logger.info(f"{sender} has been updated for AdditionalMetadata {instance.pk}.")
+        instance.update_product_data_modified_timestamp(bypass_has_changed=True)
+
+
 @receiver(m2m_changed, sender=CourseRun.transcript_languages.through)
 def course_run_m2m_changed(sender, instance, action, **kwargs):
     """
@@ -434,6 +453,7 @@ def connect_course_data_modified_timestamp_related_models():
         Organization,
         ProductMeta,
         ProductValue,
+        Fact,
     ]:
         pre_save.connect(data_modified_timestamp_update, sender=model)
 
@@ -453,6 +473,7 @@ def disconnect_course_data_modified_timestamp_related_models():
         GeoLocation,
         ProductMeta,
         ProductValue,
+        Fact,
     ]:
         pre_save.disconnect(data_modified_timestamp_update, sender=model)
 
