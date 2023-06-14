@@ -280,7 +280,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished
+            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished,
+            product_source=None
         )
 
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -376,9 +377,10 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def test_program_update(self):
         self._navigate_to_edit_page()
         self.assert_form_fields_present()
-
         title = 'Test Program'
         subtitle = 'This is a test.'
+
+        assert self.program.product_source is None
 
         # Update the program
         data = (
@@ -390,13 +392,14 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             element = self.browser.find_element(By.ID, 'id_' + field)
             element.clear()
             element.send_keys(value)
-
+        self._select_option('id_product_source', str(self.product_source.id))
         self._submit_program_form()
 
         # Verify the program was updated
         self.program = Program.objects.get(pk=self.program.pk)
         assert self.program.title == title
         assert self.program.subtitle == subtitle
+        assert self.program.product_source == self.product_source
 
 
 class ProgramEligibilityFilterTests(SiteMixin, TestCase):
