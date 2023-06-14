@@ -733,3 +733,5 @@ DEGREE_VARIANTS_FIELD_MAP = {}
 JOB_DESCRIPTION_PROMPT = 'Generate a description for {job_name} job role.'
 JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_job_name} job role.'
 OPENAI_API_KEY = 'I am an api key'
+
+NOTIFY_SLUG_UPDATE_RECIPIENTS = []
