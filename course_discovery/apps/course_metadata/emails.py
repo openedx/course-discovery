@@ -347,3 +347,14 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             subject,
             context
         )
+
+
+def send_email_for_slug_updates(stats):
+    subject = 'Slugs Update Summary'
+    to_users = settings.NOTIFY_SLUG_UPDATE_RECIPIENTS
+    import pdb
+    pdb.set_trace()
+    email_msg = EmailMultiAlternatives(
+        subject, str(stats), settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    email_msg.send()

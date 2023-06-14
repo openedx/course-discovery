@@ -948,15 +948,35 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
         instance.update_product_data_modified_timestamp()
 
 
-def validate_slug_format(slug):
+def is_valid_slug_format(slug):
     valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
     return bool(re.match(valid_slug_pattern, slug))
 
 
 def get_slug_for_course(course):
-    # TODO: error handling in case of missing data
-    primary_subject_slug = course.subjects.first().slug
-    organization_slug = slugify(course.authoring_organizations.first().name)
-    course_title_slug = slugify(course.title)
-    return f"learn/{primary_subject_slug}/{organization_slug}-{course_title_slug}"
+    # TODO: remove special characters from slugify text
+    error = None
 
+    course_subjects = course.subjects.all()
+    if len(course_subjects) < 1:
+        error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+        logger.warning(error)
+        return None, error
+    organizations = course.authoring_organizations.all()
+    if len(organizations) < 1:
+        error = f"Course with uuid {course.uuid} and title {course.title} does not have any authoring organizations"
+        logger.warning(error)
+        return None, error
+    primary_subject_slug = course_subjects[0].slug
+    organization_slug = slugify(organizations[0].name)
+    course_title_slug = slugify(course.title)
+    slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_title_slug}"
+    return slug, error
+
+
+def is_valid_uuid(val):
+    try:
+        uuid.UUID(str(val))
+        return True
+    except ValueError:
+        return False
