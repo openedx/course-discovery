@@ -11,6 +11,7 @@ from django.core.management import BaseCommand, CommandError
 from django.db.models.signals import post_delete, post_save
 
 from course_discovery.apps.api.cache import api_change_receiver
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Program, ProgramSubscription, ProgramSubscriptionConfiguration, ProgramSubscriptionPrice
@@ -58,10 +59,10 @@ class Command(BaseCommand):
 
         except Exception:
             raise CommandError(  # pylint: disable=raise-missing-from
-                "Error reading the input data source"
+                'Error reading the input data source'
             )
 
-        logger.info("Initiating Program CSV data loader flow.")
+        logger.info('Initiating Program CSV data loader flow.')
         for row in reader:
             row = self.transform_dict_keys(row)
             program_uuid = row.get('uuid', None)
@@ -70,7 +71,15 @@ class Command(BaseCommand):
             subscription_eligible = row.get('subscription_eligible', None)
 
             if subscription_eligible not in ['TRUE', 'FALSE']:
-                logger.info(f"Skipped record: {program_uuid} because of invalid subscription eligibility value")
+                logger.warning(f'Skipped record: {program_uuid} because of '
+                               f'invalid subscription eligibility value')
+                continue
+
+            currency_code = row.get('currency', None)
+            try:
+                currency = Currency.objects.get(code=currency_code)
+            except Currency.DoesNotExist:
+                logger.warning(f'Could not find currency {currency_code} for program {program_uuid}')
                 continue
 
             try:
@@ -83,13 +92,15 @@ class Command(BaseCommand):
                     program=program, defaults=default_params
                 )
                 subscription_price, created = ProgramSubscriptionPrice.objects.update_or_create(
-                    program_subscription=subscription, price=price
+                    program_subscription=subscription, currency=currency, defaults={'price': price}
                 )
                 created_or_updated = 'created' if created else 'updated'
-                logger.info(f"Program located with slug: {program.marketing_slug}."
-                            f"Its subscription with price: {subscription_price.price} USD is {created_or_updated}")
+                logger.info(f'Program ({program_uuid}) located with slug: {program.marketing_slug} '
+                            f'is marked {"eligible" if subscription_eligible else "ineligible"} '
+                            f'for subscription and its price: {subscription_price.price} '
+                            f'{currency_code} is {created_or_updated}')
             except Program.DoesNotExist:
-                logger.exception(f"Unable to locate Program instance with code {program_uuid}")
+                logger.exception(f'Unable to locate Program instance with code {program_uuid}')
 
     def transform_dict_keys(self, data):
         """

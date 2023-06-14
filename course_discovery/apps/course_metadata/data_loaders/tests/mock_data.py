@@ -3115,6 +3115,7 @@ VALID_PROGRAM_SUBSCRIPTION_DICT = {
     'title': 'Test Program',
     'subscription price': '$79.89',
     'subscription_eligible': 'TRUE',
+    'currency': 'USD',
 }
 
 INVALID_PROGRAM_SUBSCRIPTION_DICT = {
@@ -3122,6 +3123,7 @@ INVALID_PROGRAM_SUBSCRIPTION_DICT = {
     'title': 'Test Program 2',
     'subscription price': '$79.99',
     'subscription_eligible': 'FALSE',
+    'currency': 'USD',
 }
 
 PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT = {
@@ -3129,6 +3131,15 @@ PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT = {
     'title': 'Test Program 2',
     'subscription price': '$79.99',
     'subscription_eligible': 'test-flag',
+    'currency': 'USD',
+}
+
+PROGRAM_WITH_INVALID_CURRENCY_DICT = {
+    'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
+    'title': 'Test Program 2',
+    'subscription price': '$79.99',
+    'subscription_eligible': 'TRUE',
+    'currency': 'invalid-currency',
 }
 
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT

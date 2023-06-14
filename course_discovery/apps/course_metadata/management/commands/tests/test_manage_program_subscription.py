@@ -43,9 +43,13 @@ class TestManageProgramSubscription(APITestCase):
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
-            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
-            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
-                           f"Its subscription with price: {subscription_price.price} USD is created"
+            subscription_price = ProgramSubscriptionPrice.objects.get(
+                program_subscription=subscription,
+                currency='USD'
+            )
+            expected_log = f'Program ({self.program.uuid}) located with slug: ' \
+                           f'{self.program.marketing_slug} is marked eligible for subscription ' \
+                           f'and its price: {subscription_price.price} USD is created'
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
             )
@@ -53,9 +57,13 @@ class TestManageProgramSubscription(APITestCase):
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
-            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
-            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
-                           f"Its subscription with price: {subscription_price.price} USD is updated"
+            subscription_price = ProgramSubscriptionPrice.objects.get(
+                program_subscription=subscription,
+                currency='USD'
+            )
+            expected_log = f'Program ({self.program.uuid}) located with slug: ' \
+                           f'{self.program.marketing_slug} is marked eligible for subscription ' \
+                           f'and its price: {subscription_price.price} USD is updated'
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
             )
@@ -76,8 +84,8 @@ class TestManageProgramSubscription(APITestCase):
 
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
-            expected_log = f"Unable to locate Program instance with code " \
-                           f"{mock_data.INVALID_PROGRAM_SUBSCRIPTION_DICT['uuid']}"
+            expected_log = f'Unable to locate Program instance with code ' \
+                           f'{mock_data.INVALID_PROGRAM_SUBSCRIPTION_DICT["uuid"]}'
             log_capture.check_present(
                 (LOGGER_PATH, 'ERROR', expected_log)
             )
@@ -98,10 +106,10 @@ class TestManageProgramSubscription(APITestCase):
 
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
-            expected_log = f"Skipped record: {mock_data.PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT['uuid']} " \
-                           f"because of invalid subscription eligibility value"
+            expected_log = f'Skipped record: {mock_data.PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT["uuid"]} ' \
+                           f'because of invalid subscription eligibility value'
             log_capture.check_present(
-                (LOGGER_PATH, 'INFO', expected_log)
+                (LOGGER_PATH, 'WARNING', expected_log)
             )
 
     def test_subscription_object_should_be_updated_if_created_earlier(self):
@@ -121,10 +129,14 @@ class TestManageProgramSubscription(APITestCase):
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
-            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
+            subscription_price = ProgramSubscriptionPrice.objects.get(
+                program_subscription=subscription,
+                currency='USD'
+            )
             assert len(ProgramSubscription.objects.all()) == 1
-            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
-                           f"Its subscription with price: {subscription_price.price} USD is created"
+            expected_log = f'Program ({self.program.uuid}) located with slug: ' \
+                           f'{self.program.marketing_slug} is marked eligible for subscription ' \
+                           f'and its price: {subscription_price.price} USD is created'
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
             )
@@ -143,10 +155,36 @@ class TestManageProgramSubscription(APITestCase):
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command('manage_program_subscription')
             subscription = ProgramSubscription.objects.get(program=self.program)
-            subscription_price = ProgramSubscriptionPrice.objects.get(program_subscription=subscription)
+            subscription_price = ProgramSubscriptionPrice.objects.get(
+                program_subscription=subscription,
+                currency='USD'
+            )
             assert len(ProgramSubscription.objects.all()) == 1
-            expected_log = f"Program located with slug: {self.program.marketing_slug}." \
-                           f"Its subscription with price: {subscription_price.price} USD is updated"
+            expected_log = f'Program ({self.program.uuid}) located with slug: ' \
+                           f'{self.program.marketing_slug} is marked ineligible for subscription ' \
+                           f'and its price: {subscription_price.price} USD is updated'
             log_capture.check_present(
                 (LOGGER_PATH, 'INFO', expected_log)
+            )
+
+    def test_record_skipped_if_currency_is_invalid(self):
+        """
+        Test that the log would be captured in case the record is skipped.
+        """
+        csv_file_content = ','.join(list(mock_data.PROGRAM_WITH_INVALID_CURRENCY_DICT)) + '\n'
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mock_data.PROGRAM_WITH_INVALID_CURRENCY_DICT.values()))
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        _ = ProgramSubscriptionConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            call_command('manage_program_subscription')
+            expected_log = f'Could not find currency {mock_data.PROGRAM_WITH_INVALID_CURRENCY_DICT["currency"]} ' \
+                           f'for program {mock_data.PROGRAM_WITH_INVALID_CURRENCY_DICT["uuid"]}'
+            log_capture.check_present(
+                (LOGGER_PATH, 'WARNING', expected_log)
             )
