@@ -1,12 +1,12 @@
 import datetime
 import itertools
 import logging
+import re
 from collections import Counter, defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
-import re
 import requests
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from config_models.models import ConfigurationModel

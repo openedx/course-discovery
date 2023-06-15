@@ -21,11 +21,14 @@ from course_discovery.apps.course_metadata.data_loaders.utils import map_externa
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType, Track
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, CourseRun, CourseUrlSlug, Seat, SeatType, Track
+)
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory
+    OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory,
+    SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
@@ -998,3 +1001,90 @@ class TestGEAGApiProductDetails(TestCase):
         products = fetch_getsmarter_products()
         mock_logger.assert_called_with(f'Failed to retrieve products from getsmarter API: {exception_message}')
         assert products == []
+
+
+@ddt.ddt
+class CourseSlugMethodsTests(TestCase):
+    """
+    Test the methods related to course slugs
+    """
+
+    @ddt.data(
+        ('learn/primary-subject/organization-course-title', True),
+        ('learn/some-text/some-text-some-text', True),
+        ('learn/', False),
+        ('/learn/', False),
+        ('/media/', False),
+        ('media/primary-subject/organization_name-course_title', False),
+        ('learn2/primary-subject/organization-name-course-title', False),
+    )
+    @ddt.unpack
+    def test_is_valid_slug_format(self, text, expected_response):
+        response = utils.is_valid_slug_format(text)
+        assert response == expected_response
+
+    @ddt.data(
+        ('f0392cca-886e-449d-b978-b09de1154745', True),
+        ('some-random-text-sometext-449d-b978-b09de1154745', False),
+        ('false_text', False),
+    )
+    @ddt.unpack
+    def test_is_valid_uuid(self, text, expected_response):
+        response = utils.is_valid_uuid(text)
+        assert response == expected_response
+
+    def test_get_slug_for_course(self):
+        course = CourseFactory(title='test-title')
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+                        f"organizations"
+
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+
+    def test_get_slug_for_course__with_no_url_slug(self):
+        course = CourseFactory(title='test-title')
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        CourseUrlSlug.objects.filter(course=course).delete()
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}"
+
+    def test_get_slug_for_course__with_existing_url_slug(self):
+        partner = PartnerFactory()
+        course1 = CourseFactory(title='test-title')
+        subject = SubjectFactory(name='business')
+        course1.subjects.add(subject)
+        organization = OrganizationFactory(name='test-organization')
+        course1.authoring_organizations.add(organization)
+        course1.partner = partner
+        course1.save()
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        slug, error = utils.get_slug_for_course(course1)
+        course1.set_active_url_slug(slug)
+
+        # duplicate course with same title, subject and organization
+        course2 = CourseFactory(title='test-title')
+        subject = SubjectFactory(name='business')
+        course2.subjects.add(subject)
+        organization = OrganizationFactory(name='test-organization')
+        course2.authoring_organizations.add(organization)
+        course2.partner = partner
+        course2.save()
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        slug, error = utils.get_slug_for_course(course2)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course2.title}-{course2.id}"
