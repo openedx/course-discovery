@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
-    PersonFactory, ProgramFactory, SeatFactory, SourceFactory, TrackFactory
+    PersonFactory, ProgramFactory, SeatFactory, SourceFactory, TrackFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -787,6 +787,26 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
         assert draft_course_run.status == update_transaction['new_status']
+
+    def test_url_slug_compliance(self):
+        self.mock_patch_to_studio(self.draft_course_run.key)
+        self.draft_course_run.course.subjects.add(SubjectFactory(name='Subject1'))
+        self.draft_course_run.status = CourseRunStatus.Unpublished
+        self.draft_course_run.save()
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        body = {
+            'course': self.draft_course_run.course.key,  # required, so we need for a put
+            'start': self.draft_course_run.start,  # required, so we need for a put
+            'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
+            'draft': False,
+            'url_slug': 'learn/subject1-subject2/vabkue-test-corsch-hsaxbfltpal',
+        }
+        response = self.client.put(url, body, format='json')
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+        draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
+        assert draft_course_run.status == CourseRunStatus.LegalReview
+        assert draft_course_run.slug == 'learn/'
 
     @responses.activate
     def test_patch_published(self):

@@ -1,4 +1,7 @@
 import logging
+import re
+
+from slugify import slugify
 
 from django.db import models, transaction
 from django.db.models.functions import Lower
@@ -24,7 +27,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, CourseType
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -270,8 +273,21 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
 
         return response
 
+    def create_course_slug(self, course_run, url_slug):
+        course = course_run.course
+        url_slug_regex = '^learn/([a-z0-9-]+[a-zA-Z0-9]*)/([a-z-]+)'
+        is_slug_compliant = re.search(url_slug_regex, url_slug)
+        non_ocm_variants = [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]  # targets ocm courses
+        is_ocm = course.type.slug not in non_ocm_variants
+        if is_ocm and not is_slug_compliant:
+            primary_subject = course.subjects.first()
+            org = course.authoring_organizations.first()
+            course_run.slug = f"learn/{slugify(primary_subject.slug)}/{slugify(org.name)}-{slugify(course.title)}"
+            course_run.save()
+
     @writable_request_wrapper
     def _update_course_run(self, course_run, draft, changed, serializer, request, prices, upgrade_deadline_override):
+        url_slug = request.data.pop('url_slug', None)
         save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
@@ -286,6 +302,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         # back into legal review if a non exempt field was changed (expected_program_name and expected_program_type)
         if not draft and (course_run.status == CourseRunStatus.Unpublished or non_exempt_update):
             save_kwargs['status'] = CourseRunStatus.LegalReview
+            self.create_course_slug(course_run, url_slug)
 
         course_run = serializer.save(**save_kwargs)
 
