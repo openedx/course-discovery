@@ -626,3 +626,27 @@ class TestIngestionEmail(TestCase):
                 "<li>[MISSING_ORGANIZATION] Unable to find organization with key edx1</li>"
             ]
         )
+
+
+class TestSlugUpdatesEmail(TestCase):
+    """
+    Test suite for send_ingestion_email.
+    """
+    EMAIL_SUBJECT = 'Slugs Update Summary'
+    USER_EMAILS = ['edx@example.com']
+
+    def test_send_email_for_slug_updates(self):
+        stats = [{
+            'course_uuid': 'uuid-text',
+            'old_slug': 'course-title',
+            'new_slug': 'learn/subject/organization-course-title',
+            'error': 'some error'
+        }]
+        emails.send_email_for_slug_updates(stats, self.USER_EMAILS)
+        email = mail.outbox[0]
+
+        assert email.to == self.USER_EMAILS
+        assert str(email.subject) == self.EMAIL_SUBJECT
+        assert len(mail.outbox) == 1
+        expected_response = str(stats)
+        assert email.body == expected_response

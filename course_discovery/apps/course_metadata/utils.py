@@ -954,7 +954,6 @@ def is_valid_slug_format(slug):
 
 
 def get_slug_for_course(course):
-    # TODO: remove special characters from slugify text
     error = None
 
     course_subjects = course.subjects.all()
@@ -968,10 +967,25 @@ def get_slug_for_course(course):
         logger.warning(error)
         return None, error
     primary_subject_slug = course_subjects[0].slug
-    organization_slug = slugify(organizations[0].name)
-    course_title_slug = slugify(course.title)
-    slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_title_slug}"
+    organization_slug = slugify(organizations[0].name.replace('\'', ''))
+    course_slug = course.active_url_slug
+    # course slug is None for courses which are created from studio
+    if not course_slug:
+        course_slug = course.title
+        slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        if is_slug_already_exists(slug, course):
+            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding course id in course_title")
+            course_slug = f"{course.title}-{course.id}"
+    slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
     return slug, error
+
+
+def is_slug_already_exists(slug, course):
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
+        url_slug=slug, partner=course.partner).exclude(course__uuid=course.uuid)
+    return all_course_historical_slugs_excluding_current.exists()
 
 
 def is_valid_uuid(val):
