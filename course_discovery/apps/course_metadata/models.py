@@ -10,7 +10,6 @@ import pytz
 import requests
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from config_models.models import ConfigurationModel
-from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -45,7 +44,7 @@ from course_discovery.apps.course_metadata.choices import (
     PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
-from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
+from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.model_utils import has_model_changed
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
@@ -3957,36 +3956,10 @@ class PersonAreaOfExpertise(AbstractValueModel):
 
 
 SLUG_DISALLOWED_CHARS = re.compile(r'[^-a-zA-Z0-9/]+')
-SLUG_ALLOWED_CHARS = re.compile(r'^[-a-zA-Z0-9_/]+\Z')
 
 
 def slugify_with_slashes(text):
     return uslugify(text, regex_pattern=SLUG_DISALLOWED_CHARS)
-
-
-validate_slug_with_slashes = RegexValidator(
-    SLUG_ALLOWED_CHARS,
-    # Translators: "letters" means latin letters: a-z and A-Z.
-    _("Enter a valid “slug” consisting of letters, numbers, underscores or hyphens."),
-    "invalid",
-)
-
-
-class SlashSlugField(forms.SlugField):
-    default_validators = [validate_slug_with_slashes]
-
-
-class AutoSlugWithSlashesField(AutoSlugField):
-    default_validators = [validate_slug_with_slashes]
-
-    def formfield(self, **kwargs):
-        return super().formfield(
-            **{
-                "form_class": SlashSlugField,
-                "allow_unicode": self.allow_unicode,
-                **kwargs,
-            }
-        )
 
 
 class CourseUrlSlug(TimeStampedModel):

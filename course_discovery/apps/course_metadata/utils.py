@@ -948,12 +948,19 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
         instance.update_product_data_modified_timestamp()
 
 
-def is_valid_slug_format(slug):
+def is_valid_slug_format(val):
+    """
+    Given a value it will check if value follow the slug format regex 'learn/<some_text>/<some_other_text>'
+    """
     valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
-    return bool(re.match(valid_slug_pattern, slug))
+    return bool(re.match(valid_slug_pattern, val))
 
 
 def get_slug_for_course(course):
+    """
+    Given a course it will generate a slug for the course with format
+    'learn/<primary_subject>/<organization_name>-<course_title>'
+    """
     error = None
 
     course_subjects = course.subjects.all()
@@ -973,14 +980,17 @@ def get_slug_for_course(course):
     if not course_slug:
         course_slug = course.title
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
-        if is_slug_already_exists(slug, course):
+        if is_existing_slug(slug, course):
             logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding course id in course_title")
             course_slug = f"{course.title}-{course.id}"
     slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
     return slug, error
 
 
-def is_slug_already_exists(slug, course):
+def is_existing_slug(slug, course):
+    """
+    Given a slug and course it check if that slug exists for any other course in DB or not
+    """
     # to avoid circular dependency
     from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
     all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
@@ -989,6 +999,9 @@ def is_slug_already_exists(slug, course):
 
 
 def is_valid_uuid(val):
+    """
+    Given a value it will check if value is valid uuid or not
+    """
     try:
         uuid.UUID(str(val))
         return True

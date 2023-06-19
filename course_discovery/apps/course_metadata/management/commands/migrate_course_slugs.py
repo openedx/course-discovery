@@ -16,6 +16,10 @@ class Command(BaseCommand):
     It will update course url slugs to the new format i.e 'learn/<primary_subject>/<organization_name>-course_title'
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.slug_update_report = []
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--dry_run',
@@ -45,7 +49,6 @@ class Command(BaseCommand):
         It will execute the command to update slugs to new format
         'learn/<primary_subject>/<organization_name>-course_title'
         """
-        self.slug_update_report = []  # pylint: disable=attribute-defined-outside-init
         dry_run = options.get('dry_run', False)
         course_uuids = options.get('course_uuids', None)
         csv_from_config = options.get('args_from_database', None)
@@ -60,7 +63,7 @@ class Command(BaseCommand):
 
         if limit:
             logger.info(f"Getting first {limit} open course records")
-            courses = Course.everything.filter(product_source__slug='edx')[:limit]
+            courses = Course.objects.filter(product_source__slug='edx')[:limit]
 
         for course in courses:
             self._update_course_slug(course, dry_run)
@@ -85,13 +88,13 @@ class Command(BaseCommand):
 
     def _update_course_slug(self, course, dry_run=False):
         """
-        It will update course slug to new format if its not already in new format and commit in DB only if dry run is
-        False
+        Given a course and it will update its slug to sub-directory format if its not already and commit in DB only if
+        dry run is False
         """
         try:
             current_slug = course.active_url_slug
             if current_slug and is_valid_slug_format(current_slug):
-                error_msg = f"Course with uuid {course.uuid} and title {course.title} slug is already in correct " \
+                error_msg = f"Course with uuid {course.uuid} and title {course.title} has slug already in correct " \
                             f"format '{current_slug}'"
                 logger.info(error_msg)
                 self._add_to_slug_update_report(course, error=error_msg)
@@ -103,9 +106,8 @@ class Command(BaseCommand):
                 if not dry_run and new_slug:
                     course.set_active_url_slug(new_slug)
                     if course.official_version:
-                        logger.info(f"Updating slug for non-draft course with uuid {course.official_version.uuid} and "
-                                    f"title {course.official_version.title} from "
-                                    f"'{course.official_version.current_slug}' to '{new_slug}'")
+                        logger.info(f"Updating slug for non-draft course with title {course.official_version.title} "
+                                    f"from '{course.official_version.current_slug}' to '{new_slug}'")
                         course.official_version.set_active_url_slug(new_slug)
                     logger.info(f"Updated slug for course with uuid {course.uuid} and title {course.title} "
                                 f"from '{current_slug}' to '{new_slug}'")
@@ -122,16 +124,24 @@ class Command(BaseCommand):
         course_uuids = [row['course_uuids'] for row in rows]
         return self._get_courses_from_uuids(course_uuids)
 
-    @staticmethod
-    def _get_courses_from_uuids(course_uuids):
+    def _get_courses_from_uuids(self, course_uuids):
         valid_course_uuids = []
         for course_uuid in course_uuids:
             if is_valid_uuid(course_uuid):
                 valid_course_uuids.append(course_uuid)
             else:
-                logger.info(f"Skipping uuid {course_uuid} because of incorrect format")
+                error = f"Skipping uuid {course_uuid} because of incorrect format"
+                self.slug_update_report.append(
+                    {
+                        'course_uuid': course_uuid,
+                        'old_slug': None,
+                        'new_slug': None,
+                        'error': error
+                    }
+                )
+                logger.info(error)
 
-        return Course.everything.filter(product_source__slug='edx', uuid__in=valid_course_uuids)
+        return Course.objects.filter(product_source__slug='edx', uuid__in=valid_course_uuids)
 
     def _log_report_in_csv_format(self):
         report_in_csv_format = "course_uuid,old_slug,new_slug,error\n"

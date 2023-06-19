@@ -22,10 +22,8 @@ class TestMigrateCourseSlugs(TestCase):
 
         self.course1.authoring_organizations.add(self.organization)
         self.course1.subjects.add(self.subject)
-        self.course1.save()
         self.course2.authoring_organizations.add(self.organization)
         self.course2.subjects.add(self.subject)
-        self.course2.save()
 
     def test_migrate_course_slug_success_flow(self):
         with LogCapture(LOGGER_PATH) as log_capture:
@@ -98,7 +96,6 @@ class TestMigrateCourseSlugs(TestCase):
 
             # If course doesn't have any subject
             self.course2.subjects.clear()
-            self.course2.save()
             call_command(
                 'migrate_course_slugs',
                 '--course_uuids', self.course1.uuid,
@@ -116,7 +113,6 @@ class TestMigrateCourseSlugs(TestCase):
             # Adding subject to the course and removing organization
             self.course2.subjects.add(self.subject)
             self.course2.authoring_organizations.clear()
-            self.course2.save()
 
             call_command(
                 'migrate_course_slugs',
@@ -136,7 +132,6 @@ class TestMigrateCourseSlugs(TestCase):
 
             # Adding organization to the course
             self.course2.authoring_organizations.add(self.organization)
-            self.course2.save()
 
             call_command(
                 'migrate_course_slugs',
@@ -147,7 +142,7 @@ class TestMigrateCourseSlugs(TestCase):
                 (
                     LOGGER_PATH,
                     'WARNING',
-                    f"Course with uuid {self.course1.uuid} and title {self.course1.title} slug is already in correct "
+                    f"Course with uuid {self.course1.uuid} and title {self.course1.title} has slug already in correct "
                     f"format '{self.course1.active_url_slug}'"
                 )
             )
