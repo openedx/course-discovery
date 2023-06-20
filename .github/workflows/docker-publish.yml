@@ -16,16 +16,29 @@ jobs:
       # Use the release name as the image tag if we're building an open release tag.
       # Examples: if we're building 'open-release/olive.master', tag the image as 'olive.master'.
       # Otherwise, we must be building from a push to master, so use 'latest'.
-      - name: Get tag name
-        id: get-tag-name
-        uses: actions/github-script@v5
+      # - name: Get tag name
+      #   id: get-tag-name
+      #   uses: actions/github-script@v5
+      #   with:
+      #     script: |
+      #       const branchName = context.ref.split('/').slice(-1)[0];
+      #       const tagName = branchName === 'master' ? 'latest' : branchName;
+      #       console.log('Will use tag: ' + tagName);
+      #       return tagName;
+      #     result-encoding: string
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          script: |
-            const branchName = context.ref.split('/').slice(-1)[0];
-            const tagName = branchName === 'master' ? 'latest' : branchName;
-            console.log('Will use tag: ' + tagName);
-            return tagName;
-          result-encoding: string
+           username: ${{ secrets.DOCKERHUB_USERNAME }}
+           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+     
 
       - name: Build and push Dev Docker image
         uses: docker/build-push-action@v1
@@ -35,7 +48,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           target: dev
           repository: edxops/discovery-dev
-          tags: ${{ steps.get-tag-name.outputs.result }},${{ github.sha }}
+          # tags: ${{ steps.get-tag-name.outputs.result }},${{ github.sha }}
+          tags: edxops/discovery-dev:test
 
       # The current priority is to get the devstack off of Ansible based Images. Once that is done, we can come back to this part to get
       # suitable images for smaller prod environments.
