@@ -44,12 +44,13 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           push: true
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          # username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # password: ${{ secrets.DOCKERHUB_PASSWORD }}
           target: dev
           repository: edxops/discovery-dev
           # tags: ${{ steps.get-tag-name.outputs.result }},${{ github.sha }}
           tags: edxops/discovery-dev:test
+          platforms: linux/amd64,linux/arm64
 
       # The current priority is to get the devstack off of Ansible based Images. Once that is done, we can come back to this part to get
       # suitable images for smaller prod environments.
