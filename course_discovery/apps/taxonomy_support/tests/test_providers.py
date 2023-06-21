@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.test import TestCase
 from taxonomy.providers import CourseRunContent
-from taxonomy.providers.utils import get_course_run_metadata_provider
+from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
 from taxonomy.validators import (
     CourseMetadataProviderValidator, CourseRunMetadataProviderValidator, ProgramMetadataProviderValidator,
     XBlockMetadataProviderValidator
@@ -119,3 +119,22 @@ class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
 
         # Run all the validations, note that an assertion error will be raised if any of the validation fail.
         xblock_metadata_validator.validate()
+
+    def test_get_video_xblocks_content(self):
+        """
+        Test whether get_xblocks filters out non-english transcripts.
+        """
+        self.mock_access_token()
+        partner = PartnerFactory.create(id=settings.DEFAULT_PARTNER_ID, lms_url='http://127.0.0.1:8000')
+        block_ids = [
+            'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd',
+        ]
+        resource = settings.LMS_API_URLS['blocks']
+        for block_id in block_ids:
+            block_resource_url = urljoin(partner.lms_url, resource + block_id)
+            block_metadata_url = urljoin(partner.lms_url, 'api/courses/v1/block_metadata/')
+            self.mock_blocks_data_request(block_resource_url)
+            self.mock_block_metadata_request(block_metadata_url)
+        provider = get_xblock_metadata_provider()
+        xblocks = provider.get_xblocks(block_ids)
+        assert 'Should not be included in tagging content.' not in xblocks[0].content

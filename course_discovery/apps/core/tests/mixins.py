@@ -187,7 +187,8 @@ class LMSAPIClientMixin:
                 'index_dictionary': {
                     'content': {
                         'display_name': 'Welcome!',
-                        'transcript_en': ' ERIC: Hi, and welcome to the edX demonstration course.'
+                        'transcript_en': ' ERIC: Hi, and welcome to the edX demonstration course.',
+                        'transcript_hi': 'Should not be included in tagging content.'
                     },
                     'content_type': 'Video'
                 }
