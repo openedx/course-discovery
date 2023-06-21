@@ -3955,11 +3955,12 @@ class PersonAreaOfExpertise(AbstractValueModel):
         verbose_name_plural = 'Person Areas of Expertise'
 
 
-SLUG_DISALLOWED_CHARS = re.compile(r'[^-a-zA-Z0-9/]+')
-
-
 def slugify_with_slashes(text):
-    return uslugify(text, regex_pattern=SLUG_DISALLOWED_CHARS)
+    """
+    Given a text and it will convert disallowed characters to `-` in the text
+    """
+    disallowed_chars = re.compile(r'[^-a-zA-Z0-9/]+')
+    return uslugify(text, regex_pattern=disallowed_chars)
 
 
 class CourseUrlSlug(TimeStampedModel):
@@ -4103,8 +4104,13 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     csv_file = models.FileField(
         validators=[FileExtensionValidator(allowed_extensions=['csv'])],
         help_text=_("It expects the data will be provided in a csv file format "
-                    "with first row containing all the headers.")
+                    "with first row containing all the headers."),
+        null=True,
+        blank=True
     )
+    course_uuids = models.TextField(default=None, null=True, blank=True, verbose_name=_('Course UUIDs'))
+    dry_run = models.BooleanField(default=True)
+    count = models.IntegerField(null=True, blank=True)
 
 
 class ProgramSubscriptionConfiguration(ConfigurationModel):

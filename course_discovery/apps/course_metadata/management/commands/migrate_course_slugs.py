@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = """
-    It will update course url slugs to the new format i.e 'learn/<primary_subject>/<organization_name>-course_title'
+    It will update course url slugs to the format 'learn/<primary_subject>/<organization_name>-course_title'
     """
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             help="Course_uuid list [,]",
         )
         parser.add_argument(
-            '--args_from_database',
+            '--csv_from_config',
             help='Get CSV from MigrateCourseSlugConfiguration model',
             type=str,
         )
@@ -43,27 +43,50 @@ class Command(BaseCommand):
             type=int,
             default=0,
         )
+        parser.add_argument(
+            '--args_from_database',
+            action='store_true',
+            help='Use arguments from the MigrateCourseSlugConfiguration model instead of the command line.',
+        )
+
+    def get_args_from_database(self):
+        config = MigrateCourseSlugConfiguration.current()
+        if not config.is_enabled():
+            raise CommandError('Configuration object is not enabled')
+
+        if not (config.course_uuids or bool(config.csv_file) or config.count):
+            raise CommandError('Configuration object does not have any input type')
+
+        return {
+            'dry_run': config.dry_run,
+            'course_uuids': config.course_uuids.split() if config.course_uuids else None,
+            'csv_from_config': config.csv_file if bool(config.csv_file) else None,
+            'limit': config.count
+        }
 
     def handle(self, *args, **options):
         """
-        It will execute the command to update slugs to new format
+        It will execute the command to update slugs to the format
         'learn/<primary_subject>/<organization_name>-course_title'
         """
+        args_from_database = options.get('args_from_database', None)
+        if args_from_database:
+            options = self.get_args_from_database()
         dry_run = options.get('dry_run', False)
         course_uuids = options.get('course_uuids', None)
-        csv_from_config = options.get('args_from_database', None)
+        csv_from_config = options.get('csv_from_config', None)
         limit = options.get('limit', None)
         courses = []
 
         if csv_from_config:
-            courses = self._get_courses_from_csv_config()
+            courses = self._get_courses_from_csv_file(csv_from_config)
 
         if course_uuids:
             courses = self._get_courses_from_uuids(course_uuids)
 
         if limit:
             logger.info(f"Getting first {limit} open course records")
-            courses = Course.objects.filter(product_source__slug='edx')[:limit]
+            courses = Course.everything.filter(product_source__slug='edx', draft=True)[:limit]
 
         for course in courses:
             self._update_course_slug(course, dry_run)
@@ -76,7 +99,7 @@ class Command(BaseCommand):
         It will add course and slug information in slug_update_report to show stats
         """
         if error:
-            logger.warning(error)
+            logger.info(error)
         self.slug_update_report.append(
             {
                 'course_uuid': course.uuid,
@@ -107,7 +130,7 @@ class Command(BaseCommand):
                     course.set_active_url_slug(new_slug)
                     if course.official_version:
                         logger.info(f"Updating slug for non-draft course with title {course.official_version.title} "
-                                    f"from '{course.official_version.current_slug}' to '{new_slug}'")
+                                    f"from '{course.official_version.active_url_slug}' to '{new_slug}'")
                         course.official_version.set_active_url_slug(new_slug)
                     logger.info(f"Updated slug for course with uuid {course.uuid} and title {course.title} "
                                 f"from '{current_slug}' to '{new_slug}'")
@@ -115,11 +138,7 @@ class Command(BaseCommand):
             logger.error(f"Error occurred during update course slug process, error: {ex}")
             self._add_to_slug_update_report(course, error=str(ex))
 
-    def _get_courses_from_csv_config(self):
-        csv_loader_config = MigrateCourseSlugConfiguration.current()
-        csv_file = csv_loader_config.csv_file if csv_loader_config.is_enabled() else None
-        if not csv_file:
-            raise CommandError("No CSV file is given to MigrateCourseSlugConfiguration model")
+    def _get_courses_from_csv_file(self, csv_file):
         rows = list(unicodecsv.DictReader(csv_file))
         course_uuids = [row['course_uuids'] for row in rows]
         return self._get_courses_from_uuids(course_uuids)
@@ -141,7 +160,7 @@ class Command(BaseCommand):
                 )
                 logger.info(error)
 
-        return Course.objects.filter(product_source__slug='edx', uuid__in=valid_course_uuids)
+        return Course.everything.filter(product_source__slug='edx', uuid__in=valid_course_uuids, draft=True)
 
     def _log_report_in_csv_format(self):
         report_in_csv_format = "course_uuid,old_slug,new_slug,error\n"
