@@ -982,3 +982,8 @@ class CollaboratorFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     image = factory.django.ImageField()
     uuid = factory.LazyFunction(uuid4)
+
+
+class MigrateCourseSlugConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MigrateCourseSlugConfiguration

@@ -26,8 +26,8 @@ from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
     BulkUploadTagsConfig, CourseEditor, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
     DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
-    MigrateCourseSlugConfiguration, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
-    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    MigrateCourseSlugConfiguration, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program,
+    ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
 from course_discovery.apps.course_metadata.tests import factories

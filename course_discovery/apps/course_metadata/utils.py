@@ -958,20 +958,26 @@ def is_valid_slug_format(val):
 
 def get_slug_for_course(course):
     """
-    Given a course it will generate a slug for the course with format
-    'learn/<primary_subject>/<organization_name>-<course_title>'
+    Given a course it will return slug and error if there is any'
+
+    Arguments:
+          course: course object
+
+    Returns:
+        slug: slug in the format 'learn/<primary_subject>/<organization_name>-<course_title>'
+        error: error while creating slug in the required format
     """
     error = None
 
     course_subjects = course.subjects.all()
     if len(course_subjects) < 1:
         error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
-        logger.warning(error)
+        logger.info(error)
         return None, error
     organizations = course.authoring_organizations.all()
     if len(organizations) < 1:
         error = f"Course with uuid {course.uuid} and title {course.title} does not have any authoring organizations"
-        logger.warning(error)
+        logger.info(error)
         return None, error
     primary_subject_slug = course_subjects[0].slug
     organization_slug = slugify(organizations[0].name.replace('\'', ''))
