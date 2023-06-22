@@ -36,10 +36,12 @@ validate_slug_with_slashes = RegexValidator(
 
 
 class SlashSlugField(forms.SlugField):
+    """ Custom SlugField to allow slashes in the slug. """
     default_validators = [validate_slug_with_slashes]
 
 
 class AutoSlugWithSlashesField(AutoSlugField):
+    """ Custom AutoSlugField to allow slashes in the slug. """
     default_validators = [validate_slug_with_slashes]
 
     def formfield(self, **kwargs):
