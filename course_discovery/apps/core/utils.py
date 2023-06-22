@@ -180,3 +180,33 @@ def use_read_replica_if_available(queryset):
     If there is a database called 'read_replica', use that database for the queryset.
     """
     return queryset.using("read_replica") if "read_replica" in settings.DATABASES else queryset
+
+
+def update_instance(instance, data, should_commit=False, **kwargs):
+    """
+    Utility method to set any number of fields dynamically on a model instance and commit the changes
+    if applicable.
+
+    Arguments:
+        * instance (Model Object)
+        * data (dict): The dictionary containing mapping of model_fields -> values. The fields are not related fields.
+        * should_commit (Boolean): If provided, the changes in instance should be committed to DB
+        * kwargs (dict): additional params to pass to save() if provided
+
+    Return:
+        Tuple containing instance and boolean specify if the instance was updated.
+    """
+    if not instance:
+        return None, False
+
+    updated = False
+
+    for attr, value in data.items():
+        if hasattr(instance, attr) and getattr(instance, attr) != value:
+            setattr(instance, attr, value)
+            updated = True
+
+    if updated and should_commit:
+        instance.save(**kwargs)
+
+    return instance, updated
