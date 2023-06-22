@@ -404,6 +404,9 @@ def course_m2m_changed(sender, instance, action, **kwargs):
 
 @receiver(m2m_changed, sender=ProductMeta.keywords.through)
 def course_taggable_manager_changed(sender, instance, action, **kwargs):
+    """
+    Signal handler to handle Taggable manager changes for the course tag field or course related models' tag fields.
+    """
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
             and kwargs['pk_set'] and instance._meta.label == 'course_metadata.ProductMeta':
         logger.info(f"{sender} has been updated for ProductMeta {instance.pk}.")

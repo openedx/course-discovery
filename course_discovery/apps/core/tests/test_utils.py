@@ -75,7 +75,7 @@ class ModelUtilTests(TestCase):
         instance = instance_factory()
         _, changed = update_instance(instance, updated_data, True)
         instance.refresh_from_db()
-        assert changed is True
+        assert changed
         assert instance.description == updated_data['description']
 
     @data(
@@ -90,7 +90,7 @@ class ModelUtilTests(TestCase):
         instance = instance_factory()
         _, changed = update_instance(instance, updated_data)
         instance.refresh_from_db()
-        assert changed is True
+        assert changed
         assert instance.description != updated_data['description']
 
     def test_update_instance__no_instance(self):
@@ -99,7 +99,7 @@ class ModelUtilTests(TestCase):
         """
         instance, changed = update_instance(None, {})
         assert instance is None
-        assert changed is False
+        assert not changed
 
 
 class SearchQuerySetWrapperTests(TestCase):
