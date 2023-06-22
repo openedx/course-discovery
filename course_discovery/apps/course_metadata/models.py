@@ -1289,6 +1289,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     average_rating = models.DecimalField(default=0.0, max_digits=30, decimal_places=2)
     total_raters = models.IntegerField(default=0)
     yt_video_url = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Youtube Video URL'))
+    course_duration_override = models.PositiveIntegerField(
+        null=True, blank=True, help_text=_('This field contains override course duration value.'),
+        verbose_name=_('Course Duration Override')
+    )
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

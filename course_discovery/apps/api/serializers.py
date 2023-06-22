@@ -895,7 +895,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'invite_only', 'subjects',
             'is_marketing_price_set', 'marketing_price_value', 'is_marketing_price_hidden', 'featured', 'card_image_url',
-            'average_rating', 'total_raters', 'yt_video_url'
+            'average_rating', 'total_raters', 'yt_video_url', 'course_duration_override'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
@@ -2207,6 +2207,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'average_rating',
             'total_raters',
             'yt_video_url',
+            'course_duration_override',
         )
 
 
