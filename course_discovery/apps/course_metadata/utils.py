@@ -952,7 +952,10 @@ def is_valid_slug_format(val):
     """
     Given a value it will check if value follow the slug format regex 'learn/<some_text>/<some_other_text>'
     """
-    valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
+    if settings.IS_NEW_SLUG_FORMAT_ENABLED:
+        valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
+    else:
+        valid_slug_pattern = r"[a-zA-Z0-9-]+$"
     return bool(re.match(valid_slug_pattern, val))
 
 
