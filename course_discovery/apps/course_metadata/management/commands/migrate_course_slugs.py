@@ -91,7 +91,7 @@ class Command(BaseCommand):
         for course in courses:
             self._update_course_slug(course, dry_run)
 
-        send_email_for_slug_updates(self.slug_update_report, settings.NOTIFY_SLUG_UPDATE_RECIPIENTS)
+        send_email_for_slug_updates(self._get_report_in_csv_format(), settings.NOTIFY_SLUG_UPDATE_RECIPIENTS)
         self._log_report_in_csv_format()
 
     def _add_to_slug_update_report(self, course, new_slug=None, error=None):
@@ -162,11 +162,15 @@ class Command(BaseCommand):
 
         return Course.everything.filter(product_source__slug='edx', uuid__in=valid_course_uuids, draft=True)
 
-    def _log_report_in_csv_format(self):
+    def _get_report_in_csv_format(self):
         report_in_csv_format = "course_uuid,old_slug,new_slug,error\n"
 
         for record in self.slug_update_report:
             report_in_csv_format = report_in_csv_format + f"{record['course_uuid']},{record['old_slug']}," \
                                                           f"{record['new_slug']},{record['error']}\n"
 
+        return report_in_csv_format
+
+    def _log_report_in_csv_format(self):
+        report_in_csv_format = self._get_report_in_csv_format()
         logger.info(report_in_csv_format)
