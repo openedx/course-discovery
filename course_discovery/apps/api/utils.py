@@ -2,8 +2,10 @@ import base64
 import functools
 import logging
 import math
+import re
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
@@ -13,9 +15,31 @@ from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX
+from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.utils import get_slug_for_course
 
 logger = logging.getLogger(__name__)
+
+
+def set_subdirectory_slug_for_course(course_run):
+    """
+    Sets the active url slug for draft and non-draft courses if the current
+    slug is not validated as per the new format.
+    """
+    draft_course = Course.everything.get(key=course_run.course.key, draft=True)
+    is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, draft_course.active_url_slug))
+    if not is_slug_in_subdirectory_format and draft_course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG:
+        slug, error = get_slug_for_course(draft_course)
+        if slug:
+            draft_course.set_active_url_slug(slug)
+            if draft_course.official_version:
+                draft_course.official_version.set_active_url_slug(slug)
+        else:
+            raise Exception(  # pylint: disable=broad-exception-raised
+                f"Slug generation Failed: unable to set active url slug for course: {draft_course.key} "
+                f"with error {error}"
+            )
 
 
 def cast2int(value, name):
