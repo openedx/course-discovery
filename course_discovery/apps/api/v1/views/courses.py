@@ -34,7 +34,7 @@ from course_discovery.apps.course_metadata.models import (
     Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
-    create_missing_entitlement, ensure_draft_world, validate_course_number
+    create_missing_entitlement, ensure_draft_world, is_valid_slug_format, validate_course_number
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -314,7 +314,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         """ Updates an existing course from incoming data. """
         # logging to help debug error around course url slugs incrementing
         logger.info('The raw course data coming from publisher is {}.'.format(data))  # lint-amnesty, pylint: disable=logging-format-interpolation
-
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
@@ -387,7 +386,16 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         changed = changed or bool(changed_fields)
 
         if url_slug:
-            validators.validate_slug(url_slug)
+            if course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG:
+                is_valid = is_valid_slug_format(url_slug)
+                if not is_valid:
+                    raise Exception(  # pylint: disable=broad-exception-raised
+                        _(f'Course edit was unsuccessful. The course URL slug {url_slug} is not valid. '
+                            'Required format is: learn/{primary-subject}/{org-name}-{course-title}. '
+                            'Please update this field and try again.')
+                    )
+            else:
+                validators.validate_slug(url_slug)
             all_course_historical_slugs_excluding_present = CourseUrlSlug.objects.filter(
                 url_slug=url_slug, partner=course.partner).exclude(course__uuid=course.uuid)
             if all_course_historical_slugs_excluding_present.exists():
