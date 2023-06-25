@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-04 20:35+0000\n"
+"POT-Creation-Date: 2023-06-25 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -748,6 +748,15 @@ msgstr "Püßlïshéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕι�
 #, python-brace-format
 msgid "Comment added: {title}"
 msgstr "Çömmént äddéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: apps/course_metadata/fields.py
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, slashes, underscores or"
+" hyphens."
+msgstr ""
+"Éntér ä välïd “slüg” çönsïstïng öf léttérs, nümßérs, släshés, ündérsçörés ör"
+" hýphéns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -2112,12 +2121,17 @@ msgstr ""
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
 msgstr ""
 "Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät wïth fïrst röw "
 "çöntäïnïng äll thé héädérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Course UUIDs"
+msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/models.py
 msgid "Course Run IDs"
@@ -2130,10 +2144,6 @@ msgstr "Pröfïlé Ìmägé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт 
 #: apps/course_metadata/models.py
 msgid "Tag"
 msgstr "Täg Ⱡ'σяєм#"
-
-#: apps/course_metadata/models.py
-msgid "Course UUIDs"
-msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/models.py
 msgid "Remove All Redirects"
