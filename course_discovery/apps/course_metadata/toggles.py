@@ -19,3 +19,15 @@ from edx_toggles.toggles import WaffleSwitch
 BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK = WaffleSwitch(
     'course_metadata.bypass_lms_data_loader__end_date_updated_check', __name__
 )
+
+# .. toggle_name: course_metadata.is_subdirectory_slug_format_enabled
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to use subdirectory slug format for OCM courses.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-06-26
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3444
+IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED = WaffleSwitch(
+    'course_metadata.is_subdirectory_slug_format_enabled', __name__
+)

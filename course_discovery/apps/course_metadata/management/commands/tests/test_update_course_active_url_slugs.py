@@ -5,9 +5,11 @@ import mock
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
+from edx_toggles.toggles.testutils import override_waffle_switch
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, MigrateCourseSlugConfigurationFactory
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.update_course_active_url_slugs'
 
@@ -64,8 +66,9 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
         Test that the command raises CommandError if no csv is provided.
         """
         _ = MigrateCourseSlugConfigurationFactory.create(enabled=True)
-        with self.assertRaises(CommandError):
-            call_command('update_course_active_url_slugs')
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            with self.assertRaises(CommandError):
+                call_command('update_course_active_url_slugs')
 
     def test_invalid_csv_path(self):
         """
@@ -95,10 +98,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
             current_slug_course1 = self.course1_draft.active_url_slug
             current_slug_course2 = self.course2_draft.active_url_slug
             current_slug_course3 = self.course3_draft.active_url_slug
-
-            call_command(
-                'update_course_active_url_slugs'
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_course_active_url_slugs'
+                )
 
             log_capture.check_present(
                 (
@@ -147,9 +150,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
             csv_file.write(self.csv_file_content.encode('utf-8'))
             csv_file.seek(0)
 
-            call_command(
-                'update_course_active_url_slugs', '--csv_file', csv_file.name
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_course_active_url_slugs', '--csv_file', csv_file.name
+                )
 
             self.assertEqual(self.course1_draft.active_url_slug, self.test_active_url_slugs[0])
             self.assertEqual(self.course1_non_draft.active_url_slug, self.test_active_url_slugs[0])
@@ -174,9 +178,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
         _ = MigrateCourseSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
 
         with patch(LOGGER_PATH + '.logger.error') as mock_logger:
-            call_command(
-                'update_course_active_url_slugs'
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_course_active_url_slugs'
+                )
             mock_logger.assert_has_calls([
                 mock.call('Invalid course uuid: invalid-course-uuid'),
             ])
@@ -198,9 +203,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
         _ = MigrateCourseSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
 
         with patch(LOGGER_PATH + '.logger.error') as mock_logger:
-            call_command(
-                'update_course_active_url_slugs'
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_course_active_url_slugs'
+                )
             mock_logger.assert_has_calls([
                 mock.call('Invalid course url slug: '),  # empty course url slug
                 mock.call('Invalid course url slug: invalid-course-url-slug'),
@@ -225,9 +231,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
         _ = MigrateCourseSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
 
         with patch(LOGGER_PATH + '.logger.error') as mock_logger:
-            call_command(
-                'update_course_active_url_slugs'
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_course_active_url_slugs'
+                )
             mock_logger.assert_has_calls([
                 mock.call(f'Course with uuid: {course3_uuid} does not exist'),
             ])

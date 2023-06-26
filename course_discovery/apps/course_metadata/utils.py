@@ -30,6 +30,7 @@ from course_discovery.apps.course_metadata.exceptions import (
 )
 from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -950,9 +951,16 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
 
 def is_valid_slug_format(val):
     """
-    Given a value it will check if value follow the slug format regex 'learn/<some_text>/<some_other_text>'
+    Checks whether a given value follows the slug format, taking into account the selected slug format based on the
+    'IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED' waffle toggle value.
+
+    Args:
+        val: value to be checked
+
+    Returns:
+        True if value follow the slug format else False
     """
-    if settings.IS_NEW_SLUG_FORMAT_ENABLED:
+    if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
         valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
     else:
         valid_slug_pattern = r"[a-zA-Z0-9-]+$"
