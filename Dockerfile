@@ -54,7 +54,6 @@ RUN npm install --production && ./node_modules/.bin/bower install --allow-root -
 
 # Expose canonical Discovery port
 EXPOSE 18381
-EXPOSE 8381
 
 FROM app as prod
 
