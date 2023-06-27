@@ -1,12 +1,14 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase
+from edx_toggles.toggles.testutils import override_waffle_switch
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseUrlSlugFactory, MigrateCourseSlugConfigurationFactory, OrganizationFactory, PartnerFactory,
     SourceFactory, SubjectFactory
 )
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.migrate_course_slugs'
 
@@ -55,11 +57,12 @@ class TestMigrateCourseSlugs(TestCase):
             current_slug_course1 = self.course1.active_url_slug
             current_slug_course2 = self.course2.active_url_slug
 
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course1.uuid,
-                '--course_uuids', self.course2.uuid,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course1.uuid,
+                    '--course_uuids', self.course2.uuid,
+                )
             log_capture.check_present(
                 (
                     LOGGER_PATH,
@@ -92,11 +95,11 @@ class TestMigrateCourseSlugs(TestCase):
         with LogCapture(LOGGER_PATH) as log_capture:
             current_slug_course = self.course3_non_draft.active_url_slug
             current_slug_draft_course = self.course3_draft.active_url_slug
-
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course3_draft.uuid,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course3_draft.uuid,
+                )
             log_capture.check_present(
                 (
                     LOGGER_PATH,
@@ -122,7 +125,8 @@ class TestMigrateCourseSlugs(TestCase):
             current_slug_course1 = self.course1.active_url_slug
             current_slug_course2 = self.course2.active_url_slug
 
-            call_command('migrate_course_slugs', '--args_from_database')
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command('migrate_course_slugs', '--args_from_database')
             log_capture.check_present(
                 (
                     LOGGER_PATH,
@@ -153,12 +157,13 @@ class TestMigrateCourseSlugs(TestCase):
             current_slug_course1 = self.course1.active_url_slug
             current_slug_course2 = self.course2.active_url_slug
 
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course1.uuid,
-                '--course_uuids', self.course2.uuid,
-                '--dry_run', True,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course1.uuid,
+                    '--course_uuids', self.course2.uuid,
+                    '--dry_run', True,
+                )
 
             new_slug_prefix = 'learn/business/test-organization'
             log_capture.check_present(
@@ -180,11 +185,12 @@ class TestMigrateCourseSlugs(TestCase):
 
             # If course doesn't have any subject
             self.course2.subjects.clear()
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course1.uuid,
-                '--course_uuids', self.course2.uuid,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course1.uuid,
+                    '--course_uuids', self.course2.uuid,
+                )
             log_capture.check_present(
                 (
                     LOGGER_PATH,
@@ -197,12 +203,12 @@ class TestMigrateCourseSlugs(TestCase):
             # Adding subject to the course and removing organization
             self.course2.subjects.add(self.subject)
             self.course2.authoring_organizations.clear()
-
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course1.uuid,
-                '--course_uuids', self.course2.uuid,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course1.uuid,
+                    '--course_uuids', self.course2.uuid,
+                )
             # If course does not have any authoring organization
             log_capture.check_present(
                 (
@@ -217,11 +223,12 @@ class TestMigrateCourseSlugs(TestCase):
             # Adding organization to the course
             self.course2.authoring_organizations.add(self.organization)
 
-            call_command(
-                'migrate_course_slugs',
-                '--course_uuids', self.course1.uuid,
-                '--course_uuids', self.course2.uuid,
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.course1.uuid,
+                    '--course_uuids', self.course2.uuid,
+                )
             log_capture.check_present(
                 (
                     LOGGER_PATH,

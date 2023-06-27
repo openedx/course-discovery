@@ -11,6 +11,7 @@ import requests
 import responses
 from django.conf import settings
 from django.test import TestCase
+from edx_toggles.toggles.testutils import override_waffle_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -31,6 +32,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
@@ -1010,18 +1012,22 @@ class CourseSlugMethodsTests(TestCase):
     """
 
     @ddt.data(
-        ('learn/primary-subject/organization-course-title', True),
-        ('learn/some-text/some-text-some-text', True),
-        ('learn/', False),
-        ('/learn/', False),
-        ('/media/', False),
-        ('media/primary-subject/organization_name-course_title', False),
-        ('learn2/primary-subject/organization-name-course-title', False),
+        ('learn/primary-subject/organization-course-title', True, True),
+        ('learn/some-text/some-text-some-text', True, True),
+        ('learn/', False, True),
+        ('/learn/', False, True),
+        ('/media/', False, True),
+        ('media/primary-subject/organization_name-course_title', False, True),
+        ('learn2/primary-subject/organization-name-course-title', False, True),
+        ('learn', True, False),
+        ('/learn/', False, False),
+        ('welcome-to-python', True, False),
     )
     @ddt.unpack
-    def test_is_valid_slug_format(self, text, expected_response):
-        response = utils.is_valid_slug_format(text)
-        assert response == expected_response
+    def test_is_valid_slug_format_with_active_waffle_flag(self, text, expected_response, waffle_flag_active_value):
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=waffle_flag_active_value):
+            response = utils.is_valid_slug_format(text)
+            assert response == expected_response
 
     @ddt.data(
         ('f0392cca-886e-449d-b978-b09de1154745', True),
