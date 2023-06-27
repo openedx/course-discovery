@@ -52,6 +52,9 @@ COPY package-lock.json package-lock.json
 COPY bower.json bower.json
 RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production
 
+# Run webpack
+RUN webpack --config webpack.config.js
+
 # Expose canonical Discovery port
 EXPOSE 18381
 
