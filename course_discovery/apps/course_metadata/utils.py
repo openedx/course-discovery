@@ -24,7 +24,9 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import (
+    HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
+)
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -961,9 +963,9 @@ def is_valid_slug_format(val):
         True if value follow the slug format else False
     """
     if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
-        valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
+        valid_slug_pattern = SUBDIRECTORY_SLUG_FORMAT_REGEX
     else:
-        valid_slug_pattern = r"[a-zA-Z0-9-]+$"
+        valid_slug_pattern = SLUG_FORMAT_REGEX
     return bool(re.match(valid_slug_pattern, val))
 
 
