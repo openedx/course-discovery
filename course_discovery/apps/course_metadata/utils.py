@@ -998,8 +998,8 @@ def get_slug_for_course(course):
         course_slug = course.title
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
         if is_existing_slug(slug, course):
-            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding course id in course_title")
-            course_slug = f"{course.title}-{course.id}"
+            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
     slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
     return slug, error
 
@@ -1013,6 +1013,15 @@ def is_existing_slug(slug, course):
     all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
         url_slug=slug, partner=course.partner).exclude(course__uuid=course.uuid)
     return all_course_historical_slugs_excluding_current.exists()
+
+
+def get_existing_slug_count(slug):
+    """
+    Given a slug it will return count of CourseUrlSlugs objects which is starting from it
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    return CourseUrlSlug.objects.filter(url_slug__startswith=slug).count()
 
 
 def is_valid_uuid(val):

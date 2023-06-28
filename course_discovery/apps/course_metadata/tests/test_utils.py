@@ -1082,7 +1082,7 @@ class CourseSlugMethodsTests(TestCase):
         slug, error = utils.get_slug_for_course(course1)
         course1.set_active_url_slug(slug)
 
-        # duplicate course with same title, subject and organization
+        # duplicate a new course with same title, subject and organization
         course2 = CourseFactory(title='test-title')
         subject = SubjectFactory(name='business')
         course2.subjects.add(subject)
@@ -1093,4 +1093,33 @@ class CourseSlugMethodsTests(TestCase):
         CourseUrlSlug.objects.filter(course=course2).delete()
         slug, error = utils.get_slug_for_course(course2)
         assert error is None
-        assert slug == f"learn/{subject.slug}/{organization.name}-{course2.title}-{course2.id}"
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course2.title}-2"
+
+        course2.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title')
+        subject = SubjectFactory(name='business')
+        course3.subjects.add(subject)
+        organization = OrganizationFactory(name='test-organization')
+        course3.authoring_organizations.add(organization)
+        course3.partner = partner
+        course3.save()
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        slug, error = utils.get_slug_for_course(course3)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course3.title}-3"
+
+    def test_get_existing_slug_count(self):
+        course1 = CourseFactory(title='test-title')
+        slug = 'learn/business/test-organization-test-title'
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        course1.set_active_url_slug(slug)
+
+        # duplicate a new course with same title, subject and organization
+        course2 = CourseFactory(title='test-title')
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        course2.set_active_url_slug(f"{slug}-2")
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title')
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        assert utils.get_existing_slug_count(slug) == 2
