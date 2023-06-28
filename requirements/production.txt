@@ -49,9 +49,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.26.155
+boto3==1.26.160
     # via django-ses
-botocore==1.29.155
+botocore==1.29.160
     # via
     #   boto3
     #   s3transfer
@@ -192,7 +192,7 @@ django-crum==0.7.9
     #   edx-toggles
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
-django-dynamic-filenames==1.3.1
+django-dynamic-filenames==1.3.2
     # via -r requirements/base.in
 django-elasticsearch-dsl==7.3
     # via
@@ -362,7 +362,7 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.89.0
+google-api-python-client==2.90.0
     # via -r requirements/base.in
 google-auth==2.20.0
     # via
@@ -428,7 +428,7 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-mysqlclient==2.1.1
+mysqlclient==2.2.0
     # via -r requirements/production.in
 newrelic==8.8.0
     # via
@@ -443,7 +443,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.8
     # via taxonomy-connector
-openedx-events==8.0.1
+openedx-events==8.2.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -464,7 +464,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.6.0
+platformdirs==3.8.0
     # via zeep
 prompt-toolkit==3.0.38
     # via click-repl
@@ -548,7 +548,7 @@ pyyaml==6.0
     #   edx-django-release-util
 rcssmin==1.1.1
     # via django-compressor
-redis==4.5.5
+redis==4.6.0
     # via
     #   -r requirements/base.in
     #   walrus
@@ -690,7 +690,7 @@ zeep==4.2.1
     # via simple-salesforce
 zipp==3.15.0
     # via importlib-metadata
-zope-event==4.6
+zope-event==5.0
     # via gevent
 zope-interface==6.0
     # via gevent
