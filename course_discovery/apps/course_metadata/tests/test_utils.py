@@ -1022,6 +1022,8 @@ class CourseSlugMethodsTests(TestCase):
         ('learn', True, False),
         ('/learn/', False, False),
         ('welcome-to-python', True, False),
+        ('learn/subject_with_underscore/organization_name-course_title', True, True),
+        ('test/learn/subject_with_underscore/organization_name-course_title', False, True),
     )
     @ddt.unpack
     def test_is_valid_slug_format_with_active_waffle_flag(self, text, expected_response, waffle_flag_active_value):
