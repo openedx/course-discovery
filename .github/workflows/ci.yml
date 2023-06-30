@@ -60,6 +60,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: make requirements.python
+      - run: make ci_up
       - name: Run semgrep Django rules
-        run: semgrep ci --config p/django
+        run: make ci_semgrep

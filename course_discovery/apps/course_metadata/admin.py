@@ -7,7 +7,6 @@ from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import re_path, reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
@@ -416,7 +415,7 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
         return actions
 
     def custom_course_runs_display(self, obj):
-        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
+        return format_html('<br>'.join([str(run) for run in obj.course_runs]))
 
     custom_course_runs_display.short_description = _('Included course runs')
 
@@ -700,7 +699,7 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
     readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
 
     def custom_course_runs_display(self, obj):
-        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
+        return format_html('<br>'.join([str(run) for run in obj.course_runs]))
 
     custom_course_runs_display.short_description = _('Included course runs')
 

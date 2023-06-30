@@ -19,6 +19,10 @@ ci_quality: ## Run quality on Docker containers, as on CI
 	.ci/run-in-docker.sh -f .ci/run-quality.sh
 .PHONY: ci_quality
 
+ci_semgrep:
+	.ci/run-in-docker.sh -f .ci/run-semgrep.sh
+.PHONY: ci_semgrep
+
 ci_stop: ## Stop running containers created by `ci_up` without removing them
 	docker-compose -f .ci/docker-compose-ci.yml stop
 .PHONY: ci_stop

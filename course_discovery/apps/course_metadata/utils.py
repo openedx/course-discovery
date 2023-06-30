@@ -24,7 +24,9 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import (
+    HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
+)
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -961,9 +963,9 @@ def is_valid_slug_format(val):
         True if value follow the slug format else False
     """
     if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
-        valid_slug_pattern = r"learn\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+$"
+        valid_slug_pattern = SUBDIRECTORY_SLUG_FORMAT_REGEX
     else:
-        valid_slug_pattern = r"[a-zA-Z0-9-]+$"
+        valid_slug_pattern = SLUG_FORMAT_REGEX
     return bool(re.match(valid_slug_pattern, val))
 
 
@@ -998,8 +1000,8 @@ def get_slug_for_course(course):
         course_slug = course.title
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
         if is_existing_slug(slug, course):
-            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding course id in course_title")
-            course_slug = f"{course.title}-{course.id}"
+            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
     slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
     return slug, error
 
@@ -1013,6 +1015,15 @@ def is_existing_slug(slug, course):
     all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
         url_slug=slug, partner=course.partner).exclude(course__uuid=course.uuid)
     return all_course_historical_slugs_excluding_current.exists()
+
+
+def get_existing_slug_count(slug):
+    """
+    Given a slug it will return count of CourseUrlSlugs objects which is starting from it
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    return CourseUrlSlug.objects.filter(url_slug__startswith=slug).count()
 
 
 def is_valid_uuid(val):
