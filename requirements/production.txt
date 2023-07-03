@@ -49,9 +49,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.26.161
+boto3==1.26.165
     # via django-ses
-botocore==1.29.161
+botocore==1.29.165
     # via
     #   boto3
     #   s3transfer
@@ -174,7 +174,7 @@ django-choices==1.7.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-django-compressor==4.3.1
+django-compressor==4.4
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -362,7 +362,7 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.90.0
+google-api-python-client==2.91.0
     # via -r requirements/base.in
 google-auth==2.21.0
     # via
@@ -381,7 +381,7 @@ googleapis-common-protos==1.59.1
     # via google-api-core
 greenlet==2.0.2
     # via gevent
-gspread==5.9.0
+gspread==5.10.0
     # via -r requirements/base.in
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -455,11 +455,11 @@ packaging==23.1
     #   django-nine
     #   drf-yasg
     #   snowflake-connector-python
-pandas==2.0.2
+pandas==2.0.3
     # via taxonomy-connector
 pbr==5.11.1
     # via stevedore
-pillow==9.5.0
+pillow==10.0.0
     # via
     #   -r requirements/base.in
     #   cairosvg
@@ -645,7 +645,7 @@ tinycss2==1.2.1
     #   cssselect2
 tqdm==4.65.0
     # via openai
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via
     #   asgiref
     #   django-countries

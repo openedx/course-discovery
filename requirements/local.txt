@@ -35,8 +35,6 @@ astroid==2.15.5
     # via
     #   pylint
     #   pylint-celery
-async-generator==1.10
-    # via trio
 async-timeout==4.0.2
     # via
     #   aiohttp
@@ -76,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.161
+boto3==1.26.165
     # via django-ses
-botocore==1.29.161
+botocore==1.29.165
     # via
     #   boto3
     #   s3transfer
@@ -230,7 +228,7 @@ django-choices==1.7.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-django-compressor==4.3.1
+django-compressor==4.4
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -432,7 +430,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==18.11.1
+faker==18.11.2
     # via factory-boy
 fastavro==1.7.4
     # via openedx-events
@@ -455,7 +453,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.90.0
+google-api-python-client==2.91.0
     # via -r requirements/base.in
 google-auth==2.21.0
     # via
@@ -472,7 +470,7 @@ google-auth-oauthlib==1.0.0
     # via gspread
 googleapis-common-protos==1.59.1
     # via google-api-core
-gspread==5.9.0
+gspread==5.10.0
     # via -r requirements/base.in
 h11==0.14.0
     # via wsproto
@@ -574,7 +572,7 @@ packaging==21.3
     #   snowflake-connector-python
     #   sphinx
     #   tox
-pandas==2.0.2
+pandas==2.0.3
     # via taxonomy-connector
 paramiko==3.2.0
     # via docker
@@ -584,7 +582,7 @@ pbr==5.11.1
     # via stevedore
 peewee==3.16.2
     # via semgrep
-pillow==9.5.0
+pillow==10.0.0
     # via
     #   -r requirements/base.in
     #   cairosvg
@@ -911,7 +909,7 @@ tqdm==4.65.0
     # via
     #   openai
     #   semgrep
-trio==0.22.0
+trio==0.22.1
     # via
     #   selenium
     #   trio-websocket
@@ -919,7 +917,7 @@ trio-websocket==0.10.3
     # via selenium
 types-pyyaml==6.0.12.10
     # via responses
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via
     #   asgiref
     #   astroid

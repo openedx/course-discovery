@@ -91,7 +91,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-typing-extensions==4.6.3
+typing-extensions==4.7.1
     # via pydata-sphinx-theme
 urllib3==1.26.16
     # via
