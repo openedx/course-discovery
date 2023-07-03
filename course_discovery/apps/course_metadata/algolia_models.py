@@ -20,8 +20,8 @@ from course_discovery.apps.course_metadata.utils import transform_skills_data
 ALGOLIA_EMPTY_LIST = ['null']
 
 # Every record needs geolocation data to show up in results after we turn on georanking.
-# These are the coordinates of the HQ office in Maryland
-ALGOLIA_DEFAULT_GEO_COORDINATES = 38.951302, -76.873100
+# These are the coordinates of the  North Atlantic
+ALGOLIA_DEFAULT_GEO_COORDINATES = 34.921696, -40.839980
 
 
 # Utility methods used by both courses and programs
@@ -63,7 +63,7 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'product_source', 'primary_description',
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
-                    'product_allowed_in', 'product_blocked_in']
+                    'product_allowed_in', 'product_blocked_in', 'learning_type']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -289,6 +289,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def program_types(self):
         return [program.type.name_t for program in self.programs.all()]
+
+    @property
+    def learning_type(self):
+        return [self.product_type, *self.program_types]
 
     @property
     def product_card_image_url(self):
@@ -528,6 +532,12 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         if self.type:
             return [self.type.name_t]
         return None
+
+    @property
+    def learning_type(self):
+        if self.type:
+            return [self.type.name_t]
+        return []
 
     @property
     def tags(self):

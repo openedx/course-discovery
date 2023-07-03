@@ -7,9 +7,11 @@ import ddt
 import pytest
 import pytz
 import responses
+from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.db.models.query import Prefetch
+from edx_toggles.toggles.testutils import override_waffle_switch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
@@ -22,13 +24,14 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
-    Fact, GeoLocation, ProductMeta, Seat
+    Fact, GeoLocation, ProductMeta, Seat, Source
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
     SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -51,6 +54,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)
         self.refresh_index()
+
+        self.course_data = {
+            'title': 'Course title',
+            'url_slug': 'learn/physics/harvardx-applied-physics',
+            'partner': self.partner.id,
+            'key': self.course.key,
+            'type': str(self.audit_type.uuid),
+        }
 
     def tearDown(self):
         super().tearDown()
@@ -1062,6 +1073,25 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         assert course.title == 'Course title'
         assert course.active_url_slug == 'manual'
+        assert course.organization_logo_override.url is not None
+        self.assertDictEqual(response.data, self.serialize_course(course))
+
+    @ddt.data('put', 'patch')
+    @responses.activate
+    def test_update_success_with_subdirectory_slug_format(self, method):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+
+        source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.course.product_source = source
+        self.course.save()
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            response = getattr(self.client, method)(url, self.course_data, format='json')
+            assert response.status_code == 200
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        assert course.title == 'Course title'
+        assert course.active_url_slug == 'learn/physics/harvardx-applied-physics'
         assert course.organization_logo_override.url is not None
         self.assertDictEqual(response.data, self.serialize_course(course))
 

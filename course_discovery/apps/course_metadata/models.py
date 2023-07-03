@@ -1904,6 +1904,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         (False, _('Unrestricted')),
     )
 
+    IN_REVIEW_STATUS = [CourseRunStatus.InternalReview, CourseRunStatus.LegalReview]
+    POST_REVIEW_STATUS = [CourseRunStatus.Reviewed, CourseRunStatus.Published]
+
     uuid = models.UUIDField(default=uuid4, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)

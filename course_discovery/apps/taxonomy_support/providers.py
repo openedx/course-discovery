@@ -162,7 +162,7 @@ class DiscoveryXBlockMetadataProvider(XBlockMetadataProvider):
             raise KeyError(_('No partner object found!'))
         self.client = LMSAPIClient(partner)
 
-    def _get_block_content(self, block_id: str) -> list:
+    def _get_block_content(self, block_id: str, block_type: str) -> list:
         """
         Fetches block metadata i.e. `index_dictionary` using lms api and
         returns content values as unique list.
@@ -170,7 +170,11 @@ class DiscoveryXBlockMetadataProvider(XBlockMetadataProvider):
         block_metadata = self.client.get_blocks_metadata(block_id) or {}
         content = block_metadata.get('index_dictionary', {}).get('content', {})
         content_list = []
-        for content_text in content.values():
+        for key, content_text in content.items():
+            # Ignore non english transcripts till we figure out a way to translate them.
+            # https://github.com/openedx/taxonomy-connector/blob/master/taxonomy/utils.py#L291-L292
+            if block_type == 'video' and key.startswith('transcript_') and key != 'transcript_en':
+                continue
             content_text = str(content_text).strip() if content_text else None
             if content_text:
                 content_list.append(content_text)
@@ -181,9 +185,10 @@ class DiscoveryXBlockMetadataProvider(XBlockMetadataProvider):
         Recursively combines content values in all children blocks.
         """
         block_id = cur_block.get('id')
+        block_type = cur_block.get('type')
         content_list = []
         if block_id:
-            content_list = self._get_block_content(block_id)
+            content_list = self._get_block_content(block_id, block_type)
         for child in cur_block.get('children', []):
             child_block = all_blocks.get(child)
             if child_block:
