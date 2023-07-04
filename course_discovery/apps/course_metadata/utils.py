@@ -13,6 +13,7 @@ import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
 from django.conf import settings
+from django.core import validators
 from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.utils.functional import cached_property
@@ -1035,3 +1036,41 @@ def is_valid_uuid(val):
         return True
     except ValueError:
         return False
+
+
+def validate_slug_format(url_slug, course):
+    """
+    Given a url_slug and subdirectory_slug_flag it will check if url_slug is valid or not based on
+    subdirectory_slug_flag and course_run_statuses
+
+    Args:
+        url_slug: url_slug to be validated
+        course: course object
+
+    Returns:
+        valid_slug_flag: None if url_slug is valid else raise ValidationError
+    """
+    from course_discovery.apps.course_metadata.models import CourseRun  # pylint: disable=import-outside-toplevel
+
+    valid_slug_flag = False
+
+    if (course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG and
+            IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled()):
+        if set(course.course_run_statuses).intersection(set(CourseRun.IN_REVIEW_STATUS + CourseRun.POST_REVIEW_STATUS)):
+            # TODO: remove the or condition once all the OCM courses are migrated to subdirectory slug format
+            valid_slug_flag = is_valid_slug_format(url_slug) or validators.validate_slug(url_slug)
+            valid_slug_flag = True
+
+        else:
+            valid_slug_flag = is_valid_slug_format(url_slug) or validators.validate_slug(url_slug)
+            valid_slug_flag = True
+    else:
+        validators.validate_slug(url_slug)
+        valid_slug_flag = True
+
+    if not valid_slug_flag:
+        # pylint: disable=line-too-long
+        raise Exception(  # pylint: disable=broad-exception-raised
+            (f'Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is an invalid format. '
+                'Please ensure that the slug is in the format ‘learn/<primary_subject>/<organization_name>-<course_title>’ ')
+        )
