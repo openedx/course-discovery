@@ -17,3 +17,5 @@ CLIENT_SITE_SETUP_FIELDS = [
     'partner_name',
     'partner_short_code',
 ]
+
+DEFAULT_COURSE_ID = 'course-v1:{}+get_started_with+Edly'
