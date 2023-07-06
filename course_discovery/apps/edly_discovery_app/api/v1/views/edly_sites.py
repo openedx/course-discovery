@@ -1,7 +1,6 @@
 """
 Views for Edly Sites API.
 """
-from django.config import settings
 from django.contrib.sites.models import Site
 from rest_framework import status, viewsets, filters
 from rest_framework.authentication import SessionAuthentication
