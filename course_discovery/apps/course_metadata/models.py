@@ -1429,6 +1429,15 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             now = datetime.datetime.now(pytz.UTC)
             self.data_modified_timestamp = now
 
+    def set_data_modified_timestamp(self):
+        """
+        Set the data modified timestamp for both draft & non-draft version of the course.
+        """
+        Course.everything.filter(key=self.key).update(
+            data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+        )
+        self.refresh_from_db()
+
     def save(self, *args, **kwargs):
         """
         There have to be two saves because in order to check for if this is included in the
@@ -1699,6 +1708,9 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                     found = found or match
                     url_entry.save()
                 if found:
+                    if active_draft_url_slug_object and active_draft_url_slug_object.url_slug != slug:
+                        logger.info(f"URL slug for draft course {self.key} found in non-draft course url slug history.")
+                        self.set_data_modified_timestamp()
                     # we will get the active slug via the official object, so delete the draft one
                     if active_draft_url_slug_object:
                         active_draft_url_slug_object.delete()
@@ -1712,15 +1724,26 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             })[0]  # update_or_create returns an (obj, created?) tuple, so just get the object
             # this line necessary to clear the prefetch cache
             self.url_slug_history.add(obj)
+            # draft version is using is_active as a criteria  to create/update the CourseUrlSlug.
+            # That is why the explicit slug value comparison is required to update data modified timestamp.
+            if not active_draft_url_slug_object or active_draft_url_slug_object.url_slug != slug:
+                logger.info(f"URL slug for draft course {self.key} has been updated.")
+                self.set_data_modified_timestamp()
         else:
             if self.draft_version:
                 self.draft_version.url_slug_history.filter(is_active=True).delete()
-            obj = self.url_slug_history.update_or_create(url_slug=slug, defaults={
+            obj, created = self.url_slug_history.update_or_create(url_slug=slug, defaults={
                 'url_slug': slug,
                 'is_active': True,
                 'is_active_on_draft': True,
                 'partner': self.partner,
-            })[0]
+            })
+            if created:
+                # update_or_create is using url_slug to identify if the object is to be
+                # created or updated. That means any slug change will create a new slug object and hence
+                # why the timestamp is updated.
+                logger.info(f"URL slug for non-draft course {self.key} has been updated.")
+                self.set_data_modified_timestamp()
             for other_slug in self.url_slug_history.filter(Q(is_active=True) |
                                                            Q(is_active_on_draft=True)).exclude(url_slug=obj.url_slug):
                 other_slug.is_active = False
@@ -2779,13 +2802,6 @@ class Seat(DraftModelMixin, TimeStampedModel):
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
 
     field_tracker = FieldTracker()
-
-    @property
-    def has_changed(self):
-        if not self.pk:
-            return False
-        return has_model_changed(self.field_tracker)
-
     history = HistoricalRecords()
 
     class Meta:
@@ -2793,6 +2809,27 @@ class Seat(DraftModelMixin, TimeStampedModel):
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
+    def update_product_data_modified_timestamp(self):
+        """
+        If the draft seat object has changed, update the data modified timestamp
+        of related course object on the course run.
+        """
+        if self.draft and self.has_changed:
+            logger.info(
+                f"Seat update_product_data_modified_timestamp triggered for {self.pk}."
+                f"Updating timestamp for related courses."
+            )
+            Course.everything.filter(key=self.course_run.course.key).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+            self.course_run.course.refresh_from_db()
 
     @property
     def upgrade_deadline(self):

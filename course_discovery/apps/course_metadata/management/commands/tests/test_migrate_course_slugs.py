@@ -30,7 +30,8 @@ class TestMigrateCourseSlugs(TestCase):
         self.course2.subjects.add(self.subject)
 
         self.course3_draft = CourseFactory(
-            draft=True, product_source=product_source, partner=partner, url_slug='test_course'
+            draft=True, product_source=product_source, partner=partner, url_slug='test_course',
+            title='test_course'
         )
         course_url_slug = CourseUrlSlugFactory(
             url_slug='test_slug', is_active=True, partner=partner, course=self.course3_draft
@@ -40,7 +41,7 @@ class TestMigrateCourseSlugs(TestCase):
         self.course3_draft.subjects.add(self.subject)
 
         self.course3_non_draft = CourseFactory(
-            draft=False, draft_version_id=self.course3_draft.id, uuid=self.course3_draft.uuid,
+            draft=False, draft_version=self.course3_draft, uuid=self.course3_draft.uuid,
             product_source=product_source, partner=partner, title='test_course'
         )
         self.course3_non_draft.url_slug_history.add(course_url_slug)

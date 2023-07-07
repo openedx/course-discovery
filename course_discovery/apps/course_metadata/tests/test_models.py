@@ -44,8 +44,8 @@ from course_discovery.apps.course_metadata.signals import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, PartnerFactory, ProgramFactory,
-    SeatFactory, SeatTypeFactory, SourceFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseUrlSlugFactory, ImageFactory, PartnerFactory,
+    ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -323,6 +323,157 @@ class TestCourse(TestCase):
             authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
         )
         assert course1.enterprise_subscription_inclusion is False
+
+    def test_set_active_url_slug__draft_only(self):
+        """
+        Verify the behavior of set_active_url_slug when called by a draft course.
+        """
+        course = CourseFactory(draft=True, title="Test course")
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        # Delete the random slug created by Factory
+        course.url_slug_history.all().delete()
+        with LogCapture(LOGGER_PATH) as logger:
+            course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        course.refresh_from_db()
+        assert course.active_url_slug == "new_slug"
+        assert list(course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        # Setting the same slug does not update data modified timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        course.set_active_url_slug("new_slug")
+        course.refresh_from_db()
+        assert course.active_url_slug == "new_slug"
+        assert list(course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
+
+    def test_set_active_url_slug__draft_with_official_version(self):
+        """
+        Verify the behavior of set_active_url_slug when called by a draft course that has a non-draft version.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as logger:
+            draft_course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        assert draft_course.active_url_slug == "new_slug"
+        assert non_draft_course.active_url_slug is None
+        assert list(draft_course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+    def test_set_active_url_slug__draft_with_official_version_matching_slug(self):
+        """
+        Verify that if the slug to be updated is present in non-draft history, the active slug on draft is
+        deleted and active_slug for draft is read from non-draft course slug history.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+
+        CourseUrlSlugFactory(course=draft_course, is_active=True, is_active_on_draft=True, url_slug='test-course')
+        CourseUrlSlugFactory(course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1')
+        non_draft_slug_obj = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=False, is_active_on_draft=False, url_slug='new_slug'
+        )
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as logger:
+            draft_course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        non_draft_slug_obj.refresh_from_db()
+        assert draft_course.active_url_slug == 'new_slug'
+        assert non_draft_course.active_url_slug == 'slug1'
+        assert non_draft_slug_obj.is_active_on_draft
+        assert not non_draft_slug_obj.is_active
+        assert not list(draft_course.url_slug_history.all().values_list('url_slug'))
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+    def test_set_active_url_slug__official_version(self):
+        """
+        Verify the behavior of set_active_url_slug when called on a non-draft version of Course.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        CourseUrlSlugFactory(course=draft_course, is_active=True, url_slug='test-course')
+        non_draft_slug_obj_1 = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1'
+        )
+        non_draft_slug_obj_2 = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=False, is_active_on_draft=True, url_slug='slug2'
+        )
+        with LogCapture(LOGGER_PATH) as logger:
+            non_draft_course.set_active_url_slug("slug3")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course-2; The slug to be set is slug3; Current course is a draft: False"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        non_draft_slug_obj_1.refresh_from_db()
+        non_draft_slug_obj_2.refresh_from_db()
+        assert draft_course.active_url_slug == 'slug3'  # new slug obj sets is_active_on_draft=True
+        assert non_draft_course.active_url_slug == 'slug3'
+        # A new slug object is created for new slug
+        assert non_draft_course.url_slug_history.count() == 3
+
+        # The other slugs in history are no longer active
+        assert not non_draft_slug_obj_1.is_active_on_draft
+        assert not non_draft_slug_obj_1.is_active
+        assert not non_draft_slug_obj_2.is_active_on_draft
+        assert not non_draft_slug_obj_2.is_active
+        assert not list(draft_course.url_slug_history.all().values_list('url_slug'))
+
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+        # Setting the same slug does not create any new objects in history
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        non_draft_course.set_active_url_slug("slug3")
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+
+        assert non_draft_course.url_slug_history.count() == 3
+        assert draft_previous_data_modified_timestamp == draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp == non_draft_course.data_modified_timestamp
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
