@@ -10,7 +10,7 @@
 # Cecilia Liu, 2023
 # Christina Guo <csu2008guoting@163.com>, 2016
 # easylin <lin_xd@126.com>, 2023
-# Hongzhou A, 2023
+# Hongzhou, 2023
 # ifLab <webmaster@iflab.org>, 2018
 # Jiayu Guo <guojiayu0612@gmail.com>, 2016
 # jsgang <jsgang9@gmail.com>, 2016-2017,2021
@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-27 17:43+0000\n"
+"POT-Creation-Date: 2023-06-04 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Cecilia Liu, 2023\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
@@ -54,47 +54,47 @@ msgstr "这个类目下的课程数量"
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr "以下用户名可直接访问此类目"
 
-#: apps/api/serializers.py:974
+#: apps/api/serializers.py:975
 msgid "Start date cannot be after the End date"
 msgstr "开始日期不能晚于结束日期"
 
-#: apps/api/serializers.py:979
+#: apps/api/serializers.py:980
 msgid "Term cannot be changed"
 msgstr "条款不能更改"
 
-#: apps/api/serializers.py:991
+#: apps/api/serializers.py:992
 msgid "Language in which the course is administered"
 msgstr "这门课程上课所用的语言"
 
-#: apps/api/serializers.py:1080
+#: apps/api/serializers.py:1082
 msgid "Course cannot be changed for an existing course run"
 msgstr "不能更改现有的正在进行中的课程"
 
-#: apps/api/serializers.py:1085
+#: apps/api/serializers.py:1087
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr "最短学习时长不得大于最长学习时长"
 
-#: apps/api/serializers.py:1087
+#: apps/api/serializers.py:1089
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr "最小努力和最大努力不能相同"
 
-#: apps/api/serializers.py:1129
+#: apps/api/serializers.py:1131
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr "代码词典将课程开课ID映射到布尔值"
 
-#: apps/api/serializers.py:1228
+#: apps/api/serializers.py:1230
 msgid "Restriction Type cannot be empty"
 msgstr "限制类型不能为空"
 
-#: apps/api/serializers.py:1666
+#: apps/api/serializers.py:1646
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr "代码词典将课程ID映射到布尔值"
 
-#: apps/api/serializers.py:2086
+#: apps/api/serializers.py:2114
 msgid "Languages that course runs in this program are offered in."
 msgstr "此方案中课程的可用语言如下"
 
-#: apps/api/serializers.py:2090
+#: apps/api/serializers.py:2118
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "此方案中课程的成绩单可用语言如下"
@@ -104,7 +104,7 @@ msgstr "此方案中课程的成绩单可用语言如下"
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "在工作室中为 [{key}] 设置课程图像时出错。所有其他字段已成功保存在 Studio 中。"
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
@@ -114,12 +114,12 @@ msgstr "不支持同时指定 editable=1 和 aq 参数。"
 msgid "You must include a course_uuid in your query parameters."
 msgstr "您必须在查询参数中包含 course_uuid。"
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:192
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr "缺少以下值：[{name}]。"
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:199
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:204
 msgid "Incorrect data sent. "
 msgstr "发送的数据不正确。"
 
@@ -143,35 +143,40 @@ msgstr "无效的参数"
 msgid "Failed to set data: {}"
 msgstr "设置数据失败：{}"
 
-#: apps/api/v1/views/courses.py:194
+#: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr "机构 [{org}] 不存在。"
 
-#: apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr "课程类型 [{course_type}] 不存在。"
 
-#: apps/api/v1/views/courses.py:213
+#: apps/api/v1/views/courses.py:200
 #, python-brace-format
-msgid "A course with key [{key}] already exists."
+msgid "Product Source [{product_source}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:221
+#: apps/api/v1/views/courses.py:218
+#, python-brace-format
+msgid "A course with key [{key}] already exists."
+msgstr "键为 [{key}] 的课程已存在。"
+
+#: apps/api/v1/views/courses.py:226
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr "课程创建失败。课程 URL 别名“[{url_slug}]”已被使用。请更新此字段并重试。"
 
-#: apps/api/v1/views/courses.py:280
+#: apps/api/v1/views/courses.py:285
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr "不支持审核后切换授权类型。如有必要，请联系您的项目协调员以获得更多帮助。"
 
-#: apps/api/v1/views/courses.py:386
+#: apps/api/v1/views/courses.py:395
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -396,42 +401,46 @@ msgstr "是"
 msgid "No"
 msgstr "否"
 
-#: apps/course_metadata/admin.py:414 apps/course_metadata/admin.py:696
+#: apps/course_metadata/admin.py:415 apps/course_metadata/admin.py:699
 msgid "Included course runs"
 msgstr "包含的课程"
 
-#: apps/course_metadata/admin.py:704
+#: apps/course_metadata/admin.py:707
 msgid "Edit course run exclusions"
 msgstr "编辑课程运行排除"
 
-#: apps/course_metadata/admin.py:706
+#: apps/course_metadata/admin.py:709
 msgid "(save and continue editing to create a link)"
 msgstr "（保存并继续编辑以创建链接）"
 
-#: apps/course_metadata/admin.py:708
+#: apps/course_metadata/admin.py:711
 msgid "Edit link"
 msgstr "编辑链接"
 
-#: apps/course_metadata/admin.py:804
+#: apps/course_metadata/admin.py:807
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
 msgstr "成功 %(status)s %(count)d %(items)s。"
 
-#: apps/course_metadata/algolia_models.py:89
-#: apps/course_metadata/algolia_models.py:551
+#: apps/course_metadata/algolia_models.py:95
+#: apps/course_metadata/algolia_models.py:576
 msgid "Available now"
 msgstr "可用"
 
-#: apps/course_metadata/algolia_models.py:91
-#: apps/course_metadata/models.py:2242
+#: apps/course_metadata/algolia_models.py:97
+#: apps/course_metadata/models.py:2326
 msgid "Upcoming"
 msgstr "即将到来"
 
-#: apps/course_metadata/algolia_models.py:93
-#: apps/course_metadata/choices.py:72 apps/course_metadata/models.py:2236
-#: apps/course_metadata/models.py:2252
+#: apps/course_metadata/algolia_models.py:99
+#: apps/course_metadata/choices.py:72 apps/course_metadata/models.py:2320
+#: apps/course_metadata/models.py:2336
 msgid "Archived"
 msgstr "存档"
+
+#: apps/course_metadata/algolia_models.py:587
+msgid "Available by subscription"
+msgstr ""
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
@@ -564,7 +573,7 @@ msgstr "{key} ({id}) 的现有运行类型 {run_type} 与课程类型 {type} 不
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
-msgstr ""
+msgstr "{key} ({id}) 的现有运行类型 {run_type} 与其自己的座位不匹配。"
 
 #: apps/course_metadata/data_loaders/course_type.py:91
 #, python-brace-format
@@ -576,73 +585,73 @@ msgstr "课程 {key} ({id}) 匹配类型 {type}"
 msgid "Could not convert course {key} ({id}) to type {type}"
 msgstr "无法将课程 {key} ({id}) 转换为类型 {type}"
 
-#: apps/course_metadata/emails.py:33
+#: apps/course_metadata/emails.py:34
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no "
 "organization is defined for course {course}"
 msgstr "不发送模板 {template} 的通知电子邮件，因为没有为课程 {course} 定义组织"
 
-#: apps/course_metadata/emails.py:38
+#: apps/course_metadata/emails.py:39
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no project "
 "coordinator is defined for organization {org}"
 msgstr "不发送模板 {template} 的通知电子邮件，因为没有为组织 {org} 定义项目协调员"
 
-#: apps/course_metadata/emails.py:91
+#: apps/course_metadata/emails.py:92
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no publisher "
 "URL is defined for partner {partner}"
 msgstr "不发送模板 {template} 的通知电子邮件，因为没有为合作伙伴 {partner} 定义发布者 URL"
 
-#: apps/course_metadata/emails.py:99
+#: apps/course_metadata/emails.py:100
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no studio URL"
 " is defined for partner {partner}"
-msgstr ""
+msgstr "不发送模板 {template} 的通知电子邮件，因为没有为合作伙伴 {partner} 定义工作室 URL"
 
-#: apps/course_metadata/emails.py:165
+#: apps/course_metadata/emails.py:166
 msgid "legal team"
 msgstr "法律团队"
 
-#: apps/course_metadata/emails.py:208
+#: apps/course_metadata/emails.py:209
 msgid "course team"
 msgstr "课程团队"
 
-#: apps/course_metadata/emails.py:217
+#: apps/course_metadata/emails.py:218
 #, python-brace-format
 msgid "Legal review requested: {title}"
 msgstr "已申请法律审核：{title}"
 
-#: apps/course_metadata/emails.py:230
+#: apps/course_metadata/emails.py:231
 #, python-brace-format
 msgid "Review requested: {key} - {title}"
 msgstr "重审反馈: {key} - {title}"
 
-#: apps/course_metadata/emails.py:242
+#: apps/course_metadata/emails.py:243
 #, python-brace-format
 msgid "Review complete: {title}"
 msgstr "审核完成：{title}"
 
-#: apps/course_metadata/emails.py:258
+#: apps/course_metadata/emails.py:259
 #, python-brace-format
 msgid "Published: {title}"
 msgstr "发布时间：{title}"
 
-#: apps/course_metadata/emails.py:262
+#: apps/course_metadata/emails.py:263
 #, python-brace-format
 msgid "Published: {key} - {title}"
 msgstr "发布时间：{key} - {title}"
 
-#: apps/course_metadata/emails.py:277
+#: apps/course_metadata/emails.py:278
 #, python-brace-format
 msgid "Comment added: {title}"
 msgstr "添加评论：{title}"
 
-#: apps/course_metadata/forms.py:64
+#: apps/course_metadata/forms.py:66
 msgid "Programs can only be activated if they have a banner image."
 msgstr "必须有标题栏背景图片才能激活方案。"
 
@@ -666,7 +675,7 @@ msgstr "缺少必需的参数"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:10
 msgid "Backpopulate new-style CourseType and CourseRunType where possible."
-msgstr ""
+msgstr "在条件允许的情况下重返新式 CourseType 和 CourseRunType。"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
@@ -678,20 +687,20 @@ msgid "Short code for a partner."
 msgstr "合作伙伴的短代码。"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:20
-#: apps/course_metadata/models.py:185 apps/course_metadata/models.py:426
-#: apps/course_metadata/models.py:574 apps/course_metadata/models.py:607
-#: apps/course_metadata/models.py:637 apps/course_metadata/models.py:676
-#: apps/course_metadata/models.py:891 apps/course_metadata/models.py:1032
-#: apps/course_metadata/models.py:1161 apps/course_metadata/models.py:1809
-#: apps/course_metadata/models.py:2702 apps/course_metadata/models.py:3610
-#: apps/course_metadata/models.py:3702 apps/learner_pathway/models.py:35
+#: apps/course_metadata/models.py:183 apps/course_metadata/models.py:424
+#: apps/course_metadata/models.py:572 apps/course_metadata/models.py:605
+#: apps/course_metadata/models.py:635 apps/course_metadata/models.py:674
+#: apps/course_metadata/models.py:921 apps/course_metadata/models.py:1062
+#: apps/course_metadata/models.py:1224 apps/course_metadata/models.py:1878
+#: apps/course_metadata/models.py:2852 apps/course_metadata/models.py:3765
+#: apps/course_metadata/models.py:3857 apps/learner_pathway/models.py:35
 #: apps/learner_pathway/models.py:84 apps/learner_pathway/models.py:159
 msgid "UUID"
 msgstr "UUID"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:22
 msgid "Course to backpopulate."
-msgstr ""
+msgstr "课程反向填充。"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
@@ -699,7 +708,7 @@ msgstr "密钥"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
-msgstr ""
+msgstr "组织反向填充。"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:35
 msgid ""
@@ -716,7 +725,7 @@ msgstr "实际上将更改提交到数据库。"
 msgid ""
 "Use arguments from the BackpopulateCourseTypeConfig model instead of the "
 "command line."
-msgstr ""
+msgstr "使用来自 BackpopulateCourseTypeConfig 模型的参数而不是命令行。"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:64
 msgid "You must specify --partner"
@@ -875,71 +884,71 @@ msgstr "课程 {key} 中成功取消发布的运行"
 msgid "Failed to unpublish runs in course {key}"
 msgstr "无法取消发布课程 {key} 中的运行"
 
-#: apps/course_metadata/models.py:186
+#: apps/course_metadata/models.py:184
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
 msgstr "特殊字符只支持句号、下划线或连字符。此密码串将用作课程密码"
 
-#: apps/course_metadata/models.py:191
+#: apps/course_metadata/models.py:189
 msgid "If populated, this field will overwrite name in platform."
-msgstr ""
+msgstr "如果填充，此字段将覆盖平台中的名称。"
 
-#: apps/course_metadata/models.py:196
+#: apps/course_metadata/models.py:194
 msgid "Spanish Description"
 msgstr "西班牙语说明"
 
-#: apps/course_metadata/models.py:197
+#: apps/course_metadata/models.py:195
 msgid ""
 "For seo, this field allows for alternate spanish description to be manually "
 "inputted"
 msgstr "对于 seo，此字段允许手动输入备用西班牙语描述"
 
-#: apps/course_metadata/models.py:222 apps/course_metadata/models.py:1238
-#: apps/course_metadata/models.py:1886
+#: apps/course_metadata/models.py:220 apps/course_metadata/models.py:1301
+#: apps/course_metadata/models.py:1955
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
 msgstr "从推荐的标签中挑选一个。如果您需要创建新标签，请在标签名后加一个逗号。"
 
-#: apps/course_metadata/models.py:226
+#: apps/course_metadata/models.py:224
 msgid "Automatically generate course run keys"
 msgstr "自动生成课程运行密钥"
 
-#: apps/course_metadata/models.py:228
+#: apps/course_metadata/models.py:226
 msgid ""
 "When this flag is enabled, the key of a new course run will be auto "
 "generated.  When this flag is disabled, the key can be manually set."
 msgstr "启用此标志后，将自动生成新课程运行的密钥。当禁用此标志时，可以手动设置密钥。"
 
-#: apps/course_metadata/models.py:234
+#: apps/course_metadata/models.py:232
 msgid ""
 "This field signifies if any of this org's courses are in the enterprise "
 "subscription catalog"
 msgstr "此字段表示该组织的任何课程是否在企业订阅目录中"
 
-#: apps/course_metadata/models.py:237
+#: apps/course_metadata/models.py:235
 msgid ""
 "The 6 character-hex-value of the orgnization theme color,\n"
 "            all related course under same organization will use this color as theme color.\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
 msgstr ""
 
-#: apps/course_metadata/models.py:263
+#: apps/course_metadata/models.py:261
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
 msgstr "密码字段仅支持句号、下划线或连字符，不支持其他特殊字符。"
 
-#: apps/course_metadata/models.py:326
+#: apps/course_metadata/models.py:324
 msgid "Corresponding organization code in an external product source"
 msgstr ""
 
-#: apps/course_metadata/models.py:383
+#: apps/course_metadata/models.py:381
 msgid "LevelType model translations"
 msgstr "LevelType 模型翻译"
 
-#: apps/course_metadata/models.py:408
+#: apps/course_metadata/models.py:406
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -947,756 +956,773 @@ msgid ""
 "program."
 msgstr "有资格完成此类课程的坐席类型。学员完成了相关课程，但报名的是其他类型的坐席，则该学员所完成的课程不会被计入课程的完成率中。"
 
-#: apps/course_metadata/models.py:422
+#: apps/course_metadata/models.py:420
 msgid "Please provide an image file with transparent background"
 msgstr "请提供一张透明背景的图片文件。"
 
-#: apps/course_metadata/models.py:425 apps/course_metadata/models.py:469
-#: apps/course_metadata/models.py:641 apps/course_metadata/models.py:679
-#: apps/course_metadata/models.py:1173
+#: apps/course_metadata/models.py:423 apps/course_metadata/models.py:467
+#: apps/course_metadata/models.py:639 apps/course_metadata/models.py:677
+#: apps/course_metadata/models.py:1236
 msgid "Leave this field blank to have the value generated automatically."
 msgstr "此字段留空，会自动生成值。"
 
-#: apps/course_metadata/models.py:466
+#: apps/course_metadata/models.py:464
 msgid "Name of the external source."
 msgstr ""
 
-#: apps/course_metadata/models.py:471
+#: apps/course_metadata/models.py:469
 msgid "Description of the external source."
 msgstr ""
 
-#: apps/course_metadata/models.py:476
+#: apps/course_metadata/models.py:474
 msgid "Programs of these types will be OFAC restricted"
 msgstr ""
 
-#: apps/course_metadata/models.py:490
+#: apps/course_metadata/models.py:488
 msgid "ProgramType model translations"
 msgstr "ProgramType 模型翻译"
 
-#: apps/course_metadata/models.py:504
+#: apps/course_metadata/models.py:502
 msgid "This mode requires ID verification."
-msgstr ""
+msgstr "此模式需要身份验证。"
 
-#: apps/course_metadata/models.py:507
+#: apps/course_metadata/models.py:505
 msgid "Completion can grant credit toward an organization’s degree."
-msgstr ""
+msgstr "若完成可以授予该机构的学位学分。"
 
-#: apps/course_metadata/models.py:511
+#: apps/course_metadata/models.py:509
 msgid ""
 "Certificate type granted if this mode is eligible for a certificate, or "
 "blank if not."
-msgstr ""
+msgstr "如果此模式符合证书条件，则授予证书类型，否则为空白。"
 
-#: apps/course_metadata/models.py:515
+#: apps/course_metadata/models.py:513
 msgid ""
 "Who gets paid for the course? Platform is the site owner, Organization is "
 "the school."
-msgstr ""
+msgstr "谁获得课程报酬？平台是网站所有者，组织是学校。"
 
-#: apps/course_metadata/models.py:612
+#: apps/course_metadata/models.py:610
 msgid "Sets the order for displaying Course Run Types."
-msgstr ""
+msgstr "设置显示课程运行类型的顺序。"
 
-#: apps/course_metadata/models.py:615
+#: apps/course_metadata/models.py:613
 msgid ""
 "Leave this blank to allow all orgs. Otherwise, specifies which orgs can see "
 "this course type in Publisher."
-msgstr ""
+msgstr "将此留空以允许所有组织。否则，指定哪些组织可以在 Publisher 中看到此课程类型。"
 
-#: apps/course_metadata/models.py:671
+#: apps/course_metadata/models.py:669
 msgid "Subject model translations"
 msgstr "对象模型翻译"
 
-#: apps/course_metadata/models.py:718
+#: apps/course_metadata/models.py:716
 msgid "Topic model translations"
 msgstr "主题模型翻译"
 
-#: apps/course_metadata/models.py:744
+#: apps/course_metadata/models.py:757
 msgid "SEO Meta tags for Products"
 msgstr ""
 
-#: apps/course_metadata/models.py:764
+#: apps/course_metadata/models.py:784
 msgid ""
 "The ID of the Taxi Form (by 2U) that would be rendered in place of the "
 "hubspot capture form"
-msgstr ""
+msgstr "将代替 hubspot 捕获表单呈现的出租车表单的 ID（2U）"
 
-#: apps/course_metadata/models.py:770
+#: apps/course_metadata/models.py:790
 msgid ""
 "The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
 "hubspot capture form"
-msgstr ""
+msgstr "将呈现的出租车表格分组（ 2U），而不是 hubspot 捕获表格"
 
-#: apps/course_metadata/models.py:794
+#: apps/course_metadata/models.py:814
 msgid "The URL of the paid landing page on external site"
-msgstr ""
+msgstr "外部网站付费登录页面的 URL"
 
-#: apps/course_metadata/models.py:800
+#: apps/course_metadata/models.py:820
 msgid "The URL of the organic landing page on external site"
-msgstr ""
+msgstr "外部网站上自然着陆页的 URL"
 
-#: apps/course_metadata/models.py:811
+#: apps/course_metadata/models.py:831
 msgid "The start date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "为营销目的提供的外部课程的开始日期"
 
-#: apps/course_metadata/models.py:815
+#: apps/course_metadata/models.py:835
 msgid "The ends date of the external course offering for marketing purpose"
 msgstr ""
 
-#: apps/course_metadata/models.py:819
+#: apps/course_metadata/models.py:839
 msgid "The suggested deadline for enrollment for marketing purpose"
-msgstr ""
+msgstr "出于营销目的建议的报名截止日期"
 
-#: apps/course_metadata/models.py:823
+#: apps/course_metadata/models.py:843
 msgid "The identifier for a product variant."
-msgstr ""
+msgstr "产品变体的标识符。"
 
-#: apps/course_metadata/models.py:827
+#: apps/course_metadata/models.py:847
 msgid "Course override"
 msgstr ""
 
-#: apps/course_metadata/models.py:828
+#: apps/course_metadata/models.py:848
 msgid "This field allows for override the default course term"
 msgstr ""
 
-#: apps/course_metadata/models.py:846
+#: apps/course_metadata/models.py:866
 msgid ""
 "This field contain external course marketing type specific to product lines"
 msgstr ""
 
-#: apps/course_metadata/models.py:910
+#: apps/course_metadata/models.py:940
 msgid "A list of major works by this person. Must be valid HTML."
-msgstr ""
+msgstr "此人的主要作品列表。必须是有效的 HTML。"
 
-#: apps/course_metadata/models.py:918
+#: apps/course_metadata/models.py:948
 msgid "People"
 msgstr "人们"
 
-#: apps/course_metadata/models.py:1029
+#: apps/course_metadata/models.py:1059
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
-msgstr ""
+msgstr "添加合作者图片，请确保其尺寸为 200x100px"
 
-#: apps/course_metadata/models.py:1049
+#: apps/course_metadata/models.py:1083
 msgid "U.S. Value Per Lead"
-msgstr ""
+msgstr "美国每条线索的价值"
 
-#: apps/course_metadata/models.py:1050
+#: apps/course_metadata/models.py:1084
 msgid "U.S. value per lead in U.S. dollars."
-msgstr ""
+msgstr "以美元计算的每条线索的美国价值。"
 
-#: apps/course_metadata/models.py:1054
+#: apps/course_metadata/models.py:1089
 msgid "International Value Per Lead"
-msgstr ""
+msgstr "每条线索的国际价值"
 
-#: apps/course_metadata/models.py:1055
+#: apps/course_metadata/models.py:1090
 msgid "International value per lead in U.S. dollars."
-msgstr ""
-
-#: apps/course_metadata/models.py:1059
-msgid "U.S. Value Per Click"
-msgstr ""
-
-#: apps/course_metadata/models.py:1060
-msgid "U.S. value per click in U.S. dollars."
-msgstr ""
-
-#: apps/course_metadata/models.py:1064
-msgid "International Value Per Click"
-msgstr ""
-
-#: apps/course_metadata/models.py:1065
-msgid "International value per click in U.S. dollars."
-msgstr ""
+msgstr "每条线索的国际价值（美元）。"
 
 #: apps/course_metadata/models.py:1095
-msgid "Latitude"
-msgstr ""
+msgid "U.S. Value Per Click"
+msgstr "美国每次点击价值"
+
+#: apps/course_metadata/models.py:1096
+msgid "U.S. value per click in U.S. dollars."
+msgstr "以美元计算的每次点击的美国价值。"
+
+#: apps/course_metadata/models.py:1101
+msgid "International Value Per Click"
+msgstr "每次点击的国际价值"
 
 #: apps/course_metadata/models.py:1102
+msgid "International value per click in U.S. dollars."
+msgstr "每次点击的国际价值（美元）。"
+
+#: apps/course_metadata/models.py:1140
+msgid "Latitude"
+msgstr "纬度"
+
+#: apps/course_metadata/models.py:1147
 msgid "Longitude"
-msgstr ""
+msgstr "经度"
 
-#: apps/course_metadata/models.py:1129
+#: apps/course_metadata/models.py:1184
 msgid "Allowlist"
-msgstr ""
+msgstr "白名单"
 
-#: apps/course_metadata/models.py:1130
+#: apps/course_metadata/models.py:1185
 msgid "Blocklist"
-msgstr ""
+msgstr "黑名单"
 
-#: apps/course_metadata/models.py:1169
+#: apps/course_metadata/models.py:1232
 msgid ""
 "When making reruns for this course, they will use this key instead of the "
 "course key."
-msgstr ""
+msgstr "在重新运行此课程时，他们将使用此密钥而不是课程密钥。"
 
-#: apps/course_metadata/models.py:1186
+#: apps/course_metadata/models.py:1249
 msgid ""
 "The actual duration of this course as experienced by learners who complete "
 "it."
 msgstr ""
 
-#: apps/course_metadata/models.py:1207
+#: apps/course_metadata/models.py:1270
 msgid "Add the course image"
 msgstr "添加课程图片"
 
-#: apps/course_metadata/models.py:1210 apps/course_metadata/models.py:2688
+#: apps/course_metadata/models.py:1273 apps/course_metadata/models.py:2838
 msgid "FAQ"
 msgstr "常见问题解答"
 
-#: apps/course_metadata/models.py:1213
+#: apps/course_metadata/models.py:1276
 msgid "Total number of learners who have enrolled in this course"
-msgstr ""
+msgstr "已注册此课程的学习者总数"
 
-#: apps/course_metadata/models.py:1218
+#: apps/course_metadata/models.py:1281
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
-msgstr ""
+msgstr "在过去 6 个月内注册此课程的学习者总数"
 
-#: apps/course_metadata/models.py:1232
+#: apps/course_metadata/models.py:1295
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr "课程编号格式 例如： CS002x, BIO1.1x, BIO1.2x"
 
-#: apps/course_metadata/models.py:1246
+#: apps/course_metadata/models.py:1309
 msgid "Additional Information"
-msgstr ""
+msgstr "其他信息"
 
-#: apps/course_metadata/models.py:1268
+#: apps/course_metadata/models.py:1331
 msgid "The last time this course was modified in the database."
 msgstr ""
 
-#: apps/course_metadata/models.py:1273
+#: apps/course_metadata/models.py:1336
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
-msgstr ""
+msgstr "该字段表示该课程是否在企业订阅目录中"
 
-#: apps/course_metadata/models.py:1281 apps/course_metadata/models.py:2845
+#: apps/course_metadata/models.py:1344 apps/course_metadata/models.py:2995
 msgid ""
 "If checked, this item will not be indexed in Algolia and will not show up in"
 " search results."
 msgstr ""
 
-#: apps/course_metadata/models.py:1289 apps/course_metadata/models.py:2853
+#: apps/course_metadata/models.py:1352 apps/course_metadata/models.py:3003
 msgid "If checked, the About Page will have a meta tag with noindex value"
 msgstr ""
 
-#: apps/course_metadata/models.py:1475
+#: apps/course_metadata/models.py:1540
 msgid "Future"
-msgstr ""
+msgstr "未来"
 
-#: apps/course_metadata/models.py:1477
+#: apps/course_metadata/models.py:1542
 msgid "Past"
-msgstr ""
+msgstr "过去的"
 
-#: apps/course_metadata/models.py:1805 apps/course_metadata/models.py:2699
+#: apps/course_metadata/models.py:1874 apps/course_metadata/models.py:2849
 msgid "Blocked"
-msgstr ""
+msgstr "封锁"
 
-#: apps/course_metadata/models.py:1806 apps/course_metadata/models.py:2700
+#: apps/course_metadata/models.py:1875 apps/course_metadata/models.py:2850
 msgid "Unrestricted"
-msgstr ""
+msgstr "无限制"
 
-#: apps/course_metadata/models.py:1819
+#: apps/course_metadata/models.py:1888
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
 msgstr "本次开课专用标题。将此值留空以默认为母级课程的标题。"
 
-#: apps/course_metadata/models.py:1828
+#: apps/course_metadata/models.py:1897
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
 msgstr "本次开课专用简介。将此值留空以默认为母级课程的简介"
 
-#: apps/course_metadata/models.py:1832
+#: apps/course_metadata/models.py:1901
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
 msgstr "本次开课专用详情介绍。将此值留空以默认为父级课程的详情介绍"
 
-#: apps/course_metadata/models.py:1837
+#: apps/course_metadata/models.py:1906
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr "完成一门课程开课每周所需要投入的最少小时数"
 
-#: apps/course_metadata/models.py:1840
+#: apps/course_metadata/models.py:1909
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr "完成一门课程开课每周所需要投入的最多小时数"
 
-#: apps/course_metadata/models.py:1843
+#: apps/course_metadata/models.py:1912
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr "本次开课预计所需周数。"
 
-#: apps/course_metadata/models.py:1850
+#: apps/course_metadata/models.py:1919
 msgid "Total number of learners who have enrolled in this course run"
-msgstr ""
+msgstr "参加本次课程运行的学习者总数"
 
-#: apps/course_metadata/models.py:1854
+#: apps/course_metadata/models.py:1923
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
-msgstr ""
+msgstr "在过去 6 个月内注册参加此课程的学习者总数"
 
-#: apps/course_metadata/models.py:1867
+#: apps/course_metadata/models.py:1936
 msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
 "this value will be overwritten by the \"Course Visibility In Catalog\" field"
 " in Studio via Refresh Course Metadata."
-msgstr ""
+msgstr "此运行是否应从 API 响应中隐藏。不要在此处编辑 - 此值将通过刷新课程元数据被 Studio 中的“目录中的课程可见性”字段覆盖。"
 
-#: apps/course_metadata/models.py:1873
+#: apps/course_metadata/models.py:1942
 msgid "Indicates whether the course relation has been manually overridden."
 msgstr "表明课程关系是否已被手动重写。"
 
-#: apps/course_metadata/models.py:1880
+#: apps/course_metadata/models.py:1949
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
 msgstr "本期开课“您将学习到什么”的描述。将此值留空白将默认继承原课程的Outcome 属性。"
 
-#: apps/course_metadata/models.py:1893 apps/course_metadata/models.py:2881
+#: apps/course_metadata/models.py:1962 apps/course_metadata/models.py:3031
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
-msgstr ""
+msgstr "将 OFAC 限制文本添加到营销网站的常见问题解答部分"
 
-#: apps/course_metadata/models.py:1913
+#: apps/course_metadata/models.py:1982
 msgid ""
 "This calculated field signifies if this course run is in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "此计算字段表示此课程运行是否在企业订阅目录中"
 
-#: apps/course_metadata/models.py:2238 apps/course_metadata/models.py:2251
+#: apps/course_metadata/models.py:2322 apps/course_metadata/models.py:2335
 msgid "Current"
 msgstr "当前"
 
-#: apps/course_metadata/models.py:2240
+#: apps/course_metadata/models.py:2324
 msgid "Starting Soon"
 msgstr "即将开课"
 
-#: apps/course_metadata/models.py:2290
+#: apps/course_metadata/models.py:2374
 msgid ""
 "Switching seat types after being reviewed is not supported. Please reach out"
 " to your project coordinator for additional help if necessary."
+msgstr "不支持审核后更换座位类型。如有必要，请联系您的项目协调员以获得更多帮助。"
+
+#: apps/course_metadata/models.py:2662
+msgid "Change careers"
 msgstr ""
 
-#: apps/course_metadata/models.py:2689
+#: apps/course_metadata/models.py:2663
+msgid "Job advancement"
+msgstr ""
+
+#: apps/course_metadata/models.py:2664
+msgid "Learn valuable skills"
+msgstr ""
+
+#: apps/course_metadata/models.py:2665
+msgid "Learn for fun"
+msgstr ""
+
+#: apps/course_metadata/models.py:2839
 msgid "FAQs"
 msgstr "常见问题解答"
 
-#: apps/course_metadata/models.py:2704
+#: apps/course_metadata/models.py:2854
 msgid "The user-facing display title for this Program."
 msgstr "本方案面向用户的显示标题。"
 
-#: apps/course_metadata/models.py:2706
+#: apps/course_metadata/models.py:2856
 msgid "A brief, descriptive subtitle for the Program."
 msgstr "本方案简短明了的子标题。"
 
-#: apps/course_metadata/models.py:2708
+#: apps/course_metadata/models.py:2858
 msgid "A brief hook for the marketing website"
-msgstr ""
+msgstr "营销网站的简短挂钩"
 
-#: apps/course_metadata/models.py:2711
+#: apps/course_metadata/models.py:2861
 msgid "The lifecycle status of this Program."
 msgstr "本方案的开课周期状态。"
 
-#: apps/course_metadata/models.py:2715
+#: apps/course_metadata/models.py:2865
 msgid "Slug used to generate links to the marketing site"
 msgstr "用于生成销售网站链接的固定链接地址"
 
-#: apps/course_metadata/models.py:2721
+#: apps/course_metadata/models.py:2871
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
 msgstr "如果不勾选此框，则课程将按照上方选择框的顺序进行排序。"
 
-#: apps/course_metadata/models.py:2736
+#: apps/course_metadata/models.py:2886
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
 msgstr "此字段现在已被弃用（ECOM-6021）。此专业课程中，预计完成一期课程所需的周数。"
 
-#: apps/course_metadata/models.py:2762
+#: apps/course_metadata/models.py:2912
 msgid "DEPRECATED: Use the card image field"
-msgstr ""
+msgstr "已弃用：使用卡片图像字段"
 
-#: apps/course_metadata/models.py:2769
+#: apps/course_metadata/models.py:2919
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
 msgstr "API客户端可用此字段来决定课程方案页面的授课老师排序。此列表的授课老师应排名前于所有其他与此方案课程开课有关的授课老师。"
 
-#: apps/course_metadata/models.py:2780
+#: apps/course_metadata/models.py:2930
 msgid "The description of credit redemption for courses in program"
 msgstr "本方案课程的信用值兑换说明"
 
-#: apps/course_metadata/models.py:2785
+#: apps/course_metadata/models.py:2935
 msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr "允许一次性购买本方案课程"
 
-#: apps/course_metadata/models.py:2789
+#: apps/course_metadata/models.py:2939
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
 msgstr "在销售网站登录和搜索页面中隐藏此课程方案。可为此课程方案设置一个详情页面。"
 
-#: apps/course_metadata/models.py:2792
+#: apps/course_metadata/models.py:2942
 msgid "Total number of learners who have enrolled in courses this program"
-msgstr ""
+msgstr "已注册该计划课程的学习者总数"
 
-#: apps/course_metadata/models.py:2797
+#: apps/course_metadata/models.py:2947
 msgid ""
 "Total number of learners who have enrolled in courses in this program in the"
 " last 6 months"
-msgstr ""
+msgstr "在过去 6 个月内注册此计划课程的学习者总数"
 
-#: apps/course_metadata/models.py:2802
+#: apps/course_metadata/models.py:2952
 msgid ""
 "Number of credits a learner will earn upon successful completion of the "
 "program"
-msgstr ""
+msgstr "学习者成功完成课程后将获得的学分数"
 
-#: apps/course_metadata/models.py:2806
+#: apps/course_metadata/models.py:2956
 msgid ""
 "This calculated field signifies if all the courses in this program are "
 "included in the enterprise subscription catalog "
-msgstr ""
+msgstr "此计算字段表示此程序中的所有课程是否包含在企业订阅目录中"
 
-#: apps/course_metadata/models.py:2810
+#: apps/course_metadata/models.py:2960
 msgid ""
 "A field to override Organization short code alias specific for this program."
-msgstr ""
+msgstr "用于覆盖特定于此程序的组织短代码别名的字段。"
 
-#: apps/course_metadata/models.py:2817
+#: apps/course_metadata/models.py:2967
 msgid "A field to override Organization logo specific for this program."
-msgstr ""
+msgstr "用于覆盖特定于此程序的组织徽标的字段。"
 
-#: apps/course_metadata/models.py:2821
+#: apps/course_metadata/models.py:2971
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
-msgstr ""
+msgstr "此程序特定的主要主题字段。有用的字段，以防没有与此程序关联的课程。"
 
-#: apps/course_metadata/models.py:2826
+#: apps/course_metadata/models.py:2976
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "此程序特定的级别类型。有用的字段，以防没有与此程序关联的课程。"
 
-#: apps/course_metadata/models.py:2831
+#: apps/course_metadata/models.py:2981
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "该程序特定的语言代码。有用的字段，以防没有与此程序关联的课程。"
 
-#: apps/course_metadata/models.py:2865
+#: apps/course_metadata/models.py:3015
 msgid ""
 "Useful field to overwrite the duration of a program. It can be a text "
 "describing a period of time, Ex: 6-9 months."
 msgstr ""
 
-#: apps/course_metadata/models.py:2874
+#: apps/course_metadata/models.py:3024
 msgid ""
 "Pick a tag/label from the suggestions. To make a new tag, add a comma after "
 "the tag name."
-msgstr ""
+msgstr "从建议中选择一个标签。要创建新标签，请在标签名称后添加一个逗号。"
 
-#: apps/course_metadata/models.py:2885
+#: apps/course_metadata/models.py:3035
 msgid "The last time this program was modified."
 msgstr ""
 
-#: apps/course_metadata/models.py:3292 apps/course_metadata/models.py:3309
+#: apps/course_metadata/models.py:3447 apps/course_metadata/models.py:3464
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
-#: apps/course_metadata/models.py:3328
+#: apps/course_metadata/models.py:3483
 msgid "The actual rank number"
-msgstr ""
+msgstr "实际排名数"
 
-#: apps/course_metadata/models.py:3329
+#: apps/course_metadata/models.py:3484
 msgid "What does the rank number mean"
-msgstr ""
+msgstr "排名数字是什么意思"
 
-#: apps/course_metadata/models.py:3330
+#: apps/course_metadata/models.py:3485
 msgid "From where the rank is obtained"
-msgstr ""
+msgstr "从哪里获得排名"
 
-#: apps/course_metadata/models.py:3346
+#: apps/course_metadata/models.py:3501
 msgid "Callback URL to partner application flow"
-msgstr ""
+msgstr "合作伙伴应用程序流程的回调 URL"
 
-#: apps/course_metadata/models.py:3349
+#: apps/course_metadata/models.py:3504
 msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
-msgstr ""
+msgstr "项目总体排名（例如“美国排名第一”）"
 
-#: apps/course_metadata/models.py:3354
+#: apps/course_metadata/models.py:3509
 msgid ""
 "The 6 character hex value of the color to make the banner borders\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
-msgstr ""
+msgstr "横幅边框颜色的 6 个字符十六进制值（例如“#ff0000”等于红色）无需提供 `#`"
 
-#: apps/course_metadata/models.py:3363
+#: apps/course_metadata/models.py:3518
 msgid "Provide a campus image for the header of the degree"
-msgstr ""
+msgstr "为学位的标题提供校园照片"
 
-#: apps/course_metadata/models.py:3369
+#: apps/course_metadata/models.py:3524
 msgid "Provide a background image for the title section of the degree"
-msgstr ""
+msgstr "为学位的标题部分提供背景图片"
 
-#: apps/course_metadata/models.py:3374
+#: apps/course_metadata/models.py:3529
 msgid "The fine print that displays at the Tuition section's bottom"
-msgstr ""
+msgstr "显示在学费部分底部的细则"
 
-#: apps/course_metadata/models.py:3379
+#: apps/course_metadata/models.py:3534
 msgid "The fine print that displays at the Deadline section's bottom"
-msgstr ""
+msgstr "显示在截止日期部分底部的细则"
 
-#: apps/course_metadata/models.py:3386
+#: apps/course_metadata/models.py:3541
 msgid "The sailthru email list name to capture leads"
-msgstr ""
+msgstr "用于捕获潜在客户的 sailthru 电子邮件列表名称"
 
-#: apps/course_metadata/models.py:3400
+#: apps/course_metadata/models.py:3555
 msgid "Please provide an image file for the lead capture banner."
-msgstr ""
+msgstr "请提供潜在客户捕获横幅的图像文件。"
 
-#: apps/course_metadata/models.py:3403
+#: apps/course_metadata/models.py:3558
 msgid "The Hubspot form ID for the lead capture form"
-msgstr ""
+msgstr "潜在客户捕获表单的 Hubspot 表单 ID"
 
-#: apps/course_metadata/models.py:3409
+#: apps/course_metadata/models.py:3564
 msgid "URL to micromasters landing page"
-msgstr ""
+msgstr "Micromaster登录页面的 URL"
 
-#: apps/course_metadata/models.py:3415
+#: apps/course_metadata/models.py:3570
 msgid "Micromasters verbose title"
-msgstr ""
+msgstr "Micromasters 冗长的标题"
 
-#: apps/course_metadata/models.py:3421
+#: apps/course_metadata/models.py:3576
 msgid "Micromasters descriptive paragraph"
-msgstr ""
+msgstr "Micromasters 描述段落"
 
-#: apps/course_metadata/models.py:3434
+#: apps/course_metadata/models.py:3589
 msgid "Customized background image for the MicroMasters section."
-msgstr ""
+msgstr "MicroMasters 部分的自定义背景图像。"
 
-#: apps/course_metadata/models.py:3438
+#: apps/course_metadata/models.py:3593
 msgid ""
 "Override org name if micromasters program comes from different organization "
 "than Masters program"
-msgstr ""
+msgstr "如果微型硕士课程来自与硕士课程不同的组织，则覆盖组织名称"
 
-#: apps/course_metadata/models.py:3445
+#: apps/course_metadata/models.py:3600
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
-msgstr ""
+msgstr "搜索卡的排名显示（例如“#1 in the US”"
 
-#: apps/course_metadata/models.py:3451
+#: apps/course_metadata/models.py:3606
 msgid "Cost display for search card (e.g. \"$9,999\""
-msgstr ""
+msgstr "搜索卡的费用显示（例如“$9,999”"
 
-#: apps/course_metadata/models.py:3457
+#: apps/course_metadata/models.py:3612
 msgid "Number of courses for search card (e.g. \"11 Courses\""
-msgstr ""
+msgstr "搜索卡的课程数量（例如“11 门课程”"
 
-#: apps/course_metadata/models.py:3465
+#: apps/course_metadata/models.py:3620
 msgid ""
 "Designates whether the degree should be displayed on the owning "
 "organization's page"
 msgstr ""
 
-#: apps/course_metadata/models.py:3482
+#: apps/course_metadata/models.py:3637
 msgid "The redirect URL of the degree on external site"
-msgstr ""
+msgstr "学位在外部网站上的重定向 URL"
 
-#: apps/course_metadata/models.py:3487
+#: apps/course_metadata/models.py:3642
 msgid "The URL of the landing page on external site"
-msgstr ""
+msgstr "外部网站着陆页的 URL"
 
-#: apps/course_metadata/models.py:3522
+#: apps/course_metadata/models.py:3677
 msgid "Bell"
-msgstr ""
+msgstr "钟"
 
-#: apps/course_metadata/models.py:3523
+#: apps/course_metadata/models.py:3678
 msgid "Certificate"
-msgstr ""
+msgstr "证书"
 
-#: apps/course_metadata/models.py:3524
+#: apps/course_metadata/models.py:3679
 msgid "Checkmark"
-msgstr ""
+msgstr "复选标记"
 
-#: apps/course_metadata/models.py:3525
+#: apps/course_metadata/models.py:3680
 msgid "Clock"
-msgstr ""
+msgstr "时钟"
 
-#: apps/course_metadata/models.py:3526
+#: apps/course_metadata/models.py:3681
 msgid "Desktop"
-msgstr ""
+msgstr "桌面"
 
-#: apps/course_metadata/models.py:3527
+#: apps/course_metadata/models.py:3682
 msgid "Info"
-msgstr ""
+msgstr "信息"
 
-#: apps/course_metadata/models.py:3528
+#: apps/course_metadata/models.py:3683
 msgid "Sitemap"
-msgstr ""
+msgstr "网站导航"
 
-#: apps/course_metadata/models.py:3529
+#: apps/course_metadata/models.py:3684
 msgid "User"
-msgstr ""
+msgstr "用户"
 
-#: apps/course_metadata/models.py:3530
+#: apps/course_metadata/models.py:3685
 msgid "Dollar"
-msgstr ""
+msgstr "美元"
 
-#: apps/course_metadata/models.py:3531
+#: apps/course_metadata/models.py:3686
 msgid "Book"
-msgstr ""
+msgstr "书"
 
-#: apps/course_metadata/models.py:3532
+#: apps/course_metadata/models.py:3687
 msgid "Mortar Board"
-msgstr ""
+msgstr "砂浆板"
 
-#: apps/course_metadata/models.py:3533
+#: apps/course_metadata/models.py:3688
 msgid "Star"
-msgstr ""
+msgstr "星星"
 
-#: apps/course_metadata/models.py:3534
+#: apps/course_metadata/models.py:3689
 msgid "Trophy"
-msgstr ""
+msgstr "奖杯"
 
-#: apps/course_metadata/models.py:3538
+#: apps/course_metadata/models.py:3693
 msgid "Icon FA class"
-msgstr ""
+msgstr "图标FA类"
 
-#: apps/course_metadata/models.py:3539
+#: apps/course_metadata/models.py:3694
 msgid "Paired text"
-msgstr ""
+msgstr "配对文本"
 
-#: apps/course_metadata/models.py:3558
+#: apps/course_metadata/models.py:3713
 msgid "Deadline applies for this semester (e.g. Spring 2019"
-msgstr ""
+msgstr "本学期适用截止日期（例如 2019 年春季"
 
-#: apps/course_metadata/models.py:3562
+#: apps/course_metadata/models.py:3717
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
-msgstr ""
+msgstr "描述截止日期（例如提前录取截止日期）"
 
-#: apps/course_metadata/models.py:3566
+#: apps/course_metadata/models.py:3721
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
-msgstr ""
+msgstr "截止日期之后的日期（例如 2019 年 1 月 1 日）"
 
-#: apps/course_metadata/models.py:3570
+#: apps/course_metadata/models.py:3725
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
-msgstr ""
+msgstr "截止日期到期后的时间（例如美国东部标准时间晚上 11:59）。"
 
-#: apps/course_metadata/models.py:3591
+#: apps/course_metadata/models.py:3746
 msgid "Describes what the cost is for (e.g. Tuition)"
-msgstr ""
+msgstr "描述成本是什么（例如学费）"
 
-#: apps/course_metadata/models.py:3595
+#: apps/course_metadata/models.py:3750
 msgid "String-based field stating how much the cost is (e.g. $1000)."
-msgstr ""
+msgstr "基于字符串的字段，说明成本是多少（例如 1000 美元）。"
 
-#: apps/course_metadata/models.py:3623
+#: apps/course_metadata/models.py:3778
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must be\n"
 "            valid HTML."
-msgstr ""
+msgstr "学位课件的高级概述。 “简短”文本是“marketing_text”的前 750 个字符，并且必须是有效的 HTML。"
 
-#: apps/course_metadata/models.py:3631
+#: apps/course_metadata/models.py:3786
 msgid "A high-level overview of the degree's courseware."
-msgstr ""
+msgstr "学位课件的高级概述。"
 
-#: apps/course_metadata/models.py:3707
+#: apps/course_metadata/models.py:3862
 msgid "Organization name"
-msgstr ""
+msgstr "机构名称"
 
-#: apps/course_metadata/models.py:3729
+#: apps/course_metadata/models.py:3884
 msgid "These programs are for a different partner than the pathway itself: {}"
-msgstr ""
+msgstr "这些计划针对的是与途径本身不同的合作伙伴：{}"
 
-#: apps/course_metadata/models.py:3741
+#: apps/course_metadata/models.py:3896
 msgid "Facebook"
 msgstr "脸书"
 
-#: apps/course_metadata/models.py:3742
+#: apps/course_metadata/models.py:3897
 msgid "Twitter"
 msgstr "推特"
 
-#: apps/course_metadata/models.py:3743
+#: apps/course_metadata/models.py:3898
 msgid "Blog"
 msgstr "博客"
 
-#: apps/course_metadata/models.py:3744
+#: apps/course_metadata/models.py:3899
 msgid "Others"
 msgstr "其他"
 
-#: apps/course_metadata/models.py:3796
+#: apps/course_metadata/models.py:3951
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url slug {url_slug}"
-msgstr ""
+msgstr "合作伙伴 {partner_key} 和课程合作伙伴 {course_partner_key} 在尝试保存 url slug {url_slug} 时不匹配"
 
-#: apps/course_metadata/models.py:3816
+#: apps/course_metadata/models.py:3971
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url redirect {url_path}"
-msgstr ""
+msgstr "合作伙伴 {partner_key} 和课程合作伙伴 {course_partner_key} 在尝试保存 url 重定向 {url_path} 时不匹配"
 
-#: apps/course_metadata/models.py:3837
+#: apps/course_metadata/models.py:3992
 msgid "It expects the data will be provided in a csv file format "
 msgstr ""
 
-#: apps/course_metadata/models.py:3849 apps/course_metadata/models.py:3862
-#: apps/course_metadata/models.py:3882 apps/course_metadata/models.py:3895
+#: apps/course_metadata/models.py:4004 apps/course_metadata/models.py:4017
+#: apps/course_metadata/models.py:4030 apps/course_metadata/models.py:4050
+#: apps/course_metadata/models.py:4063 apps/course_metadata/models.py:4076
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
-msgstr ""
+msgstr "它期望数据将以 csv 文件格式提供，第一行包含所有标题。"
 
-#: apps/course_metadata/models.py:3945
+#: apps/course_metadata/models.py:4126
 msgid "Course Run IDs"
-msgstr ""
+msgstr "课程运行 ID"
 
-#: apps/course_metadata/models.py:3961
+#: apps/course_metadata/models.py:4142
 msgid "Profile Image UUIDs"
 msgstr "个人资料图片 UUID"
 
-#: apps/course_metadata/models.py:3968
+#: apps/course_metadata/models.py:4149
 msgid "Tag"
 msgstr "标签"
 
-#: apps/course_metadata/models.py:3969
+#: apps/course_metadata/models.py:4150
 msgid "Course UUIDs"
 msgstr "课程 UUID"
 
-#: apps/course_metadata/models.py:3984
+#: apps/course_metadata/models.py:4165
 msgid "Remove All Redirects"
 msgstr "删除所有重定向"
 
-#: apps/course_metadata/models.py:3985
+#: apps/course_metadata/models.py:4166
 msgid "Url Paths"
 msgstr "网址路径"
 
-#: apps/course_metadata/models.py:3993
+#: apps/course_metadata/models.py:4174
 msgid "Add redirects from all published course url slugs"
-msgstr ""
+msgstr "从所有已发布的课程 url slugs 添加重定向"
 
-#: apps/course_metadata/models.py:3994 apps/taxonomy_support/models.py:55
+#: apps/course_metadata/models.py:4175 apps/taxonomy_support/models.py:55
 msgid "Course uuids"
-msgstr ""
+msgstr "课程uuid"
 
 #: apps/course_metadata/salesforce.py:78
 msgid "Attempted to query Salesforce with no client for partner={}"
-msgstr ""
+msgstr "尝试在没有客户端的情况下查询 Salesforce for partner={}"
 
 #: apps/course_metadata/salesforce.py:237
 msgid "Unable to associate a case for comments for {}"
-msgstr ""
+msgstr "无法为 {} 的评论关联案例"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
 msgid "Cancel"
@@ -1714,16 +1740,16 @@ msgstr "保存"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "主页"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
-msgstr ""
+msgstr "课程技巧"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
 msgid "Refresh Course Skills"
-msgstr ""
+msgstr "刷新课程技能"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:32
@@ -1752,7 +1778,7 @@ msgstr "edX团队"
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s 在 %(time)s 上对 %(course_name)s %(date)s 发表了以下评论"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:9
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:3
@@ -1777,7 +1803,7 @@ msgstr "%(course_name)s的%(course_run_number)s开课介绍页面已发布，不
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:24
 #, python-brace-format
 msgid "{link_start}{preview_url}{link_middle}View this About page.{link_end}"
-msgstr ""
+msgstr "{link_start}{preview_url}{link_middle}查看此“关于”页面。{link_end}"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:31
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:36
@@ -1786,12 +1812,12 @@ msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, please contact {link_start}{contact_us_email}{link_middle}your "
 "Project Coordinator{link_end}."
-msgstr ""
+msgstr "注意：此电子邮件地址无法接收回复。如有问题或意见，请联系{link_start}{contact_us_email}{link_middle}您的项目协调员{link_end}。"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:11
 #, python-format
 msgid "View this About page. %(preview_url)s"
-msgstr ""
+msgstr "查看此关于页面。 %(preview_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:15
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:25
@@ -1799,7 +1825,7 @@ msgstr ""
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, please contact your Project Coordinator at %(contact_us_email)s."
-msgstr ""
+msgstr "注意：此电子邮件地址无法接收回复。如有问题或意见，请联系您的项目协调员 %(contact_us_email)s。"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:14
 #, python-brace-format
@@ -1807,41 +1833,41 @@ msgid ""
 "{org_name} has submitted {course_key} for review. "
 "{link_start}{course_page_url}{link_middle}View this course run in "
 "Publisher{link_end} to review the changes and mark it as reviewed."
-msgstr ""
+msgstr "{org_name} 已提交 {course_key} 以供审核。 {link_start}{course_page_url}{link_middle}查看在 Publisher 中运行的此课程{link_end} 以查看更改并将其标记为已查看。"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:20
 #, python-brace-format
 msgid ""
 "This is a good time to {link_start}{studio_url}{link_middle}review this "
 "course run in Studio{link_end}."
-msgstr ""
+msgstr "现在是{link_start}{studio_url}{link_middle}回顾这门在 Studio 中运行的课程{link_end}的好时机。"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:27
 #, python-brace-format
 msgid ""
 "Visit the {link_start}{restricted_admin_url}{link_middle}restricted course "
 "admin page{link_end} to set embargo rules for this course, as needed."
-msgstr ""
+msgstr "访问{link_start}{restricted_admin_url}{link_middle}受限课程管理页面{link_end}，根据需要为该课程设置禁止规则。"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:6
 #, python-format
 msgid "%(org_name)s has submitted %(course_key)s for review."
-msgstr ""
+msgstr "%(org_name)s 已提交 %(course_key)s 以供审核。"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:10
 #, python-format
 msgid "Publisher page: %(course_page_url)s"
-msgstr ""
+msgstr "发布者页面：%(course_page_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:14
 #, python-format
 msgid "Studio page: %(studio_url)s"
-msgstr ""
+msgstr "工作室页面：%(studio_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:19
 #, python-format
 msgid "Restricted Course admin: %(restricted_admin_url)s"
-msgstr ""
+msgstr "限制课程管理员：%(restricted_admin_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:15
 #, python-brace-format
@@ -1849,7 +1875,7 @@ msgid ""
 "{org_name} has submitted {course_name} for review. "
 "{link_start}{course_page_url}{link_middle}View this course run in "
 "Publisher{link_end} to determine OFAC status."
-msgstr ""
+msgstr "{org_name} 已提交 {course_name} 以供审核。 {link_start}{course_page_url}{link_middle}查看在 Publisher 中运行的此课程{link_end} 以确定 OFAC 状态。"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:21
 #, python-brace-format
@@ -1857,23 +1883,23 @@ msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, please contact {link_start}{contact_us_email}{link_middle}the "
 "Project Coordinator{link_end}."
-msgstr ""
+msgstr "注意：此电子邮件地址无法接收回复。如有问题或意见，请联系{link_start}{contact_us_email}{link_middle}项目协调员{link_end}。"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:6
 #, python-format
 msgid "%(org_name)s has submitted %(course_name)s for review."
-msgstr ""
+msgstr "%(org_name)s 已提交 %(course_name)s 以供审核。"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:11
 msgid "View this course run in Publisher above to determine OFAC status."
-msgstr ""
+msgstr "在上面的 Publisher 中查看此课程以确定 OFAC 状态。"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:15
 #, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, please contact the Project Coordinator at %(contact_us_email)s."
-msgstr ""
+msgstr "注意：此电子邮件地址无法接收回复。如有问题或意见，请联系项目协调员 %(contact_us_email)s。"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:15
 #, python-brace-format
@@ -1881,7 +1907,7 @@ msgid ""
 "The {link_start}{course_page_url}{link_middle}{course_run_number} course "
 "run{link_end} of {course_name} has been reviewed and approved by "
 "{platform_name}."
-msgstr ""
+msgstr "{course_name} 的{link_start}{course_page_url}{link_middle}{course_run_number}课程运行{link_end}已经过{a03fe5b5347.58dz0}的审查和批准"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:22
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:12
@@ -1889,28 +1915,28 @@ msgstr ""
 msgid ""
 "The course run about page will be published on %(go_live_date)s, pending no "
 "further edits."
-msgstr ""
+msgstr "关于页面的课程运行将在 %(go_live_date)s 上发布，等待进一步编辑。"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:28
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:16
 msgid "The course run about page is now published."
-msgstr ""
+msgstr "关于页面的课程运行现已发布。"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:6
 #, python-format
 msgid ""
 "The %(course_run_number)s course run of %(course_name)s has been reviewed "
 "and approved by %(platform_name)s."
-msgstr ""
+msgstr "%(course_name)s 的 %(course_run_number)s 课程已通过 %(platform_name)s 审核并批准。"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:21
 #, python-format
 msgid "View the course run in Publisher: %(course_page_url)s"
-msgstr ""
+msgstr "查看发布者中运行的课程：%(course_page_url)s"
 
 #: apps/course_metadata/utils.py:367
 msgid "Special characters not allowed in Course Number."
-msgstr ""
+msgstr "课程编号中不允许使用特殊字符。"
 
 #: apps/course_metadata/validators.py:30
 #, python-brace-format
@@ -1955,7 +1981,7 @@ msgstr "课程技能更新成功。"
 msgid ""
 "Request could not be completed due to an incorrect ElasticSearch query "
 "parameters"
-msgstr ""
+msgstr "由于 ElasticSearch 查询参数不正确，请求无法完成"
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
@@ -1963,19 +1989,19 @@ msgstr "翻译名称"
 
 #: apps/ietf_language_tags/models.py:38
 msgid "LanguageTag model translations"
-msgstr ""
+msgstr "LanguageTag 模型翻译"
 
 #: apps/learner_pathway/choices.py:7
 msgid "Inactive"
-msgstr ""
+msgstr "无效"
 
 #: apps/learner_pathway/models.py:85
 msgid "Title of the learner pathway."
-msgstr ""
+msgstr "学习者途径的标题。"
 
 #: apps/learner_pathway/models.py:88
 msgid "Course/Program associated pathways also appear in search results"
-msgstr ""
+msgstr "与课程/项目相关的途径也会出现在搜索结果中"
 
 #: apps/learner_pathway/models.py:91
 msgid "The active/inactive status of this Pathway."
@@ -2023,40 +2049,40 @@ msgstr "组织角色"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
 msgid "Update the course recommendations based on skills."
-msgstr ""
+msgstr "根据技能更新课程推荐。"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:41
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
-msgstr ""
+msgstr "使用来自 UpdateCourseRecommendationsConfig 模型的参数而不是命令行。"
 
 #: apps/taxonomy_support/models.py:24
 msgid "The original course, whose recommendation is stored here."
-msgstr ""
+msgstr "原始课程，其推荐存储在此处。"
 
 #: apps/taxonomy_support/models.py:29
 msgid ""
 "This is the course recommended after learner completes the original course."
-msgstr ""
+msgstr "这是学习者完成原始课程后推荐的课程。"
 
 #: apps/taxonomy_support/models.py:32
 msgid "Ratio of number of common skills and total skill count."
-msgstr ""
+msgstr "常用技能数与总技能数的比值。"
 
 #: apps/taxonomy_support/models.py:35
 msgid ""
 "Count of common skills between the original course and recommended course."
-msgstr ""
+msgstr "原始课程和推荐课程之间的共同技能计数。"
 
 #: apps/taxonomy_support/models.py:38
 msgid "Ratio of number of common subjects and total subject count."
-msgstr ""
+msgstr "普通科目数量与科目总数的比率。"
 
 #: apps/taxonomy_support/models.py:41
 msgid ""
 "Count of common subjects between the original course and recommended course."
-msgstr ""
+msgstr "原始课程和推荐课程之间共同科目的计数。"
 
 #: apps/taxonomy_support/models.py:46
 msgid "Course Recommendation"
@@ -2068,14 +2094,14 @@ msgstr "课程推荐"
 
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
-msgstr ""
+msgstr "添加对所有已发布课程的推荐"
 
 #: apps/taxonomy_support/models.py:58
 msgid ""
 "Adds recommendations for courses created or modified in the past num days"
-msgstr ""
+msgstr "为过去 num 天内创建或修改的课程添加建议"
 
-#: apps/taxonomy_support/providers.py:128
+#: apps/taxonomy_support/providers.py:162
 msgid "No partner object found!"
 msgstr ""
 
