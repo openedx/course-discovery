@@ -20,7 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
-    Video
+    Source, Video
 )
 from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
@@ -45,6 +45,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
     PAGE_SIZE = 50
+
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
+        super().__init__(partner, api_url, max_workers, is_threadsafe, enable_api)
+        self.default_product_source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
 
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
@@ -216,6 +220,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
                                                                   defaults=defaults)
 
             course.authoring_organizations.add(organization)
+
+            course.product_source = self.default_product_source
+            course.save()
 
         return (course, created)
 

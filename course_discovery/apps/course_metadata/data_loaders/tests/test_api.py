@@ -7,6 +7,7 @@ import ddt
 import pytest
 import pytz
 import responses
+from django.conf import settings
 from django.core.management import CommandError
 from django.http.response import HttpResponse
 from django.test import TestCase
@@ -26,7 +27,8 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory
 )
 from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
 from course_discovery.apps.course_metadata.utils import subtract_deadline_delta
@@ -64,6 +66,12 @@ class AbstractDataLoaderTest(TestCase):
 @ddt.ddt
 class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.default_product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        cls.non_default_product_source = SourceFactory(slug="not-default-product-source")
 
     @property
     def api_url(self):
@@ -173,6 +181,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.everything.get(key=f"{datum['org']}+{datum['number']}", draft=False)
             mock_logger.info.assert_any_call(f"Course created with uuid {str(course.uuid)} and key {course.key}")
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
+            assert course.product_source == self.default_product_source
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -245,6 +254,35 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert original_run2_deadline != updated_run2_upgrade_deadline
         # Make sure the credit seat with a course run end date is unchanged
         assert run3.seats.first().upgrade_deadline is None
+
+    @responses.activate
+    def test_product_source_not_changed_on_update(self):
+        """
+        Verify that if an existing course is updated through the courses
+        api, its product source is not affected.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
+        api_data = self.mock_api()
+
+        course_with_non_default_source = CourseFactory(product_source=self.non_default_product_source)
+
+        assert Course.objects.count() == 1
+        assert CourseRun.objects.count() == 0
+        assert course_with_non_default_source.product_source == self.non_default_product_source
+
+        self.loader.ingest()
+        # Verify the API was called with the correct authorization header
+        self.assert_api_called(4)
+
+        # Verify the CourseRuns and Courses were created correctly
+        assert CourseRun.objects.count() == len(api_data)
+        courses_count = Course.objects.count()
+        assert courses_count > 1
+
+        # Verify that existing course's product source is not affected
+        course_with_non_default_source.refresh_from_db()
+        assert course_with_non_default_source.product_source == self.non_default_product_source
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
