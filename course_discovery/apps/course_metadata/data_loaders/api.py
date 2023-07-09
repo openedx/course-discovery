@@ -218,7 +218,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             course.authoring_organizations.add(organization)
 
             # Set the default product source
-            course.product_source=Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+            course.product_source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
             course.save()
 
         return (course, created)

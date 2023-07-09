@@ -7,8 +7,8 @@ import ddt
 import pytest
 import pytz
 import responses
-from django.core.management import CommandError
 from django.conf import settings
+from django.core.management import CommandError
 from django.http.response import HttpResponse
 from django.test import TestCase
 from edx_django_utils.cache import TieredCache
@@ -27,7 +27,8 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory, SourceFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory
 )
 from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
 from course_discovery.apps.course_metadata.utils import subtract_deadline_delta
@@ -276,7 +277,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert courses_created_count > 0
 
         # Verify that all created courses have the default product source
-        product_source_slugs = Course.objects.select_related('product_source').values_list('product_source__slug', flat=True)
+        product_source_slugs = (
+            Course.objects.select_related('product_source')
+            .values_list('product_source__slug', flat=True)
+        )
         assert set(product_source_slugs) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
 
         # Change an existing course's product source and ensure it is not reset to the default by
@@ -288,7 +292,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
         assert CourseRun.objects.count() == len(api_data)
         assert Course.objects.count() == courses_created_count
-        product_source_slugs = Course.objects.select_related('product_source').values_list('product_source__slug', flat=True)
+        product_source_slugs = (
+            Course.objects.select_related('product_source')
+            .values_list('product_source__slug', flat=True)
+        )
         assert product_source_slugs[0] == self.non_default_product_source.slug
         assert set(product_source_slugs[1:]) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
 
