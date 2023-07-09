@@ -739,6 +739,12 @@ class SalesforceTests(TestCase):
 
 
 class TestCourseDataUpdateSignal(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        factories.SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+
     def setUp(self):
         self.course_key = CourseKey.from_string('course-v1:SC+BreadX+3T2015')
         self.scheduling_data = CourseScheduleData(
