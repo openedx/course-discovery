@@ -8,6 +8,7 @@ import pytest
 import pytz
 import responses
 from django.core.management import CommandError
+from django.conf import settings
 from django.http.response import HttpResponse
 from django.test import TestCase
 from edx_django_utils.cache import TieredCache
@@ -26,7 +27,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory, SourceFactory
 )
 from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
 from course_discovery.apps.course_metadata.utils import subtract_deadline_delta
@@ -64,6 +65,11 @@ class AbstractDataLoaderTest(TestCase):
 @ddt.ddt
 class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
+
+    def setUp(self):
+        super().setUp()
+        self.default_product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.non_default_product_source = SourceFactory(slug="not-default-product-source")
 
     @property
     def api_url(self):
@@ -245,6 +251,46 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert original_run2_deadline != updated_run2_upgrade_deadline
         # Make sure the credit seat with a course run end date is unchanged
         assert run3.seats.first().upgrade_deadline is None
+
+    @responses.activate
+    def test_default_product_source_handling(self):
+        """
+        Verify that default product source is assigned to a course when it is created through
+        the courses api. Also verify that if an existing course is updated through the courses
+        api, its product source is not affected.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
+        api_data = self.mock_api()
+
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
+
+        self.loader.ingest()
+        # Verify the API was called with the correct authorization header
+        self.assert_api_called(4)
+
+        # Verify the CourseRuns and Courses were created correctly
+        assert CourseRun.objects.count() == len(api_data)
+        courses_created_count = Course.objects.count()
+        assert courses_created_count > 0
+
+        # Verify that all created courses have the default product source
+        product_source_slugs = Course.objects.select_related('product_source').values_list('product_source__slug', flat=True)
+        assert set(product_source_slugs) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
+
+        # Change an existing course's product source and ensure it is not reset to the default by
+        # another run of the loader
+        first_course = Course.objects.first()
+        first_course.product_source = self.non_default_product_source
+        first_course.save()
+
+        self.loader.ingest()
+        assert CourseRun.objects.count() == len(api_data)
+        assert Course.objects.count() == courses_created_count
+        product_source_slugs = Course.objects.select_related('product_source').values_list('product_source__slug', flat=True)
+        assert product_source_slugs[0] == self.non_default_product_source.slug
+        assert set(product_source_slugs[1:]) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
