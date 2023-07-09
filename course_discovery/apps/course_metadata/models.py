@@ -26,6 +26,7 @@ from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from model_utils import FieldTracker
+from multi_email_field.fields import MultiEmailField
 from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
@@ -1378,6 +1379,15 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         help_text=_('If checked, the About Page will have a meta tag with noindex value')
     )
 
+    watchers = MultiEmailField(
+        blank=True,
+        verbose_name=_("Watchers"),
+        help_text=_(
+            "The list of email addresses that will be notified if any of the course runs "
+            "is published or scheduled."
+        )
+    )
+
     # Changing these fields at the course level will not trigger re-reviews
     # on related course runs that are already in the scheduled state
     STATUS_CHANGE_EXEMPT_FIELDS = [
@@ -1385,6 +1395,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         'geolocation',
         'in_year_value',
         'location_restriction',
+        'watchers'
     ]
 
     everything = CourseQuerySet.as_manager()
@@ -1497,8 +1508,18 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     def marketing_url(self):
         url = None
         if self.partner.marketing_site_url_root:
-            path = self.get_course_marketing_url_path()
+            path = self.get_course_url_path()
             url = urljoin(self.partner.marketing_site_url_root, path)
+
+        return url
+
+    @property
+    def preview_url(self):
+        """ Returns the preview url for the course. """
+        url = None
+        if self.partner.marketing_site_url_root and self.active_url_slug:
+            path = self.get_course_url_path()
+            url = urljoin(self.partner.marketing_site_url_root, f'preview/{path}')
 
         return url
 
@@ -1513,7 +1534,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             active_url = self.official_version.url_slug_history.filter(is_active_on_draft=True).first()
         return getattr(active_url, 'url_slug', None)
 
-    def get_course_marketing_url_path(self):
+    def get_course_url_path(self):
         """
         Returns marketing url path for course based on active url slug
         """
@@ -2546,6 +2567,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         if send_emails and email_method:
             email_method(self)
+            if (self.course.watchers and (self.status in [CourseRunStatus.Reviewed, CourseRunStatus.Published])):
+                self.refresh_from_db()
+                emails.send_email_to_notify_course_watchers(self.course, self.go_live_date, self.status)
 
     def _check_enterprise_subscription_inclusion(self):
         if not self.course.enterprise_subscription_inclusion:

@@ -1,0 +1,25 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load i18n %}
+{% load django_markup %}
+{% block body %}
+
+<p>
+    {% if is_course_published %}
+    {% blocktrans %}
+        Course '{{course_name}}' has been successfully reviewed by edX and is now published on {{course_publish_date}}. To see live course, go here: <a href="{{course_marketing_url}}">{{course_marketing_url}}</a>
+    {% endblocktrans %}
+    {% else %}
+    {% blocktrans %}
+        Course '{{course_name}}' has been successfully reviewed by edX and is now ready for publication. The course will be published on {{course_publish_date}}.
+        To see a preview of the Course About Page, go here: <a href="{{course_marketing_url}}">{{course_marketing_url}}</a>
+    {% endblocktrans %}
+    {% endif %}
+</p>
+
+<p>
+    <strong>Note: The changes will be live on http://edx.org once {{marketing_service_name}} build runs.
+        The average turnaround time is between 24 to 48 hours.</strong>
+</p>
+
+<!-- End Message Body -->
+{% endblock body %}

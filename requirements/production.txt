@@ -218,6 +218,8 @@ django-model-utils==4.3.1
     # via taxonomy-connector
 django-multiselectfield==0.1.12
     # via -r requirements/base.in
+django-multi-email-field==0.6.2
+    # via -r requirements/base.in
 django-nested-admin==4.0.2
     # via -r requirements/base.in
 django-nine==0.2.7

@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if is_course_published %}
+{% blocktrans %}
+    Course '{{course_name}}' has been successfully reviewed by edX and is now published on {{course_publish_date}}. To see live course, go here: {{course_marketing_url}}
+{% endblocktrans %}
+{% else %}
+{% blocktrans %}
+   Course '{{course_name}}' has been successfully reviewed by edX and is now ready for publication. The course will be published on {{course_publish_date}}.
+    To see a preview of the Course About Page, go here: {{course_preview_url}}
+{% endblocktrans %}
+{% endif %}
+Note: The changes will be live on http://edx.org once {{marketing_service_name}} build runs.
+The average turnaround time is between 24 to 48 hours.

@@ -1754,7 +1754,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                      '42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://new-videos-r-us/watch?t_s=5'},
             'geolocation': {'location_name': 'Antarctica', 'lng': '32.86', 'lat': '34.21'},
-            'location_restriction': {'restriction_type': 'blocklist', 'countries': ['AL'], 'states': ['AZ']}
+            'location_restriction': {'restriction_type': 'blocklist', 'countries': ['AL'], 'states': ['AZ']},
+            'watchers': ['test@test.com']
         }
         response = self.client.patch(url, patch_data, format='json')
         assert response.status_code == 200
@@ -1764,6 +1765,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         official_course_run.refresh_from_db()
         assert draft_course_run.status == CourseRunStatus.Reviewed
         assert official_course_run.status == CourseRunStatus.Reviewed
+        assert draft_course.watchers == ['test@test.com']
 
     @responses.activate
     def test_patch_published(self):

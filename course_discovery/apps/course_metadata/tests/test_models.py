@@ -92,6 +92,19 @@ class TestCourse(TestCase):
         course.image = None
         assert course.image_url == course.card_image_url
 
+    def test_watchers(self):
+        """
+        Verify watchers field is properly set and returns correct list of watchers emails addresses
+        """
+        course = factories.CourseFactory()
+        assert course.watchers == []
+        assert len(course.watchers) == 0
+
+        course.watchers.append('test@test.com')
+        course.save()
+        course.refresh_from_db()
+        assert course.watchers == ['test@test.com']
+
     @ddt.data(
         ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),
         # pylint: disable=line-too-long
@@ -113,6 +126,31 @@ class TestCourse(TestCase):
         )
         course.set_active_url_slug(active_url_slug)
         assert course.marketing_url == expected_url
+
+    @ddt.data(
+        ('https://www.example.com', 'test-slug', 'https://www.example.com/preview/course/test-slug'),
+        (
+            'https://www.example.com',
+            'learn/primary-subject/organization-title-course-title',
+            'https://www.example.com/preview/learn/primary-subject/organization-title-course-title'
+        ),
+    )
+    @ddt.unpack
+    def test_preview_url(self, marketing_site_url_root, active_url_slug, expected_url):
+        """
+        Verify preview_url property returns the correct URL format for courses
+        """
+        partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit', is_marketable=True)
+        source = SourceFactory(slug='edx')
+        course = factories.CourseFactory(partner=partner, product_source=source, additional_metadata=None)
+        _ = CourseRunFactory(
+            status='reviewed',
+            course=course,
+            type=verified_and_audit_type
+        )
+        course.set_active_url_slug(active_url_slug)
+        assert course.preview_url == expected_url
 
     def test_data_modified_timestamp_model_field_change(self):
         """
@@ -1096,6 +1134,85 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                 assert run.status == CourseRunStatus.Reviewed
                 assert run.announcement is None
                 assert mock_email.call_count == 1
+
+    @ddt.data(
+        datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+        datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=20),
+    )
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_is_published(
+        self, when, mock_course_url_email, mock_email
+    ):
+        """
+        Test that watchers are emailed when a course is published
+        """
+        draft_course_run = factories.CourseRunFactory(
+            draft=True,
+            go_live_date=when,
+            announcement=None,
+        )
+        end = when + datetime.timedelta(days=50)
+        draft_course_run.end = end
+        draft_course_run.enrollment_end = end
+        draft_course_run.course.draft = True
+        draft_course_run.course.watchers = [
+            'test@test.com',
+        ]
+        draft_course_run.course.save()
+
+        assert draft_course_run.official_version is None
+
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.refresh_from_db()
+        official_version = CourseRun.objects.get(key=draft_course_run.key)
+
+        for run in [draft_course_run, official_version]:
+            assert run.status == CourseRunStatus.Published
+            assert run.announcement is not None
+            assert mock_course_url_email.call_count == 1
+            assert mock_email.call_count == 0
+
+    @ddt.data(
+        datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+        datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=20),
+    )
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_run_is_scheduled(
+        self, when, mock_course_url_email, mock_email
+    ):
+        """
+        Test that watchers are emailed when a course is reviewed
+        """
+        draft_course_run = factories.CourseRunFactory(
+            draft=True,
+            go_live_date=when,
+            announcement=None,
+        )
+        end = when + datetime.timedelta(days=50) if when else None
+        if end:  # Both end and enrollment_end need to be in the future or else runs will be set to unpublished
+            draft_course_run.end = end
+            draft_course_run.enrollment_end = end
+        draft_course_run.course.draft = True
+        draft_course_run.course.watchers = [
+            'test@test.com',
+        ]
+        draft_course_run.course.save()
+
+        assert draft_course_run.official_version is None
+
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.refresh_from_db()
+        official_version = CourseRun.objects.get(key=draft_course_run.key)
+
+        for run in [draft_course_run, official_version]:
+            assert run.status == CourseRunStatus.Reviewed
+            assert run.announcement is None
+            assert mock_email.call_count == 1
+            assert mock_course_url_email.call_count == 1
 
     def test_publish_ignores_draft_input(self):
         draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=True)
