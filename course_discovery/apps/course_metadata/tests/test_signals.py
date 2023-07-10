@@ -746,6 +746,7 @@ class TestCourseDataUpdateSignal(TestCase):
             hidden=False,
         )
         self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
+        _ = factories.SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
 
     def test_event_creates_new_course(self):
         update_course_data_from_event(catalog_info=self.catalog_data)
