@@ -33,6 +33,7 @@ from course_discovery.apps.api.fields import (
 from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
+from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
@@ -1389,8 +1390,11 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         existing_facts = instance.facts.all()
         if len(existing_facts) == len(facts_data):
+            changed = False
             for i, fact in enumerate(existing_facts):
-                Fact.objects.filter(id=fact.id).update(**facts_data[i])
+                _, fact_changed = update_instance(fact, facts_data[i], True)
+                changed = changed or fact_changed
+            return changed
         else:
             instance.facts.clear()
             for fact in facts_data:
@@ -1408,52 +1412,63 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                     fact_obj = Fact.objects.create(**fact)
 
                 instance.facts.add(fact_obj)
+            return True
 
     def update_certificate_info(self, instance, certificate_info_data):
-
         if instance.certificate_info:
-            CertificateInfo.objects.filter(id=instance.certificate_info.id).update(**certificate_info_data)
+            return update_instance(instance.certificate_info, certificate_info_data, True)
         else:
             instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
             instance.save()
+            return instance.certificate_info, False
 
     def update_product_meta(self, instance, product_meta_data):
         """ Updates product metadata (inside additional metadata) for a course. """
         keywords = product_meta_data.pop('keywords', None)
 
         if instance.product_meta:
-            ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
-            # This is needed to get the latest value for Product Meta from DB.
-            # Otherwise, the previous values re-appear when keywords are handled and product_meta is saved.
-            instance.product_meta.refresh_from_db()
+            _, changed = update_instance(instance.product_meta, product_meta_data, True)
         else:
             instance.product_meta = ProductMeta.objects.create(**product_meta_data)
             instance.save()
+            changed = True
 
         if instance.product_meta and keywords is not None:
-            instance.product_meta.keywords.set(keywords, clear=True)
+            instance.product_meta.keywords.set(keywords)
             instance.product_meta.save()
+            changed = True
+
+        return instance.product_meta, changed
 
     def update_additional_metadata(self, instance, additional_metadata):
 
+        changed = False
         facts = additional_metadata.pop('facts', None)
         certificate_info = additional_metadata.pop('certificate_info', None)
         product_meta = additional_metadata.pop('product_meta', None)
 
         if instance.additional_metadata:
-            AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
+            _, additional_metadata_changed = update_instance(instance.additional_metadata, additional_metadata, True)
+            changed = changed or additional_metadata_changed
         else:
             instance.additional_metadata = AdditionalMetadata.objects.create(**additional_metadata)
 
         if facts:
-            self.update_facts(instance.additional_metadata, facts)
+            facts_changed = self.update_facts(instance.additional_metadata, facts)
+            changed = changed or facts_changed
 
         if product_meta:
-            self.update_product_meta(instance.additional_metadata, product_meta)
+            _, product_meta_changed = self.update_product_meta(instance.additional_metadata, product_meta)
+            changed = changed or product_meta_changed
 
         if certificate_info:
-            self.update_certificate_info(instance.additional_metadata, certificate_info)
+            _, certification_info_changed = self.update_certificate_info(instance.additional_metadata, certificate_info)
+            changed = changed or certification_info_changed
 
+        if changed:
+            # If any of the related model has updated timestamp for Course, refresh the timestamp
+            # value on the instance to represent correct state of field.
+            instance.refresh_from_db(fields=('data_modified_timestamp',))
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
@@ -1492,7 +1507,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     def update(self, instance, validated_data):
         # Handle writing nested fields separately
         if 'additional_metadata' in validated_data:
-            # Handle additional metadata only for 2U courses else just pop
+            # Handle additional metadata only for external courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
             if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)

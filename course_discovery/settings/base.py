@@ -599,6 +599,11 @@ TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.pro
 TAXONOMY_XBLOCK_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryXBlockMetadataProvider'
 TAXONOMY_XBLOCK_SUPPORTED_TYPES = ['video', 'vertical']
 
+SKILLS_VERIFICATION_THRESHOLD = 10  # minimum votes required for a skill to be marked verified
+SKILLS_VERIFICATION_RATIO_THRESHOLD = 0.7 # 70% validation threshold out of total votes
+SKILLS_IGNORED_THRESHOLD = 10 # minimum votes required for skill to be marked ignored
+SKILLS_IGNORED_RATIO_THRESHOLD = 0.7 # 70% ignored threshold out of total votes
+
 # Settings related to the EMSI client
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
 EMSI_API_BASE_URL = 'https://emsiservices.com'
@@ -733,3 +738,5 @@ DEGREE_VARIANTS_FIELD_MAP = {}
 JOB_DESCRIPTION_PROMPT = 'Generate a description for {job_name} job role.'
 JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_job_name} job role.'
 OPENAI_API_KEY = 'I am an api key'
+
+NOTIFY_SLUG_UPDATE_RECIPIENTS = []

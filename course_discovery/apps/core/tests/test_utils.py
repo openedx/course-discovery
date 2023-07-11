@@ -1,10 +1,13 @@
+from ddt import data, ddt, unpack
 from django.db import models
 from django.test import TestCase
 
-from course_discovery.apps.core.utils import SearchQuerySetWrapper, delete_orphans, get_all_related_field_names
+from course_discovery.apps.core.utils import (
+    SearchQuerySetWrapper, delete_orphans, get_all_related_field_names, update_instance
+)
 from course_discovery.apps.course_metadata.models import Video
 from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, VideoFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, VideoFactory
 
 
 class UnrelatedModel(models.Model):
@@ -35,6 +38,7 @@ class M2MRelatedModel(models.Model):
         managed = False
 
 
+@ddt
 class ModelUtilTests(TestCase):
     def test_get_all_related_field_names(self):
         """ Verify the method returns the names of all relational fields for a model. """
@@ -58,6 +62,44 @@ class ModelUtilTests(TestCase):
         delete_orphans(Video, {orphan.pk})
 
         assert orphan.__class__.objects.filter(pk=orphan.pk).exists()
+
+    @data(
+        (ImageFactory, {'description': 'new image description'}),
+        (VideoFactory, {'description': 'new video description'})
+    )
+    @unpack
+    def test_update_instance(self, instance_factory, updated_data):
+        """
+        Verify update_instance commit changes to DB if commit flag is True.
+        """
+        instance = instance_factory()
+        _, changed = update_instance(instance, updated_data, True)
+        instance.refresh_from_db()
+        assert changed
+        assert instance.description == updated_data['description']
+
+    @data(
+        (ImageFactory, {'description': 'new image description'}),
+        (VideoFactory, {'description': 'new video description'})
+    )
+    @unpack
+    def test_update_instance__no_commit(self, instance_factory, updated_data):
+        """
+        Verify update_instance does not commit changes to DB if commit flag is False.
+        """
+        instance = instance_factory()
+        _, changed = update_instance(instance, updated_data)
+        instance.refresh_from_db()
+        assert changed
+        assert instance.description != updated_data['description']
+
+    def test_update_instance__no_instance(self):
+        """
+        Verify the default values if no instance is provided to update_instance.
+        """
+        instance, changed = update_instance(None, {})
+        assert instance is None
+        assert not changed
 
 
 class SearchQuerySetWrapperTests(TestCase):

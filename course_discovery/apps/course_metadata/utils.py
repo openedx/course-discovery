@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+import re
 import string
 import uuid
 from tempfile import NamedTemporaryFile
@@ -12,22 +13,27 @@ import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
 from django.conf import settings
+from django.core import validators
 from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
+from slugify import slugify
 from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import (
+    HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
+)
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -944,3 +950,127 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
     """
     if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
         instance.update_product_data_modified_timestamp()
+
+
+def is_valid_slug_format(val):
+    """
+    Checks whether a given value follows the slug format, taking into account the selected slug format based on the
+    'IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED' waffle toggle value.
+
+    Args:
+        val: value to be checked
+
+    Returns:
+        True if value follow the slug format else False
+    """
+    if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
+        valid_slug_pattern = SUBDIRECTORY_SLUG_FORMAT_REGEX
+    else:
+        valid_slug_pattern = SLUG_FORMAT_REGEX
+    return bool(re.match(valid_slug_pattern, val))
+
+
+def get_slug_for_course(course):
+    """
+    Given a course it will return slug and error if there is any'
+
+    Arguments:
+          course: course object
+
+    Returns:
+        slug: slug in the format 'learn/<primary_subject>/<organization_name>-<course_title>'
+        error: error while creating slug in the required format
+    """
+    error = None
+
+    course_subjects = course.subjects.all()
+    if len(course_subjects) < 1:
+        error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+        logger.info(error)
+        return None, error
+    organizations = course.authoring_organizations.all()
+    if len(organizations) < 1:
+        error = f"Course with uuid {course.uuid} and title {course.title} does not have any authoring organizations"
+        logger.info(error)
+        return None, error
+    primary_subject_slug = course_subjects[0].slug
+    organization_slug = slugify(organizations[0].name.replace('\'', ''))
+    course_slug = course.active_url_slug
+    # course slug is None for courses which are created from studio
+    if not course_slug:
+        course_slug = course.title
+        slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        if is_existing_slug(slug, course):
+            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
+    slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+    return slug, error
+
+
+def is_existing_slug(slug, course):
+    """
+    Given a slug and course it check if that slug exists for any other course in DB or not
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
+        url_slug=slug, partner=course.partner).exclude(course__uuid=course.uuid)
+    return all_course_historical_slugs_excluding_current.exists()
+
+
+def get_existing_slug_count(slug):
+    """
+    Given a slug it will return count of CourseUrlSlugs objects which is starting from it
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    return CourseUrlSlug.objects.filter(url_slug__startswith=slug).count()
+
+
+def is_valid_uuid(val):
+    """
+    Given a value it will check if value is valid uuid or not
+    """
+    try:
+        uuid.UUID(str(val))
+        return True
+    except ValueError:
+        return False
+
+
+def validate_slug_format(url_slug, course):
+    """
+    Given a url_slug and subdirectory_slug_flag it will check if url_slug is valid or not based on
+    subdirectory_slug_flag and course_run_statuses
+
+    Args:
+        url_slug: url_slug to be validated
+        course: course object
+
+    Returns:
+        valid_slug_flag: None if url_slug is valid else raise ValidationError
+    """
+    from course_discovery.apps.course_metadata.models import CourseRun  # pylint: disable=import-outside-toplevel
+
+    valid_slug_flag = False
+
+    if (course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG and
+            IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled()):
+        if set(course.course_run_statuses).intersection(set(CourseRun.IN_REVIEW_STATUS + CourseRun.POST_REVIEW_STATUS)):
+            # TODO: remove the or condition once all the OCM courses are migrated to subdirectory slug format
+            valid_slug_flag = is_valid_slug_format(url_slug) or validators.validate_slug(url_slug)
+            valid_slug_flag = True
+
+        else:
+            valid_slug_flag = is_valid_slug_format(url_slug) or validators.validate_slug(url_slug)
+            valid_slug_flag = True
+    else:
+        validators.validate_slug(url_slug)
+        valid_slug_flag = True
+
+    if not valid_slug_flag:
+        # pylint: disable=line-too-long
+        raise Exception(  # pylint: disable=broad-exception-raised
+            (f'Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is an invalid format. '
+                'Please ensure that the slug is in the format ‘learn/<primary_subject>/<organization_name>-<course_title>’ ')
+        )

@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+from email.mime.text import MIMEText
 from urllib.parse import urljoin
 
 import dateutil.parser
@@ -347,3 +348,15 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             subject,
             context
         )
+
+
+def send_email_for_slug_updates(stats, to_users):
+    subject = 'Slugs Update Summary'
+    body = 'Please find the attached csv file for the summary of course slugs update.'
+    email_msg = EmailMultiAlternatives(
+        subject, body, settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    attachment = MIMEText(stats, 'csv')
+    attachment.add_header('Content-Disposition', 'attachment', filename='slugs_update_summary.csv')
+    email_msg.attach(attachment)
+    email_msg.send()

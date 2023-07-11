@@ -7,9 +7,11 @@ import ddt
 import pytest
 import pytz
 import responses
+from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.db.models.query import Prefetch
+from edx_toggles.toggles.testutils import override_waffle_switch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
@@ -22,13 +24,14 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
-    Fact, GeoLocation, ProductMeta, Seat
+    Fact, GeoLocation, ProductMeta, Seat, Source
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
     SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -51,6 +54,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)
         self.refresh_index()
+
+        self.course_data = {
+            'title': 'Course title',
+            'url_slug': 'learn/physics/harvardx-applied-physics',
+            'partner': self.partner.id,
+            'key': self.course.key,
+            'type': str(self.audit_type.uuid),
+        }
 
     def tearDown(self):
         super().tearDown()
@@ -1065,6 +1076,25 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert course.organization_logo_override.url is not None
         self.assertDictEqual(response.data, self.serialize_course(course))
 
+    @ddt.data('put', 'patch')
+    @responses.activate
+    def test_update_success_with_subdirectory_slug_format(self, method):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+
+        source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.course.product_source = source
+        self.course.save()
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            response = getattr(self.client, method)(url, self.course_data, format='json')
+            assert response.status_code == 200
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        assert course.title == 'Course title'
+        assert course.active_url_slug == 'learn/physics/harvardx-applied-physics'
+        assert course.organization_logo_override.url is not None
+        self.assertDictEqual(response.data, self.serialize_course(course))
+
     @responses.activate
     def test_remove_video_from_course(self):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
@@ -1120,6 +1150,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         course = CourseFactory(additional_metadata=None, type=type_2U)
         current = datetime.datetime.now(pytz.UTC)
         future = current + datetime.timedelta(days=10)
+        previous_data_modified_timestamp = course.data_modified_timestamp
 
         additional_metadata = {
             'external_url': 'https://example.com/',
@@ -1154,6 +1185,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
 
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+
         # test if object update on same course is successful
         new_facts = [
             {
@@ -1164,17 +1198,11 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 'heading': 'New Fact heading 333',
                 'blurb': '<p>New Fact blurb 2</p>',
             }
-
         ]
-        new_cert = {
-            'heading': 'New Certificate heading',
-            'blurb': '<p>New Certificate blurb</p>',
-        }
         course_data = {
             'additional_metadata': {
                 'external_identifier': '67890',  # change external_identifier
                 'facts': new_facts,
-                'certificate_info': new_cert,
             }
         }
         response = self.client.patch(url, course_data, format='json')
@@ -1183,8 +1211,26 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         additional_metadata['external_identifier'] = '67890'  # to make sure that the value is updated
         additional_metadata['facts'] = new_facts
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+
+        new_cert = {
+            'heading': 'New Certificate heading',
+            'blurb': '<p>New Certificate blurb</p>',
+        }
+        course_data = {
+            'additional_metadata': {
+                'certificate_info': new_cert,
+            }
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
         additional_metadata['certificate_info'] = new_cert
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
 
     @ddt.data(CourseType.VERIFIED_AUDIT, CourseType.PROFESSIONAL)
     @responses.activate
@@ -1206,13 +1252,16 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert self.serialize_course(course)['additional_metadata'] is None
 
     @responses.activate
-    def test_update_facts_with_additional_metadata(self):
+    def test_update_facts_with_additional_metadata(self):  # pylint: disable=too-many-statements
         current = datetime.datetime.now(pytz.UTC)
 
         EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         course_1 = CourseFactory(additional_metadata=None, type=EE_type_2U)
         course_2 = CourseFactory(additional_metadata=None, type=EE_type_2U)
         course_3 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        course_1_previous_data_modified_timestamp = course_1.data_modified_timestamp
+        course_2_previous_data_modified_timestamp = course_2.data_modified_timestamp
+        course_3_previous_data_modified_timestamp = course_3.data_modified_timestamp
         fact_1 = {'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}
         fact_2 = {'heading': 'Fact2 heading', 'blurb': '<p>Fact2 blurb</p>'}
         fact_3 = {'heading': 'Fact3 heading', 'blurb': '<p>Fact3 blurb</p>'}
@@ -1276,6 +1325,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
         self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
 
+        assert course_1_previous_data_modified_timestamp < course_1.data_modified_timestamp
+        assert course_2_previous_data_modified_timestamp < course_2.data_modified_timestamp
+        assert course_3_previous_data_modified_timestamp < course_3.data_modified_timestamp
+
+        course_1_previous_data_modified_timestamp = course_1.data_modified_timestamp
+        course_2_previous_data_modified_timestamp = course_2.data_modified_timestamp
+        course_3_previous_data_modified_timestamp = course_3.data_modified_timestamp
+
         response_1 = self.client.patch(url_1, {'additional_metadata': {'facts': [fact_3]}}, format='json')
         assert response_1.status_code == 200
         assert Fact.objects.count() == 6    # orphaned fact 1, and just removed 2 from relation, created 3
@@ -1285,7 +1342,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert Fact.objects.count() == 6    # fact 1 was already orphaned, it just used it
 
         response_3 = self.client.patch(url_3, {'additional_metadata': {'facts': [fact_1, fact_3]}}, format='json')
-        assert response_2.status_code == 200
+        assert response_3.status_code == 200
         assert Fact.objects.count() == 6    # no new fact created, just updated/overwrite self facts as count is same
 
         course_1 = Course.everything.get(uuid=course_1.uuid, draft=True)
@@ -1299,6 +1356,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
         self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
         self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+        assert course_1_previous_data_modified_timestamp < course_1.data_modified_timestamp
+        assert course_2_previous_data_modified_timestamp < course_2.data_modified_timestamp
+        assert course_3_previous_data_modified_timestamp < course_3.data_modified_timestamp
 
     @ddt.data(
         (
@@ -1356,6 +1416,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         course = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        previous_data_modified_timestamp = course.data_modified_timestamp
         product_meta = {
             "title": "Test",
             "description": "Test Description",
@@ -1386,7 +1447,6 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         }
 
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
-
         response = self.client.patch(url, {'additional_metadata': additional_metadata}, format='json')
 
         assert response.status_code == 200
@@ -1394,13 +1454,41 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         # The ProductMeta objects are being created 2 times.
         # Once when the CourseViewSetTests create a Factory Course
         # and once while running this testcase.
-        assert ProductMeta.objects.count() == 2    # created two new objects
+        assert ProductMeta.objects.count() == 2
 
         course = Course.everything.get(uuid=course.uuid, draft=True)
 
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
-
         self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        # Some flaky behavior was observed on local due to element being in different order in serialized response.
+        # the following order of element is same as serialized response.
+        # Added this note in case this test causes odd behavior in the future.
+        product_meta['keywords'] = ['test2', 'test3']
+        response = self.client.patch(
+            url, {'additional_metadata': {'product_meta': product_meta}}, format='json'
+        )
+        additional_metadata['product_meta'] = product_meta
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        # If there is no product meta or keywords change, the timestamp won't be updated.
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        response = self.client.patch(
+            url, {'additional_metadata': {'product_meta': product_meta}}, format='json'
+        )
+        additional_metadata['product_meta'] = product_meta
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):

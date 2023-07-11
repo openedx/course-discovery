@@ -626,3 +626,37 @@ class TestIngestionEmail(TestCase):
                 "<li>[MISSING_ORGANIZATION] Unable to find organization with key edx1</li>"
             ]
         )
+
+
+class TestSlugUpdatesEmail(TestCase):
+    """
+    Test suite for send_ingestion_email.
+    """
+    EMAIL_SUBJECT = 'Slugs Update Summary'
+    USER_EMAILS = ['edx@example.com']
+
+    def test_send_email_for_slug_updates(self):
+        slugs_summary_data = [{
+            'course_uuid': 'uuid-text',
+            'old_slug': 'course-title',
+            'new_slug': 'learn/subject/organization-course-title',
+            'error': 'some error'
+        }]
+        stats = 'course_uuid,old_url_slug,new_url_slug,error_msg\n'
+        for slug in slugs_summary_data:
+            stats += f"{slug['course_uuid']},{slug['old_slug']},{slug['new_slug']},{slug['error']}\n"
+
+        emails.send_email_for_slug_updates(stats, self.USER_EMAILS)
+        email = mail.outbox[0]
+
+        assert email.to == self.USER_EMAILS
+        assert str(email.subject) == self.EMAIL_SUBJECT
+        assert len(mail.outbox) == 1
+        expected_response = 'Please find the attached csv file for the summary of course slugs update.'
+        assert email.body == expected_response
+
+        assert email.attachments is not None
+        assert len(email.attachments) == 1
+        assert email.attachments[0].get_filename() == 'slugs_update_summary.csv'
+        assert email.attachments[0].get_content_type() == 'text/csv'
+        assert email.attachments[0].get_payload() == stats

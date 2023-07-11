@@ -44,14 +44,16 @@ from course_discovery.apps.course_metadata.signals import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
-    SeatTypeFactory, SourceFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, PartnerFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SourceFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+
+LOGGER_PATH = 'course_discovery.apps.course_metadata.models'
 
 
 @pytest.mark.django_db
@@ -89,6 +91,28 @@ class TestCourse(TestCase):
 
         course.image = None
         assert course.image_url == course.card_image_url
+
+    @ddt.data(
+        ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),
+        # pylint: disable=line-too-long
+        ('https://www.example.com', 'learn/primary-subject/organization-title-course-title', 'https://www.example.com/learn/primary-subject/organization-title-course-title'),
+    )
+    @ddt.unpack
+    def test_marketing_url(self, marketing_site_url_root, active_url_slug, expected_url):
+        """
+        Verify marketing_url property returns the correct URL format for courses
+        """
+        partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit', is_marketable=True)
+        source = SourceFactory(slug='edx')
+        course = factories.CourseFactory(partner=partner, product_source=source, additional_metadata=None)
+        _ = CourseRunFactory(
+            status='published',
+            course=course,
+            type=verified_and_audit_type
+        )
+        course.set_active_url_slug(active_url_slug)
+        assert course.marketing_url == expected_url
 
     def test_data_modified_timestamp_model_field_change(self):
         """
@@ -1701,15 +1725,52 @@ class ProductMetaTests(TestCase):
         )
         course_timestamp = course.data_modified_timestamp
         product_meta.title = 'updated heading'
-        product_meta.update_product_data_modified_timestamp()
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp()
+
         course.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
 
         product_meta.save()
         course_timestamp = course.data_modified_timestamp
         product_meta.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if ProductMeta update_product_data_modified_timestamp is called with bypass_has_changed,
+        the course timestamp is updated, bypassing has_changed requirements.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
 
 
 class ProductValueTests(TestCase):
@@ -1848,15 +1909,48 @@ class AdditionalMetadataTests(TestCase):
         )
         course_timestamp = course.data_modified_timestamp
         additional_metadata.course_term_override = 'Programme'
-        additional_metadata.update_product_data_modified_timestamp()
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
 
         additional_metadata.save()
         course_timestamp = course.data_modified_timestamp
         additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if AdditionalMetadata update_product_data_modified_timestamp is called with bypass_has_changed,
+        the related course timestamp is updated, bypassing has_changed requirements.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
 
 
 class AbstractTitleDescriptionModelTests(TestCase):

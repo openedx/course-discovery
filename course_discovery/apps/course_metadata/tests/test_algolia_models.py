@@ -499,6 +499,28 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
         assert course.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
 
+    @ddt.data(False, True)
+    def test_learning_type_open_course(self, has_program):
+        course_type = CourseTypeFactory()
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner, type=course_type)
+        if has_program:
+            program_type = ProgramTypeFactory()
+            program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+            course.programs.set([program])
+            assert course.learning_type == ['Course', program_type.name_t]
+        else:
+            assert course.learning_type == ['Course']
+
+    @ddt.data(
+        (CourseType.EXECUTIVE_EDUCATION_2U, 'Executive Education'),
+        (CourseType.BOOTCAMP_2U, 'Boot Camp'),
+    )
+    @ddt.unpack
+    def test_learning_type_non_open_course(self, course_type_slug, expected_result):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.type = CourseTypeFactory(slug=course_type_slug)
+        assert course.learning_type == [expected_result]
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -810,3 +832,8 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert program.product_value_per_click_international == ProductValue.DEFAULT_VALUE_PER_CLICK
         assert program.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
         assert program.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
+
+    def test_learning_type(self):
+        program_type = ProgramTypeFactory()
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+        assert program.learning_type == [program_type.name_t]

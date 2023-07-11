@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import logging
+import re
 from collections import Counter, defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
@@ -43,7 +44,7 @@ from course_discovery.apps.course_metadata.choices import (
     PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
-from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
+from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.model_utils import has_model_changed
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
@@ -719,6 +720,24 @@ class TopicTranslation(TranslatedFieldsModel):
 class Fact(AbstractHeadingBlurbModel):
     """ Fact Model """
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        if not self.pk:
+            return False
+        return has_model_changed(self.field_tracker)
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Fact update_product_data_modified_timestamp triggered for {self.pk}."
+                f"Updating timestamp for related courses."
+            )
+            Course.everything.filter(additional_metadata__facts__pk=self.pk).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
 
 class CertificateInfo(AbstractHeadingBlurbModel):
     """ Certificate Information Model """
@@ -765,9 +784,12 @@ class ProductMeta(TimeStampedModel):
             return False
         return has_model_changed(self.field_tracker)
 
-    def update_product_data_modified_timestamp(self):
-        if self.has_changed:
-            logger.info(f"Changes detected in ProductMeta {self.pk}, updating related courses")
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"ProductMeta update_product_data_modified_timestamp triggered for {self.pk}."
+                f"Updating timestamp for related courses."
+            )
             Course.everything.filter(additional_metadata__product_meta__pk=self.pk).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -881,11 +903,11 @@ class AdditionalMetadata(TimeStampedModel):
         external_keys = [self.product_meta,]
         return has_model_changed(self.field_tracker, external_keys=external_keys)
 
-    def update_product_data_modified_timestamp(self):
-        if self.has_changed:
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
             logger.info(
-                f"Changes detected in AdditionalMetadata {self.external_identifier}, updating data modified "
-                f"timestamps for related courses."
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered for {self.external_identifier}."
+                f"Updating data modified timestamp for related courses."
             )
             self.related_courses.all().update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
@@ -1462,7 +1484,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     def marketing_url(self):
         url = None
         if self.partner.marketing_site_url_root:
-            path = f'course/{self.active_url_slug}'
+            path = self.get_course_marketing_url_path()
             url = urljoin(self.partner.marketing_site_url_root, path)
 
         return url
@@ -1477,6 +1499,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             # current draft url slug has already been published at least once, so get it from the official course
             active_url = self.official_version.url_slug_history.filter(is_active_on_draft=True).first()
         return getattr(active_url, 'url_slug', None)
+
+    def get_course_marketing_url_path(self):
+        """
+        Returns marketing url path for course based on active url slug
+        """
+        active_url_slug = self.active_url_slug
+        return active_url_slug if active_url_slug and active_url_slug.find('/') != -1 else f'course/{active_url_slug}'
 
     def course_run_sort(self, course_run):
         """
@@ -1874,6 +1903,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         (True, _('Blocked')),
         (False, _('Unrestricted')),
     )
+
+    IN_REVIEW_STATUS = [CourseRunStatus.InternalReview, CourseRunStatus.LegalReview]
+    POST_REVIEW_STATUS = [CourseRunStatus.Reviewed, CourseRunStatus.Published]
 
     uuid = models.UUIDField(default=uuid4, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
@@ -3933,12 +3965,20 @@ class PersonAreaOfExpertise(AbstractValueModel):
         verbose_name_plural = 'Person Areas of Expertise'
 
 
+def slugify_with_slashes(text):
+    """
+    Given a text and it will convert disallowed characters to `-` in the text
+    """
+    disallowed_chars = re.compile(r'[^-a-zA-Z0-9/]+')
+    return uslugify(text, regex_pattern=disallowed_chars)
+
+
 class CourseUrlSlug(TimeStampedModel):
     course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
     # need to have these on the model separately for unique_together to work, but it should always match course.partner
     partner = models.ForeignKey(Partner, models.CASCADE)
-    url_slug = AutoSlugField(populate_from='course__title', editable=True, slugify_function=uslugify,
-                             overwrite_on_add=False, max_length=255)
+    url_slug = AutoSlugWithSlashesField(populate_from='course__title', editable=True,
+                                        slugify_function=slugify_with_slashes, overwrite_on_add=False, max_length=255)
     is_active = models.BooleanField(default=False)
 
     # useful if a course editor decides to edit a draft and provide a url_slug that has already been associated
@@ -4063,6 +4103,24 @@ class DegreeDataLoaderConfiguration(ConfigurationModel):
         help_text=_("It expects the data will be provided in a csv file format "
                     "with first row containing all the headers.")
     )
+
+
+class MigrateCourseSlugConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in migrate_course_slugs and update_course_active_url_slugs.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers."),
+        null=True,
+        blank=True
+    )
+    course_uuids = models.TextField(default=None, null=True, blank=True, verbose_name=_('Course UUIDs'))
+    dry_run = models.BooleanField(default=True)
+    count = models.IntegerField(null=True, blank=True)
 
 
 class ProgramSubscriptionConfiguration(ConfigurationModel):
