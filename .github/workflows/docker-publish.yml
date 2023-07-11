@@ -1,6 +1,7 @@
 name: Build and Push Docker Images
 
 on:
+  #adding this for testing, will remove this before merge
   pull_request:
   push:
     branches:
