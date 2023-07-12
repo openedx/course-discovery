@@ -34,7 +34,7 @@ class EdlySiteViewSet(APIView):
       
         try:
             self.discovery_site_setup()
-            run_dataloader.delay(partner, DEFAULT_COURSE_ID.format(partner), 'lms')
+            run_dataloader(partner, DEFAULT_COURSE_ID.format(partner), 'lms')
             return Response(
                 {'success': ERROR_MESSAGES.get('CLIENT_SITES_SETUP_SUCCESS')},
                 status=status.HTTP_200_OK
