@@ -465,7 +465,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         Verify default course coordinates if geolocation is None
         """
         course = AlgoliaProxyCourseFactory(geolocation=None)
-        assert course.coordinates == (38.951302, -76.8731)
+        assert course.coordinates == (34.921696, -40.839980)
 
     def test_course_key(self):
         """
@@ -806,7 +806,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         Verify default program coordinates if geolocation is None
         """
         program = AlgoliaProxyProgramFactory(geolocation=None)
-        assert program.coordinates == (38.951302, -76.8731)
+        assert program.coordinates == (34.921696, -40.839980)
 
     def test_external_url_when_present(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
