@@ -35,7 +35,7 @@ class MockContenfulDegreeResponse:
     degree_transformed_data = None
     mock_contentful_degree_entry = None
 
-    def __init__(self):
+    def __init__(self, uuid):
         seo_entry = create_contentful_entry('seo', {
             'pageTitle': 'SEO Page Title',
             'pageDescription': 'SEO Page Description',
@@ -106,9 +106,9 @@ class MockContenfulDegreeResponse:
                 })
             ]
         })
-        self.mock_contentful_degree_entry = create_contentful_entry('degreeDetailPage', {
+
+        degree_contentful_entry = {
             'internalName': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-            'uuid': 'test-uuid',
             'uuid_list': ['test-uuid1', 'test-uuid2', 'test-uuid3'],
             'excluded_from_search': False,
             'excluded_from_seo': False,
@@ -120,23 +120,22 @@ class MockContenfulDegreeResponse:
                 placement_about_section_entry,
                 featured_products_entry
             ]
-        })
+        }
 
-        self.mock_contentful_degree_missing_rich_text = create_contentful_entry('degreeDetailPage', {
-            'internalName': 'Degree Missing Rich Text',
-            'uuid': 'test-uuid',
-            'uuid_list': ['test-uuid1', 'test-uuid2', 'test-uuid3'],
-            'excluded_from_search': False,
-            'excluded_from_seo': False,
-            'seo': seo_entry,
-            'hero': hero_entry,
-            'modules': [
-                about_the_program_entry,
-                faq_entry,
-                placement_about_section_entry,
-                featured_products_entry__missing_rich_text
-            ]
-        })
+        if uuid:
+            degree_contentful_entry['uuid'] = uuid
+
+        self.mock_contentful_degree_entry = create_contentful_entry('degreeDetailPage', degree_contentful_entry)
+
+        degree_contentful_entry['modules'] = [
+            about_the_program_entry,
+            faq_entry,
+            placement_about_section_entry,
+            featured_products_entry__missing_rich_text
+        ]
+
+        self.mock_contentful_degree_missing_rich_text = create_contentful_entry(
+            'degreeDetailPage', degree_contentful_entry)
 
         self.degree_sample_contentful_entry = {
             'page_title': 'SEO Page Title',
@@ -170,15 +169,19 @@ class MockContenfulDegreeResponse:
         }
 
         self.degree_transformed_data = {
-            'test-uuid': self.degree_sample_contentful_entry,
             'test-uuid1': self.degree_sample_contentful_entry,
             'test-uuid2': self.degree_sample_contentful_entry,
             'test-uuid3': self.degree_sample_contentful_entry
         }
 
+        if uuid:
+            self.degree_transformed_data[uuid] = self.degree_sample_contentful_entry
+
 
 def create_bootcamp_mock_response_data():
-
+    """
+    Creates bootcamp mock response data.
+    """
     seo_entry = create_contentful_entry('seo', {
         'pageTitle': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
         'pageDescription': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
