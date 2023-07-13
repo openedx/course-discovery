@@ -401,10 +401,13 @@ def fetch_and_transform_degree_contentful_data():
     transformed_degree_data = {}
 
     for degree_entry in contentful_degree_page_entries:
-        product_uuid = degree_entry.uuid
+        product_uuid = getattr(degree_entry, 'uuid', None)
         if product_uuid in transformed_degree_data:
             continue
         uuid_list = getattr(degree_entry, 'uuid_list', [])
+        if product_uuid is None:
+            # add all the transformed data against the first uuid in uuid_list.
+            product_uuid = uuid_list[0]
         excluded_from_search = getattr(degree_entry, 'excluded_from_search', False)
         excluded_from_seo = getattr(degree_entry, 'excluded_from_seo', False)
         page_title = degree_entry.seo.page_title
