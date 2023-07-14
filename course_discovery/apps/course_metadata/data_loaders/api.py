@@ -46,6 +46,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     PAGE_SIZE = 50
 
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
+        super().__init__(partner, api_url, max_workers, is_threadsafe, enable_api)
+        self.default_product_source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
@@ -217,8 +221,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
             course.authoring_organizations.add(organization)
 
-            # Set the default product source
-            course.product_source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+            course.product_source = self.default_product_source
             course.save()
 
         return (course, created)

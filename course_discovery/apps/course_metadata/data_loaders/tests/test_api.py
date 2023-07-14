@@ -180,6 +180,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.everything.get(key=f"{datum['org']}+{datum['number']}", draft=False)
             mock_logger.info.assert_any_call(f"Course created with uuid {str(course.uuid)} and key {course.key}")
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
+            assert course.product_source == self.default_product_source
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -254,18 +255,20 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert run3.seats.first().upgrade_deadline is None
 
     @responses.activate
-    def test_default_product_source_handling(self):
+    def test_product_source_not_changed_on_update(self):
         """
-        Verify that default product source is assigned to a course when it is created through
-        the courses api. Also verify that if an existing course is updated through the courses
+        Verify that if an existing course is updated through the courses
         api, its product source is not affected.
         """
         TieredCache.dangerous_clear_all_tiers()
         responses.calls.reset()  # pylint: disable=no-member
         api_data = self.mock_api()
 
-        assert Course.objects.count() == 0
+        course_with_non_default_source = CourseFactory(product_source=self.non_default_product_source)
+
+        assert Course.objects.count() == 1
         assert CourseRun.objects.count() == 0
+        assert course_with_non_default_source.product_source == self.non_default_product_source
 
         self.loader.ingest()
         # Verify the API was called with the correct authorization header
@@ -273,31 +276,12 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Verify the CourseRuns and Courses were created correctly
         assert CourseRun.objects.count() == len(api_data)
-        courses_created_count = Course.objects.count()
-        assert courses_created_count > 0
+        courses_count = Course.objects.count()
+        assert courses_count > 1
 
-        # Verify that all created courses have the default product source
-        product_source_slugs = (
-            Course.objects.select_related('product_source')
-            .values_list('product_source__slug', flat=True)
-        )
-        assert set(product_source_slugs) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
-
-        # Change an existing course's product source and ensure it is not reset to the default by
-        # another run of the loader
-        first_course = Course.objects.first()
-        first_course.product_source = self.non_default_product_source
-        first_course.save()
-
-        self.loader.ingest()
-        assert CourseRun.objects.count() == len(api_data)
-        assert Course.objects.count() == courses_created_count
-        product_source_slugs = (
-            Course.objects.select_related('product_source')
-            .values_list('product_source__slug', flat=True)
-        )
-        assert product_source_slugs[0] == self.non_default_product_source.slug
-        assert set(product_source_slugs[1:]) == {settings.DEFAULT_PRODUCT_SOURCE_SLUG}
+        # Verify that existing course's product source is not affected
+        course_with_non_default_source.refresh_from_db()
+        assert course_with_non_default_source.product_source == self.non_default_product_source
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
