@@ -704,7 +704,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date', 'end_date',
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
-            'product_meta', 'external_course_marketing_type',
+            'product_meta', 'external_course_marketing_type', 'display_on_org_page',
         )
 
     def _update_product_meta(self, instance, product_meta):

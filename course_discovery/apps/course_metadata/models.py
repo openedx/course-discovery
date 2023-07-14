@@ -893,6 +893,10 @@ class AdditionalMetadata(TimeStampedModel):
         choices=ExternalCourseMarketingType.choices,
         validators=[ExternalCourseMarketingType.validator]
     )
+    display_on_org_page = models.BooleanField(
+        null=False, default=True,
+        help_text=_('Determines weather the course should be displayed on the owning organization\'s page')
+    )
 
     field_tracker = FieldTracker()
 

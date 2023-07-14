@@ -566,8 +566,7 @@ class CertificateInfoAdmin(admin.ModelAdmin):
 @admin.register(AdditionalMetadata)
 class AdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
-        'courses', 'facts_list', 'certificate_info', 'organic_url', 'external_course_marketing_type'
+        'id', 'external_identifier', 'external_url', 'courses', 'facts_list', 'external_course_marketing_type',
     )
     search_fields = ('external_identifier', 'external_url')
     list_filter = ('product_status', )

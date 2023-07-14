@@ -381,15 +381,27 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
     @ddt.data(
         (None, True),
-        (CourseType.BOOTCAMP_2U, False),
-        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+        (CourseType.BOOTCAMP_2U, True),
+        (CourseType.EXECUTIVE_EDUCATION_2U, True)
     )
     @ddt.unpack
     def test_display_on_org_page(self, type_slug, display_on_org_page):
+        """
+        Verify default values of product_display_on_org_page.
+        """
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         if type_slug:
             course.type = CourseTypeFactory(slug=type_slug)
+        assert course.product_display_on_org_page == display_on_org_page
+
+    @ddt.data(True, False)
+    def test_course_display_on_org_page(self, display_on_org_page):
+        """
+        Verify that the course index has display_on_org_page field.
+        """
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.additional_metadata = AdditionalMetadataFactory(display_on_org_page=display_on_org_page)
         assert course.product_display_on_org_page == display_on_org_page
 
     @ddt.data((AlgoliaProxyCourse, 'source_1'), (AlgoliaProxyProgram, 'source_2'))

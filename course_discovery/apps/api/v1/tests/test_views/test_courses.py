@@ -1175,6 +1175,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'product_status': 'published',
             'product_meta': None,
             'external_course_marketing_type': None,
+            'display_on_org_page': True,
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1281,7 +1282,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'course_term_override': 'Example Program',
             'product_status': 'published',
             'product_meta': None,
-            'external_course_marketing_type': None
+            'external_course_marketing_type': None,
+            'display_on_org_page': True,
         }
         additional_metadata_1 = {
             **additional_metadata,
@@ -1443,7 +1445,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'course_term_override': 'Example Program',
             'product_status': 'published',
             'product_meta': product_meta,
-            'external_course_marketing_type': None
+            'external_course_marketing_type': None,
+            'display_on_org_page': True,
         }
 
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})

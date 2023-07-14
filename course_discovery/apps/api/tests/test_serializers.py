@@ -2039,6 +2039,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'course_term_override': additional_metadata.course_term_override,
             'product_status': additional_metadata.product_status,
             'external_course_marketing_type': additional_metadata.external_course_marketing_type,
+            'display_on_org_page': additional_metadata.display_on_org_page,
         }
         assert serializer.data == expected
 
