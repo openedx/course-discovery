@@ -468,6 +468,8 @@ class DegreeAdminTest(TestCase):
         admin_actions = self.degree_admin.get_actions(self.request)
         assert 'publish_degrees' in admin_actions
         assert 'unpublish_degrees' in admin_actions
+        assert 'display_degrees_on_org_page' in admin_actions
+        assert 'hide_degrees_on_org_page' in admin_actions
 
     @ddt.data(
         (ProgramStatus.Unpublished, ProgramStatus.Active, 'publish_degrees', b'Successfully published 1 degree.'),
@@ -489,6 +491,44 @@ class DegreeAdminTest(TestCase):
         assert success_message in response.content
         updated_degree = Degree.objects.get(id=self.degree.id)
         assert updated_degree.status == after_status
+
+    @ddt.data(
+        (False, True, 'display_degrees_on_org_page', '1 degree was successfully set to display on org page.'),
+        (True, False, 'hide_degrees_on_org_page', '1 degree was successfully set to be hidden on org page.')
+    )
+    @ddt.unpack
+    def test_display_on_org_page_actions__single_degree(self, before_value, after_value, admin_action, success_message):
+        self.degree.display_on_org_page = before_value
+        self.degree.save()
+        response = self.client.post(
+            reverse('admin:course_metadata_degree_changelist'),
+            {'action': admin_action, '_selected_action': [self.degree.id, ]},
+            follow=True
+        )
+        assert response.status_code == HTTP_200_OK
+        assert success_message in response.content.decode('utf-8')
+        updated_degree = Degree.objects.get(id=self.degree.id)
+        assert updated_degree.display_on_org_page == after_value
+
+    @ddt.data(
+        (False, True, 'display_degrees_on_org_page', '3 degrees were successfully set to display on org page.'),
+        (True, False, 'hide_degrees_on_org_page', '3 degrees were successfully set to be hidden on org page.')
+    )
+    @ddt.unpack
+    def test_display_on_org_page_actions__multiple_degrees(self, before_value, after_value,
+                                                           admin_action, success_message):
+        test_degrees = factories.DegreeFactory.create_batch(3, display_on_org_page=before_value)
+        response = self.client.post(
+            reverse('admin:course_metadata_degree_changelist'),
+            {'action': admin_action, '_selected_action': [degree.id for degree in test_degrees]},
+            follow=True
+        )
+        assert response.status_code == HTTP_200_OK
+        assert success_message in response.content.decode('utf-8')
+
+        for degree in test_degrees:
+            degree.refresh_from_db()
+            assert degree.display_on_org_page == after_value
 
 
 class PersonPositionAdminTest(TestCase):

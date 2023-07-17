@@ -798,46 +798,13 @@ class SpecializationAdmin(admin.ModelAdmin):
     list_display = ('value', )
 
 
-def change_degree_status(modeladmin, request, queryset, status):
-    """
-    Changes the status of a degree.
-    """
-    count = queryset.count()
-    if count:
-        for obj in queryset:
-            obj.status = status
-            obj.save()
-
-        modeladmin.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
-            "status": "published" if status == ProgramStatus.Active else "unpublished",
-            "count": count,
-            "items": model_ngettext(modeladmin.opts, count),
-        }, messages.SUCCESS)
-
-
-@admin.action(permissions=['change'], description='Publish selected Degrees')
-def publish_degrees(modeladmin, request, queryset):
-    """
-    Django admin action to bulk publish degrees.
-    """
-    change_degree_status(modeladmin, request, queryset, ProgramStatus.Active)
-
-
-@admin.action(permissions=['change'], description='Unpublish selected Degrees')
-def unpublish_degrees(modeladmin, request, queryset):
-    """
-    Django admin action to bulk unpublish degrees.
-    """
-    change_degree_status(modeladmin, request, queryset, ProgramStatus.Unpublished)
-
-
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
     This is an inheritance model from Program
 
     """
-    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden')
+    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden', 'display_on_org_page')
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     list_filter = ('partner', 'status',)
@@ -860,7 +827,55 @@ class DegreeAdmin(admin.ModelAdmin):
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
         'program_duration_override', 'display_on_org_page',
     )
-    actions = [publish_degrees, unpublish_degrees]
+    actions = ['publish_degrees', 'unpublish_degrees', 'display_degrees_on_org_page', 'hide_degrees_on_org_page']
+
+    def change_degree_status(self, request, queryset, status):
+        """
+        Changes the status of a degree.
+        """
+        count = queryset.count()
+        if count:
+            for obj in queryset:
+                obj.status = status
+                obj.save()
+
+            self.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
+                "status": "published" if status == ProgramStatus.Active else "unpublished",
+                "count": count,
+                "items": model_ngettext(self.opts, count),
+            }, messages.SUCCESS)
+
+    @admin.action(permissions=['change'], description='Publish selected Degrees')
+    def publish_degrees(self, request, queryset):
+        """
+        Django admin action to bulk publish degrees.
+        """
+        self.change_degree_status(request, queryset, ProgramStatus.Active)
+
+    @admin.action(permissions=['change'], description='Unpublish selected Degrees')
+    def unpublish_degrees(self, request, queryset):
+        """
+        Django admin action to bulk unpublish degrees.
+        """
+        self.change_degree_status(request, queryset, ProgramStatus.Unpublished)
+
+    @admin.action(permissions=['change'], description="Display selected degrees on org page")
+    def display_degrees_on_org_page(self, request, queryset):
+        updated = queryset.update(display_on_org_page=True)
+        self.message_user(
+            request,
+            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to display on org page.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(permissions=['change'], description="Hide selected degrees on org page")
+    def hide_degrees_on_org_page(self, request, queryset):
+        updated = queryset.update(display_on_org_page=False)
+        self.message_user(
+            request,
+            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to be hidden on org page.",
+            messages.SUCCESS,
+        )
 
 
 @admin.register(SearchDefaultResultsConfiguration)
