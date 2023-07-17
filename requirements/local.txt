@@ -74,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.28.2
+boto3==1.28.3
     # via django-ses
-botocore==1.31.2
+botocore==1.31.3
     # via
     #   boto3
     #   s3transfer
@@ -111,7 +111,7 @@ charset-normalizer==3.2.0
     #   aiohttp
     #   requests
     #   snowflake-connector-python
-click==8.1.4
+click==8.1.5
     # via
     #   celery
     #   click-didyoumean
@@ -588,7 +588,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.8.1
+platformdirs==3.9.1
     # via
     #   pylint
     #   virtualenv
@@ -882,7 +882,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.42.1
+taxonomy-connector==1.42.2
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -958,7 +958,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.23.1
+virtualenv==20.24.0
     # via tox
 walrus==0.9.2
     # via edx-event-bus-redis
@@ -984,7 +984,7 @@ yarl==1.9.2
     # via aiohttp
 zeep==4.2.1
     # via simple-salesforce
-zipp==3.16.1
+zipp==3.16.2
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
