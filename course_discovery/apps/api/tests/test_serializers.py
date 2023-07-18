@@ -226,7 +226,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
-            'in_year_value': ProductValueSerializer(course.in_year_value).data
+            'in_year_value': ProductValueSerializer(course.in_year_value).data,
+            'watchers': [],
         })
 
         return expected

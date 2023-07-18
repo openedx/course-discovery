@@ -7,6 +7,7 @@ import ddt
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.template.loader import render_to_string
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture, StringComparison
@@ -146,6 +147,32 @@ class EmailTests(TestCase):
                 'For questions or comments, please contact the Project Coordinator at pc@example.com.',
             ],
         )
+
+    def test_send_email_to_notify_course_watchers(self):
+        """
+        Verify that send_email_to_notify_course_watchers's happy path works as expected
+        """
+        test_course_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
+        test_course_run.go_live_date = datetime.datetime.now()
+        self.course.watchers = ['test@test.com']
+        self.course.save()
+        emails.send_email_to_notify_course_watchers(self.course, test_course_run.go_live_date, test_course_run.status)
+        email = mail.outbox[0]
+
+        assert email.to == self.course.watchers
+        assert str(email.subject) == f'Course URL for {self.course.title}'
+        assert len(mail.outbox) == 1
+        assert email.alternatives[0][1] == 'text/html'
+
+        expected_content = render_to_string('course_metadata/email/watchers_course_url.html', {
+            'is_course_published': True,
+            'course_name': self.course.title,
+            'course_publish_date': test_course_run.go_live_date.strftime("%m/%d/%Y"),
+            'course_marketing_url': self.course.marketing_url,
+            'marketing_service_name': settings.MARKETING_SERVICE_NAME,
+        })
+        # Compare the expected template content with the email body
+        assert email.alternatives[0][0] == expected_content
 
     def test_send_email_for_internal_review(self):
         """

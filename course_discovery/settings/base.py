@@ -67,6 +67,7 @@ THIRD_PARTY_APPS = [
     'django_object_actions',
     'nested_admin',
     'openedx_events',
+    'multi_email_field',
 ]
 
 ALGOLIA = {

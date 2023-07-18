@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
@@ -218,6 +219,45 @@ def send_email_for_legal_review(course_run):
     """
     subject = _('Legal review requested: {title}').format(title=course_run.title)
     send_email_to_legal(course_run, 'course_metadata/email/legal_review', subject)
+
+
+def send_email_to_notify_course_watchers(course, course_run_publish_date, course_run_status):
+    """
+    Send email to the watchers of the course when the course run is scheduled or published.
+
+    Arguments:
+        course (Object): Course object
+        course_run_publish_date (datetime): Course run publish date
+        course_run_status (str): Course run status
+    """
+    subject = _('Course URL for {title}').format(title=course.title)
+    context = {
+        'course_name': course.title,
+        'marketing_service_name': settings.MARKETING_SERVICE_NAME,
+        'course_publish_date': course_run_publish_date.strftime("%m/%d/%Y"),
+        'is_course_published': course_run_status == CourseRunStatus.Published,
+        'course_marketing_url': course.marketing_url,
+        'course_preview_url': course.preview_url,
+    }
+    to_users = course.watchers
+    txt_template = 'course_metadata/email/watchers_course_url.txt'
+    html_template = 'course_metadata/email/watchers_course_url.html'
+    template = get_template(txt_template)
+    plain_content = template.render(context)
+    template = get_template(html_template)
+    html_content = template.render(context)
+
+    email_msg = EmailMultiAlternatives(
+        subject, plain_content, settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    email_msg.attach_alternative(html_content, 'text/html')
+
+    try:
+        email_msg.send()
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.exception(
+            f'Failed to send email notification with subject "{subject}" to users {to_users}. Error: {exc}'
+        )
 
 
 def send_email_for_internal_review(course_run):
