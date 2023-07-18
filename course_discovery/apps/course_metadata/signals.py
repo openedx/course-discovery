@@ -2,7 +2,6 @@ import logging
 import time
 from datetime import datetime, timezone
 
-import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
@@ -22,7 +21,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDat
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
     Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Fact, GeoLocation, Organization, ProductMeta,
-    ProductValue, Program
+    ProductValue, Program, Seat
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
@@ -385,32 +384,68 @@ def update_course_data_from_event(**kwargs):
     data_loader.process_single_course_run(body)
 
 
-def course_m2m_changed(sender, instance, action, **kwargs):
+@receiver(m2m_changed, sender=Course.collaborators.through)
+def course_collaborators_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
     """
-    If the course m2m fields have been changed, update the data modified timestamp for related Course obj.
+    If the course's collaborators have been changed, update the data modified timestamp for related Course obj.
 
-    TODO: This is not activated yet. All the fields are sorted M2M and the pre_add always had
-    mutation even if  nothing was changed.
-    @receiver(m2m_changed, sender=Course.subjects.through)
-    @receiver(m2m_changed, sender=Course.collaborators.through)
+    Collaborator is a sorted m2m field. The field internally clears all the value whenever the course is saved & re-adds
+    all the values, regardless of any change. This is done because the field needs to maintain the order.
+    To determine if the course collaborators have been changed, get the collab pk from non-draft/official version,
+    compare that set with values coming in from m2m_relation's pre_add or pre_remove, and if the set is not the same,
+    then the collaborators have been changed.
+    https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
     """
-    if action in ['pre_add', 'pre_remove'] and instance.draft:
-        logger.info(f"{sender} has been updated for course {instance.key}.")
-        Course.everything.filter(key=instance.key).update(
-            data_modified_timestamp=datetime.now(pytz.UTC)
+    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+        official_version_collaborators_pk = set(
+            instance.official_version.collaborators.all().values_list('pk', flat=True)
         )
-        instance.refresh_from_db()
+        if official_version_collaborators_pk != kwargs['pk_set']:
+            logger.info(f"Collaborator M2M relation has been updated for course {instance.key}.")
+            instance.set_data_modified_timestamp()
+
+
+@receiver(m2m_changed, sender=Course.subjects.through)
+def course_subjects_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    """
+    If the course's subjects have been changed, update the data modified timestamp for related Course obj.
+
+    Subjects is a sorted m2m field. The field internally clears all the value whenever the course is saved & re-adds
+    all the values, regardless of any change. This is done because the field needs to maintain the order.
+    To determine if the course subjects have been changed, get the subjects pk from non-draft/official version,
+    compare that set with values coming in from m2m_relation's pre_add or pre_remove, and if the set is not the same,
+    then the subjects have been changed.
+    https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
+    """
+    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+        official_version_subjects_pk = set(
+            instance.official_version.subjects.all().values_list('pk', flat=True)
+        )
+        if official_version_subjects_pk != kwargs['pk_set']:
+            logger.info(f"Subject M2M relation has been updated for course {instance.key}.")
+            instance.set_data_modified_timestamp()
 
 
 @receiver(m2m_changed, sender=ProductMeta.keywords.through)
-def course_taggable_manager_changed(sender, instance, action, **kwargs):
+def product_meta_taggable_changed(sender, instance, action, **kwargs):
     """
-    Signal handler to handle Taggable manager changes for the course tag field or course related models' tag fields.
+    Signal handler to handle Taggable manager changes for the keywords field on ProductMeta model.
     """
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
             and kwargs['pk_set'] and instance._meta.label == 'course_metadata.ProductMeta':
         logger.info(f"{sender} has been updated for ProductMeta {instance.pk}.")
         instance.update_product_data_modified_timestamp(bypass_has_changed=True)
+
+
+@receiver(m2m_changed, sender=Course.topics.through)
+def course_topics_taggable_changed(sender, instance, action, **kwargs):
+    """
+    Signal handler to handle Taggable manager changes for the course tag field or course related models' tag fields.
+    """
+    if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
+            and kwargs['pk_set'] and instance._meta.label == 'course_metadata.Course' and instance.draft:
+        logger.info(f"{sender} has been updated for Course {instance.key}.")
+        instance.set_data_modified_timestamp()
 
 
 @receiver(m2m_changed, sender=AdditionalMetadata.facts.through)
@@ -425,20 +460,36 @@ def additional_metadata_facts_changed(sender, instance, action, **kwargs):
 
 
 @receiver(m2m_changed, sender=CourseRun.transcript_languages.through)
-def course_run_m2m_changed(sender, instance, action, **kwargs):
+def course_run_transcript_languages_changed(sender, instance, action, **kwargs):
     """
-    If the course run m2m fields have been changed, update the data modified timestamp for related Course obj.
-
-    # TODO:This is not activated yet for CourseRun.Staff.That field is sorted M2M and the pre_add always had
-    mutation even if  nothing was changed.
-    @receiver(m2m_changed, sender=CourseRun.staff.through)
+    If the course run's transcript languages m2m field has been changed, update the data modified timestamp for
+    related Course obj.
     """
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] and instance.draft:
         logger.info(f"{sender} has been updated for course run {instance.key}.")
-        Course.everything.filter(key=instance.course.key).update(
-            data_modified_timestamp=datetime.now(pytz.UTC)
+        instance.course.set_data_modified_timestamp()
+
+
+@receiver(m2m_changed, sender=CourseRun.staff.through)
+def course_run_staff_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    """
+    If the course run staff m2m field has been changed, update the data modified timestamp for
+    related Course obj.
+
+    Staff is a sorted m2m field. The field internally clears all the value whenever the course run is saved & re-adds
+    all the values, regardless of any change. This is done because the field needs to maintain the order.
+    To determine if the course run staff has been changed, get the staff pk from non-draft/official version,
+    compare that set with values coming in from m2m_relation's pre_add or pre_remove, and if the set is not the same,
+    then the staff has been changed.
+    https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
+    """
+    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+        official_version_staff_pk = set(
+            instance.official_version.staff.all().values_list('pk', flat=True)
         )
-        instance.course.refresh_from_db()
+        if official_version_staff_pk != kwargs['pk_set']:
+            logger.info(f"Staff M2M relation has been updated for course run {instance.key}.")
+            instance.course.set_data_modified_timestamp()
 
 
 def connect_course_data_modified_timestamp_related_models():
@@ -453,9 +504,9 @@ def connect_course_data_modified_timestamp_related_models():
         CourseLocationRestriction,
         CourseEntitlement,
         GeoLocation,
-        Organization,
         ProductMeta,
         ProductValue,
+        Seat,
         Fact,
     ]:
         pre_save.connect(data_modified_timestamp_update, sender=model)
@@ -476,9 +527,40 @@ def disconnect_course_data_modified_timestamp_related_models():
         GeoLocation,
         ProductMeta,
         ProductValue,
-        Fact,
+        Seat,
+        Fact
     ]:
         pre_save.disconnect(data_modified_timestamp_update, sender=model)
+
+
+def disconnect_course_data_modified_timestamp_signal_handlers():
+    """
+    Util method to disconnect all signal handlers that update data_modified_timestamp on
+    Course model.
+    """
+    disconnect_course_data_modified_timestamp_related_models()
+    m2m_changed.disconnect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
+    m2m_changed.disconnect(course_topics_taggable_changed, sender=Course.topics.through)
+    m2m_changed.disconnect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
+    m2m_changed.disconnect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
+    m2m_changed.disconnect(course_collaborators_changed, Course.collaborators.through)
+    m2m_changed.disconnect(course_subjects_changed, Course.subjects.through)
+    m2m_changed.disconnect(course_run_staff_changed, CourseRun.staff.through)
+
+
+def connect_course_data_modified_timestamp_signal_handlers():
+    """
+    Util method to connect all signal handlers that update data_modified_timestamp on
+    Course model.
+    """
+    connect_course_data_modified_timestamp_related_models()
+    m2m_changed.connect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
+    m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
+    m2m_changed.connect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
+    m2m_changed.connect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
+    m2m_changed.connect(course_collaborators_changed, Course.collaborators.through)
+    m2m_changed.connect(course_subjects_changed, Course.subjects.through)
+    m2m_changed.connect(course_run_staff_changed, CourseRun.staff.through)
 
 
 @receiver(m2m_changed, sender=User.groups.through)

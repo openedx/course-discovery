@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.db.models.query import Prefetch
+from django.db.models.signals import m2m_changed, pre_save
 from edx_toggles.toggles.testutils import override_waffle_switch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
@@ -23,8 +24,13 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
-    Fact, GeoLocation, ProductMeta, Seat, Source
+    AbstractLocationRestrictionModel, AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement,
+    CourseLocationRestriction, CourseRun, CourseRunType, CourseType, Fact, GeoLocation, ProductMeta, ProductValue, Seat,
+    Source
+)
+from course_discovery.apps.course_metadata.signals import (
+    additional_metadata_facts_changed, connect_course_data_modified_timestamp_signal_handlers,
+    disconnect_course_data_modified_timestamp_signal_handlers, product_meta_taggable_changed
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
@@ -32,7 +38,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
-from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
@@ -66,6 +72,16 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     def tearDown(self):
         super().tearDown()
         self.client.logout()
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_signal_handlers()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        connect_course_data_modified_timestamp_signal_handlers()
+        super().tearDownClass()
 
     def mock_ecommerce_publication(self):
         url = f'{self.course.partner.ecommerce_api_url}publication/'
@@ -1146,6 +1162,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     @ddt.data(CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U)
     @responses.activate
     def test_update_with_additional_metadata_if_type_2U(self, type_slug):
+        pre_save.connect(data_modified_timestamp_update, sender=AdditionalMetadata)
+        pre_save.connect(data_modified_timestamp_update, sender=CertificateInfo)
         type_2U = CourseTypeFactory(slug=type_slug)
         course = CourseFactory(additional_metadata=None, type=type_2U)
         current = datetime.datetime.now(pytz.UTC)
@@ -1232,6 +1250,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         additional_metadata['certificate_info'] = new_cert
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
         assert previous_data_modified_timestamp < course.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=AdditionalMetadata)
+        pre_save.disconnect(data_modified_timestamp_update, sender=CertificateInfo)
 
     @ddt.data(CourseType.VERIFIED_AUDIT, CourseType.PROFESSIONAL)
     @responses.activate
@@ -1254,6 +1274,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
     @responses.activate
     def test_update_facts_with_additional_metadata(self):  # pylint: disable=too-many-statements
+        pre_save.connect(data_modified_timestamp_update, sender=Fact)
+        m2m_changed.connect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
         current = datetime.datetime.now(pytz.UTC)
 
         EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
@@ -1361,6 +1383,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert course_1_previous_data_modified_timestamp < course_1.data_modified_timestamp
         assert course_2_previous_data_modified_timestamp < course_2.data_modified_timestamp
         assert course_3_previous_data_modified_timestamp < course_3.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=Fact)
+        m2m_changed.disconnect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
 
     @ddt.data(
         (
@@ -1413,9 +1437,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     @responses.activate
     def test_update_product_meta_with_additional_metadata(self):
         """ Verify that the product_meta is updated when additional_metadata is updated. """
-
+        pre_save.connect(data_modified_timestamp_update, ProductMeta)
+        m2m_changed.connect(product_meta_taggable_changed, ProductMeta.keywords.through)
         current = datetime.datetime.now(pytz.UTC)
-
         EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         course = CourseFactory(additional_metadata=None, type=EE_type_2U)
         previous_data_modified_timestamp = course.data_modified_timestamp
@@ -1493,6 +1517,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
         assert previous_data_modified_timestamp == course.data_modified_timestamp
 
+        pre_save.disconnect(data_modified_timestamp_update, ProductMeta)
+        m2m_changed.disconnect(product_meta_taggable_changed, ProductMeta.keywords.through)
+
     @responses.activate
     def test_update_success_with_course_type_verified(self):
         verified_mode = SeatTypeFactory.verified()
@@ -1537,8 +1564,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     @responses.activate
     def test_update_location_restriction(self, existing_location_restriction):
         """
-        Location restriction can be updated whether or not there is existing data.
+        Location restriction can be updated whether there is existing data.
         """
+        pre_save.connect(data_modified_timestamp_update, CourseLocationRestriction)
         location_restriction = None
         if existing_location_restriction:
             location_restriction = CourseLocationRestrictionFactory(
@@ -1546,6 +1574,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 countries=['US'], states=['MA']
             )
         course = CourseFactory(location_restriction=location_restriction)
+        previous_data_modified_timestamp = course.data_modified_timestamp
 
         location_restriction_data = {
             'restriction_type': AbstractLocationRestrictionModel.BLOCKLIST,
@@ -1560,19 +1589,31 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert response.status_code == 200
         course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        # update call without location restriction change does not update timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course.refresh_from_db()
+        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, CourseLocationRestriction)
 
     @ddt.data(False, True)
     @responses.activate
     def test_update_in_year_value(self, existing_in_year_value):
         """
-        In-year value can be updated whether or not there is existing data.
+        In-year value can be updated whether there is existing data.
         """
+        pre_save.connect(data_modified_timestamp_update, ProductValue)
         in_year_value = None
         if existing_in_year_value:
             in_year_value = ProductValueFactory(
                 per_click_usa=100, per_click_international=80, per_lead_usa=100, per_lead_international=80
             )
         course = CourseFactory(in_year_value=in_year_value)
+        previous_data_modified_timestamp = course.data_modified_timestamp
 
         in_year_value_data = {
             'per_click_usa': 150,
@@ -1588,6 +1629,16 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert response.status_code == 200
         course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['in_year_value'], in_year_value_data)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        # Update call without a change to product value does not update timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course.refresh_from_db()
+        self.assertDictEqual(self.serialize_course(course)['in_year_value'], in_year_value_data)
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, ProductValue)
 
     @responses.activate
     def test_update_in_year_value_missing_fields(self):

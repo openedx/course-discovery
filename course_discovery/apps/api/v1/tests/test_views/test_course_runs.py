@@ -9,6 +9,7 @@ import pytz
 import responses
 from django.contrib.auth.models import Group
 from django.db.models.functions import Lower
+from django.db.models.signals import pre_save
 from django.test import override_settings
 from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
@@ -21,12 +22,15 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
+from course_discovery.apps.course_metadata.signals import (
+    connect_course_data_modified_timestamp_signal_handlers, disconnect_course_data_modified_timestamp_signal_handlers
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
     PersonFactory, ProgramFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
 )
 from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
-from course_discovery.apps.course_metadata.utils import is_valid_slug_format
+from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, is_valid_slug_format
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -52,6 +56,16 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.request.user = self.user
         self.partner.lms_url = 'http://127.0.0.1:8000'
         self.partner.save()
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_signal_handlers()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        connect_course_data_modified_timestamp_signal_handlers()
+        super().tearDownClass()
 
     def mock_patch_to_studio(self, key, access_token=True, status=200, body=None):
         if access_token:
@@ -879,8 +893,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """
         Verify that draft seats are updated when the type being passed in changes.
         """
-        # First create a course and course run using the original seat type to inform the
-        # CourseType and CourseRunType
+        # First create a course and course run using the original seat type to inform the CourseType and CourseRunType
+        # Connect signal handler for data handler for Seat only to not cause any side effects
+        pre_save.connect(data_modified_timestamp_update, sender=Seat)
         original_course_type, original_run_type = self.create_course_and_run_types(original_seat_type)
         creation_data = {
             'title': 'Course title',
@@ -912,12 +927,13 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'run_type': str(updated_run_type.uuid),
             'prices': {seat_type: price},
         }
-
+        draft_course_run = CourseRun.everything.last()
+        previous_data_modified_timestamp = draft_course_run.course.data_modified_timestamp
         # Update this course_run with the new info
         response = self.client.patch(url, data, format='json')
         assert response.status_code == 200
 
-        draft_course_run = CourseRun.everything.last()
+        draft_course_run.refresh_from_db()
         num_seats = Seat.everything.count()
         if seat_type == 'verified':
             assert num_seats == 2
@@ -932,6 +948,13 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         # that if there are two tracks (verified and audit), the verified track is first
         assert seat.type == updated_run_type.tracks.first().seat_type
         assert seat.draft
+
+        # Course run api creates new seats if the type is changed.
+        # the same seat type, except audit, test cases have price updates and are picked by FieldTracker
+        # TODO: This test can probably be broken down into separate appropriate unit tests
+        if original_seat_type == seat_type and seat_type != 'audit':
+            assert previous_data_modified_timestamp < draft_course_run.course.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=Seat)
 
     @responses.activate
     def test_patch_updating_seats_only_affects_active_course_runs_using_type(self):
