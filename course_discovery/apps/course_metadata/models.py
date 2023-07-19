@@ -39,6 +39,7 @@ from taggit_autosuggest.managers import TaggableManager
 from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 
 from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
@@ -2467,7 +2468,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
         defaults = {
-            'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
+            '_upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
         }
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
@@ -2475,13 +2476,14 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if upgrade_deadline_override and seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
 
-        seat, __ = Seat.everything.update_or_create(
-            course_run=self,
-            type=seat_type,
-            draft=True,
-            defaults=defaults,
-        )
-        return seat
+        seats = Seat.everything.filter(course_run=self, type=seat_type, draft=True)
+        if not seats:
+            seats = [Seat.everything.create(course_run=self, type=seat_type, draft=True, **defaults)]
+        else:
+            for seat in seats:
+                update_instance(seat, defaults, should_commit=True)
+
+        return seats
 
     def update_or_create_seats(self, run_type=None, prices=None, upgrade_deadline_override=None):
         """
@@ -2498,7 +2500,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         seats = []
         for seat_type in seat_types:
-            seats.append(self.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override))
+            seats.extend(self.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override))
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between

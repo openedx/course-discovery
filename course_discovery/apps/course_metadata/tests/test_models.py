@@ -742,20 +742,25 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         professional_seat_type = factories.SeatTypeFactory.professional()
         honor_seat_type = factories.SeatTypeFactory.honor()
         verified_seat = factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
+        second_verified_seat = factories.SeatFactory(course_run=course_run, type=verified_seat_type,
+                                                     upgrade_deadline=None, price=verified_seat.price)
+        verified_seat_with_diff_price = factories.SeatFactory(course_run=course_run, type=verified_seat_type,
+                                                              upgrade_deadline=None, price=verified_seat.price + 10)
         professional_seat = factories.SeatFactory(course_run=course_run, type=professional_seat_type,
                                                   upgrade_deadline=None)
         honor_seat = factories.SeatFactory(course_run=course_run, type=honor_seat_type, upgrade_deadline=None)
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) == \
-               [verified_seat, professional_seat]
+               [verified_seat, second_verified_seat, verified_seat_with_diff_price, professional_seat]
 
         # The method should not care about the course run's start date.
         course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) ==\
-               [verified_seat, professional_seat]
+               [verified_seat, second_verified_seat, verified_seat_with_diff_price, professional_seat]
 
         # Enrollable seats of any type should be returned when no type parameter is specified.
-        assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
+        assert course_run.enrollable_seats() == [verified_seat, second_verified_seat, verified_seat_with_diff_price,
+                                                 professional_seat, honor_seat]
 
     def test_has_enrollable_seats(self):
         """ Verify the expected value of has_enrollable_seats is returned. """
@@ -1564,36 +1569,67 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.course.draft = True
         upgrade_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10)
+        # We now expect a course run to have more than one verified seat therefore adding check for two seats.
         verified_type = SeatTypeFactory.verified()
         factories.SeatFactory(
             course_run=self.course_run,
             draft=True,
             type=verified_type,
-            upgrade_deadline=upgrade_deadline
+            upgrade_deadline=upgrade_deadline,
+            sku='123',
+            price=100
+        )
+        factories.SeatFactory(
+            course_run=self.course_run,
+            draft=True,
+            type=verified_type,
+            upgrade_deadline=upgrade_deadline,
+            sku='000',
+            price=100
+        )
+        factories.SeatFactory(
+            course_run=self.course_run,
+            draft=True,
+            type=verified_type,
+            upgrade_deadline=upgrade_deadline,
+            sku='111',
+            price=200
         )
 
         factories.CourseEntitlementFactory(course=self.course_run.course, mode=verified_type, draft=True)
         self.course_run.course.save()
         self.course_run.save()
-        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type)
+
         official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
-        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type)
+        new_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=15)
+
+        self._change_upgrade_deadline_on_draft_seat('123', official_run, verified_type, upgrade_deadline, new_deadline)
+        self._change_upgrade_deadline_on_draft_seat('000', official_run, verified_type, upgrade_deadline, new_deadline)
+        self._change_upgrade_deadline_on_draft_seat('111', official_run, verified_type, upgrade_deadline, new_deadline)
+
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+        draft_run.update_or_create_official_version()
+
+        self._assert_verified_seat_deadline('123', new_deadline, draft_run, official_run, verified_type)
+        self._assert_verified_seat_deadline('000', new_deadline, draft_run, official_run, verified_type)
+        self._assert_verified_seat_deadline('111', new_deadline, draft_run, official_run, verified_type)
+
+    def _change_upgrade_deadline_on_draft_seat(self, sku, official_run, verified_type, upgrade_deadline, new_deadline):
+        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type, sku=sku)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type, sku=sku)
 
         assert draft_seat.upgrade_deadline == upgrade_deadline
         assert official_seat.upgrade_deadline == upgrade_deadline
 
         # Simulate updating the draft seat in Django admin which is how we currently support changing it
-        new_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=15)
         draft_seat.upgrade_deadline = new_deadline
         draft_seat.save()
 
-        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
-        draft_run.update_or_create_official_version()
-
-        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type)
-        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type)
-        assert draft_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
-        assert official_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
+    def _assert_verified_seat_deadline(self, sku, new_deadline, draft_run, official_run, verified_type):
+        draft_seat = Seat.everything.get(course_run=draft_run, draft=True, type=verified_type, sku=sku)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type, sku=sku)
+        assert draft_seat.upgrade_deadline == new_deadline
+        assert official_seat.upgrade_deadline == new_deadline
 
 
 @ddt.ddt

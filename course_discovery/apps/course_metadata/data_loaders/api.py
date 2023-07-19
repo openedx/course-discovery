@@ -15,6 +15,7 @@ from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
@@ -601,15 +602,17 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        _, created = course_run.seats.update_or_create(
-            type=seat_type,
+        seats = course_run.seats.filter(
             credit_provider=credit_provider,
             currency=currency,
-            defaults=defaults
+            type=seat_type,
         )
-
-        if created:
+        if not seats:
+            course_run.seats.create(type=seat_type, credit_provider=credit_provider, currency=currency, **defaults)
             logger.info('Created seat for course with key [%s] and sku [%s].', course_run.key, sku)
+        else:
+            for seat in seats:
+                update_instance(seat, defaults, should_commit=True)
 
     def validate_stockrecord(self, stockrecords, title, product_class):
         """
