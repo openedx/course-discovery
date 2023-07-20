@@ -14,6 +14,8 @@ RUN apt update && \
   python3.8-distutils \
   libmysqlclient-dev \
   libssl-dev \
+  # mysqlclient >= 2.2.0 requires pkg-config.
+  pkg-config \
   libcairo2-dev && \
   rm -rf /var/lib/apt/lists/*
 
