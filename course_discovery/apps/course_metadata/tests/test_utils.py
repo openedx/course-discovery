@@ -20,18 +20,19 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.constants import DEFAULT_SLUG_FORMAT_ERROR_MSG
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, CourseUrlSlug, Seat, SeatType, Track
+    Course, CourseEditor, CourseRun, CourseType, CourseUrlSlug, Seat, SeatType, Track
 )
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory,
-    SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, ModeFactory,
+    OrganizationFactory, OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
@@ -1136,9 +1137,14 @@ class ValidateSlugFormatTest(TestCase):
     """
     def setUp(self):
         self.product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.external_product_source = SourceFactory(slug=settings.EXTERNAL_PRODUCT_SOURCE_SLUG)
+        self.course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         self.test_course_1 = CourseFactory(title='test-title', product_source=self.product_source)
         self.test_course_2 = CourseFactory(title='test-title-2')
         self.test_course_3 = CourseFactory(title='test-title-3', product_source=self.product_source)
+        self.test_course_4 = CourseFactory(
+            title='test-title-4', product_source=self.external_product_source, type=self.course_type
+        )
 
         CourseRunFactory(course=self.test_course_1, status=CourseRunStatus.Published)
         CourseRunFactory(course=self.test_course_2, status=CourseRunStatus.InternalReview)
@@ -1187,16 +1193,27 @@ class ValidateSlugFormatTest(TestCase):
             assert validate_slug_format(slug, self.test_course_2) is expected_result
 
     @ddt.data(
-        ('learn/physics/applied-physics', False),
-        ('learn/', True),
-        ('learn/', False),
-        ('learn/123', True),
-        ('learn/123', False),
-        ('learn/physics/applied-physics/', True),
-        ('learn$', False),
+        ('learn/physics/applied-physics', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/123', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/physics/applied-physics/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn$', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
     )
     @ddt.unpack
-    def test_validate_slug_format__raise_exception_for_ocm_course(self, slug, is_subdirectory_slug_format_active):
+    def test_validate_slug_format__raise_exception_for_ocm_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
         """
         Test that validate_slug_format raises exception if the slug is not in the correct format for OCM course
         """
@@ -1204,7 +1221,8 @@ class ValidateSlugFormatTest(TestCase):
             with self.assertRaises(ValidationError) as context:
                 validate_slug_format(slug, self.test_course_1)
 
-            expected_error_message = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+            expected_error_message = expected_error_message.format(url_slug=slug)
+
             actual_error_message = str(context.exception)
             self.assertIn(expected_error_message, actual_error_message)
 
@@ -1227,5 +1245,54 @@ class ValidateSlugFormatTest(TestCase):
                 validate_slug_format(slug, self.test_course_2)
 
             expected_error_message = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', True),
+        ('executive-education/new-org-applied-physics', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_exec_ed_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_4) is None
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            .get('executive-education-2u').get('error_msg')
+        ),
+        ('executive-education/org-name-course-name/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+        (
+            'learn/test-course', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_for_exec_ed_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.test_course_4)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
             actual_error_message = str(context.exception)
             self.assertIn(expected_error_message, actual_error_message)

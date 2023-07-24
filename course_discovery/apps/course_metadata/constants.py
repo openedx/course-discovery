@@ -9,6 +9,8 @@ COURSE_UUID_REGEX = r'[0-9a-f-]+'
 SUBDIRECTORY_SLUG_FORMAT_REGEX = r'learn\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
 SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
 
+DEFAULT_SLUG_FORMAT_ERROR_MSG = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+
 MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 
 IMAGE_TYPES = {
