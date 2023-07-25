@@ -1907,7 +1907,7 @@ msgid ""
 "The {link_start}{course_page_url}{link_middle}{course_run_number} course "
 "run{link_end} of {course_name} has been reviewed and approved by "
 "{platform_name}."
-msgstr "{course_name} 的{link_start}{course_page_url}{link_middle}{course_run_number}课程运行{link_end}已经过{a03fe5b5347.58dz0}的审查和批准"
+msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:22
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:12

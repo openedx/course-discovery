@@ -8,7 +8,7 @@
 # Mohammad Ali Rooeintan <m.a.rooeintan@gmail.com>, 2016
 # mr ash <mrash14@gmail.com>, 2017
 # Sajad Sepehri <sajad.ta@iranacademia.education>, 2021
-# SeyedMahdi Saeid <saeid@edspirit.com>, 2022
+# SeyedMahdi Saeid <saeid@edspirit.com>, 2022-2023
 # Somaye Joolaee, 2022
 msgid ""
 msgstr ""
@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-06-04 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: SeyedMahdi Saeid <saeid@edspirit.com>, 2022\n"
+"Last-Translator: SeyedMahdi Saeid <saeid@edspirit.com>, 2022-2023\n"
 "Language-Team: Persian (Iran) (http://app.transifex.com/open-edx/edx-platform/language/fa_IR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -145,7 +145,7 @@ msgstr "این نوع دوره آموزشی [{course_type}]  وجود ندار�
 #: apps/api/v1/views/courses.py:200
 #, python-brace-format
 msgid "Product Source [{product_source}] does not exist. "
-msgstr ""
+msgstr "منبع [{product_source}] وجود ندارد. "
 
 #: apps/api/v1/views/courses.py:218
 #, python-brace-format
@@ -429,7 +429,7 @@ msgstr "آرشیوشده"
 
 #: apps/course_metadata/algolia_models.py:587
 msgid "Available by subscription"
-msgstr ""
+msgstr "با اشتراک در دسترس می باشد"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
@@ -522,27 +522,27 @@ msgstr "نهاد"
 
 #: apps/course_metadata/choices.py:63
 msgid "Short"
-msgstr ""
+msgstr "کوتاه"
 
 #: apps/course_metadata/choices.py:64
 msgid "Medium"
-msgstr ""
+msgstr "متوسط"
 
 #: apps/course_metadata/choices.py:65
 msgid "Long"
-msgstr ""
+msgstr "بلند"
 
 #: apps/course_metadata/choices.py:80
 msgid "Short Course"
-msgstr ""
+msgstr "دوره کوتاه"
 
 #: apps/course_metadata/choices.py:81
 msgid "Sprint"
-msgstr ""
+msgstr "اسپرینت"
 
 #: apps/course_metadata/choices.py:82
 msgid "Course Stack"
-msgstr ""
+msgstr "دسته دوره"
 
 #: apps/course_metadata/data_loaders/course_type.py:27
 #, python-brace-format
@@ -921,7 +921,7 @@ msgid ""
 "The 6 character-hex-value of the orgnization theme color,\n"
 "            all related course under same organization will use this color as theme color.\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
-msgstr ""
+msgstr "6 کاراکتر-هگزا از رنگ تم سازمان,\n            همه دوره های مرتبط در یک سازمان از این الگوی رنگ برای رنگ تم استفاده خواهند کرد.\n            (e.g. \"#ff0000\" که برابر است با قرمز) نیازی به ارائه `#` نیست"
 
 #: apps/course_metadata/models.py:261
 msgid ""
@@ -931,7 +931,7 @@ msgstr "لطفاً از هیچ فاصله یا نویسه خاصی به جز ن�
 
 #: apps/course_metadata/models.py:324
 msgid "Corresponding organization code in an external product source"
-msgstr ""
+msgstr "کد سازمان مربوطه در منبع محصول خارجی"
 
 #: apps/course_metadata/models.py:381
 msgid "LevelType model translations"
@@ -957,15 +957,15 @@ msgstr "این قسمت را خالی بگذارید تا به‌طور خودک
 
 #: apps/course_metadata/models.py:464
 msgid "Name of the external source."
-msgstr ""
+msgstr "نام منبع خارجی"
 
 #: apps/course_metadata/models.py:469
 msgid "Description of the external source."
-msgstr ""
+msgstr "شرح منبع خارجی"
 
 #: apps/course_metadata/models.py:474
 msgid "Programs of these types will be OFAC restricted"
-msgstr ""
+msgstr "برنامه هایی از این نوع محدود به OFAC خواهند بود"
 
 #: apps/course_metadata/models.py:488
 msgid "ProgramType model translations"
@@ -1011,7 +1011,7 @@ msgstr "ترجمه‌های مدل مبحث"
 
 #: apps/course_metadata/models.py:757
 msgid "SEO Meta tags for Products"
-msgstr ""
+msgstr "متا تگ های SEO برای محصولات"
 
 #: apps/course_metadata/models.py:784
 msgid ""
@@ -1039,7 +1039,7 @@ msgstr "تاریخ شروع ارائه دوره آموزشی خارجی برای
 
 #: apps/course_metadata/models.py:835
 msgid "The ends date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "تاریخ پایان دوره خارجی ارائه شده برای اهداف بازاریابی"
 
 #: apps/course_metadata/models.py:839
 msgid "The suggested deadline for enrollment for marketing purpose"
@@ -1051,16 +1051,16 @@ msgstr "شناسه یک نوع محصول."
 
 #: apps/course_metadata/models.py:847
 msgid "Course override"
-msgstr ""
+msgstr "لغو دوره"
 
 #: apps/course_metadata/models.py:848
 msgid "This field allows for override the default course term"
-msgstr ""
+msgstr "این فیلد اجازه می دهد تا اصطلاح دوره پیش فرض را لغو کنید"
 
 #: apps/course_metadata/models.py:866
 msgid ""
 "This field contain external course marketing type specific to product lines"
-msgstr ""
+msgstr "این فیلد شامل نوع بازاریابی دوره خارجی مخصوص خطوط محصول است"
 
 #: apps/course_metadata/models.py:940
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1133,7 +1133,7 @@ msgstr "هنگام ساخت مجدد این دوره آموزشی، آن‌ها 
 msgid ""
 "The actual duration of this course as experienced by learners who complete "
 "it."
-msgstr ""
+msgstr "مدت زمان واقعی این دوره منطبق بر تجربه فراگیرانی ست که آن را تکمیل می کنند."
 
 #: apps/course_metadata/models.py:1270
 msgid "Add the course image"
@@ -1163,7 +1163,7 @@ msgstr "اطلاعات بیشتر"
 
 #: apps/course_metadata/models.py:1331
 msgid "The last time this course was modified in the database."
-msgstr ""
+msgstr "آخرین باری که این دوره در پایگاه داده اصلاح شد."
 
 #: apps/course_metadata/models.py:1336
 msgid ""
@@ -1175,11 +1175,11 @@ msgstr "این قسمت نشان می‌دهد که آیا این دوره آم�
 msgid ""
 "If checked, this item will not be indexed in Algolia and will not show up in"
 " search results."
-msgstr ""
+msgstr "در صورت علامت زدن، این مورد در الگولیا نمایه نمی شود و در نتایج جستجو نشان داده نمی شود."
 
 #: apps/course_metadata/models.py:1352 apps/course_metadata/models.py:3003
 msgid "If checked, the About Page will have a meta tag with noindex value"
-msgstr ""
+msgstr "اگر علامت زده شود، صفحه درباره ما دارای یک متا تگ بدون مقدار شاخص خواهد بود"
 
 #: apps/course_metadata/models.py:1540
 msgid "Future"
@@ -1282,19 +1282,19 @@ msgstr "تعویض انواع جایگاه‌ها پس از بازبینی پش�
 
 #: apps/course_metadata/models.py:2662
 msgid "Change careers"
-msgstr ""
+msgstr "تغییر حرفه"
 
 #: apps/course_metadata/models.py:2663
 msgid "Job advancement"
-msgstr ""
+msgstr "پشرفت شغلی"
 
 #: apps/course_metadata/models.py:2664
 msgid "Learn valuable skills"
-msgstr ""
+msgstr "مهارت های ارزشمند را بیاموزید"
 
 #: apps/course_metadata/models.py:2665
 msgid "Learn for fun"
-msgstr ""
+msgstr "برای تفریح یاد بگیرید"
 
 #: apps/course_metadata/models.py:2839
 msgid "FAQs"
@@ -1410,7 +1410,7 @@ msgstr "کد زبان خاص این برنامه. در صورتی زمینه‌�
 msgid ""
 "Useful field to overwrite the duration of a program. It can be a text "
 "describing a period of time, Ex: 6-9 months."
-msgstr ""
+msgstr "فیلد مفید برای بازنویسی مدت زمان یک برنامه. این فیلد می تواند شامل متنی باشد که یک دوره زمانی را توصیف می کند، به عنوان مثال: 6-9 ماه."
 
 #: apps/course_metadata/models.py:3024
 msgid ""
@@ -1420,11 +1420,11 @@ msgstr "از میان پیشنهادها، یک برچسب انتخاب کنید
 
 #: apps/course_metadata/models.py:3035
 msgid "The last time this program was modified."
-msgstr ""
+msgstr "آخرین باری که این برنامه اصلاح شد."
 
 #: apps/course_metadata/models.py:3447 apps/course_metadata/models.py:3464
 msgid "ID"
-msgstr ""
+msgstr "شناسه"
 
 #: apps/course_metadata/models.py:3483
 msgid "The actual rank number"
@@ -1518,7 +1518,7 @@ msgstr "تعداد دوره‌های آموزشی برای کارت جستجو (
 msgid ""
 "Designates whether the degree should be displayed on the owning "
 "organization's page"
-msgstr ""
+msgstr "مشخص می کند که آیا مدرک باید در صفحه سازمان نمایش داده شود یا خیر"
 
 #: apps/course_metadata/models.py:3637
 msgid "The redirect URL of the degree on external site"
@@ -1663,7 +1663,7 @@ msgstr "همکار {partner_key} و همکار دوره آموزشی {course_par
 
 #: apps/course_metadata/models.py:3992
 msgid "It expects the data will be provided in a csv file format "
-msgstr ""
+msgstr "انتظار می رود داده ها در قالب فایل csv ارائه شوند"
 
 #: apps/course_metadata/models.py:4004 apps/course_metadata/models.py:4017
 #: apps/course_metadata/models.py:4030 apps/course_metadata/models.py:4050
@@ -1743,7 +1743,7 @@ msgstr "روزآمدسازی مهارت‌های دوره آموزشی"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:32
 msgid "Refresh Program Skills"
-msgstr ""
+msgstr "مهارت های برنامه را به روز کنید"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
@@ -1956,7 +1956,7 @@ msgstr "این برنامه به خوبی تغییر یافت."
 
 #: apps/course_metadata/views.py:127
 msgid "The refresh program skills task triggered successfully."
-msgstr ""
+msgstr "مهارت‌های برنامه ی نوسازی با موفقیت راه‌اندازی شد."
 
 #: apps/course_metadata/views.py:206
 msgid "The refresh course skills task triggered successfully."
@@ -2092,7 +2092,7 @@ msgstr "توصیه‌هایی برای دوره‌های آموزشی ساخته
 
 #: apps/taxonomy_support/providers.py:162
 msgid "No partner object found!"
-msgstr ""
+msgstr "هیچ موضوع مرتبط با شریک پیدا نشد!"
 
 #: urls.py:32
 msgid "Discovery Service Administration"
