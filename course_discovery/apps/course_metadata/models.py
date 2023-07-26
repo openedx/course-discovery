@@ -4174,6 +4174,11 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in migrate_course_slugs and update_course_active_url_slugs.
     """
+    OPEN_COURSE = 'open-course'
+    COURSE_TYPE_CHOICES = (
+        (OPEN_COURSE, _('Open Courses')),
+        (CourseType.EXECUTIVE_EDUCATION_2U, _('2U Executive Education Courses')),
+    )
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0
     csv_file = models.FileField(
@@ -4186,6 +4191,8 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     course_uuids = models.TextField(default=None, null=True, blank=True, verbose_name=_('Course UUIDs'))
     dry_run = models.BooleanField(default=True)
     count = models.IntegerField(null=True, blank=True)
+    course_type = models.CharField(choices=COURSE_TYPE_CHOICES, default=OPEN_COURSE, max_length=255)
+    product_source = models.ForeignKey(Source, models.CASCADE, null=True, blank=False)
 
 
 class ProgramSubscriptionConfiguration(ConfigurationModel):
