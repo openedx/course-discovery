@@ -7,7 +7,7 @@
 # Translators:
 # Alvaro Rojas <alvaro.rojas.wm@gmail.com>, 2020
 # e2f_es r3 <tx_e2f_es_r3@ate2f.com>, 2023
-# Jesica Greco, 2022
+# Jesica Greco, 2022-2023
 # Julia Abajo <carakdraug@gmail.com>, 2016
 # Laia Richart <wu_wei86@hotmail.com>, 2016
 # Miguel Angel Cordova <miguel.angel.cordova.uned@gmail.com>, 2017
@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-06-04 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: e2f_es r3 <tx_e2f_es_r3@ate2f.com>, 2023\n"
+"Last-Translator: Jesica Greco, 2022-2023\n"
 "Language-Team: Spanish (Spain) (http://app.transifex.com/open-edx/edx-platform/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -435,7 +435,7 @@ msgstr "Archivado"
 
 #: apps/course_metadata/algolia_models.py:587
 msgid "Available by subscription"
-msgstr ""
+msgstr "Disponible por suscripción"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
@@ -1430,7 +1430,7 @@ msgstr "La última vez que se modificó este programa."
 
 #: apps/course_metadata/models.py:3447 apps/course_metadata/models.py:3464
 msgid "ID"
-msgstr ""
+msgstr "Identificación"
 
 #: apps/course_metadata/models.py:3483
 msgid "The actual rank number"
