@@ -9,7 +9,7 @@
 # Julia Oppenheimer <juliaoppenheimer2017@gmail.com>, 2019
 # Mose Chen <mosechen@gmail.com>, 2017
 # Ya-chi Chang <yacchang@mail.fcu.edu.tw>, 2016
-# 區壬豪 <oldmon@livemail.tw>, 2018
+# Nicholas Ou <oldmon@livemail.tw>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
