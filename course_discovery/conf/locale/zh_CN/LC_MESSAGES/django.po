@@ -1927,7 +1927,7 @@ msgstr "关于页面的课程运行现已发布。"
 msgid ""
 "The %(course_run_number)s course run of %(course_name)s has been reviewed "
 "and approved by %(platform_name)s."
-msgstr "%(course_name)s 的 %(course_run_number)s 课程已通过 %(platform_name)s 审核并批准。"
+msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:21
 #, python-format
