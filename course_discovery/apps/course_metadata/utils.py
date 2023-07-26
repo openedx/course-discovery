@@ -979,33 +979,54 @@ def get_slug_for_course(course):
           course: course object
 
     Returns:
-        slug: slug in the format 'learn/<primary_subject>/<organization_name>-<course_title>'
+        slug: slug in the format 'learn/<primary_subject>/<organization_name>-<course_title>' for open courses and
+        'executive-education/<course_title> for executive_education courses'
         error: error while creating slug in the required format
     """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseType  # pylint: disable=import-outside-toplevel
     error = None
 
-    course_subjects = course.subjects.all()
-    if len(course_subjects) < 1:
-        error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
-        logger.info(error)
-        return None, error
     organizations = course.authoring_organizations.all()
-    if len(organizations) < 1:
+    if not organizations:
         error = f"Course with uuid {course.uuid} and title {course.title} does not have any authoring organizations"
         logger.info(error)
         return None, error
-    primary_subject_slug = course_subjects[0].slug
     organization_slug = slugify(organizations[0].name.replace('\'', ''))
-    course_slug = course.active_url_slug
-    # course slug is None for courses which are created from studio
-    if not course_slug:
-        course_slug = course.title
-        slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+
+    def create_slug_for_exec_ed():
+        course_slug = slugify(course.title)
+        slug = f"executive-education/{organization_slug}-{course_slug}"
         if is_existing_slug(slug, course):
-            logger.info(f"Slug '{slug}' already exist in DB, recreating slug by adding a number in course_title")
-            course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
-    slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
-    return slug, error
+            logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{slugify(course.title)}-{get_existing_slug_count(slug) + 1}"
+            slug = f"executive-education/{organization_slug}-{course_slug}"
+        return slug, error
+
+    def create_slug_for_ocm():
+        course_subjects = course.subjects.all()
+        if not course_subjects:
+            error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+            logger.info(error)
+            return None, error
+
+        primary_subject_slug = course_subjects[0].slug
+        course_slug = course.active_url_slug
+
+        # course slug is None for courses which are created from studio
+        if not course_slug:
+            course_slug = slugify(course.title)
+            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+            if is_existing_slug(slug, course):
+                logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+                course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
+        slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        return slug, None
+
+    if course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
+        return create_slug_for_exec_ed()
+
+    return create_slug_for_ocm()
 
 
 def is_existing_slug(slug, course):

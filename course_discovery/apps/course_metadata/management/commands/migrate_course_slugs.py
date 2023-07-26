@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
 from course_discovery.apps.course_metadata.emails import send_email_for_slug_updates
-from course_discovery.apps.course_metadata.models import Course, MigrateCourseSlugConfiguration
+from course_discovery.apps.course_metadata.models import Course, CourseType, MigrateCourseSlugConfiguration
 from course_discovery.apps.course_metadata.utils import get_slug_for_course, is_valid_slug_format, is_valid_uuid
 
 logger = logging.getLogger(__name__)
@@ -13,12 +13,15 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = """
-    It will update course url slugs to the format 'learn/<primary_subject>/<organization_name>-course_title'
+    It will update course url slugs to the format 'learn/<primary_subject>/<organization_name>-<course_title>' for
+    open courses and 'executive-education/<organization_name>-<course_title>' for executive education courses
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.slug_update_report = []
+        self.course_type = None
+        self.product_source = None
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -48,6 +51,19 @@ class Command(BaseCommand):
             action='store_true',
             help='Use arguments from the MigrateCourseSlugConfiguration model instead of the command line.',
         )
+        parser.add_argument(
+            '--course_type',
+            help='Course Type to update slug',
+            type=str,
+            choices=[CourseType.EXECUTIVE_EDUCATION_2U, 'open-course'],
+            default='open-course',
+        )
+        parser.add_argument(
+            '--product_source',
+            help='Product source slug of the courses',
+            type=str,
+            default='edx',
+        )
 
     def get_args_from_database(self):
         config = MigrateCourseSlugConfiguration.current()
@@ -61,13 +77,16 @@ class Command(BaseCommand):
             'dry_run': config.dry_run,
             'course_uuids': config.course_uuids.split() if config.course_uuids else None,
             'csv_from_config': config.csv_file if bool(config.csv_file) else None,
-            'limit': config.count
+            'limit': config.count,
+            'course_type': config.course_type,
+            'product_source': config.product_source.slug,
         }
 
     def handle(self, *args, **options):
         """
-        It will execute the command to update slugs to the format
-        'learn/<primary_subject>/<organization_name>-course_title'
+        It will execute the command to update slugs to the sub directory format i.e
+        'learn/<primary_subject>/<organization_name>-<course_title>' for open courses
+        'executive-education/<organization_name>-<course_title>' for executive education courses
         """
         args_from_database = options.get('args_from_database', None)
         if args_from_database:
@@ -76,6 +95,8 @@ class Command(BaseCommand):
         course_uuids = options.get('course_uuids', None)
         csv_from_config = options.get('csv_from_config', None)
         limit = options.get('limit', None)
+        self.course_type = options.get('course_type', 'open-course')
+        self.product_source = options.get('product_source', 'edx')
         courses = []
 
         if csv_from_config:
@@ -85,8 +106,8 @@ class Command(BaseCommand):
             courses = self._get_courses_from_uuids(course_uuids)
 
         if limit:
-            logger.info(f"Getting first {limit} open course records")
-            courses = Course.everything.filter(product_source__slug='edx', draft=True)[:limit]
+            logger.info(f"Getting first {limit} {self.course_type} records")
+            courses = self._get_courses()[:limit]
 
         for course in courses:
             self._update_course_slug(course, dry_run)
@@ -159,8 +180,13 @@ class Command(BaseCommand):
                     }
                 )
                 logger.info(error)
+        return self._get_courses().filter(uuid__in=valid_course_uuids)
 
-        return Course.everything.filter(product_source__slug='edx', uuid__in=valid_course_uuids, draft=True)
+    def _get_courses(self):
+        courses = Course.everything.filter(product_source__slug=self.product_source, draft=True)
+        if self.course_type == CourseType.EXECUTIVE_EDUCATION_2U:
+            return courses.filter(type__slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        return courses
 
     def _get_report_in_csv_format(self):
         report_in_csv_format = "course_uuid,old_slug,new_slug,error\n"
