@@ -65,6 +65,7 @@ html2text
 lxml
 jsonfield
 markdown
+openedx-atlas
 pillow
 pycountry
 python-dateutil
