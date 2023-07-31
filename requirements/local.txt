@@ -74,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.28.10
+boto3==1.28.15
     # via django-ses
-botocore==1.31.10
+botocore==1.31.15
     # via
     #   boto3
     #   s3transfer
@@ -199,6 +199,7 @@ distro==1.8.0
     #   django-stdimage
     #   django-storages
     #   django-taggit
+    #   django-waffle
     #   djangorestframework
     #   drf-jwt
     #   drf-yasg
@@ -313,7 +314,7 @@ django-taggit==4.0.0
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.4.1
     # via -r requirements/base.in
-django-waffle==3.0.0
+django-waffle==4.0.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -456,7 +457,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.94.0
+google-api-python-client==2.95.0
     # via -r requirements/base.in
 google-auth==2.22.0
     # via
@@ -530,7 +531,7 @@ lxml==4.9.3
     # via
     #   -r requirements/base.in
     #   zeep
-markdown==3.4.3
+markdown==3.4.4
     # via -r requirements/base.in
 markupsafe==2.1.3
     # via jinja2
@@ -544,7 +545,7 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.0
     # via -r requirements/test.in
-newrelic==8.8.1
+newrelic==8.9.0
     # via edx-django-utils
 numpy==1.24.4
     # via pandas
@@ -577,7 +578,7 @@ packaging==21.3
     #   tox
 pandas==2.0.3
     # via taxonomy-connector
-paramiko==3.2.0
+paramiko==3.3.1
     # via docker
 path==16.7.1
     # via edx-i18n-tools
@@ -591,7 +592,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via
     #   pylint
     #   virtualenv
@@ -618,7 +619,7 @@ pyasn1==0.5.0
     #   rsa
 pyasn1-modules==0.3.0
     # via google-auth
-pycodestyle==2.10.0
+pycodestyle==2.11.0
     # via -r requirements/test.in
 pycountry==22.3.5
     # via -r requirements/base.in
@@ -646,7 +647,7 @@ pyjwt[crypto]==2.8.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.17.4
+pylint==2.17.5
     # via
     #   edx-lint
     #   pylint-celery
@@ -668,7 +669,7 @@ pynacl==1.5.0
     #   paramiko
 pyopenssl==23.2.0
     # via snowflake-connector-python
-pyparsing==3.1.0
+pyparsing==3.1.1
     # via
     #   httplib2
     #   packaging
@@ -902,7 +903,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.8
+tomlkit==0.12.1
     # via pylint
 tox==3.28.0
     # via

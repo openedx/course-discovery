@@ -49,9 +49,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.28.10
+boto3==1.28.15
     # via django-ses
-botocore==1.31.10
+botocore==1.31.15
     # via
     #   boto3
     #   s3transfer
@@ -146,6 +146,7 @@ django==3.2.20
     #   django-stdimage
     #   django-storages
     #   django-taggit
+    #   django-waffle
     #   djangorestframework
     #   drf-jwt
     #   drf-yasg
@@ -256,7 +257,7 @@ django-taggit==4.0.0
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.4.1
     # via -r requirements/base.in
-django-waffle==3.0.0
+django-waffle==4.0.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -365,7 +366,7 @@ gevent==23.7.0
     # via -r requirements/production.in
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.94.0
+google-api-python-client==2.95.0
     # via -r requirements/base.in
 google-auth==2.22.0
     # via
@@ -423,7 +424,7 @@ lxml==4.9.3
     # via
     #   -r requirements/base.in
     #   zeep
-markdown==3.4.3
+markdown==3.4.4
     # via -r requirements/base.in
 markupsafe==2.1.3
     # via jinja2
@@ -433,7 +434,7 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.0
     # via -r requirements/production.in
-newrelic==8.8.1
+newrelic==8.9.0
     # via
     #   -r requirements/production.in
     #   edx-django-utils
@@ -469,7 +470,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via zeep
 prompt-toolkit==3.0.39
     # via click-repl
@@ -510,7 +511,7 @@ pynacl==1.5.0
     # via edx-django-utils
 pyopenssl==23.2.0
     # via snowflake-connector-python
-pyparsing==3.1.0
+pyparsing==3.1.1
     # via httplib2
 python-dateutil==2.8.2
     # via
