@@ -705,12 +705,31 @@ PRODUCT_METADATA_MAPPING = {
     },
 }
 
+COURSE_URL_SLUGS_PATTERN = {
+    'edx':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        }},
+    'ext-source':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'executive-education-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }}
+}
+
+
 SUBSCRIPTION_METADATA_MAPPING = {
     'SHEET_ID': '',
     'INPUT_TAB_ID': '',
 }
 
 DEFAULT_PRODUCT_SOURCE_SLUG = ''
+EXTERNAL_PRODUCT_SOURCE_SLUG = ''
 
 CONTENTFUL_SPACE_ID = None
 CONTENTFUL_CONTENT_DELIVERY_API_KEY = None
