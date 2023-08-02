@@ -886,7 +886,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.43.2
+taxonomy-connector==1.43.3
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
