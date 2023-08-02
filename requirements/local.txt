@@ -74,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.28.15
+boto3==1.28.17
     # via django-ses
-botocore==1.31.15
+botocore==1.31.17
     # via
     #   boto3
     #   s3transfer
@@ -145,7 +145,7 @@ coverage[toml]==7.2.7
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==40.0.2
+cryptography==41.0.3
     # via
     #   paramiko
     #   pyjwt
@@ -402,7 +402,7 @@ edx-opaque-keys[django]==2.3.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==5.5.2
+edx-rest-api-client==5.6.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -472,7 +472,7 @@ google-auth-httplib2==0.1.0
     #   google-api-python-client
 google-auth-oauthlib==1.0.0
     # via gspread
-googleapis-common-protos==1.59.1
+googleapis-common-protos==1.60.0
     # via google-api-core
 gspread==5.10.0
     # via -r requirements/base.in
@@ -592,9 +592,10 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==3.10.0
+platformdirs==3.8.1
     # via
     #   pylint
+    #   snowflake-connector-python
     #   virtualenv
     #   zeep
 pluggy==1.2.0
@@ -786,7 +787,7 @@ requests-toolbelt==0.10.1
     # via
     #   -c requirements/constraints.txt
     #   zeep
-responses==0.23.1
+responses==0.23.3
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -800,7 +801,7 @@ ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
 s3transfer==0.6.1
     # via boto3
-selenium==4.10.0
+selenium==4.11.2
     # via -r requirements/test.in
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -840,7 +841,7 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.0.4
+snowflake-connector-python==3.1.0
     # via -r requirements/base.in
 social-auth-app-django==5.2.0
     # via
@@ -885,7 +886,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.43.1
+taxonomy-connector==1.43.2
     # via -r requirements/base.in
 testfixtures==7.1.0
     # via -r requirements/test.in
@@ -904,7 +905,9 @@ tomli==2.0.1
     #   pytest
     #   tox
 tomlkit==0.12.1
-    # via pylint
+    # via
+    #   pylint
+    #   snowflake-connector-python
 tox==3.28.0
     # via
     #   -c requirements/common_constraints.txt
@@ -961,7 +964,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.2
+virtualenv==20.24.1
     # via tox
 walrus==0.9.3
     # via edx-event-bus-redis
