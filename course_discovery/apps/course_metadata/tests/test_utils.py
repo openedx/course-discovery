@@ -21,7 +21,9 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.constants import DEFAULT_SLUG_FORMAT_ERROR_MSG
+from course_discovery.apps.course_metadata.constants import (
+    DEFAULT_SLUG_FORMAT_ERROR_MSG, EXECUTIVE_EDUCATION_SLUG_FORMAT_ERROR_MSG
+)
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
@@ -1308,7 +1310,7 @@ class ValidateSlugFormatTest(TestCase):
         ('executive-education/org-name-course-name', True),
         ('executive-education/new-org-applied-physics', True),
         ('custom-slug', True),
-        ('custom-slug', False),
+        ('executive-education/new-org-applied-physics', False),
     )
     @ddt.unpack
     def test_validate_slug_format__for_exec_ed_course(self, slug, is_subdirectory_slug_format_active):
@@ -1319,13 +1321,13 @@ class ValidateSlugFormatTest(TestCase):
             assert validate_slug_format(slug, self.test_course_4) is None
 
     @ddt.data(
-        ('executive-education/org-name-course-name', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        ('custom-slug', False, EXECUTIVE_EDUCATION_SLUG_FORMAT_ERROR_MSG),
         (
             'executive-education/org-name-course-name/', True,
             settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
             .get('executive-education-2u').get('error_msg')
         ),
-        ('executive-education/org-name-course-name/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        ('executive-education/org-name-course-name/', False, EXECUTIVE_EDUCATION_SLUG_FORMAT_ERROR_MSG),
         (
             'executive-education/org-name-course-name/123', True,
             settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]

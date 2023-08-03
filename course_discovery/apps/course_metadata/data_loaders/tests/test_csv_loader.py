@@ -6,6 +6,7 @@ from unittest import mock
 
 import responses
 from ddt import data, ddt, unpack
+from slugify import slugify
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -191,7 +192,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @data(
         ('csv-course-custom-slug', 'csv-course-custom-slug'),
         ('custom-slug-2', 'custom-slug-2'),
-        ('', 'csv-course')  # No slug in CSV corresponds to default slug mechanism
+        ('', 'executive-education/edx-csv-course')  # No slug in CSV corresponds to default slug mechanism
     )
     @unpack
     @responses.activate
@@ -328,7 +329,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course = Course.everything.get(key=self.COURSE_KEY)
                     stats = loader.get_ingestion_stats()
                     archived_products = stats.pop('archived_products')
-                    assert stats == {
+                    expected_slug = f'executive-education/' \
+                                    f'{course.authoring_organizations.first().name}-{slugify(course.title)}'
+
+                    expected_stats = {
                         'total_products_count': 1,
                         'success_count': 1,
                         'failure_count': 0,
@@ -337,11 +341,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'created_products': [{
                             'uuid': str(course.uuid),
                             'external_course_marketing_type': 'short_course',
-                            'url_slug': 'csv-course'
+                            'url_slug': expected_slug
                         }],
                         'archived_products_count': 2,
                         'errors': loader.error_logs
                     }
+                    assert stats == expected_stats
 
                     # asserting separately due to random sort order
                     assert set(archived_products) == {additional_metadata_one.external_identifier,
@@ -545,7 +550,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         """
         Verify that the correct slug is created for two courses with same title in different organizations.
         """
-        test_org = OrganizationFactory(name='testOrg', key='testOrg', partner=self.partner)
+        test_org = OrganizationFactory(name='testorg', key='testOrg', partner=self.partner)
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_image_response()
@@ -587,8 +592,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course1 = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
                     course2 = Course.everything.get(key='testOrg+csv_123', partner=self.partner)
 
-                    assert course1.active_url_slug == 'csv-course'
-                    assert course2.active_url_slug == 'csv-course-2'
+                    expected_slug = f'executive-education/' \
+                                    f'{course1.authoring_organizations.first().name}-{slugify(course1.title)}'
+                    assert course1.active_url_slug == expected_slug
+
+                    expected_slug = f'executive-education/' \
+                                    f'{course2.authoring_organizations.first().name}-{slugify(course2.title)}'
+                    assert course2.active_url_slug == expected_slug
 
                     log_capture.check_present(
                         (

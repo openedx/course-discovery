@@ -26,8 +26,8 @@ from stdimage.models import StdImageFieldFile
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.constants import (
-    DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
-    SUBDIRECTORY_SLUG_FORMAT_REGEX
+    DEFAULT_SLUG_FORMAT_ERROR_MSG, EXECUTIVE_EDUCATION_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST,
+    IMAGE_TYPES, SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
 )
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
@@ -1072,11 +1072,18 @@ def validate_slug_format(url_slug, course):
     Returns:
         none if url_slug is valid else throws ValidationError
     """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseType  # pylint: disable=import-outside-toplevel
     slug_pattern = None
 
     DEFAULT_SLUG_PATTERN = {
         'slug_format': SLUG_FORMAT_REGEX,
         'error_msg': DEFAULT_SLUG_FORMAT_ERROR_MSG,
+    }
+
+    EXECUTIVE_EDUCATION_SLUG_PATTERN = {
+        'slug_format': SUBDIRECTORY_SLUG_FORMAT_REGEX,
+        'error_msg': EXECUTIVE_EDUCATION_SLUG_FORMAT_ERROR_MSG,
     }
 
     if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
@@ -1086,6 +1093,8 @@ def validate_slug_format(url_slug, course):
             course.type.slug,
             product_source_product_type_url_slugs_dict.get('default', DEFAULT_SLUG_PATTERN)
         )
+    elif course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
+        slug_pattern = EXECUTIVE_EDUCATION_SLUG_PATTERN
     else:
         slug_pattern = DEFAULT_SLUG_PATTERN
 

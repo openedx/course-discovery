@@ -34,7 +34,7 @@ from course_discovery.apps.course_metadata.models import (
     Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
-    create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format
+    create_missing_entitlement, ensure_draft_world, get_slug_for_course, validate_course_number, validate_slug_format
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -228,10 +228,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 )
 
         course = serializer.save(draft=True)
-        course.set_active_url_slug(url_slug)
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
+
+        course_slug, __ = get_slug_for_course(course)
+        url_slug = course_slug if course_slug else url_slug
+        course.set_active_url_slug(url_slug)
 
         collaborators_uuid = request.data.get('collaborators')
         if collaborators_uuid:
