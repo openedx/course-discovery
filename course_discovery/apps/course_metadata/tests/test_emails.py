@@ -659,7 +659,7 @@ class TestSlugUpdatesEmail(TestCase):
     """
     Test suite for send_ingestion_email.
     """
-    EMAIL_SUBJECT = 'Slugs Update Summary'
+    EMAIL_SUBJECT = 'Migrate Course Slugs Summary Report'
     USER_EMAILS = ['edx@example.com']
 
     def test_send_email_for_slug_updates(self):
