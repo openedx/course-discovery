@@ -2,6 +2,7 @@ import tempfile
 from unittest.mock import patch
 
 import mock
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -79,7 +80,8 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
                 'update_course_active_url_slugs', '--csv_file', 'no_csv'
             )
 
-    def test_success_flow__through_configuration_model(self):
+    @mock.patch(LOGGER_PATH + '.send_email_for_slug_updates')
+    def test_success_flow__through_configuration_model(self, mock_send_email_for_slug_updates):
         """
         Test that the command updates the active_url_slug for the courses in the csv file through the
         MigrateCourseSlugConfiguration model.
@@ -131,8 +133,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
                     LOGGER_PATH,
                     'INFO',
                     f'Course url slug update report in csv format:\n {excepted_csv_file}'
-                )
+                ),
             )
+
+        assert mock_send_email_for_slug_updates.call_count == 1
 
         self.assertEqual(self.course1_draft.active_url_slug, self.test_active_url_slugs[0])
         self.assertEqual(self.course1_non_draft.active_url_slug, self.test_active_url_slugs[0])
@@ -141,7 +145,8 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
         self.assertEqual(self.course3_draft.active_url_slug, self.test_active_url_slugs[2])
         self.assertEqual(self.course3_non_draft.active_url_slug, self.test_active_url_slugs[2])
 
-    def test_success_flow__through_csv_file_path(self):
+    @mock.patch(LOGGER_PATH + '.send_email_for_slug_updates')
+    def test_success_flow__through_csv_file_path(self, mock_send_email_for_slug_updates):
         """
         Test that the command updates the active_url_slug for the courses in the csv file through the
         csv file path.
@@ -162,7 +167,10 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
             self.assertEqual(self.course3_draft.active_url_slug, self.test_active_url_slugs[2])
             self.assertEqual(self.course3_non_draft.active_url_slug, self.test_active_url_slugs[2])
 
-    def test_invalid_course_uuid(self):
+            assert mock_send_email_for_slug_updates.call_count == 1
+
+    @mock.patch(LOGGER_PATH + '.send_email_for_slug_updates')
+    def test_invalid_course_uuid(self, mock_send_email_for_slug_updates):
         """
         Test that the command logs error if an invalid course uuid is provided.
         """
@@ -185,6 +193,16 @@ class UpdateCourseActiveUrlSlugCommandTests(TestCase):
             mock_logger.assert_has_calls([
                 mock.call('Invalid course uuid: invalid-course-uuid'),
             ])
+            # Assert that the email is sent and assert the email content
+            assert mock_send_email_for_slug_updates.call_count == 1
+            mock_send_email_for_slug_updates.assert_called_with(
+                stats=(
+                    'course_uuid,old_url_slug,new_url_slug,error_msg\n' +
+                    'invalid-course-uuid,None,None,Invalid course uuid: invalid-course-uuid\n'
+                ),
+                to_users=settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
+                subject='Course URL Slugs Update Report',
+            )
 
     def test_invalid_course_url_slug(self):
         """
