@@ -24,7 +24,7 @@ class ProgramAdminForm(forms.ModelForm):
             'authoring_organizations': SortedModelSelect2Multiple(
                 url='admin_metadata:organisation-autocomplete',
                 attrs={
-                    'data-minimum-input-length': 3,
+                    'data-minimum-input-length': 2,
                     'class': 'sortable-select',
                 },
                 forward=['product_source'],
@@ -32,7 +32,7 @@ class ProgramAdminForm(forms.ModelForm):
             'credit_backing_organizations': SortedModelSelect2Multiple(
                 url='admin_metadata:organisation-autocomplete',
                 attrs={
-                    'data-minimum-input-length': 3,
+                    'data-minimum-input-length': 2,
                     'class': 'sortable-select',
                 },
                 forward=['product_source'],
