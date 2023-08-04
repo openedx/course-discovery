@@ -336,7 +336,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-credit_value', 'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
             'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
-            'field-program_duration_override','field-has_ofac_restrictions', 'field-ofac_comment',
+            'field-program_duration_override', 'field-has_ofac_restrictions', 'field-ofac_comment',
             'field-data_modified_timestamp', 'field-excluded_from_search', 'field-excluded_from_seo'
         ]
         assert actual == expected
