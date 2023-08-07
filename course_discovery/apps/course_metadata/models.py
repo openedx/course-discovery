@@ -44,7 +44,7 @@ from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
     PayeeType, ProgramStatus, ReportingType
 )
-from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.model_utils import has_model_changed
@@ -53,9 +53,10 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
+    UploadToFieldNamePath, clean_query, custom_render_variations, get_slug_for_course, is_ocm_course,
+    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -1838,6 +1839,26 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 seen.add(course)
         return deduped
 
+    def set_subdirectory_slug(self):
+        """
+        Sets the active url slug for draft and non-draft courses if the current
+        slug is not validated as per the new format.
+        """
+        is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug))
+        is_exec_ed_course = self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        is_open_course = is_ocm_course(self)
+        if not is_slug_in_subdirectory_format and (is_exec_ed_course or is_open_course):
+            slug, error = get_slug_for_course(self)
+            if slug:
+                self.set_active_url_slug(slug)
+                if self.official_version:
+                    self.official_version.set_active_url_slug(slug)
+            else:
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    f"Slug generation Failed: unable to set active url slug for course: {self.key} "
+                    f"with error {error}"
+                )
+
 
 class CourseEditor(TimeStampedModel):
     """
@@ -2548,6 +2569,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         if self.status == CourseRunStatus.LegalReview:
             email_method = emails.send_email_for_legal_review
+
+            if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
+                self.course.set_subdirectory_slug()
 
         elif self.status == CourseRunStatus.InternalReview:
             email_method = emails.send_email_for_internal_review
