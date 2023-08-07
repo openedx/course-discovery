@@ -971,6 +971,25 @@ def is_valid_slug_format(val):
     return bool(re.match(valid_slug_pattern, val))
 
 
+def is_ocm_course(course):
+    """
+    Checks whether a given course is an OCM or not
+
+    Args:
+        course: a course instance
+
+    Returns:
+        True for all edx courses other than exec-ed and bootcamps
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseType  # pylint: disable=import-outside-toplevel
+
+    non_ocm_types = [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
+    is_ocm_course_type = course.type.slug not in non_ocm_types
+    is_default_product_source = course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG
+    return is_ocm_course_type and is_default_product_source
+
+
 def get_slug_for_course(course):
     """
     Given a course it will return slug and error if there is any'

@@ -189,8 +189,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
 
     @data(
-        ('csv-course-custom-slug', 'csv-course-custom-slug'),
-        ('custom-slug-2', 'custom-slug-2'),
+        ('csv-course-custom-slug', 'csv-course'),
+        ('custom-slug-2', 'csv-course'),
         ('', 'csv-course')  # No slug in CSV corresponds to default slug mechanism
     )
     @unpack
