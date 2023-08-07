@@ -22,6 +22,7 @@ class TestMigrateCourseSlugs(TestCase):
         self.product_source = SourceFactory(slug='edx')
         self.external_product_source = SourceFactory(slug='external-source')
         ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
         partner = PartnerFactory()
         self.course1 = CourseFactory(draft=True, product_source=self.product_source, partner=partner)
         self.course2 = CourseFactory(draft=True, product_source=self.product_source, partner=partner)
@@ -58,6 +59,9 @@ class TestMigrateCourseSlugs(TestCase):
         )
         self.exec_ed_course1 = CourseFactory(
             draft=True, product_source=self.external_product_source, partner=partner, type=ee_type_2u
+        )
+        self.bootcamp_course_1 = CourseFactory(
+            draft=True, product_source=self.product_source, partner=partner, type=bootcamp_type
         )
         self.exec_ed_course1.authoring_organizations.add(self.organization)
 
@@ -281,3 +285,16 @@ class TestMigrateCourseSlugs(TestCase):
             )
 
             assert self.exec_ed_course1.active_url_slug == f"executive-education/test-organization-{slugify(self.exec_ed_course1.title)}"  # pylint: disable=line-too-long
+
+    def test_migrate_course_slug_success_flow__edx_bootcamps(self):
+        """
+        It will verify that command is generating and saving correct slugs for executive education courses
+        """
+        slug_before_migration = self.bootcamp_course_1.active_url_slug
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            call_command(
+                'migrate_course_slugs',
+                '--course_uuids', self.bootcamp_course_1.uuid,
+            )
+
+        assert self.bootcamp_course_1.active_url_slug == slug_before_migration
