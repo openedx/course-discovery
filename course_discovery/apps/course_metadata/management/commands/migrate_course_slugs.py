@@ -186,7 +186,8 @@ class Command(BaseCommand):
         courses = Course.everything.filter(product_source__slug=self.product_source, draft=True)
         if self.course_type == CourseType.EXECUTIVE_EDUCATION_2U:
             return courses.filter(type__slug=CourseType.EXECUTIVE_EDUCATION_2U)
-        return courses
+        # Return Open Courses only
+        return courses.exclude(type__slug__in=[CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U])
 
     def _get_report_in_csv_format(self):
         report_in_csv_format = "course_uuid,old_slug,new_slug,error\n"
