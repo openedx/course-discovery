@@ -62,7 +62,7 @@ def get_project_coordinator(org):
         return None
 
     role = OrganizationUserRole.objects.filter(organization=org,
-                                               role=InternalUserRole.ProjectCoordinator).first()
+                                               role=InternalUserRole.ProjectCoordinator.value).first()
     return role.user if role else None
 
 

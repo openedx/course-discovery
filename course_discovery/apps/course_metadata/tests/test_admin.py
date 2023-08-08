@@ -195,7 +195,7 @@ class AdminTests(SiteMixin, TestCase):
     def test_program_activation_restrictions(self, booleans, label):
         """Verify that program activation requires both a marketing slug and a banner image."""
         has_banner_image, can_be_activated = booleans
-        status = getattr(ProgramStatus, label)
+        status = getattr(ProgramStatus, str(label))
 
         banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 

@@ -45,7 +45,7 @@ class EmailTests(TestCase):
         CourseEditorFactory(user=self.editor, course=self.course)
         CourseEditorFactory(user=self.editor2, course=self.course)
         OrganizationExtensionFactory(group=self.group, organization=self.org)
-        OrganizationUserRoleFactory(user=self.pc, organization=self.org, role=InternalUserRole.ProjectCoordinator)
+        OrganizationUserRoleFactory(user=self.pc, organization=self.org, role=InternalUserRole.ProjectCoordinator.value)
 
         self.publisher_url = f'{self.partner.publisher_url}courses/{self.course_run.course.uuid}'
         self.studio_url = f'{self.partner.studio_url}course/{self.course_run.key}'

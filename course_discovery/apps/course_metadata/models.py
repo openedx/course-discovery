@@ -507,11 +507,11 @@ class Mode(TimeStampedModel):
         help_text=_('Completion can grant credit toward an organization’s degree.'),
     )
     certificate_type = models.CharField(
-        max_length=64, choices=CertificateType, blank=True,
+        max_length=64, choices=CertificateType.choices, blank=True,
         help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
     )
     payee = models.CharField(
-        max_length=64, choices=PayeeType, default='', blank=True,
+        max_length=64, choices=PayeeType.choices, default='', blank=True,
         help_text=_('Who gets paid for the course? Platform is the site owner, Organization is the school.'),
     )
 
@@ -883,7 +883,7 @@ class AdditionalMetadata(TimeStampedModel):
     )
     product_status = models.CharField(
         default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
-        choices=ExternalProductStatus.choices, validators=[ExternalProductStatus.validator]
+        choices=ExternalProductStatus.choices
     )
     external_course_marketing_type = models.CharField(
         help_text=_('This field contain external course marketing type specific to product lines'),
@@ -892,7 +892,6 @@ class AdditionalMetadata(TimeStampedModel):
         null=True,
         default=None,
         choices=ExternalCourseMarketingType.choices,
-        validators=[ExternalCourseMarketingType.validator]
     )
     display_on_org_page = models.BooleanField(
         null=False, default=True,
@@ -1272,7 +1271,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         default=None, null=True, blank=True
     )
     course_length = models.CharField(
-        max_length=64, choices=CourseLength, blank=True,
+        max_length=64, choices=CourseLength.choices, blank=True,
         help_text=_('The actual duration of this course as experienced by learners who complete it.'),
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
@@ -1961,7 +1960,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     # There is a post save function in signals.py that verifies that this is unique within a program
     external_key = models.CharField(max_length=225, blank=True, null=True)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
-                              db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
+                              db_index=True, choices=CourseRunStatus.choices)
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
@@ -1993,7 +1992,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
-                                   choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
+                                   choices=CourseRunPacing.choices)
     syllabus = models.ForeignKey(SyllabusItem, models.CASCADE, default=None, null=True, blank=True)
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course run')
@@ -2956,7 +2955,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=ProgramStatus.choices, validators=[ProgramStatus.validator], default=ProgramStatus.Unpublished
+        choices=ProgramStatus.choices, default=ProgramStatus.Unpublished
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
