@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q, UniqueConstraint
+from django.db.models.query import Prefetch
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries import countries as COUNTRIES
@@ -1818,6 +1819,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             Course.objects.filter(
                 programs__in=self.programs.all()
             )
+            .select_related('partner', 'type')
+            .prefetch_related(
+                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                'authoring_organizations',
+                '_official_version'
+            )
             .exclude(key=self.key)
             .distinct()
             .all())
@@ -1826,7 +1833,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             Course.objects.filter(
                 subjects__in=self.subjects.all(),
                 authoring_organizations__in=self.authoring_organizations.all()
-            ).exclude(key=self.key)
+            )
+            .select_related('partner', 'type')
+            .prefetch_related(
+                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                'authoring_organizations',
+                '_official_version'
+            )
+            .exclude(key=self.key)
             .distinct()
             .all())
 
