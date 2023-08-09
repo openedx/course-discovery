@@ -49,9 +49,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.28.20
+boto3==1.28.22
     # via django-ses
-botocore==1.31.20
+botocore==1.31.22
     # via
     #   boto3
     #   s3transfer
@@ -180,7 +180,7 @@ django-compressor==4.4
     # via
     #   -r requirements/base.in
     #   django-libsass
-django-config-models==2.4.0
+django-config-models==2.5.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
@@ -322,7 +322,7 @@ edx-event-bus-kafka==5.2.0
     # via -r requirements/base.in
 edx-event-bus-redis==0.3.1
     # via -r requirements/base.in
-edx-opaque-keys[django]==2.3.0
+edx-opaque-keys[django]==2.4.0
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
@@ -366,7 +366,7 @@ gevent==23.7.0
     # via -r requirements/production.in
 google-api-core==2.11.1
     # via google-api-python-client
-google-api-python-client==2.95.0
+google-api-python-client==2.96.0
     # via -r requirements/base.in
 google-auth==2.22.0
     # via
@@ -447,7 +447,7 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.8
     # via taxonomy-connector
-openedx-events==8.4.0
+openedx-events==8.5.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -476,7 +476,7 @@ platformdirs==3.8.1
     #   zeep
 prompt-toolkit==3.0.39
     # via click-repl
-protobuf==4.23.4
+protobuf==4.24.0
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -642,7 +642,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.43.4
+taxonomy-connector==1.44.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -652,7 +652,7 @@ tinycss2==1.2.1
     #   cssselect2
 tomlkit==0.12.1
     # via snowflake-connector-python
-tqdm==4.65.0
+tqdm==4.65.2
     # via openai
 typing-extensions==4.7.1
     # via
