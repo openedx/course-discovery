@@ -2,6 +2,7 @@ import concurrent.futures
 import itertools
 import logging
 
+import backoff
 import waffle
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
@@ -25,8 +26,18 @@ logger = logging.getLogger(__name__)
 
 
 def execute_loader(loader_class, *loader_args):
+    @backoff.on_exception(
+        backoff.expo,
+        Exception,
+        max_tries=loader_class.LOADER_MAX_RETRY,
+        logger=logger,
+        base=60,
+    )
+    def run_loader():
+        return loader_class(*loader_args).ingest()
+
     try:
-        loader_class(*loader_args).ingest()
+        run_loader()
         return True
     except Exception:  # pylint: disable=broad-except
         logger.exception('%s failed!', loader_class.__name__)
@@ -145,7 +156,7 @@ class Command(BaseCommand):
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
-                                logger.info('Executing Loader [{}]'.format(api_url))
+                                logger.info(f'Executing Loader [{api_url}]')
                                 futures.append(executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
@@ -160,7 +171,7 @@ class Command(BaseCommand):
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
-                        logger.info('Executing Loader [{}]'.format(api_url))
+                        logger.info(f'Executing Loader [{api_url}]')
                         success = execute_loader(
                             loader_class,
                             partner,

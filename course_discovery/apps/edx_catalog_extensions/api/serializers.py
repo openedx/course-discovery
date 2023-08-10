@@ -17,7 +17,7 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
         # https://github.com/inonit/drf-haystack/blob/master/drf_haystack/serializers.py#L373
         field_data = self.instance.pop('fields', {})
         query_data = self.format_query_facet_data(self.instance.pop('queries', {}))
-        field_mapping = super(DistinctCountsAggregateFacetSearchSerializer, self).get_fields()
+        field_mapping = super().get_fields()
 
         field_mapping['fields'] = FacetDictField(
             child=FacetListField(child=DistinctCountsFacetFieldSerializer(field_data), required=False)
@@ -36,7 +36,7 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
 
     def get_objects(self, instance):
         """ Return the objects that should be serialized along with the facets."""
-        data = super(DistinctCountsAggregateFacetSearchSerializer, self).get_objects(instance)
+        data = super().get_objects(instance)
         data['distinct_count'] = self.context['objects'].distinct_count()
         return data
 

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations, models
 
 # Set of language names, language tags.   Source: http://ss64.com/locale.html

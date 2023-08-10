@@ -51,7 +51,7 @@ class OrganizationsMixin:
     def format_organization_body(self, organization):
         # Deferred to prevent a circular import:
         # course_discovery.apps.api.serializers -> course_discovery.apps.course_metadata.search_indexes
-        from course_discovery.apps.api.serializers import OrganizationSerializer
+        from course_discovery.apps.api.serializers import OrganizationSerializer  # pylint: disable=import-outside-toplevel
 
         return json.dumps(OrganizationSerializer(organization).data)
 
@@ -266,6 +266,19 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         return super().index_queryset(using=using)
+
+    def read_queryset(self, using=None):
+        # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
+        # no way to specify at query time which queryset to use during loading in order to customize
+        # it for the serializer being used
+        qset = super(CourseRunIndex, self).read_queryset(using=using)
+
+        return qset.prefetch_related(
+            'seats__type',
+        )
+
+    def index_queryset(self, using=None):
+        return filter_visible_runs(super().index_queryset(using=using))
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.

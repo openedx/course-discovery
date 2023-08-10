@@ -15,7 +15,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
     API_TIMEOUT = 120  # time in seconds
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
-        super(AnalyticsAPIDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
+        super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         # uuid: {course, count, recent_count}
         self.course_dictionary = {}
@@ -59,7 +59,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
             program.enrollment_count = program_dict['count']
             program.recent_enrollment_count = program_dict['recent_count']
             program.save(suppress_publication=True)
-            logger.info('Updating program: {program_uuid}'.format(program_uuid=program.uuid))
+            logger.info(f'Updating program: {program.uuid}')
 
     def _process_course_run_summary(self, course_run_summary):
         # Get course run object from course run key
@@ -69,7 +69,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         try:
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
-            logger.info('Course run: [{course_run_key}] not found in DB.'.format(course_run_key=course_run_key))
+            logger.info(f'Course run: [{course_run_key}] not found in DB.')
             return
 
         course = course_run.course

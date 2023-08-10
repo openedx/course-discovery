@@ -3,6 +3,7 @@ from course_discovery.settings.shared.test import *
 
 INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',
+    'course_discovery.apps.taxonomy_support',
 ]
 
 ALLOWED_HOSTS = ['*']
@@ -60,3 +61,6 @@ PUBLISHER_FROM_EMAIL = 'test@example.com'
 # Set to 0 to disable edx-django-sites-extensions to retrieve
 # the site from cache and risk working with outdated information.
 SITE_CACHE_TTL = 0
+
+# Disable throttling during most testing, as it just adds queries
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.usefixtures('haystack_default_connection')
 class ElasticsearchTestMixin:
     def setUp(self):
-        super(ElasticsearchTestMixin, self).setUp()
+        super().setUp()
         self.index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
         connection = haystack_connections['default']
         self.es = connection.get_backend().conn
@@ -79,7 +79,7 @@ class LMSAPIClientMixin:
 
         responses.add(
             responses.GET,
-            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
+            lms_url.rstrip('/') + f'/api-admin/api/v1/api_access_request/?user__username={user.username}',
             body=json.dumps(data),
             content_type='application/json',
             status=status
@@ -101,7 +101,7 @@ class LMSAPIClientMixin:
 
         responses.add(
             responses.GET,
-            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
+            lms_url.rstrip('/') + f'/api-admin/api/v1/api_access_request/?user__username={user.username}',
             body=json.dumps(data),
             content_type='application/json',
             status=status
@@ -115,7 +115,7 @@ class LMSAPIClientMixin:
 
         responses.add(
             responses.GET,
-            lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
+            lms_url.rstrip('/') + f'/api-admin/api/v1/api_access_request/?user__username={user.username}',
             body=json.dumps(data),
             content_type='application/json',
             status=status

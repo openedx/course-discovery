@@ -14,14 +14,14 @@ class CourseEditorsViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:course_editor-list')
 
     def setUp(self):
-        super(CourseEditorsViewSetTests, self).setUp()
+        super().setUp()
         self.staff_user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.staff_user.username, password=USER_PASSWORD)
         self.user = UserFactory()
         partner = Partner.objects.first()
         self.course = CourseFactory(draft=True, partner=partner)
         self.org_ext = OrganizationExtensionFactory()
-        self.course.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
+        self.course.authoring_organizations.add(self.org_ext.organization)
 
     def test_list(self):
         """Verify GET endpoint returns list of editors"""

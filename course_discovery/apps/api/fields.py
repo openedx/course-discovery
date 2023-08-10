@@ -39,7 +39,7 @@ class StdImageSerializerField(serializers.ImageField):
             ext = file_format.split('/')[-1]  # guess file extension
             data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
 
-        return super(StdImageSerializerField, self).to_internal_value(data)
+        return super().to_internal_value(data)
 
 
 class ImageField(serializers.Field):  # pylint:disable=abstract-method
@@ -69,7 +69,7 @@ class SlugRelatedTranslatableField(serializers.SlugRelatedField):
     """ Use in place of SlugRelatedField when the slug field is a TranslatedField """
 
     def to_internal_value(self, data):
-        full_translated_field_name = 'translations__{slug_field}'.format(slug_field=self.slug_field)
+        full_translated_field_name = f'translations__{self.slug_field}'
         return self.get_queryset().get(**{full_translated_field_name: data})
 
 

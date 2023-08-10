@@ -1,16 +1,12 @@
 .DEFAULT_GOAL := help
 NODE_BIN=$(CURDIR)/node_modules/.bin
-TOX = ''
+TOX := tox
 
 .PHONY: accept clean clean_static check_keywords detect_changed_source_translations extract_translations \
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
-	requirements start-devstack static stop-devstack test docs static.dev static.watch
+	requirements.python requirements start-devstack static stop-devstack test docs static.dev static.watch
 
 include .travis/docker.mk
-
-ifdef TOXENV
-TOX := tox # to isolate each tox environment if TOXENV is defined
-endif
 
 
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
@@ -39,8 +35,10 @@ requirements.js: ## Install JS requirements for local development
 	npm install --unsafe-perm ## This flag exists to force node-sass to build correctly on docker. Remove as soon as possible.
 	$(NODE_BIN)/bower install --allow-root
 
-requirements: requirements.js ## Install Python and JS requirements for local development
+requirements.python: ## Install Python requirements for local development.
 	pip install -r requirements/local.txt -r requirements/django.txt
+
+requirements: requirements.js requirements.python ## Install Python and JS requirements for local development
 
 production-requirements: ## Install Python and JS requirements for production
 	pip install -r requirements.txt
@@ -115,3 +113,24 @@ docs:
 
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
 	python manage.py check_reserved_keywords --override_file db_keyword_overrides.yml
+
+docker_build:
+	docker build . -f Dockerfile --target app -t openedx/discovery
+	docker build . -f Dockerfile --target devstack -t openedx/discovery:latest-devstack
+	docker build . -f Dockerfile --target newrelic -t openedx/discovery:latest-newrelic
+
+docker_tag: docker_build
+	docker tag openedx/discovery openedx/discovery:${GITHUB_SHA}
+	docker tag openedx/discovery:latest-devstack openedx/discovery:${GITHUB_SHA}-devstack
+	docker tag openedx/discovery:latest-newrelic openedx/discovery:${GITHUB_SHA}-newrelic
+
+docker_auth:
+	echo "$$DOCKERHUB_PASSWORD" | docker login -u "$$DOCKERHUB_USERNAME" --password-stdin
+
+docker_push: docker_tag docker_auth ## push to docker hub
+	docker push 'openedx/discovery:latest'
+	docker push "openedx/discovery:${GITHUB_SHA}"
+	docker push 'openedx/discovery:latest-devstack'
+	docker push "openedx/discovery:${GITHUB_SHA}-devstack"
+	docker push 'openedx/discovery:latest-newrelic'
+	docker push "openedx/discovery:${GITHUB_SHA}-newrelic"

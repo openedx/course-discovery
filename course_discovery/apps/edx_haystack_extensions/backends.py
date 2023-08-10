@@ -28,7 +28,7 @@ class SimpleQuerySearchBackendMixin:
           }
         """
         query_string = args[0]
-        search_kwargs = super(SimpleQuerySearchBackendMixin, self).build_search_kwargs(*args, **kwargs)
+        search_kwargs = super().build_search_kwargs(*args, **kwargs)
 
         simple_query = {
             'query': query_string,

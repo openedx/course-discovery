@@ -36,7 +36,9 @@ def writable_request_wrapper(method):
         except (PermissionDenied, ValidationError, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            content = e.content.decode('utf8') if hasattr(e, 'content') else str(e)
+            content = str(e)
+            if hasattr(e, 'content'):
+                content = e.content.decode('utf8') if isinstance(e.content, bytes) else e.content
             msg = _('Failed to set course run data: {}').format(content)
             log.exception(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
@@ -314,6 +316,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
     def update(self, request, **kwargs):
         """ Update one, or more, fields for a course run. """
+        # logging to help debug error around course url slugs incrementing
+        log.info('The raw course run data coming from publisher is {}.'.format(request.data))
+
+        # Update one, or more, fields for a course run.
         course_run = self.get_object()
         course_run = ensure_draft_world(course_run)  # always work on drafts
         partial = kwargs.pop('partial', False)

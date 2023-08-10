@@ -1,4 +1,5 @@
 import datetime
+import itertools
 
 import pytz
 from django.db import models
@@ -46,9 +47,9 @@ def delegate_attributes(cls):
     fields are prefixed with 'product_' to make them Algolia-specific
     '''
 
-    search_fields = ['partner_names', 'product_title', 'primary_description', 'secondary_description',
+    search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
-    facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages']
+    facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
                      'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles']
@@ -173,6 +174,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return [org['name'] for org in get_owners(self)]
 
     @property
+    def partner_keys(self):
+        return [org['key'] for org in get_owners(self)]
+
+    @property
     def levels(self):
         level = getattr(self.level_type, 'name_t', None)
         if level:
@@ -196,6 +201,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def owners(self):
         return get_owners(self)
+
+    @property
+    def staff_slugs(self):
+        staff = [course_run.staff.all() for course_run in self.active_course_runs]
+        staff = itertools.chain.from_iterable(staff)
+        return list({person.slug for person in staff})
 
     @property
     def promoted_in_spanish_index(self):
@@ -259,6 +270,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_card_image_url(self):
+        if self.card_image:
+            return self.card_image.url
+        # legacy field for programs with images hosted outside of discovery
         return self.card_image_url
 
     @property
@@ -268,6 +282,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def partner_names(self):
         return [org['name'] for org in get_owners(self)]
+
+    @property
+    def partner_keys(self):
+        return [org['key'] for org in get_owners(self)]
 
     @property
     def levels(self):
@@ -284,6 +302,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def owners(self):
         return get_owners(self)
+
+    @property
+    def staff_slugs(self):
+        return [person.slug for person in self.staff]
 
     @property
     def course_titles(self):
@@ -327,7 +349,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.program_types and
                 self.status == ProgramStatus.Active and
                 self.availability_level and
-                self.partner.name == 'edX')
+                self.partner.name == 'edX' and
+                not self.hidden)
 
 
 class SearchDefaultResultsConfiguration(models.Model):

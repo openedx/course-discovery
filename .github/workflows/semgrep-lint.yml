@@ -1,0 +1,17 @@
+name: Semgrep
+on: [pull_request]
+jobs:
+    semgrep:
+        runs-on: ubuntu-latest
+        continue-on-error: true
+        name: Check
+        steps:
+            - uses: actions/checkout@v1
+            - uses: returntocorp/semgrep-action@v1
+              name: django rules
+              with:
+                config: p/django
+            - uses: returntocorp/semgrep-action@v1
+              name: other rules
+              with:
+                config: https://semgrep.live/dlukeomalley:use-assertEqual-for-equality

@@ -1,6 +1,5 @@
-import mock
-from django.conf import settings
 from django.urls import reverse
+from mock import patch
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -16,52 +15,50 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
     """
 
     def setUp(self):
-        super(RateLimitingExceededTest, self).setUp()
+        super().setUp()
 
         self.url = reverse('api_docs')
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.default_rate_patcher = mock.patch.dict(
-            settings.REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'],
-            {'user': '10/hour'}
-        )
-        self.default_rate_patcher.start()
 
     def tearDown(self):
-        super(RateLimitingExceededTest, self).tearDown()
+        super().tearDown()
         throttling_cache().clear()
-        self.user.is_superuser = False
-        self.user.is_staff = False
-        self.user.save()
-        self.default_rate_patcher.stop()
 
-    def _make_requests(self):
+    def _make_requests(self, count=None):
         """ Make multiple requests until the throttle's limit is exceeded.
 
         Returns
             Response: Response of the last request.
         """
-        default_num_requests = OverridableUserRateThrottle().num_requests
-        for __ in range(default_num_requests + 1):
-            response = self.client.get(self.url)
+        count = count or 6
+        user_rates = {'user': '5/hour'}
+        with patch('rest_framework.views.APIView.throttle_classes', (OverridableUserRateThrottle,)):
+            with patch.object(OverridableUserRateThrottle, 'THROTTLE_RATES', user_rates):
+                for __ in range(count - 1):
+                    response = self.client.get(self.url)
+                    assert response.status_code == 200
+                response = self.client.get(self.url)
         return response
-
-    def test_rate_limiting(self):
-        """ Verify the API responds with HTTP 429 if a normal user exceeds the rate limit. """
-        response = self._make_requests()
-
-        assert response.status_code == 429
-
-    def test_user_throttle_rate(self):
-        """ Verify the UserThrottleRate can be used to override the default rate limit. """
-        UserThrottleRate.objects.create(user=self.user, rate='20/hour')
-        self.assert_rate_limit_successfully_exceeded()
 
     def assert_rate_limit_successfully_exceeded(self):
         """ Asserts that the throttle's rate limit can be exceeded without encountering an error. """
         response = self._make_requests()
-
         assert response.status_code == 200
+
+    def assert_rate_limited(self, count=None):
+        """ Asserts that the throttle's rate limit was exceeded and we were denied. """
+        response = self._make_requests(count)
+        assert response.status_code == 429
+
+    def test_rate_limiting(self):
+        """ Verify the API responds with HTTP 429 if a normal user exceeds the rate limit. """
+        self.assert_rate_limited()
+
+    def test_user_throttle_rate(self):
+        """ Verify the UserThrottleRate can be used to override the default rate limit. """
+        UserThrottleRate.objects.create(user=self.user, rate='10/hour')
+        self.assert_rate_limited(11)
 
     def test_superuser_throttling(self):
         """ Verify superusers are not throttled. """
@@ -79,3 +76,10 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
         """ Verify publisher users are not throttled. """
         self.user.groups.add(GroupFactory())
         self.assert_rate_limit_successfully_exceeded()
+
+    def test_staff_with_user_throttle_rate(self):
+        """ Verify the UserThrottleRate kicks in even for staff. """
+        self.user.is_staff = True
+        self.user.save()
+        UserThrottleRate.objects.create(user=self.user, rate='10/hour')
+        self.assert_rate_limited(11)

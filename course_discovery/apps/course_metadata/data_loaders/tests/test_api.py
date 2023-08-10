@@ -1,9 +1,9 @@
 import datetime
 import json
 from decimal import Decimal
+from unittest import mock
 
 import ddt
-import mock
 import pytz
 import responses
 from django.core.management import CommandError
@@ -12,7 +12,6 @@ from django.test import TestCase
 from edx_django_utils.cache import TieredCache
 from pytz import UTC
 from slumber.exceptions import HttpClientError
-from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
@@ -23,6 +22,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     EcommerceApiDataLoader,
     ProgramsApiDataLoader,
     WordPressApiDataLoader,
+    _fatal_code,
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
@@ -86,11 +86,13 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
     def test_fatal_code(self):
         response_with_200 = HttpResponse(status=200)
+        response_with_400 = HttpResponse(status=400)
         response_with_429 = HttpResponse(status=429)
         response_with_504 = HttpResponse(status=504)
-        self.assertTrue(self.loader_class._fatal_code(HttpClientError(response=response_with_200)))  # pylint: disable=protected-access
-        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_429)))  # pylint: disable=protected-access
-        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_504)))  # pylint: disable=protected-access
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_200)))
+        self.assertTrue(_fatal_code(HttpClientError(response=response_with_400)))
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_429)))
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_504)))
 
     def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
@@ -134,7 +136,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.assertEqual(course.card_image_url, body['media'].get('image', {}).get('raw'),)
 
         for field, value in expected_values.items():
-            self.assertEqual(getattr(course_run, field), value, 'Field {} is invalid.'.format(field))
+            self.assertEqual(getattr(course_run, field), value, f'Field {field} is invalid.')
 
         return course_run
 
@@ -243,7 +245,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             with mock.patch(LOGGER_PATH) as mock_logger:
                 self.loader.ingest()
                 self.assertEqual(mock_logger.exception.call_count, len(api_data))
-                msg = 'An error occurred while updating {0} from {1}'.format(
+                msg = 'An error occurred while updating {} from {}'.format(
                     api_data[-1]['id'],
                     self.partner.courses_api_url
                 )
@@ -589,7 +591,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             data['entitlement']['results'][0]["stockrecords"].append(stockrecord)
             data['enrollment_code']['results'][0]["stockrecords"].append(stockrecord)
 
-        url = '{url}products/'.format(url=self.api_url)
+        url = f'{self.api_url}products/'
 
         responses.add(
             responses.GET,

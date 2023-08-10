@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import migrations
 
 from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME

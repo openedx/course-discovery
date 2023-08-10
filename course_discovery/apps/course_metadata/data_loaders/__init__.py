@@ -15,6 +15,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         PAGE_SIZE (int): Number of items to load per API call
     """
 
+    LOADER_MAX_RETRY = 3
     PAGE_SIZE = 50
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, course_id=None):
@@ -85,7 +86,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         Returns:
             str
         """
-        return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
+        return f'{course_run_key.org}+{course_run_key.course}'
 
     @classmethod
     def _get_or_create_media(cls, media_type, url):

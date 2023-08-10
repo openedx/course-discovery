@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 import pytest
 from django.conf import settings
 from django.core.management import CommandError, call_command
@@ -21,7 +22,7 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
             call_command('update_index')
 
         alias = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
-        index = '{alias}_20160621_000000'.format(alias=alias)
+        index = f'{alias}_20160621_000000'
 
         host = settings.HAYSTACK_CONNECTIONS['default']['URL']
         connection = Elasticsearch(host)

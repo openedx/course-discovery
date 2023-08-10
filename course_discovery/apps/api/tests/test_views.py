@@ -36,7 +36,7 @@ class TestApiDocs(APITestCase):
 @ddt.ddt
 class ApiDocsPermissionDeniedHandlerTests(TestCase):
     def setUp(self):
-        super(ApiDocsPermissionDeniedHandlerTests, self).setUp()
+        super().setUp()
         self.request_path = '/'
         self.request = RequestFactory().get(self.request_path)
 

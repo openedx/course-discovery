@@ -122,7 +122,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
 
-        with django_assert_num_queries(FuzzyInt(55, 2)):
+        with django_assert_num_queries(FuzzyInt(57, 2)):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -159,7 +159,7 @@ class TestProgramViewSet(SerializationMixin):
             curriculum=curriculum
         )
 
-        with django_assert_num_queries(FuzzyInt(60, 2)):
+        with django_assert_num_queries(FuzzyInt(63, 2)):
             response = self.assert_retrieve_success(parent_program)
         assert response.data == self.serialize_program(parent_program)
 
@@ -175,16 +175,16 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(42, 1)):  # travis is often 43
+        with django_assert_num_queries(FuzzyInt(40, 1)):  # travis is often 43
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
-        assert course_list == list(program.courses.all())  # pylint: disable=no-member
+        assert course_list == list(program.courses.all())
 
     def test_retrieve_without_course_runs(self, django_assert_num_queries):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(FuzzyInt(31, 2)):
+        with django_assert_num_queries(FuzzyInt(32, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -210,7 +210,6 @@ class TestProgramViewSet(SerializationMixin):
     def test_list(self):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
-        expected.reverse()
 
         self.assert_list_results(self.list_path, expected, 19)
 
@@ -249,7 +248,6 @@ class TestProgramViewSet(SerializationMixin):
     def test_filter_by_types(self):
         """ Verify that the endpoint filters programs to those matching the provided ProgramType slugs. """
         expected = ProgramFactory.create_batch(2, partner=self.partner)
-        expected.reverse()
         type_slugs = [p.type.slug for p in expected]
         url = self.list_path + '?types=' + ','.join(type_slugs)
 
@@ -261,7 +259,6 @@ class TestProgramViewSet(SerializationMixin):
     def test_filter_by_uuids(self):
         """ Verify that the endpoint filters programs to those matching the provided UUIDs. """
         expected = ProgramFactory.create_batch(2, partner=self.partner)
-        expected.reverse()
         uuids = [str(p.uuid) for p in expected]
         url = self.list_path + '?uuids=' + ','.join(uuids)
 
@@ -282,7 +279,6 @@ class TestProgramViewSet(SerializationMixin):
         url = self.list_path + '?marketable=1'
         ProgramFactory(marketing_slug='', partner=self.partner)
         programs = ProgramFactory.create_batch(3, status=status, partner=self.partner)
-        programs.reverse()
 
         expected = programs if is_marketable else []
         assert list(Program.objects.marketable()) == expected
@@ -300,7 +296,7 @@ class TestProgramViewSet(SerializationMixin):
         self.assert_list_results(url, [retired], 12)
 
         url = self.list_path + '?status=active&status=retired'
-        self.assert_list_results(url, [retired, active], 14)
+        self.assert_list_results(url, [active, retired], 14)
 
     def test_filter_by_hidden(self):
         """ Endpoint should filter programs by their hidden attribute value. """
@@ -326,7 +322,7 @@ class TestProgramViewSet(SerializationMixin):
         # This program should not be included in the results below because it never matches the filter.
         self.create_program()
 
-        url = '{root}?marketing_slug={slug}'.format(root=self.list_path, slug=SLUG)
+        url = f'{self.list_path}?marketing_slug={SLUG}'
         self.assert_list_results(url, [], 5)
 
         program = self.create_program()
@@ -412,3 +408,45 @@ class TestProgramViewSet(SerializationMixin):
         assert program.courses.count() == 3
         assert program.authoring_organizations.count() == 4
         assert program.credit_backing_organizations.count() == 4
+    def test_update_card_image(self):
+        program = self.create_program()
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 200
+
+    def test_update_card_image_authentication(self):
+        program = self.create_program()
+        self.client.logout()
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 401
+
+    def test_update_card_image_authentication_notstaff(self):
+        program = self.create_program()
+        self.client.logout()
+        user = UserFactory(is_staff=False)
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 403
+
+    def test_update_card_malformed_image(self):
+        program = self.create_program()
+        image_dict = {
+            'image': 'ARandomString',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 400

@@ -62,7 +62,7 @@ class ModelUtilTests(TestCase):
 
 class SearchQuerySetWrapperTests(TestCase):
     def setUp(self):
-        super(SearchQuerySetWrapperTests, self).setUp()
+        super().setUp()
         title = 'Some random course'
         query = 'title:' + title
 

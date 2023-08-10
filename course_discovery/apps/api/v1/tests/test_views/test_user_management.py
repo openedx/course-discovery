@@ -1,7 +1,7 @@
 import json
+from unittest import mock
 
 import ddt
-import mock
 from django.urls import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
@@ -18,7 +18,7 @@ class UsernameReplacementViewTests(APITestCase):
     SERVICE_USERNAME = 'test_replace_username_service_worker'
 
     def setUp(self):
-        super(UsernameReplacementViewTests, self).setUp()
+        super().setUp()
         self.service_user = UserFactory(username=self.SERVICE_USERNAME)
         self.url = reverse("api:v1:replace_usernames")
 

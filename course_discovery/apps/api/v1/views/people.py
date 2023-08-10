@@ -2,7 +2,7 @@ import logging
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -22,7 +22,7 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     filterset_class = filters.PersonFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (DjangoModelPermissions,)
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
     queryset = serializers.PersonSerializer.prefetch_queryset()
     serializer_class = serializers.PersonSerializer
     pagination_class = PageNumberPagination
@@ -95,11 +95,11 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all people. """
-        return super(PersonViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a person. """
-        return super(PersonViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
         # Only include people from the current request's site

@@ -64,6 +64,7 @@ THIRD_PARTY_APPS = [
     'adminsortable2',
     'xss_utils',
     'algoliasearch_django',
+    'taxonomy',
 ]
 
 ALGOLIA = {
@@ -117,7 +118,7 @@ ROOT_URLCONF = 'course_discovery.urls'
 WSGI_APPLICATION = 'course_discovery.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 # Set this value in the environment-specific files (e.g. local.py, production.py, test.py)
 DATABASES = {
     'default': {
@@ -192,6 +193,9 @@ STATIC_ROOT = root('assets')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
+
+# Is this a dev environment where static files need to be explicitly added to the URL configuration?
+STATIC_SERVE_EXPLICITLY = False
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
@@ -294,6 +298,9 @@ SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
 BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
 BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
+
+# OAuth request timeout: either a (connect, read) tuple or a float, in seconds.
+OAUTH_API_TIMEOUT = (3.05, 1)
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
@@ -641,3 +648,13 @@ WORDPRESS_APP_AUTH_PASSWORD = ''
 
 # Edly configuration
 EDLY_PANEL_WORKER_USER = 'edly_panel_worker'
+
+
+# Settings related to the taxonomy_support
+TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+
+# Settings related to the EMSI client
+EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
+EMSI_API_BASE_URL = 'https://emsiservices.com'
+EMSI_CLIENT_ID = ''
+EMSI_CLIENT_SECRET = ''

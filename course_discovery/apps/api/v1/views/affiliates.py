@@ -70,6 +70,25 @@ class ProgramsAffiliateWindowViewSet(viewsets.ViewSet):
             exclude_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
         except ProgramType.DoesNotExist:
             exclude_type = ''
-        programs = catalog.programs().marketable().exclude(type=exclude_type)
+        programs = catalog.programs().marketable().exclude(type=exclude_type).select_related(
+            'type',
+            'partner',
+        ).prefetch_related(
+            'excluded_course_runs',
+            'type__applicable_seat_types',
+            'type__translations',
+            'courses',
+            'courses__course_runs',
+            'courses__course_runs__language',
+            'courses__canonical_course_run',
+            'courses__canonical_course_run__seats',
+            'courses__canonical_course_run__seats__course_run__course',
+            'courses__canonical_course_run__seats__type',
+            'courses__canonical_course_run__seats__currency',
+            'courses__course_runs__seats',
+            'courses__entitlements',
+            'courses__entitlements__currency',
+            'courses__entitlements__mode',
+        )
         serializer = serializers.ProgramsAffiliateWindowSerializer(programs, many=True)
         return Response(serializer.data)

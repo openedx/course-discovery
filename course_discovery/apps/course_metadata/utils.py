@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import transaction
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from dynamic_filenames import FilePattern
+from slugify import slugify
 from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
@@ -68,7 +68,7 @@ def set_official_state(obj, model, attrs=None):
     Returns
         the official version of that object with the attributes updated to attrs
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseRun
+    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
     # This is so we don't create the marketing node with an incorrect slug.
     # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
     if isinstance(obj, CourseRun):
@@ -124,7 +124,7 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
         (Model obj, Model obj): Tuple of Model objects where the first is the draft object
             and the second is the original
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseRun
+    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
     original_obj = model.objects.get(pk=obj.pk)
     obj.pk = None
     obj.draft = True
@@ -161,7 +161,7 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
 
 
 def _calculate_entitlement_for_run(run):
-    from course_discovery.apps.course_metadata.models import Seat
+    from course_discovery.apps.course_metadata.models import Seat  # pylint: disable=import-outside-toplevel
 
     entitlement_seats = [seat for seat in run.seats.all() if seat.type.slug in Seat.ENTITLEMENT_MODES]
     if len(entitlement_seats) != 1:
@@ -172,7 +172,7 @@ def _calculate_entitlement_for_run(run):
 
 
 def _calculate_entitlement_for_course(course):
-    from course_discovery.apps.course_metadata.models import Course
+    from course_discovery.apps.course_metadata.models import Course  # pylint: disable=import-outside-toplevel
 
     # When we are creating the draft course for the first time, the prefetch_related of course runs
     # on the serializer causes any related key lookups on course.course_runs return an empty
@@ -201,7 +201,7 @@ def create_missing_entitlement(course):
     Returns:
         True if an entitlement was created, False if we could not make one
     """
-    from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType
+    from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType  # pylint: disable=import-outside-toplevel
 
     calculated_entitlement = _calculate_entitlement_for_course(course)
     if calculated_entitlement:
@@ -242,7 +242,7 @@ def ensure_draft_world(obj):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
+    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat  # pylint: disable=import-outside-toplevel
     if obj.draft:
         return obj
     elif obj.draft_version:
@@ -333,7 +333,15 @@ def custom_render_variations(file_name, variations, storage, replace=True):
 
 def uslugify(s):
     """Slugifies a string, while handling unicode"""
-    slug = slugify(s, allow_unicode=True)
+    # only_ascii=True asks slugify to convert unicode to ascii
+    slug = slugify(s, only_ascii=True)
+
+    # Version 0.1.3 of unicode-slugify does not do the following for us.
+    # But 0.1.4 does! So once it's available and we upgrade, we can drop this extra logic.
+    slug = slug.strip().replace(' ', '-').lower()
+    slug = ''.join(filter(lambda c: c.isalnum() or c in '-_~', slug))
+    # End code that can be dropped with 0.1.4
+
     return slug
 
 

@@ -7,7 +7,7 @@ import pytest
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from factory import DjangoModelFactory
+from factory.django import DjangoModelFactory
 from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
@@ -51,8 +51,8 @@ class TestCacheInvalidation:
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
-                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, LevelTypeTranslation,
-                         SearchDefaultResultsConfiguration]:
+                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
+                         LevelTypeTranslation, SearchDefaultResultsConfiguration]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

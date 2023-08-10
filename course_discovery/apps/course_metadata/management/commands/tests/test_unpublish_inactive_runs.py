@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.core.management import CommandError
 from django.test import TestCase
 

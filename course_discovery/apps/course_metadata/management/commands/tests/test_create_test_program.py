@@ -7,9 +7,9 @@ from course_discovery.apps.course_metadata.tests.factories import PartnerFactory
 
 class CreateTestProgramCommandTests(TestCase):
     def setUp(self):
-        super(CreateTestProgramCommandTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory()
-        self.command_args = ['--partner_code={}'.format(self.partner.short_code)]
+        self.command_args = [f'--partner_code={self.partner.short_code}']
 
     def test_create_command(self):
         call_command('create_test_program', *self.command_args)

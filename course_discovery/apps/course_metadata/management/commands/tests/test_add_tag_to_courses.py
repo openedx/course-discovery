@@ -8,7 +8,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 class AddTagToCoursesCommandTests(TestCase):
     def setUp(self):
-        super(AddTagToCoursesCommandTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory(marketing_site_api_password=None)
         self.course1 = CourseFactory(partner=self.partner)
         self.course2 = CourseFactory(partner=self.partner)

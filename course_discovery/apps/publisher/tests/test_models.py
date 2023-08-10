@@ -22,7 +22,7 @@ class UserAttributeTests(TestCase):
 
 class OrganizationUserRoleTests(TestCase):
     def setUp(self):
-        super(OrganizationUserRoleTests, self).setUp()
+        super().setUp()
         self.org_user_role = factories.OrganizationUserRoleFactory(role=InternalUserRole.ProjectCoordinator)
 
     def test_str(self):
@@ -47,7 +47,7 @@ class OrganizationUserRoleTests(TestCase):
 
 class GroupOrganizationTests(TestCase):
     def setUp(self):
-        super(GroupOrganizationTests, self).setUp()
+        super().setUp()
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.group_2 = factories.GroupFactory()
 

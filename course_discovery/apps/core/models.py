@@ -36,7 +36,7 @@ class User(GuardianUserMixin, AbstractUser):
         get_latest_by = 'date_joined'
 
     def get_full_name(self):
-        return self.full_name or super(User, self).get_full_name()
+        return self.full_name or super().get_full_name()
 
 
 class UserThrottleRate(models.Model):
@@ -57,7 +57,7 @@ class Currency(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return '{code} - {name}'.format(code=self.code, name=self.name)
+        return f'{self.code} - {self.name}'
 
     class Meta:
         verbose_name_plural = 'Currencies'
@@ -143,7 +143,7 @@ class Partner(TimeStampedModel):
         access_token = cache.get(key)
 
         if not access_token:
-            url = '{root}/access_token'.format(root=self.oauth2_provider_url)
+            url = f'{self.oauth2_provider_url}/access_token'
             access_token, expiration_datetime = EdxRestApiClient.get_oauth_access_token(
                 url,
                 self.oauth2_client_id,
@@ -166,7 +166,12 @@ class Partner(TimeStampedModel):
         if not self.lms_url:
             return None
 
-        return OAuthAPIClient(self.lms_url.strip('/'), self.oauth2_client_id, self.oauth2_client_secret)
+        return OAuthAPIClient(
+            self.lms_url.strip('/'),
+            self.oauth2_client_id,
+            self.oauth2_client_secret,
+            timeout=settings.OAUTH_API_TIMEOUT
+        )
 
 
 class SalesforceConfiguration(models.Model):

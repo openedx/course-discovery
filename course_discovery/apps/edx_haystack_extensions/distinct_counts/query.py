@@ -19,7 +19,7 @@ class DistinctCountsSearchQuerySet(SearchQuerySet):
         Overrides SearchQuerySet.__init__ from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/query.py#L24
         """
-        super(DistinctCountsSearchQuerySet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._distinct_result_count = None
 
     def with_distinct_counts(self, aggregation_key):

@@ -1,0 +1,182 @@
+---
+
+API_ROOT: null
+AWS_SES_REGION_ENDPOINT: email.us-east-1.amazonaws.com
+AWS_SES_REGION_NAME: us-east-1
+BACKEND_SERVICE_EDX_OAUTH2_KEY: discovery-backend-service-key
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL: http://localhost:8000/oauth2
+BACKEND_SERVICE_EDX_OAUTH2_SECRET: discovery-backend-service-secret
+CACHES:
+    default:
+        BACKEND: django.core.cache.backends.memcached.MemcachedCache
+        KEY_PREFIX: discovery
+        LOCATION:
+            - edx.devstack.memcached:11211
+CSRF_COOKIE_SECURE: false
+DATABASES:
+    default:
+        ATOMIC_REQUESTS: "false"
+        CONN_MAX_AGE: 60
+        ENGINE: django.db.backends.mysql
+        HOST: edx.devstack.mysql57
+        NAME: discovery
+        OPTIONS:
+            connect_timeout: 10
+            init_command: SET sql_mode="STRICT_TRANS_TABLES"
+        PASSWORD: password
+        PORT: 3306
+        USER: discov001
+    read_replica:
+        ATOMIC_REQUESTS: "false"
+        CONN_MAX_AGE: 60
+        ENGINE: django.db.backends.mysql
+        HOST: edx.devstack.mysql57
+        NAME: discovery
+        OPTIONS:
+            connect_timeout: 10
+            init_command: SET sql_mode="STRICT_TRANS_TABLES"
+        PASSWORD: password
+        PORT: 3306
+        USER: discov001
+# Django won't serve static assets unless DEBUG is enabled
+DEBUG: true
+DEFAULT_PARTNER_ID: 1
+EDX_DRF_EXTENSIONS:
+    OAUTH2_USER_INFO_URL: http://127.0.0.1:8000/user_info
+ELASTICSEARCH_INDEX_NAME: catalog
+ELASTICSEARCH_URL: http://127.0.0.1:9200/
+EMAIL_BACKEND: django_ses.SESBackend
+EMAIL_HOST: localhost
+EMAIL_HOST_PASSWORD: ""
+EMAIL_HOST_USER: ""
+EMAIL_PORT: 25
+EMAIL_USE_TLS: false
+ENABLE_PUBLISHER: false
+EXTRA_APPS:
+    - course_discovery.apps.edx_catalog_extensions
+LANGUAGE_CODE: en
+OPENEXCHANGERATES_API_KEY: ""
+PARLER_DEFAULT_LANGUAGE_CODE: en
+PLATFORM_NAME: Your Platform Name Here
+PUBLISHER_FROM_EMAIL: null
+SECRET_KEY: Your secret key here
+SESSION_EXPIRE_AT_BROWSER_CLOSE: false
+SOCIAL_AUTH_EDX_OAUTH2_KEY: discovery-sso-key
+SOCIAL_AUTH_REDIRECT_IS_HTTPS: false
+STATIC_SERVE_EXPLICITLY: true
+STATICFILES_STORAGE: django.contrib.staticfiles.storage.StaticFilesStorage
+STATIC_ROOT: /edx/var/discovery/staticfiles
+TIME_ZONE: UTC
+USERNAME_REPLACEMENT_WORKER: OVERRIDE THIS WITH A VALID USERNAME
+
+#####################################################################
+# The rest of this is copypasta'd in from base.py and devstack.py
+#####################################################################
+
+DEFAULT_FILE_STORAGE: django.core.files.storage.FileSystemStorage
+MEDIA_ROOT: /edx/var/discovery/media
+MEDIA_URL: http://localhost:8381/media/
+LOCAL_DISCOVERY_MEDIA_URL: /media/
+LOGGING: {
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "standard": {
+            "format":"%(asctime)s %(levelname)s %(process)d [%(name)s] %(pathname)s:%(lineno)d - %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+            "stream": "ext://sys.stdout",
+        },
+        "local": {
+            "class": "logging.NullHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "INFO"
+        },
+        "requests": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "WARNING"
+        },
+        "factory": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "WARNING"
+        },
+        "elasticsearch": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "WARNING"
+        },
+        "urllib3": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "WARNING"
+        },
+        "django.request": {
+            "handlers": ["console", "local"],
+            "propagate": true,
+            "level": "WARNING"
+        },
+        "": {
+            "handlers": ["console", "local"],
+            "level": "DEBUG",
+            "propagate": false
+        },
+    }
+}
+INTERNAL_IPS: ['127.0.0.1']
+CORS_ORIGIN_WHITELIST:
+    - "localhost:8734"   # frontend-app-learner-portal-enterprise
+    - "localhost:18400"  # frontend-app-publisher
+    - "localhost:18450"  # frontend-app-support-tools
+HAYSTACK_CONNECTIONS:
+    default:
+        ENGINE: "course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine"
+        URL: "http://edx.devstack.elasticsearch:9200/"
+        INDEX_NAME: "catalog"
+JWT_AUTH: {
+    "JWT_AUTH_COOKIE": "edx-jwt-cookie",
+    "JWT_AUTH_HEADER_PREFIX": "JWT",
+    "JWT_ALGORITHM": "HS256",
+    "JWT_PUBLIC_SIGNING_JWK_SET": "{\"keys\": [{\"kid\": \"devstack_key\", \"e\": \"AQAB\", \"kty\": \"RSA\", \"n\": \"smKFSYowG6nNUAdeqH1jQQnH1PmIHphzBmwJ5vRf1vu48BUI5VcVtUWIPqzRK_LDSlZYh9D0YFL0ZTxIrlb6Tn3Xz7pYvpIAeYuQv3_H5p8tbz7Fb8r63c1828wXPITVTv8f7oxx5W3lFFgpFAyYMmROC4Ee9qG5T38LFe8_oAuFCEntimWxN9F3P-FJQy43TL7wG54WodgiM0EgzkeLr5K6cDnyckWjTuZbWI-4ffcTgTZsL_Kq1owa_J2ngEfxMCObnzGy5ZLcTUomo4rZLjghVpq6KZxfS6I1Vz79ZsMVUWEdXOYePCKKsrQG20ogQEkmTf9FT_SouC6jPcHLXw\"}]}",
+    "JWT_AUDIENCE": null,
+    "JWT_AUTH_COOKIE_SIGNATURE": "edx-jwt-cookie-signature",
+    "JWT_DECODE_HANDLER": "edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler",
+    "JWT_ISSUERS": [
+        {
+            "AUDIENCE": "lms-key",
+            "SECRET_KEY": "lms-secret",
+            "ISSUER": "http://localhost:8000/oauth2"
+        }
+    ],
+    "JWT_VERIFY_AUDIENCE": false,
+    "JWT_ISSUER": "http://localhost:8000/oauth2",
+    "JWT_AUTH_COOKIE_HEADER_PAYLOAD": "edx-jwt-cookie-header-payload",
+    "JWT_SECRET_KEY": "lms-secret",
+    "JWT_AUTH_REFRESH_COOKIE": "edx-jwt-refresh-cookie"
+}
+# Allow live changes to JS and CSS
+COMPRESS_OFFLINE: false
+COMPRESS_ENABLED: false
+PARLER_LANGUAGES:
+    1:
+        - code: en
+        - code: es
+    default:
+        fallbacks: ['en']
+        hide_untranslated: false
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER: http://localhost:8000
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT: http://edx.devstack.lms:8000
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT: http://localhost:8000
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL: http://localhost:8000/logout
+ORG_BASE_LOGO_URL: http://discovery:8381/media/

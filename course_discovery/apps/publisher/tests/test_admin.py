@@ -17,7 +17,7 @@ class OrganizationExtensionAdminTests(SiteMixin, TestCase):
     """ Tests for OrganizationExtensionAdmin."""
 
     def setUp(self):
-        super(OrganizationExtensionAdminTests, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.admin_page_url = reverse('admin:publisher_organizationextension_add')

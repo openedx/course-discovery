@@ -14,7 +14,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         Overrides BaseSearchQuery.__init__ from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/__init__.py#L443
         """
-        super(DistinctCountsSearchQuery, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.aggregation_key = None
         self._distinct_hit_count = None
 
@@ -25,7 +25,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         Overrides BaseSearchQuery._clone from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/__init__.py#L981
         """
-        clone = super(DistinctCountsSearchQuery, self)._clone(klass=klass, using=using)
+        clone = super()._clone(klass=klass, using=using)
         if isinstance(clone, DistinctCountsSearchQuery):
             clone.aggregation_key = self.aggregation_key
             clone._distinct_hit_count = self._distinct_hit_count  # pylint: disable=protected-access
@@ -124,7 +124,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/__init__.py#L897
         """
         self._validate_field_facet_options(field, options)
-        return super(DistinctCountsSearchQuery, self).add_field_facet(field, **options)
+        return super().add_field_facet(field, **options)
 
 
 class DistinctCountsElasticsearchBackendWrapper:
@@ -153,7 +153,7 @@ class DistinctCountsElasticsearchBackendWrapper:
         """
         self.backend = backend
         self.aggregation_key = aggregation_key
-        self.aggregation_name = 'distinct_{}'.format(aggregation_key)
+        self.aggregation_name = f'distinct_{aggregation_key}'
 
     def search(self, query_string, **kwargs):
         """
@@ -251,7 +251,7 @@ class DistinctCountsElasticsearchBackendWrapper:
             for opt, __ in opts.items():
                 if opt not in self.SUPPORTED_FIELD_FACET_OPTIONS:
                     opts_str = ','.join(opts.keys())
-                    msg = 'Cannot build aggregation for field facet with unsupported options: {}'.format(opts_str)
+                    msg = f'Cannot build aggregation for field facet with unsupported options: {opts_str}'
                     raise RuntimeError(msg)
 
             aggregations[facet_fieldname] = {

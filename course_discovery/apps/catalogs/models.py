@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -23,7 +23,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
-        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)
+        return f'Catalog #{self.id}: {self.name}'
 
     def _get_query_results(self):
         """

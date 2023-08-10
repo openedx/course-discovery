@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import django_extensions.db.fields
 from django.db import migrations, models
 

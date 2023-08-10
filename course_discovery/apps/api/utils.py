@@ -114,7 +114,7 @@ class StudioAPI:
     @classmethod
     def calculate_course_run_key_run_value(cls, course_num, start):
         trimester = math.ceil(start.month / 4.)
-        run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
+        run = f'{trimester}T{start.year}'
 
         related_course_runs = CourseRun.everything.filter(key__contains=course_num).values_list('key', flat=True)
         related_course_runs = [CourseKey.from_string(key).run for key in related_course_runs]

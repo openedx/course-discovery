@@ -458,3 +458,9 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert not unpublished_program.should_index
         assert not retired_program.should_index
         assert not deleted_program.should_index
+
+    def test_do_not_index_if_hidden(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, hidden=True)
+        program.authoring_organizations.add(OrganizationFactory())
+        self.attach_archived_course(program=program)
+        assert not program.should_index

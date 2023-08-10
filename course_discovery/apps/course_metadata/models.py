@@ -291,7 +291,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
         ordering = ('sort_value',)
 
 
-class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class LevelTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
     name_t = models.CharField('name', max_length=255)
 
@@ -366,7 +366,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type, name
 
 
-class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class ProgramTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
 
     name_t = models.CharField("name", max_length=32, blank=False, null=False)
@@ -537,7 +537,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
 
 
-class SubjectTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class SubjectTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -575,7 +575,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
 
 
-class TopicTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class TopicTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -737,6 +737,32 @@ class PkSearchableMixin:
         return queryset.filter(pk__in=ids)
 
 
+class Collaborator(TimeStampedModel):
+    """
+    Collaborator model, defining any collaborators who helped write course content.
+    """
+    image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/collaborator/image'),
+        blank=True,
+        null=True,
+        variations={
+            'original': (200, 100),
+        },
+        help_text=_('Add the collaborator image, please make sure its dimensions are 200x100px')
+    )
+    name = models.CharField(max_length=255, default='')
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return None
+
+    def __str__(self):
+        return '{name}'.format(name=self.name)
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -760,6 +786,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
+    collaborators = SortedManyToManyField(Collaborator, blank=True, related_name='courses_collaborated')
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
@@ -999,6 +1026,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @transaction.atomic
     def set_active_url_slug(self, slug):
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
+                    .format(self.url_slug, slug, self.draft))
+
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
 
@@ -1043,6 +1074,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     @cached_property
     def advertised_course_run(self):
         now = datetime.datetime.now(pytz.UTC)
+        min_date = datetime.datetime.min.replace(tzinfo=pytz.UTC)
+        max_date = datetime.datetime.max.replace(tzinfo=pytz.UTC)
 
         tier_one = []
         tier_two = []
@@ -1061,12 +1094,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         advertised_course_run = None
 
+        # start should almost never be null, default added to take care of older incomplete data
         if tier_one:
-            advertised_course_run = sorted(tier_one, key=attrgetter('start'), reverse=True)[0]
+            advertised_course_run = sorted(tier_one, key=lambda run: run.start or min_date, reverse=True)[0]
         elif tier_two:
-            advertised_course_run = sorted(tier_two, key=attrgetter('start'))[0]
+            advertised_course_run = sorted(tier_two, key=lambda run: run.start or max_date)[0]
         elif tier_three:
-            advertised_course_run = sorted(tier_three, key=attrgetter('start'), reverse=True)[0]
+            advertised_course_run = sorted(tier_three, key=lambda run: run.start or min_date, reverse=True)[0]
 
         return advertised_course_run
 
@@ -1477,7 +1511,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def marketing_url(self):
-        if self.slug:
+        # If the type isn't marketable, don't expose a marketing URL at all, to avoid confusion.
+        # This is very similar to self.could_be_marketable, but we don't use that because we
+        # still want draft runs to expose a marketing URL.
+        type_is_marketable = self.type.is_marketable
+
+        if self.slug and type_is_marketable:
             path = 'course/{slug}'.format(slug=self.slug)
             return urljoin(self.course.partner.marketing_site_url_root, path)
 
@@ -1655,12 +1694,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
 
-        Seat.everything.update_or_create(
+        seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
             draft=True,
             defaults=defaults,
         )
+        return seat
 
     def update_or_create_seats(self, run_type=None, prices=None):
         """
@@ -1675,13 +1715,15 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         self.validate_seat_upgrade(seat_types)
 
+        seats = []
         for seat_type in seat_types:
-            self.update_or_create_seat_helper(seat_type, prices)
+            seats.append(self.update_or_create_seat_helper(seat_type, prices))
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
         # professional and verified before actually publishing their course run.
         self.seats.exclude(type__in=seat_types).delete()
+        self.seats.set(seats)  # pylint: disable=no-member
 
     def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
@@ -1894,7 +1936,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
     MASTERS = 'masters'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
+    EXECUTIVE_EDUCATION = 'executive-education'
+    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
@@ -2045,7 +2088,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    card_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'card': (378, 225),
+        }
+    )
+    card_image_url = models.URLField(null=True, blank=True, help_text=_('DEPRECATED: Use the card image field'))
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
@@ -2236,8 +2287,18 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def entitlements(self):
-        applicable_seat_types = set(self.type.applicable_seat_types.all())
-        return CourseEntitlement.objects.filter(mode__in=applicable_seat_types, course__in=self.courses.all())
+        """
+        Property to retrieve all of the entitlements in a Program.
+        """
+        # Warning: The choice to not use a filter method on the queryset here was deliberate. The filter
+        # method resulted in a new queryset being made which results in the prefetch_related cache being
+        # ignored.
+        return [
+            entitlement
+            for course in self.courses.all()
+            for entitlement in course.entitlements.all()
+            if entitlement.mode in set(self.type.applicable_seat_types.all())
+        ]
 
     @property
     def seat_types(self):
@@ -2362,7 +2423,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def staff(self):
-        staff = [course_run.staff.all() for course_run in self.course_runs]
+        advertised_course_runs = [course.advertised_course_run for
+                                  course in self.courses.all() if
+                                  course.advertised_course_run]
+        staff = [advertised_course_run.staff.all() for advertised_course_run in advertised_course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)
 
@@ -2686,6 +2750,11 @@ class CurriculumProgramMembership(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'program')
+        )
+
 
 class CurriculumCourseMembership(TimeStampedModel):
     """
@@ -2699,6 +2768,11 @@ class CurriculumCourseMembership(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
+
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'course')
+        )
 
     @property
     def course_runs(self):

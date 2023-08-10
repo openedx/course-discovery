@@ -1,5 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
+from dal import autocomplete
 from django.contrib import admin, messages
+from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -20,6 +22,20 @@ PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
     'Please try again. If the error persists, please contact the Engineering Team.'
 )
+
+
+class CurriculumCourseMembershipForm(ModelForm):
+    """
+    A custom CurriculumCourseMembershipForm to override the widget used by the course ModelChoiceField.
+    This allows us to leverage the view at the URL admin_metadata:course-autocomplete, which filters out draft
+    courses.
+    """
+    class Meta:
+        model = CurriculumCourseMembership
+        fields = ['curriculum', 'course', 'course_run_exclusions', 'is_active']
+        widgets = {
+            'course': autocomplete.ModelSelect2(url='admin_metadata:course-autocomplete')
+        }
 
 
 class ProgramEligibilityFilter(admin.SimpleListFilter):
@@ -76,7 +92,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
@@ -147,7 +163,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden')
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
 
@@ -179,11 +195,12 @@ class ProgramAdmin(admin.ModelAdmin):
                        'recent_enrollment_count',)
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
+    exclude = ('card_image_url',)
 
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
-        'card_image_url', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
+        'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
@@ -299,7 +316,7 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
-    from course_discovery.apps.publisher.models import OrganizationUserRole
+    from course_discovery.apps.publisher.models import OrganizationUserRole  # pylint: disable=import-outside-toplevel
     model = OrganizationUserRole
     extra = 3
     raw_id_fields = ('user',)
@@ -310,7 +327,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'name',)
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid', 'key')
     search_fields = ('uuid', 'name', 'key',)
 
 
@@ -359,6 +376,7 @@ class PositionAdmin(admin.ModelAdmin):
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('src', 'description',)
     search_fields = ('src', 'description',)
+    exclude = ('image',)
 
 
 @admin.register(Prerequisite)
@@ -383,9 +401,9 @@ class CurriculumProgramMembershipInline(admin.TabularInline):
 
 
 class CurriculumCourseMembershipInline(admin.StackedInline):
+    form = CurriculumCourseMembershipForm
     model = CurriculumCourseMembership
     readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
-    autocomplete_fields = ['course']
 
     def custom_course_runs_display(self, obj):
         return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
@@ -420,6 +438,7 @@ class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(CurriculumCourseMembership)
 class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
+    form = CurriculumCourseMembershipForm
     list_display = ('curriculum', 'course')
     inlines = (CurriculumCourseRunExclusionInline,)
 
@@ -433,6 +452,12 @@ class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
 class CurriculumAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
+
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except IntegrityError:
+            logger.exception('A database integrity error occurred while saving curriculum [%s].', obj.uuid)
 
 
 class CurriculumAdminInline(admin.StackedInline):
@@ -507,3 +532,10 @@ for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, Jo
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
               BackfillCourseRunSlugsConfig):
     admin.site.register(model)
+
+
+@admin.register(Collaborator)
+class CollaboratorAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'name', 'image')
+    readonly_fields = ('uuid', )
+    search_fields = ('uuid', 'name')

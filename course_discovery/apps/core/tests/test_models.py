@@ -12,7 +12,7 @@ class UserTests(TestCase):
     """ User model tests. """
 
     def setUp(self):
-        super(UserTests, self).setUp()
+        super().setUp()
         self.user = UserFactory()
 
     def test_access_token_without_social_auth(self):
@@ -38,7 +38,7 @@ class UserTests(TestCase):
         first_name = "Jerry"
         last_name = "Seinfeld"
         user = UserFactory(full_name=None, first_name=first_name, last_name=last_name)
-        expected = "{first_name} {last_name}".format(first_name=first_name, last_name=last_name)
+        expected = f"{first_name} {last_name}"
         self.assertEqual(user.get_full_name(), expected)
 
         user = UserFactory(full_name=full_name, first_name=first_name, last_name=last_name)
@@ -54,7 +54,7 @@ class CurrencyTests(TestCase):
         code = 'USD'
         name = 'U.S. Dollar'
         instance = Currency(code=code, name=name)
-        self.assertEqual(str(instance), '{code} - {name}'.format(code=code, name=name))
+        self.assertEqual(str(instance), f'{code} - {name}')
 
 
 @ddt.ddt
@@ -82,7 +82,7 @@ class PartnerTests(TestCase):
         """ Verify the property retrieves, and caches, an access token from the OAuth 2.0 provider. """
         token = 'abc123'
         partner = PartnerFactory()
-        url = '{root}/access_token'.format(root=partner.oauth2_provider_url)
+        url = f'{partner.oauth2_provider_url}/access_token'
         body = {
             'access_token': token,
             'expires_in': 3600,
