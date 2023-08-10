@@ -1091,3 +1091,19 @@ def validate_slug_format(url_slug, course):
 
     if not re.match(slug_pattern['slug_format'], url_slug):
         raise ValidationError(slug_pattern['error_msg'].format(url_slug=url_slug))
+
+
+def set_subdirectory_active_url_slug(course_run, product_source):
+    """
+    Generates a subdirectory slug for a course (from course's metadata) and sets it as the active_url_slug
+    """
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.api.utils import set_subdirectory_slug_for_course
+    from course_discovery.apps.course_metadata.models import CourseType
+
+    if (
+        IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled() and
+        product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG and
+        course_run.course.type.slug not in [CourseType.BOOTCAMP_2U, CourseType.EXECUTIVE_EDUCATION_2U]
+    ):
+        set_subdirectory_slug_for_course(course_run)

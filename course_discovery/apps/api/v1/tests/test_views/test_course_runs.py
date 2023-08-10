@@ -21,7 +21,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, CourseType, Seat, SeatType
 from course_discovery.apps.course_metadata.signals import (
     connect_course_data_modified_timestamp_signal_handlers, disconnect_course_data_modified_timestamp_signal_handlers
 )
@@ -1345,6 +1345,41 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                 assert not draft_course_run.course.active_url_slug.startswith('learn/')
 
             assert is_valid_slug_format(draft_course_run.course.active_url_slug)
+
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+        assert draft_course_run.status == CourseRunStatus.LegalReview
+
+    @override_settings(DEFAULT_PRODUCT_SOURCE_SLUG='edx')
+    def test_url_restructuring__for_bootcamp_courses(self):
+        """
+        Tests url slug restructuring doesn't impact slug format for bootcamp courses
+        """
+        bootcamp_course_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        draft_bootcamp_course = CourseFactory(
+            partner=self.partner, draft=True, product_source=self.product_source, type=bootcamp_course_type
+        )
+
+        draft_course_run = CourseRunFactory(course=draft_bootcamp_course, draft=True)
+        draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
+
+        self.mock_patch_to_studio(draft_course_run.key)
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': draft_course_run.key})
+        body = {
+            'course': draft_course_run.course.key,
+            'start': draft_course_run.start,
+            'end': draft_course_run.end,
+            'run_type': str(draft_course_run.type.uuid),
+            'draft': False,
+        }
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            response = self.client.put(url, body, format='json')
+            draft_course_run = CourseRun.everything.get(key=draft_course_run.key, draft=True)
+            assert not draft_course_run.course.active_url_slug.startswith('learn/')
+            assert draft_bootcamp_course.active_url_slug == draft_course_run.course.active_url_slug
 
         assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
         assert draft_course_run.status == CourseRunStatus.LegalReview
