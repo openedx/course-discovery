@@ -25,7 +25,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_subdirectory_active_url_slug
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
 log = logging.getLogger(__name__)
@@ -286,7 +286,6 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         # back into legal review if a non exempt field was changed (expected_program_name and expected_program_type)
         if not draft and (course_run.status == CourseRunStatus.Unpublished or non_exempt_update):
             save_kwargs['status'] = CourseRunStatus.LegalReview
-            set_subdirectory_active_url_slug(course_run, course_run.course.product_source)
 
         course_run = serializer.save(**save_kwargs)
 
