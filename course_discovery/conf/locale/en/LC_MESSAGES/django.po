@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-30 20:35+0000\n"
+"POT-Creation-Date: 2023-08-13 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/"
@@ -74,11 +74,11 @@ msgstr ""
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:2142
+#: apps/api/serializers.py:2144
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:2146
+#: apps/api/serializers.py:2148
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -400,7 +400,7 @@ msgstr ""
 msgid "Edit link"
 msgstr ""
 
-#: apps/course_metadata/admin.py:811
+#: apps/course_metadata/admin.py:842
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
 msgstr ""
@@ -1686,42 +1686,50 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4109 apps/course_metadata/models.py:4122
 #: apps/course_metadata/models.py:4135 apps/course_metadata/models.py:4155
-#: apps/course_metadata/models.py:4168 apps/course_metadata/models.py:4181
-#: apps/course_metadata/models.py:4199
+#: apps/course_metadata/models.py:4168 apps/course_metadata/models.py:4186
+#: apps/course_metadata/models.py:4206
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
 msgstr ""
 
-#: apps/course_metadata/models.py:4186 apps/course_metadata/models.py:4273
+#: apps/course_metadata/models.py:4179
+msgid "Open Courses"
+msgstr ""
+
+#: apps/course_metadata/models.py:4180
+msgid "2U Executive Education Courses"
+msgstr ""
+
+#: apps/course_metadata/models.py:4191 apps/course_metadata/models.py:4280
 msgid "Course UUIDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:4249
+#: apps/course_metadata/models.py:4256
 msgid "Course Run IDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:4265
+#: apps/course_metadata/models.py:4272
 msgid "Profile Image UUIDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:4272
+#: apps/course_metadata/models.py:4279
 msgid "Tag"
 msgstr ""
 
-#: apps/course_metadata/models.py:4288
+#: apps/course_metadata/models.py:4295
 msgid "Remove All Redirects"
 msgstr ""
 
-#: apps/course_metadata/models.py:4289
+#: apps/course_metadata/models.py:4296
 msgid "Url Paths"
 msgstr ""
 
-#: apps/course_metadata/models.py:4297
+#: apps/course_metadata/models.py:4304
 msgid "Add redirects from all published course url slugs"
 msgstr ""
 
-#: apps/course_metadata/models.py:4298 apps/taxonomy_support/models.py:55
+#: apps/course_metadata/models.py:4305 apps/taxonomy_support/models.py:55
 msgid "Course uuids"
 msgstr ""
 
@@ -1985,7 +1993,7 @@ msgid ""
 "%(course_preview_url)s\n"
 msgstr ""
 
-#: apps/course_metadata/utils.py:373
+#: apps/course_metadata/utils.py:374
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 
