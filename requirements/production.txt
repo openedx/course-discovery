@@ -27,7 +27,7 @@ asn1crypto==1.5.1
     # via
     #   oscrypto
     #   snowflake-connector-python
-async-timeout==4.0.2
+async-timeout==4.0.3
     # via
     #   aiohttp
     #   redis
@@ -49,9 +49,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.28.22
+boto3==1.28.25
     # via django-ses
-botocore==1.31.22
+botocore==1.31.25
     # via
     #   boto3
     #   s3transfer
@@ -318,7 +318,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==5.2.0
+edx-event-bus-kafka==5.3.1
     # via -r requirements/base.in
 edx-event-bus-redis==0.3.1
     # via -r requirements/base.in
@@ -434,7 +434,7 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.0
     # via -r requirements/production.in
-newrelic==8.9.0
+newrelic==8.10.0
     # via
     #   -r requirements/production.in
     #   edx-django-utils
@@ -652,7 +652,7 @@ tinycss2==1.2.1
     #   cssselect2
 tomlkit==0.12.1
     # via snowflake-connector-python
-tqdm==4.65.2
+tqdm==4.66.1
     # via openai
 typing-extensions==4.7.1
     # via
