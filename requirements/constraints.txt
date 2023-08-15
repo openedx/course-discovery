@@ -51,3 +51,7 @@ backports.zoneinfo;python_version<"3.9"
 
 # Pillow 10 is causing django-stdimage to break when accessing ANTIALIAS variable on Image
 pillow < 10.0.0
+
+# 4.2.0 is breaking django-elasticsearch-debug-toolbar
+# Awaiting fix https://github.com/Benoss/django-elasticsearch-debug-toolbar/pull/21 to be merged
+django-debug-toolbar < 4.2.0
