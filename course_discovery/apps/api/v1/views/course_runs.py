@@ -347,7 +347,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
 
         # Handle staff update on course run in review with valid status transition
         if (request.user.is_staff and course_run.in_review and 'status' in request.data and
-                request.data['status'] in CourseRunStatus.INTERNAL_STATUS_TRANSITIONS):
+                request.data['status'] in CourseRunStatus.INTERNAL_STATUS_TRANSITIONS()):
             return self.handle_internal_review(request, serializer)
 
         # Handle regular non-internal update

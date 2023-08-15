@@ -90,7 +90,7 @@ class LearnerPathway(TimeStampedModel):
     status = models.CharField(
         help_text=_('The active/inactive status of this Pathway.'),
         max_length=16, default=PathwayStatus.Inactive,
-        choices=PathwayStatus.choices, validators=[PathwayStatus.validator]
+        choices=PathwayStatus.choices
     )
     banner_image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/banner_images'),

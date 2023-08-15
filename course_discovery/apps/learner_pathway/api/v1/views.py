@@ -24,7 +24,7 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
     filter_backends = (DjangoFilterBackend,)
-    queryset = models.LearnerPathway.objects.prefetch_related('steps').filter(status=PathwayStatus.Active)
+    queryset = models.LearnerPathway.objects.prefetch_related('steps').filter(status=PathwayStatus.Active.value)
     filterset_class = PathwayUUIDFilter
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
@@ -33,7 +33,7 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
 
     @action(detail=True)
     def snapshot(self, request, uuid):
-        pathway = get_object_or_404(self.queryset, uuid=uuid, status=PathwayStatus.Active)
+        pathway = get_object_or_404(self.queryset, uuid=uuid, status=PathwayStatus.Active.value)
         serializer = serializers.LearnerPathwaySerializer(pathway, many=False)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

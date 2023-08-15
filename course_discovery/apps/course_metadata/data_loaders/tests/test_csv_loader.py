@@ -716,12 +716,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         (['certificate_header', 'certificate_text', 'stat1_text'],
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "certificate_header, certificate_text, stat1_text"',
-         ExternalCourseMarketingType.ShortCourse
+         ExternalCourseMarketingType.ShortCourse.value
          ),
         (['certificate_header', 'certificate_text', 'stat1_text'],
          '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
          'The missing data elements are "stat1_text"',
-         ExternalCourseMarketingType.Sprint
+         ExternalCourseMarketingType.Sprint.value
          ),
     )
     @unpack
