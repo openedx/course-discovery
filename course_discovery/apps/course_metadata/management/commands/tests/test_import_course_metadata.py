@@ -17,7 +17,9 @@ from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CSVDataLoaderConfigurationFactory
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+)
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.import_course_metadata'
 
@@ -132,38 +134,80 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
 
         with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
-            with LogCapture(LOGGER_PATH) as log_capture:
-                with mock.patch.object(
-                        CSVDataLoader,
-                        '_call_course_api',
-                        self.mock_call_course_api
-                ):
-                    call_command(
-                        'import_course_metadata',
-                        '--partner_code', self.partner.short_code,
-                        '--product_type', 'EXECUTIVE_EDUCATION',
-                        '--product_source', self.source.slug,
-                    )
-                    log_capture.check_present(
-                        (
-                            LOGGER_PATH,
-                            'INFO',
-                            'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED, active=True):
+                with LogCapture(LOGGER_PATH) as log_capture:
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_call_course_api',
+                            self.mock_call_course_api
+                    ):
+                        call_command(
+                            'import_course_metadata',
+                            '--partner_code', self.partner.short_code,
+                            '--product_type', 'EXECUTIVE_EDUCATION',
+                            '--product_source', self.source.slug,
                         )
-                    )
-                    log_capture.check_present(
-                        (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
-                    )
+                        log_capture.check_present(
+                            (
+                                LOGGER_PATH,
+                                'INFO',
+                                'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
+                            )
+                        )
+                        log_capture.check_present(
+                            (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
+                        )
 
-                    assert Course.everything.count() == 1
-                    assert CourseRun.everything.count() == 1
+                        assert Course.everything.count() == 1
+                        assert CourseRun.everything.count() == 1
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.everything.get(course=course)
-                    slug_path = f'{slugify(course.authoring_organizations.first().name)}-{slugify(course.title)}'
+                        course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                        course_run = CourseRun.everything.get(course=course)
+                        slug_path = f'{slugify(course.authoring_organizations.first().name)}-{slugify(course.title)}'
 
-                    assert course.image.read() == image_content
-                    assert course.active_url_slug == f'executive-education/{slug_path}'
-                    self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
-                    self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
-                    email_patch.assert_called_once()
+                        assert course.image.read() == image_content
+                        assert course.active_url_slug == f'executive-education/{slug_path}'
+                        self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
+                        self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+                        email_patch.assert_called_once()
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
+    def test_exec_ed_slug__disabled_switch(self, _email_patch, _jwt_decode_patch):
+        """
+        Verify that if IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED switch is disable url slug will not follow
+        sub directory format
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+
+        _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED, active=False):
+                with LogCapture(LOGGER_PATH) as log_capture:
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_call_course_api',
+                            self.mock_call_course_api
+                    ):
+                        call_command(
+                            'import_course_metadata',
+                            '--partner_code', self.partner.short_code,
+                            '--product_type', 'EXECUTIVE_EDUCATION',
+                            '--product_source', self.source.slug,
+                        )
+                        log_capture.check_present(
+                            (
+                                LOGGER_PATH,
+                                'INFO',
+                                'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
+                            )
+                        )
+                        log_capture.check_present(
+                            (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
+                        )
+
+                        course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                        assert course.active_url_slug == slugify(course.title)

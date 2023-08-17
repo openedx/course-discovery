@@ -54,7 +54,9 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, custom_render_variations, get_slug_for_course, is_ocm_course,
     push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
@@ -1860,6 +1862,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         """
         is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug))
         is_exec_ed_course = self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        if is_exec_ed_course and not IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED.is_enabled():
+            return
         is_open_course = is_ocm_course(self)
         if not is_slug_in_subdirectory_format and (is_exec_ed_course or is_open_course):
             slug, error = get_slug_for_course(self)
