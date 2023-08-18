@@ -2410,6 +2410,21 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
     @responses.activate
     def test_recommendations(self):
-        url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
-        response = self.client.get(url)
+        courses_sharing_program = CourseFactory.create_batch(2)
+        ProgramFactory(courses=[self.course, *courses_sharing_program])
+        geography_subject = SubjectFactory(name='geography')
+        self.course.subjects.add(geography_subject)
+        courses_sharing_subject_and_org = CourseFactory.create_batch(
+            2,
+            authoring_organizations=[self.org],
+            subjects=[geography_subject]
+        )
+
+        for course in [*courses_sharing_program, *courses_sharing_subject_and_org]:
+            run = CourseRunFactory(course=course, status=CourseRunStatus.Published)
+            SeatFactory(course_run=run)
+
+        with self.assertNumQueries(19, threshold=3):
+            url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
+            response = self.client.get(url)
         assert response.status_code == 200

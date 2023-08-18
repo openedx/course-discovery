@@ -16,6 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q, UniqueConstraint
+from django.db.models.query import Prefetch
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries import countries as COUNTRIES
@@ -45,7 +46,7 @@ from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
     PayeeType, ProgramStatus, ReportingType
 )
-from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.model_utils import has_model_changed
@@ -54,9 +55,10 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
+    UploadToFieldNamePath, clean_query, custom_render_variations, get_slug_for_course, is_ocm_course,
+    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -508,11 +510,11 @@ class Mode(TimeStampedModel):
         help_text=_('Completion can grant credit toward an organization’s degree.'),
     )
     certificate_type = models.CharField(
-        max_length=64, choices=CertificateType, blank=True,
+        max_length=64, choices=CertificateType.choices, blank=True,
         help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
     )
     payee = models.CharField(
-        max_length=64, choices=PayeeType, default='', blank=True,
+        max_length=64, choices=PayeeType.choices, default='', blank=True,
         help_text=_('Who gets paid for the course? Platform is the site owner, Organization is the school.'),
     )
 
@@ -884,7 +886,7 @@ class AdditionalMetadata(TimeStampedModel):
     )
     product_status = models.CharField(
         default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
-        choices=ExternalProductStatus.choices, validators=[ExternalProductStatus.validator]
+        choices=ExternalProductStatus.choices
     )
     external_course_marketing_type = models.CharField(
         help_text=_('This field contain external course marketing type specific to product lines'),
@@ -893,7 +895,6 @@ class AdditionalMetadata(TimeStampedModel):
         null=True,
         default=None,
         choices=ExternalCourseMarketingType.choices,
-        validators=[ExternalCourseMarketingType.validator]
     )
     display_on_org_page = models.BooleanField(
         null=False, default=True,
@@ -1273,7 +1274,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         default=None, null=True, blank=True
     )
     course_length = models.CharField(
-        max_length=64, choices=CourseLength, blank=True,
+        max_length=64, choices=CourseLength.choices, blank=True,
         help_text=_('The actual duration of this course as experienced by learners who complete it.'),
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
@@ -1819,6 +1820,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             Course.objects.filter(
                 programs__in=self.programs.all()
             )
+            .select_related('partner', 'type')
+            .prefetch_related(
+                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                'authoring_organizations',
+                '_official_version'
+            )
             .exclude(key=self.key)
             .distinct()
             .all())
@@ -1827,7 +1834,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             Course.objects.filter(
                 subjects__in=self.subjects.all(),
                 authoring_organizations__in=self.authoring_organizations.all()
-            ).exclude(key=self.key)
+            )
+            .select_related('partner', 'type')
+            .prefetch_related(
+                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                'authoring_organizations',
+                '_official_version'
+            )
+            .exclude(key=self.key)
             .distinct()
             .all())
 
@@ -1839,6 +1853,26 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 deduped.append(course)
                 seen.add(course)
         return deduped
+
+    def set_subdirectory_slug(self):
+        """
+        Sets the active url slug for draft and non-draft courses if the current
+        slug is not validated as per the new format.
+        """
+        is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug))
+        is_exec_ed_course = self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        is_open_course = is_ocm_course(self)
+        if not is_slug_in_subdirectory_format and (is_exec_ed_course or is_open_course):
+            slug, error = get_slug_for_course(self)
+            if slug:
+                self.set_active_url_slug(slug)
+                if self.official_version:
+                    self.official_version.set_active_url_slug(slug)
+            else:
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    f"Slug generation Failed: unable to set active url slug for course: {self.key} "
+                    f"with error {error}"
+                )
 
 
 class CourseEditor(TimeStampedModel):
@@ -1962,7 +1996,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     # There is a post save function in signals.py that verifies that this is unique within a program
     external_key = models.CharField(max_length=225, blank=True, null=True)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
-                              db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
+                              db_index=True, choices=CourseRunStatus.choices)
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
@@ -1994,7 +2028,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
-                                   choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
+                                   choices=CourseRunPacing.choices)
     syllabus = models.ForeignKey(SyllabusItem, models.CASCADE, default=None, null=True, blank=True)
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course run')
@@ -2552,6 +2586,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if self.status == CourseRunStatus.LegalReview:
             email_method = emails.send_email_for_legal_review
 
+            if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
+                self.course.set_subdirectory_slug()
+
         elif self.status == CourseRunStatus.InternalReview:
             email_method = emails.send_email_for_internal_review
 
@@ -2958,7 +2995,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=ProgramStatus.choices, validators=[ProgramStatus.validator], default=ProgramStatus.Unpublished
+        choices=ProgramStatus.choices, default=ProgramStatus.Unpublished
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
@@ -4176,6 +4213,11 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in migrate_course_slugs and update_course_active_url_slugs.
     """
+    OPEN_COURSE = 'open-course'
+    COURSE_TYPE_CHOICES = (
+        (OPEN_COURSE, _('Open Courses')),
+        (CourseType.EXECUTIVE_EDUCATION_2U, _('2U Executive Education Courses')),
+    )
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0
     csv_file = models.FileField(
@@ -4188,6 +4230,8 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     course_uuids = models.TextField(default=None, null=True, blank=True, verbose_name=_('Course UUIDs'))
     dry_run = models.BooleanField(default=True)
     count = models.IntegerField(null=True, blank=True)
+    course_type = models.CharField(choices=COURSE_TYPE_CHOICES, default=OPEN_COURSE, max_length=255)
+    product_source = models.ForeignKey(Source, models.CASCADE, null=True, blank=False)
 
 
 class ProgramSubscriptionConfiguration(ConfigurationModel):

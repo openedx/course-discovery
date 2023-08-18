@@ -525,4 +525,4 @@ class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
     lookup_value_regex = COURSE_ID_REGEX
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithRecommendationsSerializer
-    queryset = serializers.MinimalCourseSerializer.prefetch_queryset()
+    queryset = Course.objects.all()

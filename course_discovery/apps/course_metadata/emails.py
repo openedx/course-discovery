@@ -62,7 +62,7 @@ def get_project_coordinator(org):
         return None
 
     role = OrganizationUserRole.objects.filter(organization=org,
-                                               role=InternalUserRole.ProjectCoordinator).first()
+                                               role=InternalUserRole.ProjectCoordinator.value).first()
     return role.user if role else None
 
 
@@ -390,8 +390,15 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
         )
 
 
-def send_email_for_slug_updates(stats, to_users):
-    subject = 'Slugs Update Summary'
+def send_email_for_slug_updates(stats, to_users, subject=None):
+    """ Send an email with the summary of course slugs update.
+
+        Arguments:
+            stats (str): stats of course slugs update
+            to_users (list(str)): a list of email addresses to whom the email should be sent to
+            subject (str): subject line for email
+    """
+    subject = subject or 'Migrate Course Slugs Summary Report'
     body = 'Please find the attached csv file for the summary of course slugs update.'
     email_msg = EmailMultiAlternatives(
         subject, body, settings.PUBLISHER_FROM_EMAIL, to_users

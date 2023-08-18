@@ -285,7 +285,7 @@ class CSVDataLoader(AbstractDataLoader):
             )
             # Remove some fields for specific external course marketing type
             external_course_marketing_type = data.get('external_course_marketing_type', '')
-            if external_course_marketing_type == ExternalCourseMarketingType.Sprint:
+            if external_course_marketing_type == ExternalCourseMarketingType.Sprint.value:
                 required_fields.remove('certificate_header')
                 required_fields.remove('certificate_text')
 
@@ -401,7 +401,7 @@ class CSVDataLoader(AbstractDataLoader):
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
             related_courses__product_source=self.product_source,
-            product_status=ExternalProductStatus.Published,
+            product_status=ExternalProductStatus.Published.value,
         ).values_list('external_identifier', flat=True)
 
         archived_products = set(all_product_additional_metadatas).difference(course_external_identifiers)
@@ -432,7 +432,7 @@ class CSVDataLoader(AbstractDataLoader):
             'draft': is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
-            'url_slug': data.get('slug') or course.active_url_slug,
+            'url_slug': course.active_url_slug,
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
@@ -499,9 +499,9 @@ class CSVDataLoader(AbstractDataLoader):
             pacing = pacing.lower()
 
         if pacing == 'instructor-paced':
-            return CourseRunPacing.Instructor
+            return CourseRunPacing.Instructor.value
         elif pacing == 'self-paced':
-            return CourseRunPacing.Self
+            return CourseRunPacing.Self.value
         else:
             return None
 
@@ -779,6 +779,6 @@ class CSVDataLoader(AbstractDataLoader):
                 data.get('meta_description', ''),
                 data.get('meta_keywords', '')
             )})
-        if external_course_marketing_type in dict(ExternalCourseMarketingType):
+        if external_course_marketing_type in dict(ExternalCourseMarketingType.choices):
             additional_metadata.update({'external_course_marketing_type': external_course_marketing_type})
         return additional_metadata

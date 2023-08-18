@@ -1091,6 +1091,8 @@ class MinimalProgramSerializerTests(TestCase):
             'program_duration_override': program.program_duration_override,
             'excluded_from_seo': program.excluded_from_seo,
             'excluded_from_search': program.excluded_from_search,
+            'has_ofac_restrictions': program.has_ofac_restrictions,
+            'ofac_comment': program.ofac_comment,
             'subscription_eligible': None,
             'subscription_prices': [],
         }

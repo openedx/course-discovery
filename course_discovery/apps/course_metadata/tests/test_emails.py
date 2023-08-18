@@ -45,7 +45,7 @@ class EmailTests(TestCase):
         CourseEditorFactory(user=self.editor, course=self.course)
         CourseEditorFactory(user=self.editor2, course=self.course)
         OrganizationExtensionFactory(group=self.group, organization=self.org)
-        OrganizationUserRoleFactory(user=self.pc, organization=self.org, role=InternalUserRole.ProjectCoordinator)
+        OrganizationUserRoleFactory(user=self.pc, organization=self.org, role=InternalUserRole.ProjectCoordinator.value)
 
         self.publisher_url = f'{self.partner.publisher_url}courses/{self.course_run.course.uuid}'
         self.studio_url = f'{self.partner.studio_url}course/{self.course_run.key}'
@@ -659,7 +659,7 @@ class TestSlugUpdatesEmail(TestCase):
     """
     Test suite for send_ingestion_email.
     """
-    EMAIL_SUBJECT = 'Slugs Update Summary'
+    EMAIL_SUBJECT = 'Migrate Course Slugs Summary Report'
     USER_EMAILS = ['edx@example.com']
 
     def test_send_email_for_slug_updates(self):

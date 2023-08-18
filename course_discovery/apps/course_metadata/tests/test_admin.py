@@ -195,7 +195,7 @@ class AdminTests(SiteMixin, TestCase):
     def test_program_activation_restrictions(self, booleans, label):
         """Verify that program activation requires both a marketing slug and a banner image."""
         has_banner_image, can_be_activated = booleans
-        status = getattr(ProgramStatus, label)
+        status = getattr(ProgramStatus, str(label))
 
         banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 
@@ -336,8 +336,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-credit_value', 'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
             'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
-            'field-program_duration_override', 'field-ofac_comment', 'field-data_modified_timestamp',
-            'field-excluded_from_search', 'field-excluded_from_seo'
+            'field-program_duration_override', 'field-has_ofac_restrictions', 'field-ofac_comment',
+            'field-data_modified_timestamp', 'field-excluded_from_search', 'field-excluded_from_seo'
         ]
         assert actual == expected
 

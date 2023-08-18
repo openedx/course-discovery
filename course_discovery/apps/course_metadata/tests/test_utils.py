@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from edx_toggles.toggles.testutils import override_waffle_switch
+from slugify import slugify
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -1048,10 +1049,27 @@ class CourseSlugMethodsTests(TestCase):
         course = CourseFactory(title='test-title')
         slug, error = utils.get_slug_for_course(course)
         assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+                        f"organizations"
+
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
         assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
 
         subject = SubjectFactory(name='business')
         course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+
+    def test_get_slug_for_exec_ed_course(self):
+        """
+        It will verify that slug are generated correctly for executive education courses
+        """
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(title='test-title', type=ee_type_2u)
         slug, error = utils.get_slug_for_course(course)
         assert slug is None
         assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
@@ -1060,8 +1078,9 @@ class CourseSlugMethodsTests(TestCase):
         organization = OrganizationFactory(name='test-organization')
         course.authoring_organizations.add(organization)
         slug, error = utils.get_slug_for_course(course)
+
         assert error is None
-        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+        assert slug == f"executive-education/{organization.name}-{slugify(course.title)}"
 
     def test_get_slug_for_course__with_no_url_slug(self):
         course = CourseFactory(title='test-title')
@@ -1113,6 +1132,43 @@ class CourseSlugMethodsTests(TestCase):
         slug, error = utils.get_slug_for_course(course3)
         assert error is None
         assert slug == f"learn/{subject.slug}/{organization.name}-{course3.title}-3"
+
+    def test_get_slug_for_exec_ed_course__with_existing_url_slug(self):
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        partner = PartnerFactory()
+        course1 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course1.authoring_organizations.add(organization)
+        course1.partner = partner
+        course1.save()
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        slug, error = utils.get_slug_for_course(course1)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course1.title)}"
+
+        course1.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course2 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course2.authoring_organizations.add(organization)
+        course2.partner = partner
+        course2.save()
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        slug, error = utils.get_slug_for_course(course2)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-2"
+
+        course2.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course3.authoring_organizations.add(organization)
+        course3.partner = partner
+        course3.save()
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        slug, error = utils.get_slug_for_course(course3)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-3"
 
     def test_get_existing_slug_count(self):
         course1 = CourseFactory(title='test-title')
