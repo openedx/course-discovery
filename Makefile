@@ -104,8 +104,19 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
+ifeq ($(OPENEDX_ATLAS_PULL),)
 pull_translations: ## Pull translations from Transifex
 	tx pull -a -f -t --mode reviewed --minimum-perc=1
+else
+# Experimental: OEP-58 Pulls translations using atlas
+pull_translations:
+	find course_discovery/conf/locale -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+	atlas pull $(OPENEDX_ATLAS_ARGS) translations/course-discovery/course_discovery/conf/locale:course_discovery/conf/locale
+	python manage.py compilemessages
+
+	@echo "Translations pulled from Transifex and compiled."
+	@echo "'make static' or 'make static.dev' is required to update the js i18n files."
+endif
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 push_translations: ## Push source translation files (.po) to Transifex

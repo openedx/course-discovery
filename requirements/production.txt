@@ -447,6 +447,8 @@ oauthlib==3.2.2
     #   social-auth-core
 openai==0.27.8
     # via taxonomy-connector
+openedx-atlas==0.4.4
+    # via -r requirements/base.in
 openedx-events==8.5.0
     # via
     #   edx-event-bus-kafka
