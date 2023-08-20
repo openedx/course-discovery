@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-13 20:35+0000\n"
+"POT-Creation-Date: 2023-08-20 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -566,6 +566,26 @@ msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 #: apps/course_metadata/choices.py
 msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/choices.py
+msgid "mooc"
+msgstr "mööç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "spoc"
+msgstr "spöç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "test"
+msgstr "tést Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "demo"
+msgstr "démö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "other"
+msgstr "öthér Ⱡ'σяєм ιρѕ#"
 
 #: apps/course_metadata/choices.py
 msgid "Honor"
