@@ -508,13 +508,19 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             self.enrollment_skus.append(self.update_enrollment_code(body))
 
     def _delete_entitlements(self):
-        entitlements_to_delete = CourseEntitlement.objects.filter(
+        # The last two excludes ensure that we do not delete entitlements
+        # that have no official variants yet.
+        entitlements_to_delete = CourseEntitlement.everything.filter(
             partner=self.partner
-        ).exclude(sku__in=self.entitlement_skus)
+        ).exclude(sku__in=self.entitlement_skus).exclude(sku__isnull=True).exclude(sku__exact='')
 
         for entitlement in entitlements_to_delete:
-            msg = 'Deleting entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
-                course_title=entitlement.course.title, sku=entitlement.sku, partner=entitlement.partner
+            # pylint: disable=line-too-long
+            msg = 'Deleting {draft_status} entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
+                course_title=entitlement.course.title,
+                sku=entitlement.sku,
+                partner=entitlement.partner,
+                draft_status='draft' if entitlement.draft else 'non-draft'
             )
             logger.info(msg)
         entitlements_to_delete.delete()
@@ -555,6 +561,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 course_run_key,
             )
         seats_to_remove.delete()
+
+        if course_run.draft_version:
+            draft_seats_to_remove = course_run.draft_version.seats.exclude(type__slug__in=certificate_types)
+            draft_seats_to_remove.delete()
 
     def update_seat(self, course_run, product_body):
         stock_record = product_body['stockrecords'][0]
@@ -601,12 +611,23 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        _, created = course_run.seats.update_or_create(
+        seat, created = course_run.seats.update_or_create(
             type=seat_type,
             credit_provider=credit_provider,
             currency=currency,
             defaults=defaults
         )
+
+        if course_run.draft_version:
+            draft_seat, _ = course_run.draft_version.seats.update_or_create(
+                draft=True,
+                type=seat_type,
+                credit_provider=credit_provider,
+                currency=currency,
+                defaults=defaults
+            )
+            seat.draft_version = draft_seat
+            seat.save()
 
         if created:
             logger.info('Created seat for course with key [%s] and sku [%s].', course_run.key, sku)
@@ -740,7 +761,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             title=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
-        course.entitlements.update_or_create(mode=mode, defaults=defaults)
+        entitlement, _ = course.entitlements.update_or_create(mode=mode, defaults=defaults)
+        if course.draft_version:
+            draft_entitlement, _ = course.draft_version.entitlements.update_or_create(
+                draft=True, mode=mode, defaults=defaults
+            )
+            entitlement.draft_version = draft_entitlement
+            entitlement.save()
         return sku
 
     def update_enrollment_code(self, body):
@@ -788,7 +815,14 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         )
         logger.info(msg)
 
-        course_run.seats.update_or_create(type=seat_type, defaults=defaults)
+        seat, _ = course_run.seats.update_or_create(type=seat_type, defaults=defaults)
+        if course_run.draft_version:
+            draft_seat, _ = course_run.draft_version.seats.update_or_create(
+                draft=True, type=seat_type, defaults=defaults
+            )
+            seat.draft_version = draft_seat
+            seat.save()
+
         return sku
 
     def get_certificate_type(self, product):
