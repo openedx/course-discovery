@@ -316,6 +316,23 @@ OAUTH_API_TIMEOUT = (3.05, 1)
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',  # Use MD5 hasher for testing
+]
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    # Choose a weak password hasher for tests
+    {
+        'NAME': 'django.contrib.auth.password_validation.UnsaltedMD5PasswordValidator',
+    },
+]
+
 # TODO Set this to another (non-staff, ideally) path.
 LOGIN_REDIRECT_URL = '/admin/'
 # END AUTHENTICATION CONFIGURATION

@@ -1,8 +1,12 @@
 from course_discovery.settings._debug_toolbar import *  # isort:skip
 from course_discovery.settings.base import *
 
+
+
 DEBUG = True
 ALLOWED_HOSTS = ['*']
+LOCAL_DISCOVERY_MEDIA_URL = '/media/'
+
 
 # CACHE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#caches

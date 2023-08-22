@@ -1,5 +1,7 @@
 import tempfile
 
+from django.contrib.auth.hashers import UnsaltedMD5PasswordHasher
+from course_discovery.settings.base import PASSWORD_HASHERS
 from course_discovery.settings.base import *
 from course_discovery.settings.shared.test import *
 
@@ -10,6 +12,12 @@ INSTALLED_APPS += [
 ALLOWED_HOSTS = ['*']
 
 DEFAULT_PARTNER_ID = 1
+
+# Unsalted password hasher
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+]
+
 
 TEST_NON_SERIALIZED_APPS = [
     # Prevents the issue described at https://code.djangoproject.com/ticket/23727.
