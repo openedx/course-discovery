@@ -327,10 +327,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
-    # Choose a weak password hasher for tests
-    #{
-    #    'NAME': 'django.contrib.auth.password_validation.UnsaltedMD5PasswordValidator',
-    #},
 ]
 
 # TODO Set this to another (non-staff, ideally) path.
