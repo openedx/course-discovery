@@ -1483,9 +1483,9 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField(allow_null=True, required=False)
     courses = serializers.SerializerMethodField()
-    type = serializers.SlugRelatedField(slug_field='name_t', queryset=ProgramType.objects.all())
+    type = serializers.SlugRelatedField(slug_field='slug', queryset=ProgramType.objects.all())
     type_attrs = ProgramTypeAttrsSerializer(source='type')
-    degree = DegreeSerializer()
+    degree = DegreeSerializer(allow_null=True, required=False)
     curricula = CurriculumSerializer(many=True)
     card_image_url = serializers.SerializerMethodField()
 

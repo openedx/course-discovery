@@ -16,7 +16,7 @@ from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 
-class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
