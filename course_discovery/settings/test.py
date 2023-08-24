@@ -1,8 +1,9 @@
 import tempfile
 
 from django.contrib.auth.hashers import UnsaltedMD5PasswordHasher
-from course_discovery.settings.base import PASSWORD_HASHERS
+
 from course_discovery.settings.base import *
+from course_discovery.settings.base import PASSWORD_HASHERS
 from course_discovery.settings.shared.test import *
 
 INSTALLED_APPS += [
