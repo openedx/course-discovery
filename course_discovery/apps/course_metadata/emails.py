@@ -43,7 +43,7 @@ def log_missing_project_coordinator(key, org, template_name):
         )
 
 
-def get_project_coordinator(org):
+def get_project_coordinators(org):
     """ Get the registered project coordinators for an organization.
 
         Only returns the first one. Technically the database supports multiple. But in practice, we only use one.
@@ -61,16 +61,10 @@ def get_project_coordinator(org):
     if not org:
         return None
 
-    are_project_coordinators_present = OrganizationUserRole.objects.filter(
-        organization=org, role=InternalUserRole.ProjectCoordinator.value
-    ).exists()
-
-    if not are_project_coordinators_present:
-        return None
     project_coordinators = [pc.user for pc in OrganizationUserRole.objects.filter(
         organization=org, role=InternalUserRole.ProjectCoordinator.value
     ).select_related('user')]
-    return project_coordinators
+    return project_coordinators or None
 
 
 def send_email(template_name, subject, to_users, recipient_name,
@@ -90,7 +84,7 @@ def send_email(template_name, subject, to_users, recipient_name,
     course = course or course_run.course
     partner = course.partner
     org = course.authoring_organizations.first()
-    project_coordinators = project_coordinators or get_project_coordinator(org)
+    project_coordinators = project_coordinators or get_project_coordinators(org)
     if not project_coordinators:
         log_missing_project_coordinator(course.key, org, template_name)
         return
@@ -185,7 +179,7 @@ def send_email_to_project_coordinator(course_run, template_name, subject, contex
             context (dict): additional context for the template
     """
     org = course_run.course.authoring_organizations.first()
-    project_coordinators = get_project_coordinator(org)
+    project_coordinators = get_project_coordinators(org)
     if not project_coordinators:
         log_missing_project_coordinator(course_run.course.key, org, template_name)
         return
@@ -327,7 +321,7 @@ def send_email_for_comment(comment, course, author):
     )
 
     org = course.authoring_organizations.first()
-    project_coordinators = get_project_coordinator(org)
+    project_coordinators = get_project_coordinators(org)
     recipients = list(CourseEditor.course_editors(course))
     if project_coordinators:
         recipients.extend(project_coordinators)
