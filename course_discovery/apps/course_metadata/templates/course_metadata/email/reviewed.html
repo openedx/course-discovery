@@ -33,10 +33,17 @@
 </p>
 
 <p>
-    {% blocktrans trimmed asvar tmsg %}
-        Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}your Project Coordinator{link_end}.
-    {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe %}
+    Note: This email address is unable to receive replies. For questions or comments, please contact your Project Coordinator(s):
+    {% for contact_us_email in contact_us_emails %}
+        {% blocktrans trimmed asvar tmsg %}
+        {link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}
+        {% endblocktrans %}
+        {% if forloop.last %}
+        {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe %}
+        {% else %}
+        {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>, '|safe contact_us_email=contact_us_email|safe %}
+        {% endif %}
+    {% endfor %}
 </p>
 
 <!-- End Message Body -->
