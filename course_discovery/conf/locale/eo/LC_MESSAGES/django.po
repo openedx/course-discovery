@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-13 20:35+0000\n"
+"POT-Creation-Date: 2023-08-27 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -568,6 +568,26 @@ msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
 
 #: apps/course_metadata/choices.py
+msgid "mooc"
+msgstr "mööç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "spoc"
+msgstr "spöç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "test"
+msgstr "tést Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "demo"
+msgstr "démö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "other"
+msgstr "öthér Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py
 msgid "Honor"
 msgstr "Hönör Ⱡ'σяєм ιρѕ#"
 
@@ -714,6 +734,10 @@ msgstr ""
 #: apps/course_metadata/emails.py
 msgid "legal team"
 msgstr "légäl téäm Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/course_metadata/emails.py
+msgid "Project Coordinator team"
+msgstr "Pröjéçt Çöördïnätör téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/emails.py
 msgid "course team"
@@ -2299,22 +2323,14 @@ msgstr ""
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
 #, python-brace-format
 msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}your "
-"Project Coordinator{link_end}."
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}"
 msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt {link_start}{contact_us_email}{link_middle}ýöür "
-"Pröjéçt Çöördïnätör{link_end}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
-"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
-" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
-"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
-"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
-"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
-"σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυм#"
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt
 #, python-format
@@ -2323,15 +2339,14 @@ msgstr ""
 "Vïéw thïs Àßöüt pägé. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt
-#, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
-"comments, please contact your Project Coordinator at %(contact_us_email)s."
+"comments, please contact your Project Coordinator(s):"
 msgstr ""
 "Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
-"Ⱡ'σ#"
+"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör(s): Ⱡ'σяєм #"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #, python-brace-format
@@ -2398,17 +2413,6 @@ msgstr ""
 "{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
 "Püßlïshér{link_end} tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
 
-#: apps/course_metadata/templates/course_metadata/email/legal_review.html
-#, python-brace-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}the "
-"Project Coordinator{link_end}."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt {link_start}{contact_us_email}{link_middle}thé "
-"Pröjéçt Çöördïnätör{link_end}.#"
-
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt
 #, python-format
 msgid "%(org_name)s has submitted %(course_name)s for review."
@@ -2421,16 +2425,6 @@ msgid "View this course run in Publisher above to determine OFAC status."
 msgstr ""
 "Vïéw thïs çöürsé rün ïn Püßlïshér äßövé tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact the Project Coordinator at %(contact_us_email)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt thé Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
-"Ⱡ'σя#"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
 #, python-brace-format
