@@ -575,7 +575,7 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} </li>"
             ]
         )
 
@@ -620,11 +620,11 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(sprint) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(course_stack) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(short_course) </li>"
             ]
         )

@@ -49,7 +49,7 @@
         <ul>
             {% for new_product in created_products %}
                 {% if product_type != "DEGREES" %}
-                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a><pre> - </pre>{{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}</li>
+                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a> - {{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}</li>
                 {% else %}
                     <li>{{ new_product.uuid }}</li>
                 {% endif %}
