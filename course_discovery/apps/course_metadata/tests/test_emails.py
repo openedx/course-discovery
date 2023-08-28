@@ -78,7 +78,6 @@ class EmailTests(TestCase):
         for regex in both_regexes or []:
             self.assertRegex(text, regex)
             self.assertRegex(html, regex)
-
         for regex in text_regexes or []:
             self.assertRegex(text, regex)
 
@@ -128,6 +127,10 @@ class EmailTests(TestCase):
         """
         Verify that send_email_for_legal_review's happy path works as expected
         """
+        project_coordinator_2 = self.make_user(email='pc2@test.com')
+        OrganizationUserRoleFactory(
+            user=project_coordinator_2, organization=self.org, role=InternalUserRole.ProjectCoordinator.value
+        )
         self.assertEmailSent(
             emails.send_email_for_legal_review,
             f'^Legal review requested: {self.course_run.title}$',
@@ -139,12 +142,13 @@ class EmailTests(TestCase):
             ],
             html_regexes=[
                 '<a href="%s">View this course run in Publisher</a> to determine OFAC status.' % self.publisher_url,
-                'For questions or comments, please contact '
-                '<a href="mailto:pc@example.com">the Project Coordinator</a>.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                '<a href="mailto:pc@example.com">pc@example.com</a>, ',
+                '<a href="mailto:pc2@test.com">pc2@test.com</a>',
             ],
             text_regexes=[
                 '%s\nView this course run in Publisher above to determine OFAC status.' % self.publisher_url,
-                'For questions or comments, please contact the Project Coordinator at pc@example.com.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com,pc2@test.com'
             ],
         )
 
@@ -184,7 +188,7 @@ class EmailTests(TestCase):
             f'^Review requested: {re.escape(self.course_run.key)} - {self.course_run.title}$',
             [self.pc],
             both_regexes=[
-                'Dear %s,' % self.pc.full_name,
+                'Dear Project Coordinator team,',
                 'MyOrg has submitted %s for review.' % re.escape(self.course_run.key),
             ],
             html_regexes=[
@@ -218,14 +222,14 @@ class EmailTests(TestCase):
             html_regexes=[
                 'The <a href="%s">%s course run</a> of %s has been reviewed and approved by %s.' %
                 (self.publisher_url, self.run_num, self.course_run.title, settings.PLATFORM_NAME),
-                'For questions or comments, please contact '
-                '<a href="mailto:pc@example.com">your Project Coordinator</a>.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                '<a href="mailto:pc@example.com">pc@example.com</a>',
             ],
             text_regexes=[
                 'The %s course run of %s has been reviewed and approved by %s.' %
                 (self.run_num, self.course_run.title, settings.PLATFORM_NAME),
                 '\n\nView the course run in Publisher: %s\n' % self.publisher_url,
-                'For questions or comments, please contact your Project Coordinator at pc@example.com.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com'
             ],
         )
 
@@ -241,12 +245,12 @@ class EmailTests(TestCase):
             ],
             'html_regexes': [
                 '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
-                'For questions or comments, please contact '
-                '<a href="mailto:pc@example.com">your Project Coordinator</a>.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                '<a href="mailto:pc@example.com">pc@example.com</a>',
             ],
             'text_regexes': [
                 '\n\nView this About page. %s\n' % self.course_run.marketing_url,
-                'For questions or comments, please contact your Project Coordinator at pc@example.com.',
+                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com'
             ],
         }
 
@@ -571,7 +575,7 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} </li>"
             ]
         )
 
@@ -616,11 +620,11 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(sprint) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(course_stack) </li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a><pre> - </pre>{url_slug} "
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
                 f"(short_course) </li>"
             ]
         )
