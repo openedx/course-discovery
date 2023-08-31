@@ -1194,12 +1194,16 @@ class ValidateSlugFormatTest(TestCase):
     def setUp(self):
         self.product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
         self.external_product_source = SourceFactory(slug=settings.EXTERNAL_PRODUCT_SOURCE_SLUG)
-        self.course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        self.bootcamp_course_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        self.exec_ed_course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         self.test_course_1 = CourseFactory(title='test-title', product_source=self.product_source)
         self.test_course_2 = CourseFactory(title='test-title-2')
         self.test_course_3 = CourseFactory(title='test-title-3', product_source=self.product_source)
         self.test_course_4 = CourseFactory(
-            title='test-title-4', product_source=self.external_product_source, type=self.course_type
+            title='test-title-4', product_source=self.external_product_source, type=self.exec_ed_course_type
+        )
+        self.bootcamp_course = CourseFactory(
+            title='bootcamp-course', product_source=self.external_product_source, type=self.bootcamp_course_type
         )
 
         CourseRunFactory(course=self.test_course_1, status=CourseRunStatus.Published)
@@ -1348,6 +1352,51 @@ class ValidateSlugFormatTest(TestCase):
         with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
             with self.assertRaises(ValidationError) as context:
                 validate_slug_format(slug, self.test_course_4)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('boot-camps/physics/edx-applied-physics', True),
+        ('boot-camps/python/harvard-python-for-beginners', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_bootcamps(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for bootcamps
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.bootcamp_course) is None
+
+    @ddt.data(
+        ('boot-camps/primary-subject/org-name-course-name', False),
+        ('boot-camps/primary-subject/org-name-course-name/', True),
+        ('boot-camps/primary-subject/org-name-course-name/', False),
+        ('boot-camps/org-name-course-name', True),
+        ('learn/test-course', True),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_bootcamp_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for bootcamp courses
+        """
+        expected_error_message = None
+
+        if is_subdirectory_slug_format_active:
+            expected_error_message = (
+                settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+                .get('bootcamp-2u').get('error_msg')
+            )
+        else:
+            expected_error_message = DEFAULT_SLUG_FORMAT_ERROR_MSG
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.bootcamp_course)
 
             expected_error_message = expected_error_message.format(url_slug=slug)
             actual_error_message = str(context.exception)
