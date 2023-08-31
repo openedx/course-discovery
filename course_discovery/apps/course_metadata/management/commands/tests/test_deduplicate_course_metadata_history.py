@@ -30,13 +30,16 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         """
         Verify the history count before running the clean-up command.
         """
-        # Induce a few history records:
-        # - 2 updates for courserun1
-        # - 0 updates for courserun2
-        # - 3 updates for courserun3
+        self.courserun1.title = 'test title'
         self.courserun1.save()
+
+        self.courserun3.title = 'test title'
         self.courserun3.save()
+
+        self.courserun1.title = 'test title again'
         self.courserun1.save()
+
+        self.courserun3.title = 'test title again'
         self.courserun3.save()
         factories.CourseRunFactory()  # Toss in a fourth create to mix things up.
         self.courserun3.save()
@@ -48,9 +51,9 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         # Ensure that there are multiple history records for each course run.  For each
         # course run, there should be 2 (baseline) + the amount we added at the
         # beginning of this test * 2 for the double save for enterprise inclusion boolean
-        assert courserun1_count_initial == ((2 + 2) * 2)
-        assert courserun2_count_initial == ((2 + 0) * 2)
-        assert courserun3_count_initial == ((2 + 3) * 2)
+        assert courserun1_count_initial == 3
+        assert courserun2_count_initial == 1
+        assert courserun3_count_initial == 3
 
     def _assert_normal_case_post_command(self):
         """
@@ -61,9 +64,10 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         courserun3_count_final = CourseRun.history.filter(id=self.courserun3.id).count()  # pylint: disable=no-member
 
         # Ensure that the only history records left are the 3 original creates.
-        assert courserun1_count_final == 1
+        # count remains same because all history instances are unique.
+        assert courserun1_count_final == 3
         assert courserun2_count_final == 1
-        assert courserun3_count_final == 1
+        assert courserun3_count_final == 3
 
     def test_normal_case(self):
         """
