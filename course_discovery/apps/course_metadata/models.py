@@ -48,7 +48,6 @@ from course_discovery.apps.course_metadata.choices import (
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
-from course_discovery.apps.course_metadata.model_utils import has_model_changed
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -66,6 +65,47 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
+
+
+class ManageHistoryMixin(models.Model):
+    """
+    Manages the history creation of the models based on the actual changes rather than saving without changes.
+    """
+
+    def has_model_changed(self, external_keys=None, excluded_fields=None):
+        """
+        Returns True if the model has changed, False otherwise.
+        Args:
+        external_keys (list): Names of the Foreign Keys to check
+        excluded_fields (list): Names of fields to exclude
+
+        Returns:
+        Boolean indicating if model or associated keys have changed.
+        """
+        external_keys = external_keys if external_keys else []
+        excluded_fields = excluded_fields if excluded_fields else []
+        changed = self.field_tracker.changed()
+        for field in excluded_fields:
+            changed.pop(field, None)
+
+        return len(changed) or any(
+            item.has_changed for item in external_keys if hasattr(item, 'has_changed')
+        )
+
+    def save(self, *args, **kwargs):
+        """
+        Sets the parameter 'skip_history_on_save' if the object is not changed
+        """
+        if not self.has_changed:
+            setattr(self, 'skip_history_when_saving', True)  # pylint: disable=literal-used-as-attribute
+
+        super().save(*args, **kwargs)
+
+        if hasattr(self, 'skip_history_when_saving'):
+            delattr(self, 'skip_history_when_saving')  # pylint: disable=literal-used-as-attribute
+
+    class Meta:
+        abstract = True
 
 
 class DraftModelMixin(models.Model):
@@ -184,7 +224,7 @@ class AbstractHeadingBlurbModel(TimeStampedModel):
         abstract = True
 
 
-class Organization(CachedMixin, TimeStampedModel):
+class Organization(ManageHistoryMixin, CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=True, verbose_name=_('UUID'))
@@ -261,7 +301,7 @@ class Organization(CachedMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def clean(self):
         if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
@@ -347,7 +387,7 @@ class Image(AbstractMediaModel):
     width = models.IntegerField(null=True, blank=True)
 
 
-class Video(AbstractMediaModel):
+class Video(ManageHistoryMixin, AbstractMediaModel):
     """ Video model. """
     image = models.ForeignKey(Image, models.CASCADE, null=True, blank=True)
 
@@ -357,7 +397,7 @@ class Video(AbstractMediaModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def __str__(self):
         return f'{self.src}: {self.description}'
@@ -676,7 +716,7 @@ class SubjectTranslation(TranslatedFieldsModel):
         verbose_name = _('Subject model translations')
 
 
-class Topic(TranslatableModel, TimeStampedModel):
+class Topic(ManageHistoryMixin, TranslatableModel, TimeStampedModel):
     """ Topic model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     banner_image_url = models.URLField(blank=True, null=True)
@@ -701,7 +741,7 @@ class Topic(TranslatableModel, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def validate_unique(self, *args, **kwargs):
         super().validate_unique(*args, **kwargs)
@@ -723,7 +763,7 @@ class TopicTranslation(TranslatedFieldsModel):
         verbose_name = _('Topic model translations')
 
 
-class Fact(AbstractHeadingBlurbModel):
+class Fact(ManageHistoryMixin, AbstractHeadingBlurbModel):
     """ Fact Model """
 
     field_tracker = FieldTracker()
@@ -732,7 +772,7 @@ class Fact(AbstractHeadingBlurbModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -745,7 +785,7 @@ class Fact(AbstractHeadingBlurbModel):
             )
 
 
-class CertificateInfo(AbstractHeadingBlurbModel):
+class CertificateInfo(ManageHistoryMixin, AbstractHeadingBlurbModel):
     """ Certificate Information Model """
 
     field_tracker = FieldTracker()
@@ -754,7 +794,7 @@ class CertificateInfo(AbstractHeadingBlurbModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -764,7 +804,7 @@ class CertificateInfo(AbstractHeadingBlurbModel):
             )
 
 
-class ProductMeta(TimeStampedModel):
+class ProductMeta(ManageHistoryMixin, TimeStampedModel):
     """
     Model to contain SEO/Meta information for a product.
     """
@@ -788,7 +828,7 @@ class ProductMeta(TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
@@ -804,7 +844,7 @@ class ProductMeta(TimeStampedModel):
         return self.title
 
 
-class TaxiForm(TimeStampedModel):
+class TaxiForm(ManageHistoryMixin, TimeStampedModel):
     """
     Represents the data needed for a single Taxi (2U form library) lead capture form.
     """
@@ -829,10 +869,10 @@ class TaxiForm(TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
 
-class AdditionalMetadata(TimeStampedModel):
+class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     """
     This model holds 2U related additional fields.
     """
@@ -910,7 +950,7 @@ class AdditionalMetadata(TimeStampedModel):
         if not self.pk:
             return False
         external_keys = [self.product_meta,]
-        return has_model_changed(self.field_tracker, external_keys=external_keys)
+        return self.has_model_changed(external_keys=external_keys)
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
@@ -1102,7 +1142,7 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
-class ProductValue(TimeStampedModel):
+class ProductValue(ManageHistoryMixin, TimeStampedModel):
     """
     ProductValue model, with fields related to projected value for a product.
     """
@@ -1139,7 +1179,7 @@ class ProductValue(TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -1150,7 +1190,7 @@ class ProductValue(TimeStampedModel):
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
-class GeoLocation(TimeStampedModel):
+class GeoLocation(ManageHistoryMixin, TimeStampedModel):
     """
     Model to keep Geographic location for Products.
     """
@@ -1197,7 +1237,7 @@ class GeoLocation(TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -1226,7 +1266,7 @@ class AbstractLocationRestrictionModel(TimeStampedModel):
         abstract = True
 
 
-class CourseLocationRestriction(AbstractLocationRestrictionModel):
+class CourseLocationRestriction(ManageHistoryMixin, AbstractLocationRestrictionModel):
     """
     Course location restriction model.
 
@@ -1238,7 +1278,7 @@ class CourseLocationRestriction(AbstractLocationRestrictionModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -1249,7 +1289,7 @@ class CourseLocationRestriction(AbstractLocationRestrictionModel):
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
-class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
+class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
     uuid = models.UUIDField(default=uuid4, editable=True, verbose_name=_('UUID'))
@@ -1414,7 +1454,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         excluded_fields = [
             'data_modified_timestamp',
         ]
-        return has_model_changed(self.field_tracker, excluded_fields=excluded_fields)
+        return self.has_model_changed(excluded_fields=excluded_fields)
 
     class Meta:
         unique_together = (
@@ -1882,7 +1922,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 )
 
 
-class CourseEditor(TimeStampedModel):
+class CourseEditor(ManageHistoryMixin, TimeStampedModel):
     """
     CourseEditor model, defining who can edit a course and its course runs.
 
@@ -1897,7 +1937,7 @@ class CourseEditor(TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     class Meta:
         unique_together = ('user', 'course',)
@@ -1986,7 +2026,7 @@ class CourseEditor(TimeStampedModel):
         return queryset.filter(user_can_edit, course__authoring_organizations__in=user_orgs).distinct()
 
 
-class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
+class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedModel):
     """ CourseRun model. """
     OFAC_RESTRICTION_CHOICES = (
         ('', '--'),
@@ -2129,7 +2169,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         """
@@ -2626,7 +2666,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     # there have to be two saves because in order to check for if this is included in the
     # subscription catalog, we need the id that is created on save to access the many-to-many fields
     # and then need to update the boolean in the record based on conditional logic
-    def save(self, suppress_publication=False, send_emails=True, **kwargs):
+    def save(self, *args, suppress_publication=False, send_emails=True, **kwargs):
         """
         Arguments:
             suppress_publication (bool): if True, we won't push the run data to the marketing site
@@ -2641,11 +2681,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
-            super().save(**kwargs)
+            super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
-            super().save(**kwargs)
+            super().save(*args, **kwargs)
             self.handle_status_change(send_emails)
 
             if push_to_marketing:
@@ -2823,7 +2863,7 @@ class CourseReview(TimeStampedModel):
     )
 
 
-class Seat(DraftModelMixin, TimeStampedModel):
+class Seat(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
     """ Seat model. """
 
     # This set of class variables is historic. Before CourseType and Mode and all that jazz, Seat used to just hold
@@ -2883,7 +2923,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         """
@@ -2909,7 +2949,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
         self._upgrade_deadline = value
 
 
-class CourseEntitlement(DraftModelMixin, TimeStampedModel):
+class CourseEntitlement(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
     """ Model storing product metadata for a Course. """
     PRICE_FIELD_CONFIG = {
         'decimal_places': 2,
@@ -2931,7 +2971,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return has_model_changed(self.field_tracker)
+        return self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         """
@@ -2985,7 +3025,7 @@ class FAQ(TimeStampedModel):
         return self.question
 
 
-class Program(PkSearchableMixin, TimeStampedModel):
+class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     OFAC_RESTRICTION_CHOICES = (
         ('', '--'),
         (True, _('Blocked')),
@@ -3191,7 +3231,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
             self.in_year_value,
             self.taxi_form,
         ]
-        return has_model_changed(self.field_tracker, external_keys, excluded_fields)
+        return self.has_model_changed(external_keys, excluded_fields)
 
     objects = ProgramQuerySet.as_manager()
 
@@ -3551,14 +3591,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
                 kwargs['force_insert'] = False
                 kwargs['force_update'] = True
-                super().save(**kwargs)
+                super().save(*args, **kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
-            super().save(**kwargs)
+            super().save(*args, **kwargs)
 
     @property
     def is_2u_degree_program(self):

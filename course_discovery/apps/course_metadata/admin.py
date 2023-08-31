@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
+from simple_history.admin import SimpleHistoryAdmin
 from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
@@ -122,7 +123,7 @@ class ProductValueAdmin(admin.ModelAdmin):
 
 
 @admin.register(Course)
-class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
+class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner', 'product_source')
@@ -217,7 +218,7 @@ class CourseEditorAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseEntitlement)
-class CourseEntitlementAdmin(admin.ModelAdmin):
+class CourseEntitlementAdmin(SimpleHistoryAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
 
     def get_course_key(self, obj):
@@ -262,7 +263,7 @@ class CourseTypeAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(admin.ModelAdmin):
+class CourseRunAdmin(SimpleHistoryAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft',)
     list_filter = (
@@ -351,7 +352,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
+class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'product_source', 'status', ProgramEligibilityFilter, 'hidden')
@@ -490,7 +491,7 @@ class ProgramTypeAdmin(TranslatableAdmin):
 
 
 @admin.register(Seat)
-class SeatAdmin(admin.ModelAdmin):
+class SeatAdmin(SimpleHistoryAdmin):
     list_display = ('course_run', 'type', 'draft', 'upgrade_deadline_override',)
     raw_id_fields = ('draft_version',)
     readonly_fields = ('_upgrade_deadline',)

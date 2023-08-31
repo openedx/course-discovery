@@ -96,6 +96,62 @@ class TestCourse(TestCase):
         course.image = None
         assert course.image_url == course.card_image_url
 
+    def test_validate_history_created_only_on_change(self):
+        """
+        Validate that course history object would be created if the object is changed otherwise not.
+        """
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory()
+        program = factories.ProgramFactory()
+
+        verified_type = factories.SeatTypeFactory.verified()
+        seat = factories.SeatFactory(course_run=course_run, type=verified_type, price=0, sku='ABCDEF')
+
+        entitlement_mode = SeatTypeFactory.verified()
+        entitlement = factories.CourseEntitlementFactory(course=course, mode=entitlement_mode, draft=True)
+
+        assert len(course.history.all()) == 1
+        assert len(course_run.history.all()) == 1
+        assert len(program.history.all()) == 1
+        assert len(seat.history.all()) == 1
+        assert len(entitlement.history.all()) == 1
+
+        entitlement.sku = 'ABCDEF'
+        entitlement.save()
+        assert len(entitlement.history.all()) == 2
+
+        seat.price = 10
+        seat.save()
+        assert len(seat.history.all()) == 2
+
+        course.title = 'Test course title'
+        course.save()
+        assert len(course.history.all()) == 2
+
+        course_run.title = 'Test course run title'
+        course_run.save()
+        assert len(course_run.history.all()) == 2
+
+        program.title = 'Test program title'
+        program.save()
+        assert len(program.history.all()) == 2
+
+        # explicitly calling save to validate the history is not created
+        course.save()
+        assert len(course.history.all()) == 2
+
+        course_run.save()
+        assert len(course_run.history.all()) == 2
+
+        program.save()
+        assert len(program.history.all()) == 2
+
+        seat.save()
+        assert len(seat.history.all()) == 2
+
+        entitlement.save()
+        assert len(entitlement.history.all()) == 2
+
     def test_watchers(self):
         """
         Verify watchers field is properly set and returns correct list of watchers emails addresses
