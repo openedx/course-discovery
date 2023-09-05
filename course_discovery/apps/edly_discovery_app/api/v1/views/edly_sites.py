@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import Partner
-from edly_discovery_app.api.v1.constants import ERROR_MESSAGES
+from course_discovery.apps.edly_discovery_app.tasks import run_dataloader
+from edly_discovery_app.api.v1.constants import DEFAULT_COURSE_ID, ERROR_MESSAGES
 from edly_discovery_app.api.v1.helpers import validate_partner_configurations
 from edly_discovery_app.api.v1.permissions import CanAccessSiteCreation
 
@@ -28,9 +29,12 @@ class EdlySiteViewSet(APIView):
         validations_messages = validate_partner_configurations(request.data)
         if len(validations_messages) > 0:
             return Response(validations_messages, status=status.HTTP_400_BAD_REQUEST)
-
+    
+        partner = request.data.get('partner_short_code', None)
+      
         try:
             self.discovery_site_setup()
+            run_dataloader(partner, DEFAULT_COURSE_ID.format(partner), 'lms')
             return Response(
                 {'success': ERROR_MESSAGES.get('CLIENT_SITES_SETUP_SUCCESS')},
                 status=status.HTTP_200_OK
