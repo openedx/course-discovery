@@ -10,6 +10,7 @@ mock
 mysqlclient
 pycodestyle
 python-memcached
+pymemcache
 pytest
 pytest-cov
 pytest-django
