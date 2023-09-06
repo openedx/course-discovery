@@ -48,7 +48,7 @@ from course_discovery.apps.course_metadata.choices import (
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
-from course_discovery.apps.course_metadata.model_utils import has_model_changed
+from course_discovery.apps.course_metadata.model_utils import has_model_changed, should_history_be_skipped_on_save
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1459,11 +1459,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         and then need to update the boolean in the record based on conditional logic
         """
         self.update_data_modified_timestamp()
-        super().save(*args, **kwargs)
+        should_history_be_skipped_on_save(self, *args, **kwargs)
         self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
         kwargs['force_insert'] = False
         kwargs['force_update'] = True
-        super().save(*args, **kwargs)
+        should_history_be_skipped_on_save(self, *args, **kwargs)
 
         # Course runs calculate enterprise subscription inclusion based off of their parent's status, so we need to
         # force a recalculation

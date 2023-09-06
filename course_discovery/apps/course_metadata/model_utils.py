@@ -24,3 +24,19 @@ def has_model_changed(field_tracker, external_keys=None, excluded_fields=None):
     return len(changed) or any(
         item.has_changed for item in external_keys if hasattr(item, 'has_changed')
     )
+
+
+def should_history_be_skipped_on_save(obj, *args, **kwargs):
+    """
+    Sets the parameter 'skip_history_on_save' if the object is not changed
+    Args:
+        obj: Any Model instance
+        parent_obj: parent object of the instance obj
+    """
+    if not obj.has_changed:
+        setattr(obj, 'skip_history_when_saving', True)  # pylint: disable=literal-used-as-attribute
+
+    super(obj.__class__, obj).save(*args, **kwargs)
+
+    if hasattr(obj, 'skip_history_when_saving'):
+        delattr(obj, 'skip_history_when_saving')  # pylint: disable=literal-used-as-attribute
