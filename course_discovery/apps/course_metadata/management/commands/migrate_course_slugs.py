@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = """
     It will update course url slugs to the format 'learn/<primary_subject>/<organization_name>-<course_title>' for
-    open courses and 'executive-education/<organization_name>-<course_title>' for executive education courses
+    open courses, 'executive-education/<organization_name>-<course_title>' for executive education courses, and
+    'boot-camps/<primary-subject>/<organization_name>-<course_title>' for bootcamps
     """
 
     def __init__(self, *args, **kwargs):
@@ -55,7 +56,7 @@ class Command(BaseCommand):
             '--course_type',
             help='Course Type to update slug',
             type=str,
-            choices=[CourseType.EXECUTIVE_EDUCATION_2U, 'open-course'],
+            choices=[CourseType.BOOTCAMP_2U, CourseType.EXECUTIVE_EDUCATION_2U, 'open-course'],
             default='open-course',
         )
         parser.add_argument(
@@ -186,6 +187,8 @@ class Command(BaseCommand):
         courses = Course.everything.filter(product_source__slug=self.product_source, draft=True)
         if self.course_type == CourseType.EXECUTIVE_EDUCATION_2U:
             return courses.filter(type__slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        elif self.course_type == CourseType.BOOTCAMP_2U:
+            return courses.filter(type__slug=CourseType.BOOTCAMP_2U)
         # Return Open Courses only
         return courses.exclude(type__slug__in=[CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U])
 

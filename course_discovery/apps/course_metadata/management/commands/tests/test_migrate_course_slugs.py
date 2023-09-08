@@ -60,10 +60,12 @@ class TestMigrateCourseSlugs(TestCase):
         self.exec_ed_course1 = CourseFactory(
             draft=True, product_source=self.external_product_source, partner=partner, type=ee_type_2u
         )
-        self.bootcamp_course_1 = CourseFactory(
-            draft=True, product_source=self.product_source, partner=partner, type=bootcamp_type
-        )
         self.exec_ed_course1.authoring_organizations.add(self.organization)
+        self.bootcamp_course_1 = CourseFactory(
+            draft=True, product_source=self.external_product_source, partner=partner, type=bootcamp_type
+        )
+        self.bootcamp_course_1.authoring_organizations.add(self.organization)
+        self.bootcamp_course_1.subjects.add(self.subject)
 
     def test_migrate_course_slug_success_flow(self):
         with LogCapture(LOGGER_PATH) as log_capture:
@@ -285,6 +287,39 @@ class TestMigrateCourseSlugs(TestCase):
             )
 
             assert self.exec_ed_course1.active_url_slug == f"executive-education/test-organization-{slugify(self.exec_ed_course1.title)}"  # pylint: disable=line-too-long
+
+    def test_migrate_course_slug_success_flow__bootcamps(self):
+        """
+        It will verify that command is generating and saving correct slugs for bootcamp courses
+        """
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            current_slug_course1 = self.bootcamp_course_1.active_url_slug
+
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'migrate_course_slugs',
+                    '--course_uuids', self.bootcamp_course_1.uuid,
+                    '--course_type', CourseType.BOOTCAMP_2U,
+                    '--product_source', self.external_product_source.slug
+                )
+            log_capture.check_present(
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f"Updating slug for course with uuid {self.bootcamp_course_1.uuid} and title "
+                    f"{self.bootcamp_course_1.title}, current slug is '{current_slug_course1}'"
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f"course_uuid,old_slug,new_slug,error\n"
+                    f"{self.bootcamp_course_1.uuid},{current_slug_course1},"
+                    f"{self.bootcamp_course_1.active_url_slug},None\n"
+                )
+            )
+
+            assert self.bootcamp_course_1.active_url_slug == f"boot-camps/{self.subject.slug}/test-organization-{slugify(self.bootcamp_course_1.title)}"  # pylint: disable=line-too-long
 
     def test_migrate_course_slug_success_flow__edx_bootcamps(self):
         """

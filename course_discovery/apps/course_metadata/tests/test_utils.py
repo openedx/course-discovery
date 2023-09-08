@@ -1082,6 +1082,34 @@ class CourseSlugMethodsTests(TestCase):
         assert error is None
         assert slug == f"executive-education/{organization.name}-{slugify(course.title)}"
 
+    def test_get_slug_for_bootcamp_course__raise_error_for_bootcamp_with_no_authoring_org(self):
+        """
+        It will verify that slug aren't generated for bootcamp courses with no authoring org and error is raised
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+            f"organizations"
+
+    def test_get_slug_for_bootcamp_course(self):
+        """
+        It will verify that slug are generated correctly for bootcamp courses
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type)
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+
+        slug, error = utils.get_slug_for_course(course)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+
     def test_get_slug_for_course__with_no_url_slug(self):
         course = CourseFactory(title='test-title')
         subject = SubjectFactory(name='business')
@@ -1169,6 +1197,30 @@ class CourseSlugMethodsTests(TestCase):
         slug, error = utils.get_slug_for_course(course3)
         assert error is None
         assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-3"
+
+    def test_get_slug_for_bootcamp_course__with_existing_url_slug(self):
+        """
+        Test for bootcamp course with existing subdirectory url slug
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        partner = PartnerFactory()
+        subject = SubjectFactory(name='business')
+        org = OrganizationFactory(name='test-organization')
+
+        # Create and test multiple courses with the same title, subject, and organization
+        for i in range(1, 3):
+            course = CourseFactory(title='test-title', type=bootcamp_type, partner=partner)
+            course.authoring_organizations.add(org)
+            course.subjects.add(subject)
+            course.save()
+            CourseUrlSlug.objects.filter(course=course).delete()
+            slug, error = utils.get_slug_for_course(course)
+            assert error is None
+            if i == 1:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+            else:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}-{i}"
+            course.set_active_url_slug(slug)
 
     def test_get_existing_slug_count(self):
         course1 = CourseFactory(title='test-title')

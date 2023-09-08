@@ -4219,6 +4219,7 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     COURSE_TYPE_CHOICES = (
         (OPEN_COURSE, _('Open Courses')),
         (CourseType.EXECUTIVE_EDUCATION_2U, _('2U Executive Education Courses')),
+        (CourseType.BOOTCAMP_2U, _('Bootcamps'))
     )
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0

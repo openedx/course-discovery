@@ -6,7 +6,11 @@ COURSE_SKILLS_URL_NAME = 'course_skills'
 REFRESH_COURSE_SKILLS_URL_NAME = 'refresh_course_skills'
 REFRESH_PROGRAM_SKILLS_URL_NAME = 'refresh_program_skills'
 COURSE_UUID_REGEX = r'[0-9a-f-]+'
-SUBDIRECTORY_SLUG_FORMAT_REGEX = r'learn\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$|executive-education\/[a-zA-Z0-9-_]+$'
+SUBDIRECTORY_SLUG_FORMAT_REGEX = (
+    r'learn\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$|'
+    r'executive-education\/[a-zA-Z0-9-_]+$|'
+    r'boot-camps\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
+)
 SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
 
 DEFAULT_SLUG_FORMAT_ERROR_MSG = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
