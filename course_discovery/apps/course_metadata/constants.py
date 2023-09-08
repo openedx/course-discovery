@@ -12,6 +12,7 @@ SUBDIRECTORY_SLUG_FORMAT_REGEX = (
     r'boot-camps\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
 )
 SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
+
 DEFAULT_SLUG_FORMAT_ERROR_MSG = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
 
 MASTERS_PROGRAM_TYPE_SLUG = 'masters'
