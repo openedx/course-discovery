@@ -710,6 +710,10 @@ COURSE_URL_SLUGS_PATTERN = {
         {'default': {
             'slug_format': '',
             'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
         }},
     'ext-source':
         {'default': {
@@ -717,6 +721,10 @@ COURSE_URL_SLUGS_PATTERN = {
             'error_msg': '',
         },
         'executive-education-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
             'slug_format': '',
             'error_msg': '',
         }}
