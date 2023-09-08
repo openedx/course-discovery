@@ -55,7 +55,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
-    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, custom_render_variations, get_slug_for_course, is_ocm_course,
@@ -1862,10 +1863,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         """
         is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug))
         is_exec_ed_course = self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        is_bootcamp_course = self.type.slug == CourseType.BOOTCAMP_2U
         if is_exec_ed_course and not IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED.is_enabled():
             return
+        if is_bootcamp_course and not IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED.is_enabled():
+            return
         is_open_course = is_ocm_course(self)
-        if not is_slug_in_subdirectory_format and (is_exec_ed_course or is_open_course):
+        if not is_slug_in_subdirectory_format and (is_exec_ed_course or is_open_course or is_bootcamp_course):
             slug, error = get_slug_for_course(self)
             if slug:
                 self.set_active_url_slug(slug)

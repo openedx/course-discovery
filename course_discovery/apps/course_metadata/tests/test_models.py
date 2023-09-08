@@ -18,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
+from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
 from slugify import slugify
 from taggit.models import Tag
@@ -44,10 +45,13 @@ from course_discovery.apps.course_metadata.signals import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseUrlSlugFactory, ImageFactory, PartnerFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, CourseUrlSlugFactory, ImageFactory,
+    OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
+from course_discovery.apps.course_metadata.toggles import (
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -104,6 +108,54 @@ class TestCourse(TestCase):
         course.save()
         course.refresh_from_db()
         assert course.watchers == ['test@test.com']
+
+    @ddt.data(
+        (True, True),
+        (True, False),
+        (False, False),
+    )
+    @ddt.unpack
+    def test_automate_url_restructuring_for_bootcamps_with_feature_flag_state(
+        self, is_subdirectory_slug_format_enabled, is_subdirectory_slug_format_for_bootcamp_enabled
+    ):
+        """
+        Tests automate url slug restructuring for bootcamps must work under its relevant feature flag
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        bootcamp_course_draft = CourseFactory(draft=True, type=bootcamp_type)
+        draft_course_run = CourseRunFactory(draft=True, course=bootcamp_course_draft)
+        subject = SubjectFactory(name='Subject1')
+        org = OrganizationFactory(name='organization1')
+        bootcamp_course_draft.subjects.add(subject)
+        bootcamp_course_draft.authoring_organizations.add(org)
+        bootcamp_course_draft.save()
+
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+        active_url_slug = draft_course_run.course.active_url_slug
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_enabled):
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
+                                        active=is_subdirectory_slug_format_for_bootcamp_enabled):
+                draft_course_run.status = CourseRunStatus.LegalReview
+                draft_course_run.save()
+                course = draft_course_run.course
+                official_version = draft_course_run.update_or_create_official_version()
+                course.refresh_from_db()
+
+                if is_subdirectory_slug_format_for_bootcamp_enabled:
+                    assert course.active_url_slug.startswith('boot-camps/')
+                    assert course.active_url_slug == f'boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}'
+                    assert official_version.course.active_url_slug.startswith('boot-camps/')
+                    assert (
+                        official_version.course.active_url_slug ==
+                        f'boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}'
+                    )
+                else:
+                    assert not course.active_url_slug.startswith('boot-camps/')
+                    assert course.active_url_slug == f'{active_url_slug}'
+                    assert not official_version.course.active_url_slug.startswith('boot-camps/')
+                    assert official_version.course.active_url_slug == f'{active_url_slug}'
 
     @ddt.data(
         ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),

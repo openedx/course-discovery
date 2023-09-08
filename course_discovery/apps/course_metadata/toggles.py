@@ -43,3 +43,14 @@ IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED = WaffleSwitch(
 IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED = WaffleSwitch(
     'course_metadata.is_subdirectory_slug_format_for_exec_ed_enabled', __name__
 )
+# .. toggle_name: course_metadata.is_subdirectory_slug_format_for_bootcamp_enabled
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to use subdirectory slug format for bootcamp courses.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-09-05
+# .. toggle_target_removal_date: 2023-09-20
+# .. toggle_tickets: PROD-3611
+IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED = WaffleSwitch(
+    'course_metadata.is_subdirectory_slug_format_for_bootcamp_enabled', __name__
+)
