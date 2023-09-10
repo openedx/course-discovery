@@ -1122,6 +1122,7 @@ def validate_slug_format(url_slug, course):
         none if url_slug is valid else throws ValidationError
     """
     slug_pattern = None
+    logger.info("Course URL slug pattern validation dict: %s", settings.COURSE_URL_SLUGS_PATTERN)
 
     DEFAULT_SLUG_PATTERN = {
         'slug_format': SLUG_FORMAT_REGEX,
