@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-27 20:35+0000\n"
+"POT-Creation-Date: 2023-09-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -2185,6 +2185,10 @@ msgstr "Öpén Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/course_metadata/models.py
 msgid "2U Executive Education Courses"
 msgstr "2Û Éxéçütïvé Édüçätïön Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Bootcamps"
+msgstr "Böötçämps Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Course UUIDs"
