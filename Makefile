@@ -114,7 +114,7 @@ pull_translations:
 	atlas pull $(OPENEDX_ATLAS_ARGS) translations/course-discovery/course_discovery/conf/locale:course_discovery/conf/locale
 	python manage.py compilemessages
 
-	@echo "Translations pulled from Transifex and compiled."
+	@echo "Translations have been pulled via Atlas and compiled."
 	@echo "'make static' or 'make static.dev' is required to update the js i18n files."
 endif
 
