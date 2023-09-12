@@ -164,7 +164,7 @@ django==3.2.21
     #   social-auth-app-django
     #   taxonomy-connector
     #   xss-utils
-django-admin-sortable2==1.0.4
+django-admin-sortable2==2.1.9
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -234,7 +234,7 @@ django-ses==3.5.0
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
-django-simple-history==3.0.0
+django-simple-history==3.1.1
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt

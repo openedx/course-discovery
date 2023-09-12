@@ -768,3 +768,6 @@ JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_
 OPENAI_API_KEY = 'I am an api key'
 
 NOTIFY_SLUG_UPDATE_RECIPIENTS = []
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False

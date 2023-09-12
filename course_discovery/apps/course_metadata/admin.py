@@ -172,6 +172,9 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
         return actions
 
+    @admin.action(
+        description="view course skills"
+    )
     def course_skills(self, request, obj):
         """
         Object tool handler method - redirects to "Course Skills" view
@@ -207,7 +210,6 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         return additional_urls + super().get_urls()
 
     course_skills.label = "view course skills"
-    course_skills.short_description = "view course skills"
 
 
 @admin.register(CourseEditor)
@@ -221,10 +223,11 @@ class CourseEditorAdmin(admin.ModelAdmin):
 class CourseEntitlementAdmin(SimpleHistoryAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
 
+    @admin.display(
+        description='Course key'
+    )
     def get_course_key(self, obj):
         return obj.course.key
-
-    get_course_key.short_description = 'Course key'
 
     raw_id_fields = ('course', 'draft_version',)
     search_fields = ['course__title', 'course__key']
@@ -415,10 +418,11 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
         return actions
 
+    @admin.display(
+        description=_('Included course runs')
+    )
     def custom_course_runs_display(self, obj):
         return format_html('<br>'.join([str(run) for run in obj.course_runs]))
-
-    custom_course_runs_display.short_description = _('Included course runs')
 
     def _redirect_course_run_update_page(self, obj):
         """ Returns a response redirect to a page where the user can update the
@@ -698,11 +702,15 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
     model = CurriculumCourseMembership
     readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
 
+    @admin.display(
+        description=_('Included course runs')
+    )
     def custom_course_runs_display(self, obj):
         return format_html('<br>'.join([str(run) for run in obj.course_runs]))
 
-    custom_course_runs_display.short_description = _('Included course runs')
-
+    @admin.display(
+        description=_("Edit link")
+    )
     def get_edit_link(self, obj=None):
         if obj and obj.pk:
             edit_url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
@@ -712,8 +720,6 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
                 text=_("Edit course run exclusions"),
             )
         return _("(save and continue editing to create a link)")
-
-    get_edit_link.short_description = _("Edit link")
 
     extra = 0
 
