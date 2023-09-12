@@ -3303,8 +3303,8 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = f'{self.type.slug.lower()}/{self.marketing_slug}'
-            return urljoin(self.partner.marketing_site_url_root, path)
+            path = f'{self.type.slug.lower().strip()}/{self.marketing_slug.strip()}'
+            return urljoin(self.partner.marketing_site_url_root.strip(), path)
 
         return None
 
