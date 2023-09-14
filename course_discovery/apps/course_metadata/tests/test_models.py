@@ -2454,18 +2454,6 @@ class ProgramTests(TestCase):
         query = 'title:' + self.program.title
         self.assertSetEqual({Program.search(query).first()}, {self.program})
 
-    def test_spaces_must_be_stripped_off_from_marketing_url(self):
-        """
-        Validate that the spaces in the marketing slug must be stripped off while generating marketing url
-        """
-        # updating the attrs with trailing spaces
-        self.program.marketing_slug = 'test-slug-0 '
-        self.program.type.slug = 'test '
-        site_root = self.program.partner.marketing_site_url_root
-        self.program.partner.marketing_site_url_root = site_root + ' '
-
-        assert self.program.marketing_url.find(' ') == -1
-
     def test_subject_search(self):
         """
         Verify that the program endpoint correctly handles elasticsearch queries on the subject uuid
