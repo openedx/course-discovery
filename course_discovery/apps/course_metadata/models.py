@@ -2117,12 +2117,12 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
 
-    has_ofac_restrictions = models.NullBooleanField(
+    has_ofac_restrictions = models.BooleanField(
         blank=True,
         choices=OFAC_RESTRICTION_CHOICES,
         default=None,
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
-    )
+        null=True)
     ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
 
     # The expected_program_type and expected_program_name are here in support of Publisher and may not reflect the
@@ -3206,12 +3206,12 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         help_text=_('Pick a tag/label from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
 
-    has_ofac_restrictions = models.NullBooleanField(
+    has_ofac_restrictions = models.BooleanField(
         blank=True,
         choices=OFAC_RESTRICTION_CHOICES,
         default=None,
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
-    )
+        null=True)
     ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
     data_modified_timestamp = models.DateTimeField(
         default=None, blank=True, null=True, help_text=_('The last time this program was modified.')
