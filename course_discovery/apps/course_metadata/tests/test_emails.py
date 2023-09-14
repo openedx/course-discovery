@@ -17,7 +17,8 @@ from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.models import CourseEditor, CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, PartnerFactory
+    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, PartnerFactory,
+    SourceFactory
 )
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
@@ -447,6 +448,7 @@ class TestIngestionEmail(TestCase):
     def setUp(self):
         super().setUp()
         self.partner = PartnerFactory()
+        self.source = SourceFactory(name='edX')
 
     def _get_base_ingestion_stats(self):
         return {
@@ -482,7 +484,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content correctly displays the correct product type.
         """
         emails.send_ingestion_email(
-            self.partner, email_subject, self.USER_EMAILS, product_type,
+            self.partner, email_subject, self.USER_EMAILS, product_type, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 1,
@@ -496,7 +498,8 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>Successful Ingestion</th><td>1</td></tr>",
                 "<tr><th>Ingestion with Errors </th><td>0</td></tr>",
                 "<tr><th>Total data rows</th><td>1</td></tr>",
-                f"<p>The data ingestion has been run for product type <strong>{product_type}</strong>. "
+                # pylint: disable=line-too-long
+                f"<p>The data ingestion has been run for product type <strong>{product_type}</strong> and product source <strong>{self.source.name}</strong>. "
                 f"See below for the ingestion stats.</p>",
             ]
         )
@@ -506,7 +509,7 @@ class TestIngestionEmail(TestCase):
         Verify the email has the file attachment.
         """
         emails.send_ingestion_email(
-            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 1,
@@ -528,7 +531,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content for no ingestion failure.
         """
         emails.send_ingestion_email(
-            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 1,
@@ -551,7 +554,7 @@ class TestIngestionEmail(TestCase):
         uuid = str(uuid4())
         url_slug = 'course-slug-1'
         emails.send_ingestion_email(
-            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 1,
@@ -586,7 +589,7 @@ class TestIngestionEmail(TestCase):
         uuid = str(uuid4())
         url_slug = 'course-slug-1'
         emails.send_ingestion_email(
-            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 3,
@@ -634,7 +637,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content for the ingestion failures.
         """
         emails.send_ingestion_email(
-            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
             {
                 **self._get_base_ingestion_stats(),
                 'total_products_count': 1,
@@ -661,7 +664,7 @@ class TestIngestionEmail(TestCase):
 
 class TestSlugUpdatesEmail(TestCase):
     """
-    Test suite for send_ingestion_email.
+    Test suite for slugs_update email
     """
     EMAIL_SUBJECT = 'Migrate Course Slugs Summary Report'
     USER_EMAILS = ['edx@example.com']

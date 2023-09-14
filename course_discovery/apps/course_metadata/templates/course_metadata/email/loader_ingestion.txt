@@ -1,4 +1,4 @@
-The data ingestion has been run for product type <strong>{{ product_type }}</strong>. See below for the ingestion stats.
+The data ingestion has been run for product type <strong>{{ product_type }}</strong> and product source <strong>{{ product_source }}</strong>. See below for the ingestion stats.
 
 Ingestion Statistics
 
