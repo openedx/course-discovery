@@ -346,7 +346,7 @@ def send_email_for_comment(comment, course, author):
         logger.exception('Failed to send email notifications for comment on course %s', course.uuid)
 
 
-def send_ingestion_email(partner, subject, to_users, product_type, ingestion_details):
+def send_ingestion_email(partner, subject, to_users, product_type, product_source, ingestion_details):
     """ Send an overall report of a product's ingestion.
 
         Arguments:
@@ -354,6 +354,7 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             subject (str): subject line for email
             to_users (list(str)): a list of email addresses to whom the email should be sent to
             product_type (str): the product whose ingestion has been run
+            product_source (Object): the source of the product
             ingestion_details (dict): Stats of ingestion, along with reported errors
     """
     products_json = ingestion_details.pop('products_json', None)
@@ -362,7 +363,8 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
         'product_type': product_type,
         'publisher_url': partner.publisher_url,
         'ingestion_contact_email': settings.LOADER_INGESTION_CONTACT_EMAIL,
-        'marketing_service_name': settings.MARKETING_SERVICE_NAME
+        'marketing_service_name': settings.MARKETING_SERVICE_NAME,
+        'product_source': product_source.name,
     }
     txt_template = 'course_metadata/email/loader_ingestion.txt'
     html_template = 'course_metadata/email/loader_ingestion.html'
