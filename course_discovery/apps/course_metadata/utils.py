@@ -1072,14 +1072,15 @@ def get_slug_for_course(course):
             logger.info(error)
             return None, error
         primary_subject_slug = course_subjects[0].slug
+        organization_short_code = course.organization_short_code_override or organization_slug
 
-        slug = f'boot-camps/{primary_subject_slug}/{organization_slug}-{course_slug}'
+        slug = f'boot-camps/{primary_subject_slug}/{organization_short_code}-{course_slug}'
         if is_existing_slug(slug, course):
             logger.info(
                 f"Bootcamp Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title"
             )
             course_slug = f"{slugify(course.title)}-{get_existing_slug_count(slug) + 1}"
-            slug = f"boot-camps/{primary_subject_slug}/{organization_slug}-{course_slug}"
+            slug = f"boot-camps/{primary_subject_slug}/{organization_short_code}-{course_slug}"
         return slug, None
 
     def create_slug_for_ocm():

@@ -62,7 +62,8 @@ class TestMigrateCourseSlugs(TestCase):
         )
         self.exec_ed_course1.authoring_organizations.add(self.organization)
         self.bootcamp_course_1 = CourseFactory(
-            draft=True, product_source=self.external_product_source, partner=partner, type=bootcamp_type
+            draft=True, product_source=self.external_product_source, partner=partner, type=bootcamp_type,
+            organization_short_code_override=''
         )
         self.bootcamp_course_1.authoring_organizations.add(self.organization)
         self.bootcamp_course_1.subjects.add(self.subject)
