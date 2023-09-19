@@ -1019,7 +1019,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns a list of all course runs. """
         url = reverse('api:v1:course_run-list')
 
-        with self.assertNumQueries(17, threshold=3):
+        with self.assertNumQueries(14, threshold=3):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -1032,7 +1032,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
 
-        with self.assertNumQueries(17, threshold=3):
+        with self.assertNumQueries(14, threshold=3):
             response = self.client.get(url)
 
         assert response.status_code == 200

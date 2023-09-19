@@ -1023,10 +1023,17 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video', 'expected_program_type').prefetch_related(
+        return queryset.select_related(
             'course__level_type',
+            'course__video__image',
+            'language',
+            'video',
+            'expected_program_type'
+        ).prefetch_related(
+            'course__level_type__translations',
             'transcript_languages',
             'video__image',
+            'language__translations',
             Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
         )
 
@@ -1100,7 +1107,11 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.prefetch_related('course__programs__excluded_course_runs')
+        return queryset.select_related('course').prefetch_related(
+            Prefetch('course__programs', queryset=(
+                Program.objects.select_related('type', 'partner').prefetch_related('excluded_course_runs', 'courses')
+            ))
+        )
 
     def get_programs(self, obj):
         programs = []
