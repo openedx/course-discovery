@@ -520,7 +520,6 @@ class CourseRun(TimeStampedModel):
         null=True, blank=True,
         help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, null=True, blank=True)
-    languages = models.ManyToManyField(LanguageTag, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
