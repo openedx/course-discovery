@@ -572,6 +572,11 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         price = Decimal(stock_record['price_excl_tax'])
         sku = stock_record['partner_sku']
 
+        # For more context see ADR docs/decisions/0025-dont-sync-mobile-skus-on-discovery.rst
+        if "mobile" in sku:
+            logger.warning("Skipping mobile seat with sku [%s]", sku)
+            return
+
         try:
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
