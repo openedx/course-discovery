@@ -30,7 +30,7 @@ In addition to running search queries through the Discovery API, you can make HT
 .. code-block:: bash
 
     $ curl 'edx.devstack.elasticsearch:9200/_cat/indices?v'
-    $ curl 'edx.devstack.elasticsearch:9200/catalog/_search?pretty=true' -d '{"explain": true, "query": {YOUR QUERY HERE}}'
+    $ curl 'edx.devstack.elasticsearch:9200/catalog/_search?pretty=true' -d '{"explain": true, "query": {YOUR QUERY HERE}}' -H 'Content-Type: application/json'
 
 The `explain`_ parameter tells Elasticsearch to return a detailed breakdown of how relevance scores were calculated. You can get yourself a query to run by intercepting queries made by the application. Add logging to ``course_discovery/apps/edx_haystack_extensions/backends.py::SimpleQuerySearchBackendMixin::build_search_kwargs`` that prints the final value of ``search_kwargs``, then run a search query through the API.
 
