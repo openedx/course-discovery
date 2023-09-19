@@ -178,7 +178,7 @@ class TestCourse(TestCase):
         Tests automate url slug restructuring for bootcamps must work under its relevant feature flag
         """
         bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
-        bootcamp_course_draft = CourseFactory(draft=True, type=bootcamp_type)
+        bootcamp_course_draft = CourseFactory(draft=True, type=bootcamp_type, organization_short_code_override='')
         draft_course_run = CourseRunFactory(draft=True, course=bootcamp_course_draft)
         subject = SubjectFactory(name='Subject1')
         org = OrganizationFactory(name='organization1')

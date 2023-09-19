@@ -1105,7 +1105,7 @@ class CourseSlugMethodsTests(TestCase):
         It will verify that slug are generated correctly for bootcamp courses
         """
         bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
-        course = CourseFactory(title='test-bootcamp', type=bootcamp_type)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
         org = OrganizationFactory(name='test-organization')
         course.authoring_organizations.add(org)
 
@@ -1116,6 +1116,28 @@ class CourseSlugMethodsTests(TestCase):
 
         assert error is None
         assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+
+    def test_get_slug_for_bootcamp_course__organization_short_code_override(self):
+        """
+        It will verify that during slug creation it will give priority to organization_short_code_override if it exists
+        otherwise it will use organization name
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+        org_short_code_override = 'org_override'
+        course.organization_short_code_override = org_short_code_override
+        course.save()
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org_short_code_override}-{slugify(course.title)}"
 
     def test_get_slug_for_course__with_no_url_slug(self):
         course = CourseFactory(title='test-title')
@@ -1216,7 +1238,9 @@ class CourseSlugMethodsTests(TestCase):
 
         # Create and test multiple courses with the same title, subject, and organization
         for i in range(1, 3):
-            course = CourseFactory(title='test-title', type=bootcamp_type, partner=partner)
+            course = CourseFactory(
+                title='test-title', type=bootcamp_type, partner=partner, organization_short_code_override=''
+            )
             course.authoring_organizations.add(org)
             course.subjects.add(subject)
             course.save()
