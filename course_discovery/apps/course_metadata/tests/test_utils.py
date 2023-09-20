@@ -654,6 +654,13 @@ class UtilsTests(TestCase):
         # Make sure to add dir attribute to p tags if they are in attribute list
         ('<p dir="rtl" class="float">Directed paragraph</p>', '<p dir="rtl">Directed paragraph</p>'),
 
+        # Check for ul and ol tags with dir attribute
+        ('<ul dir="rtl"><li>Directed list item</li></ul>', '<ul dir="rtl">\n<li>Directed list item</li>\n</ul>'),
+        ('<ol dir="rtl"><li>Directed list item</li></ol>', '<ol dir="rtl">\n<li>Directed list item</li>\n</ol>'),
+
+        # Make sure text remains bold if p tag has rtl direction
+        ('<p dir="rtl"><strong>Directed paragraph</strong></p>', '<p dir="rtl"><strong>Directed paragraph</strong></p>'),
+
         # Make sure that only spans with lang tags are preserved in the saved string
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
