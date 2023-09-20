@@ -1256,8 +1256,8 @@ class AbstractLocationRestrictionModel(TimeStampedModel):
         (BLOCKLIST, _('Blocklist'))
     )
 
-    countries = MultiSelectField(choices=COUNTRIES, null=True, blank=True)
-    states = MultiSelectField(choices=CONTIGUOUS_STATES, null=True, blank=True)
+    countries = MultiSelectField(choices=COUNTRIES, null=True, blank=True, max_length=len(COUNTRIES))
+    states = MultiSelectField(choices=CONTIGUOUS_STATES, null=True, blank=True, max_length=len(CONTIGUOUS_STATES))
     restriction_type = models.CharField(
         max_length=255, choices=RESTRICTION_TYPE_CHOICES, default=ALLOWLIST
     )

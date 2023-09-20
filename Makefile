@@ -41,6 +41,11 @@ requirements.python: ## Install Python requirements for local development.
 
 requirements: requirements.js requirements.python ## Install Python and JS requirements for local development
 
+requirements.python_dj42: ## Install Python requirements for Django 4.2 env
+	pip install -r requirements/local.txt -r requirements/django42.txt
+
+requirements_dj42: requirements.js requirements.python_dj42 ## Install Python and JS requirements for Django 4.2 env
+
 production-requirements: ## Install Python and JS requirements for production
 	pip install -r requirements.txt
 	npm install --production
@@ -74,6 +79,9 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	# Let tox control the Django version for tests
 	grep -e "^django==" requirements/local.txt > requirements/django.txt
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
+	rm -rf requirements/local.txt.tmp
+	grep -e "^django-admin-sortable2==" requirements/local.txt > requirements/django.txt
+	sed -i.tmp "/^django-admin-sortable2==/d" requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
 
