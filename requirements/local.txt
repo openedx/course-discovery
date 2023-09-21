@@ -218,10 +218,6 @@ distro==1.8.0
     #   social-auth-app-django
     #   taxonomy-connector
     #   xss-utils
-django-admin-sortable2==1.0.4
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
 django-autocomplete-light==3.9.7
