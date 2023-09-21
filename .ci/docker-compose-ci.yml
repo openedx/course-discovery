@@ -55,7 +55,7 @@ services:
       - "es"
       - "memcached"
     environment:
-      CACHE_BACKEND: "django.core.cache.backends.memcached.MemcachedCache"
+      CACHE_BACKEND: "django.core.cache.backends.memcached.PyMemcacheCache"
       CACHE_LOCATION: "memcached:11211"
       CONN_MAX_AGE: 60
       DB_ENGINE: "django.db.backends.mysql"
