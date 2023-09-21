@@ -483,6 +483,51 @@ class LanguageField(models.CharField):
         )
 
 
+def _validate_languages(value):
+    for lang in value.split(','):
+        if lang not in settings.ALL_LANGUAGES:
+            raise ValidationError("Invalid language code : {}".format(lang))
+
+
+class CommaSeparatedLanguagesField(models.CharField):
+    default_validators = [_validate_languages]
+    description = _("Comma-separated languages")
+
+    def __init__(self, *args, **kwargs):
+        """Creates a CommaSeparatedLanguagesField.
+
+            Accepts all the same kwargs as a CharField, except for max_length and
+            choices. help_text defaults to a description of the ISO 639-2 set.
+        """
+        kwargs.pop('max_length', None)
+        kwargs.pop('choices', None)
+        help_text = kwargs.pop('help_text', _("The ISO 639-2 language code for this language."))
+        super(CommaSeparatedLanguagesField, self).__init__(
+            max_length=128,
+            help_text=help_text,
+            *args,
+            **kwargs
+        )
+
+    def from_db_value(self, value, expression, connection, context):
+        return None if value is None else value.split(',')
+
+    def to_python(self, value):
+        if isinstance(value, list):
+            return value
+
+        return None if value is None else value.split(',')
+
+    def get_prep_value(self, value):
+        return ','.join(value)
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        return None if value is None else ','.join(value)
+
+    def get_db_prep_save(self, value, connection):
+        return None if value is None else ','.join(value)
+
+
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -1057,6 +1102,7 @@ class Program(TimeStampedModel):
         help_text=_('Visibility of program')
     )
     language = LanguageField(default='en', null=True, blank=True, db_index=True)
+    languages = CommaSeparatedLanguagesField(null=True, blank=True, db_index=True)
     creator_id = models.IntegerField(
         null=True, blank=False,
         help_text=_('Program Creator(user) id')
@@ -1145,10 +1191,6 @@ class Program(TimeStampedModel):
             canonical_course_run = course.canonical_course_run
             if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
                 yield canonical_course_run
-
-    @property
-    def languages(self):
-        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
 
     @property
     def transcript_languages(self):
