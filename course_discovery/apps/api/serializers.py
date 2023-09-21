@@ -10,6 +10,7 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models import Case
 from django.db.models import When
 from django.db.models.query import Prefetch
@@ -17,7 +18,9 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
-from rest_framework.fields import DictField
+from rest_framework.fields import (
+    DictField, ListField
+)
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
@@ -753,11 +756,21 @@ class _PartnerSlugRelatedField(serializers.SlugRelatedField):
         return self.queryset.filter(site_id=self.context["current_site_id"])
 
 
+def _validate_comma_separated_languages_list(value):
+    if isinstance(value, list):
+        for lang in value:
+            if lang not in settings.LANGUAGES_CODES:
+                raise ValidationError('Invalid language code : {}'.format(lang))
+    else:
+        raise ValidationError('Invalid argument type : {}'.format(type(value)))
+
+
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = _PartnerSlugRelatedField(slug_field='name', queryset=Partner.objects.all())
+    languages = ListField(validators=[_validate_comma_separated_languages_list])
 
     @classmethod
     def prefetch_queryset(cls, partners, *args, **kwargs):
@@ -785,7 +798,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
             'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
             'authoring_organizations', 'visibility',
             'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
-            'start', 'end', 'enrollment_start', 'enrollment_end'
+            'start', 'end', 'enrollment_start', 'enrollment_end', 'languages'
         )
         read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
 
@@ -906,10 +919,6 @@ class ProgramSerializer(MinimalProgramSerializer):
     corporate_endorsements = CorporateEndorsementSerializer(many=True, read_only=True)
     job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     individual_endorsements = EndorsementSerializer(many=True, read_only=True)
-    languages = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field='code',
-        help_text=_('Languages that course runs in this program are offered in.'),
-    )
     transcript_languages = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='code',
         help_text=_('Languages that course runs in this program have available transcripts in.'),
