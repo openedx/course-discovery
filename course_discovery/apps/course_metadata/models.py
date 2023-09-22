@@ -496,7 +496,7 @@ class CommaSeparatedLanguagesField(models.CharField):
         return value.split(',') if value else value
 
     def get_db_prep_value(self, value, *args, **kwargs):
-        return ','.join(value) if value else value
+        return ','.join(value) if isinstance(value, list) else value
 
     def value_to_string(self, obj):
         return self.get_db_prep_value(obj)
