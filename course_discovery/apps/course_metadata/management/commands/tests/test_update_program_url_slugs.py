@@ -237,8 +237,7 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
             call_command(
                 'update_program_url_slugs', args_from_database=True
             )
-            expected_msg = (f'program_uuid,old_slug,new_slug,error\n{program_uuid},None,None,'
-                            f'Unable to locate Program instance with code {program_uuid}')
+            expected_msg = f'Unable to locate Program instance with code {program_uuid}'
 
             log_capture.check_present(
                 (
@@ -253,11 +252,11 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
                 ),
             )
             assert mock_send_email_for_slug_updates.call_count == 1
-            expected_msg = f'program_uuid,old_slug,new_slug,error\n{program_uuid},None,None,' \
-                           f'Unable to locate Program instance with code {program_uuid}\n'
+            expected_csv_msg = f'program_uuid,old_slug,new_slug,error\n{program_uuid},None,None,' \
+                               f'Unable to locate Program instance with code {program_uuid}\n'
 
             mock_send_email_for_slug_updates.assert_called_with(
-                expected_msg,
+                expected_csv_msg,
                 settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
                 'Migrate Program Slugs Summary Report',
             )
