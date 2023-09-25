@@ -2760,6 +2760,11 @@ class ProgramTests(TestCase):
         self.program.marketing_slug = ''
         assert self.program.marketing_url is None
 
+    def test_marketing_url__with_slashes(self):
+        """ Verify the property returns marketing url as it is if marketing_slug contains a slash"""
+        self.program.marketing_slug = 'type/subject/org-title'
+        assert self.program.marketing_url == self.program.marketing_slug
+
     def test_course_runs(self):
         """
         Verify that we only fetch course runs for the program, and not other course runs for other programs.
