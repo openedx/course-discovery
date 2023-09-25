@@ -8,7 +8,7 @@
   "dependencies": {
     "ansi-regex": "6.0.1",
     "bootstrap-sass": "3.4.3",
-    "bower": "1.8.12",
+    "bower": "1.8.14",
     "css-loader": "6.3.0",
     "datatables.net": "1.13.6",
     "datatables.net-bs": "1.13.6",
