@@ -1177,3 +1177,20 @@ def validate_slug_format(url_slug, course):
 
     if not re.match(slug_pattern['slug_format'], url_slug):
         raise ValidationError(slug_pattern['error_msg'].format(url_slug=url_slug))
+
+
+def transform_dict_keys(data):
+    """
+    Given a data dictionary, return a new dict that has its keys transformed to
+    snake case. For example, Enrollment Track becomes enrollment_track.
+    Each key is stripped of whitespaces around the edges, converted to lower case,
+    and has internal spaces converted to _. This convention removes the dependency on CSV
+    headers format(Enrollment Track vs Enrollment track) and makes code flexible to ignore
+    any case sensitivity, among other things.
+    """
+    transformed_dict = {}
+    for key, value in data.items():
+        updated_key = key.strip().lower().replace(' ', '_')
+        transformed_dict[updated_key] = value
+
+    return transformed_dict

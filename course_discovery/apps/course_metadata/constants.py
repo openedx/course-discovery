@@ -11,6 +11,8 @@ SUBDIRECTORY_SLUG_FORMAT_REGEX = (
     r'executive-education\/[a-zA-Z0-9-_]+$|'
     r'boot-camps\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
 )
+SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_\/]+$'
+
 SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
 
 DEFAULT_SLUG_FORMAT_ERROR_MSG = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'

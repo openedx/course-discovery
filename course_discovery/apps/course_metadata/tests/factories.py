@@ -988,3 +988,8 @@ class CollaboratorFactory(factory.django.DjangoModelFactory):
 class MigrateCourseSlugConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MigrateCourseSlugConfiguration
+
+
+class MigrateProgramSlugConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MigrateProgramSlugConfiguration
