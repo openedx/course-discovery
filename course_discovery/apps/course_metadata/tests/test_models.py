@@ -2763,7 +2763,8 @@ class ProgramTests(TestCase):
     def test_marketing_url__with_slashes(self):
         """ Verify the property returns marketing url as it is if marketing_slug contains a slash"""
         self.program.marketing_slug = 'type/subject/org-title'
-        assert self.program.marketing_url == self.program.marketing_slug
+        assert self.program.marketing_url == f"{self.program.partner.marketing_site_url_root}" \
+                                             f"{self.program.marketing_slug}"
 
     def test_course_runs(self):
         """
