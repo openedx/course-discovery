@@ -3303,8 +3303,7 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = f'{self.type.slug.lower()}/{self.marketing_slug}'
-            return urljoin(self.partner.marketing_site_url_root, path)
+            return urljoin(self.partner.marketing_site_url_root, self.marketing_slug)
 
         return None
 
@@ -4279,6 +4278,21 @@ class MigrateCourseSlugConfiguration(ConfigurationModel):
     count = models.IntegerField(null=True, blank=True)
     course_type = models.CharField(choices=COURSE_TYPE_CHOICES, default=OPEN_COURSE, max_length=255)
     product_source = models.ForeignKey(Source, models.CASCADE, null=True, blank=False)
+
+
+class MigrateProgramSlugConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in update_program_url_slugs.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers."),
+        null=True,
+        blank=True
+    )
 
 
 class ProgramSubscriptionConfiguration(ConfigurationModel):
