@@ -39,7 +39,6 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
         """
         Write the csv file content to a file.
         """
-        # add csv headers
         csv_file_content = self.csv_header
         program_data = [
             (self.program1.uuid, self.test_active_url_slugs[0]),
@@ -117,6 +116,12 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
             )
 
             assert mock_send_email_for_slug_updates.call_count == 1
+            self.program1.refresh_from_db()
+            self.program2.refresh_from_db()
+            self.program3.refresh_from_db()
+            assert self.program1.marketing_slug == self.test_active_url_slugs[0]
+            assert self.program2.marketing_slug == self.test_active_url_slugs[1]
+            assert self.program3.marketing_slug == self.test_active_url_slugs[2]
             expected_msg = f'program_uuid,old_slug,new_slug,error\n{self.program1.uuid},{current_slug_program1},' \
                            f'{self.test_active_url_slugs[0]},None\n{self.program2.uuid},{current_slug_program2},' \
                            f'{self.test_active_url_slugs[1]},None\n{self.program3.uuid},{current_slug_program3},' \
@@ -204,7 +209,7 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
         call_command(
             'update_program_url_slugs', args_from_database=True
         )
-        # Assert that the email is sent and assert the email content
+
         assert mock_send_email_for_slug_updates.call_count == 1
         expected_msg = 'program_uuid,old_slug,new_slug,error\ninvalid-program-uuid,None,None,' \
                        'Skipping uuid invalid-program-uuid because of incorrect slug format\n'

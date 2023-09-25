@@ -94,8 +94,8 @@ class Command(BaseCommand):
         report_in_csv_format = "program_uuid,old_slug,new_slug,error\n"
 
         for record in self.slug_update_report:
-            report_in_csv_format = report_in_csv_format + f"{record['program_uuid']},{record['old_slug']}," \
-                                                          f"{record['new_slug']},{record['error']}\n"
+            report_in_csv_format = f"{report_in_csv_format}{record['program_uuid']},{record['old_slug']}," \
+                                   f"{record['new_slug']},{record['error']}\n"
 
         return report_in_csv_format
 
@@ -131,7 +131,7 @@ class Command(BaseCommand):
 
         programs_qs = Program.objects.filter(marketing_slug=new_url_slug)
         if programs_qs.exists():
-            self.update_slug_report(program_uuid, error.format(program_uuid, 'program already exists'))
+            self.update_slug_report(program_uuid, error.format(program_uuid, 'program with same slug already exists'))
             return False
 
         return True

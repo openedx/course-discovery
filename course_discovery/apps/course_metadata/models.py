@@ -3305,7 +3305,8 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         if self.marketing_slug:
             if self.marketing_slug.find('/') != -1:
                 return self.marketing_slug
-            return urljoin(self.partner.marketing_site_url_root, self.marketing_slug)
+            path = f'{self.type.slug.lower()}/{self.marketing_slug}'
+            return urljoin(self.partner.marketing_site_url_root, path)
 
         return None
 
