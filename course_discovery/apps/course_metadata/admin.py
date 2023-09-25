@@ -953,6 +953,14 @@ class MigrateCourseSlugConfigurationAdmin(admin.ModelAdmin):
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
 
+@admin.register(MigrateProgramSlugConfiguration)
+class MigrateProgramSlugConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for MigrateProgramSlugConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
 @admin.register(ProgramSubscriptionConfiguration)
 class ProgramSubscriptionConfigurationAdmin(admin.ModelAdmin):
     """
