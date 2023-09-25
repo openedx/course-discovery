@@ -17,7 +17,7 @@ services:
       MYSQL_ROOT_PASSWORD: "password"
       MYSQL_DATABASE: "discovery"
   es:
-    image: elasticsearch:7.10.1
+    image: elasticsearch:7.17.13
     container_name: es
     environment:
       - discovery.type=single-node
