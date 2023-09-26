@@ -28,7 +28,7 @@ jobs:
         ref: ${{ env.target_branch }}
 
     - name: setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
