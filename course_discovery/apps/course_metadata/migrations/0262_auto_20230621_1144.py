@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0269_depr_program_card_image_url_and_add_exec_ed_cert_type'),
+        ('course_metadata', '0261_auto_20221216_0743'),
     ]
 
     operations = [
