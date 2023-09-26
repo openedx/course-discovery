@@ -4,6 +4,7 @@ import warnings
 from copy import deepcopy
 from os import environ
 
+import django
 import certifi
 import memcache
 import MySQLdb
@@ -91,3 +92,6 @@ AWS_DEFAULT_ACL = 'public-read'
 
 # Convert dict keys to lowercase
 GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {k.lower(): v for k, v in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()}
+
+if django.VERSION[0] >= 4:  # for greater than django 3.2 use schemes.
+    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS_WITH_SCHEME
