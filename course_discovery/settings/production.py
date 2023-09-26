@@ -4,8 +4,8 @@ import warnings
 from copy import deepcopy
 from os import environ
 
-import django
 import certifi
+import django
 import memcache
 import MySQLdb
 import yaml
