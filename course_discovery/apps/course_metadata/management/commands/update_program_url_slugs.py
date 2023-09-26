@@ -5,9 +5,12 @@ from csv import DictReader
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
-from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX
+from course_discovery.apps.course_metadata.constants import (
+    PROGRAM_SLUG_FORMAT_REGEX, SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX
+)
 from course_discovery.apps.course_metadata.emails import send_email_for_slug_updates
 from course_discovery.apps.course_metadata.models import MigrateProgramSlugConfiguration, Program
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import is_valid_uuid, transform_dict_keys
 
 logger = logging.getLogger(__name__)
@@ -121,7 +124,10 @@ class Command(BaseCommand):
             True if uuid and slug is in valid format
         """
         error = "Skipping uuid {} because of {}"
-        if not bool(re.match(SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX, new_url_slug)):
+        slug_pattern = SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled() \
+            else PROGRAM_SLUG_FORMAT_REGEX
+
+        if not bool(re.fullmatch(slug_pattern, new_url_slug)):
             self.update_slug_report(program_uuid, error.format(program_uuid, 'incorrect slug format'))
             return False
 
