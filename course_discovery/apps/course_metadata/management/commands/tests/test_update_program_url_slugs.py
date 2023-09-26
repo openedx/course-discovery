@@ -1,18 +1,22 @@
 import tempfile
 import uuid
 
+import ddt
 import mock
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
+from edx_toggles.toggles.testutils import override_waffle_switch
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.tests.factories import MigrateProgramSlugConfigurationFactory, ProgramFactory
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.update_program_url_slugs'
 
 
+@ddt.ddt
 class UpdateProgramUrlSlugCommandTests(TestCase):
     """
     Test suite for update_program_url_slug management command.
@@ -85,9 +89,10 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
             current_slug_program2 = self.program2.marketing_slug
             current_slug_program3 = self.program3.marketing_slug
 
-            call_command(
-                'update_program_url_slugs', args_from_database=True
-            )
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                call_command(
+                    'update_program_url_slugs', args_from_database=True
+                )
 
             log_capture.check_present(
                 (
@@ -147,10 +152,10 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
                 current_slug_program1 = self.program1.marketing_slug
                 current_slug_program2 = self.program2.marketing_slug
                 current_slug_program3 = self.program3.marketing_slug
-
-                call_command(
-                    'update_program_url_slugs', '--csv_file', csv_file.name
-                )
+                with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                    call_command(
+                        'update_program_url_slugs', '--csv_file', csv_file.name
+                    )
 
                 log_capture.check_present(
                     (
@@ -205,10 +210,10 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
         )
 
         _ = MigrateProgramSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
-
-        call_command(
-            'update_program_url_slugs', args_from_database=True
-        )
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            call_command(
+                'update_program_url_slugs', args_from_database=True
+            )
 
         assert mock_send_email_for_slug_updates.call_count == 1
         expected_msg = 'program_uuid,old_slug,new_slug,error\ninvalid-program-uuid,None,None,' \
@@ -237,31 +242,86 @@ class UpdateProgramUrlSlugCommandTests(TestCase):
         )
 
         _ = MigrateProgramSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            with LogCapture(LOGGER_PATH) as log_capture:
+                call_command(
+                    'update_program_url_slugs', args_from_database=True
+                )
+                expected_msg = f'Unable to locate Program instance with code {program_uuid}'
 
-        with LogCapture(LOGGER_PATH) as log_capture:
-            call_command(
-                'update_program_url_slugs', args_from_database=True
-            )
-            expected_msg = f'Unable to locate Program instance with code {program_uuid}'
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'INFO',
+                        'Initiating Program URL slug updation flow.'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'INFO',
+                        expected_msg
+                    ),
+                )
+                assert mock_send_email_for_slug_updates.call_count == 1
+                expected_csv_msg = f'program_uuid,old_slug,new_slug,error\n{program_uuid},None,None,' \
+                                   f'Unable to locate Program instance with code {program_uuid}\n'
 
-            log_capture.check_present(
-                (
-                    LOGGER_PATH,
-                    'INFO',
-                    'Initiating Program URL slug updation flow.'
-                ),
-                (
-                    LOGGER_PATH,
-                    'INFO',
-                    expected_msg
-                ),
-            )
-            assert mock_send_email_for_slug_updates.call_count == 1
-            expected_csv_msg = f'program_uuid,old_slug,new_slug,error\n{program_uuid},None,None,' \
-                               f'Unable to locate Program instance with code {program_uuid}\n'
+                mock_send_email_for_slug_updates.assert_called_with(
+                    expected_csv_msg,
+                    settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
+                    'Migrate Program Slugs Summary Report',
+                )
 
-            mock_send_email_for_slug_updates.assert_called_with(
-                expected_csv_msg,
-                settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
-                'Migrate Program Slugs Summary Report',
-            )
+    @ddt.data(
+        ('test-slug-program-1', False),
+        ('category/sub-category/campus-name-course-name', True),
+    )
+    @ddt.unpack
+    def test_success_flow_with_flag_toggle(self, slug, state):
+        """
+        Test that the command updates the marketing_slug for the programs according to two different formats
+        depending upon the subdirectory flag.
+        """
+        self.csv_file_content = self.csv_header
+        self.csv_file_content += f'{self.program1.uuid},{slug}\n'
+
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=self.csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        MigrateProgramSlugConfigurationFactory.create(csv_file=self.csv_file, enabled=True)
+
+        with mock.patch(LOGGER_PATH + '.send_email_for_slug_updates') as mock_send_email_for_slug_updates:
+            with LogCapture(LOGGER_PATH) as log_capture:
+                current_slug_program1 = self.program1.marketing_slug
+
+                with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=state):
+                    call_command(
+                        'update_program_url_slugs', args_from_database=True
+                    )
+
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'INFO',
+                        'Initiating Program URL slug updation flow.'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'INFO',
+                        f'Updated Program ({self.program1.uuid}) with slug: {current_slug_program1} '
+                        f'to new url slug: {slug}'
+                    ),
+                )
+
+                assert mock_send_email_for_slug_updates.call_count == 1
+                self.program1.refresh_from_db()
+                assert self.program1.marketing_slug == slug
+                expected_msg = f'program_uuid,old_slug,new_slug,error\n{self.program1.uuid},{current_slug_program1},' \
+                               f'{slug},None\n'
+
+                mock_send_email_for_slug_updates.assert_called_with(
+                    expected_msg,
+                    settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
+                    'Migrate Program Slugs Summary Report',
+                )
