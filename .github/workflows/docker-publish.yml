@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Use the release name as the image tag if we're building an open release tag.
       # Examples: if we're building 'open-release/olive.master', tag the image as 'olive.master'.

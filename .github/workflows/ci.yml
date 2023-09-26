@@ -20,7 +20,7 @@ jobs:
             db-version: "mysql57"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: make ci_up
       - name: run tests
         env:
@@ -43,7 +43,7 @@ jobs:
     needs: pytest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: make ci_up
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
@@ -55,14 +55,14 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: make ci_up
       - run: make ci_quality
 
   semgrep:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: make ci_up
       - name: Run semgrep Django rules
         run: make ci_semgrep
