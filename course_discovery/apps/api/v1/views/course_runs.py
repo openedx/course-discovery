@@ -14,6 +14,7 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
@@ -49,7 +50,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=useless-super-delegation
-class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
+class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = filters.CourseRunFilter
