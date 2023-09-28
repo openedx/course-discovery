@@ -58,16 +58,6 @@ $(COMMON_CONSTRAINTS_TXT):
 
 
 upgrade: $(COMMON_CONSTRAINTS_TXT)
-	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-auth-backends<4.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
 	pip-compile --allow-unsafe --upgrade -o requirements/pip.txt requirements/pip.in
 	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
@@ -80,7 +70,7 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	grep -e "^django==" requirements/local.txt > requirements/django.txt
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
 	rm -rf requirements/local.txt.tmp
-	grep -e "^django-admin-sortable2==" requirements/local.txt > requirements/django.txt
+	grep -e "^django-admin-sortable2==" requirements/local.txt >> requirements/django.txt
 	sed -i.tmp "/^django-admin-sortable2==/d" requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
