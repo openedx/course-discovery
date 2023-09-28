@@ -55,3 +55,6 @@ pillow < 10.0.0
 # 4.2.0 is breaking django-elasticsearch-debug-toolbar
 # Awaiting fix https://github.com/Benoss/django-elasticsearch-debug-toolbar/pull/21 to be merged
 django-debug-toolbar < 4.2.0
+
+# selenium==4.13.0 causing test failures 
+selenium==4.12.0
