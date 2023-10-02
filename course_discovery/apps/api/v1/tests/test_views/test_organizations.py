@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
@@ -68,6 +69,33 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         assert response.status_code == 200
         self.assert_response_data_valid(response, Organization.objects.all())
+
+    def test_list_organization__timestamped_filtering(self):
+        """
+        Verify the organizations returned are filtered when timestamp is provided.
+        """
+        org1 = OrganizationFactory.create(partner=self.partner, name='org1')
+        org2 = OrganizationFactory.create(partner=self.partner, name='org2')
+        org3 = OrganizationFactory.create(partner=self.partner, name='org3')
+
+        timestamp_now = datetime.now()
+        for org in [org1, org2, org3]:
+            org.description = 'test description update'
+            org.save()
+
+        url = f'{self.list_path}?timestamp={timestamp_now}'
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 3
+
+        timestamp_now = datetime.now().isoformat()
+        for org in [org1, org2, org3]:
+            org.save()
+
+        url = f'{self.list_path}?timestamp={timestamp_now}'
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == 0
 
     def test_list_not_staff(self):
         """ Verify the endpoint returns a list of all organizations. """

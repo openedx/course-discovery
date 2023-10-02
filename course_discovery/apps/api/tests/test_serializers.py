@@ -1727,6 +1727,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'certificate_logo_image_url': certificate_logo_image_url,
             'logo_image_url': logo_image_url,
             'organization_hex_color': organization.organization_hex_color,
+            'data_modified_timestamp': json_date_format(organization.data_modified_timestamp),
         }
 
     def test_data(self):
