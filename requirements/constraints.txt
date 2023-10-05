@@ -26,9 +26,8 @@ authlib==1.0.0rc1
 # The latest version require Django 4.0, remove once we have upgraded to Django 4.0
 django-admin-sortable2<2.0.0
 
-# The latest versions of django-simple-history & django-stdimage have breaking changes
+# The latest versions of django-stdimage has breaking changes
 # Remove this pin after fixing them.
-django-simple-history<=3.0.0
 django-stdimage<=5.3.0
 
 semgrep==0.102.0
@@ -55,3 +54,6 @@ pillow < 10.0.0
 # 4.2.0 is breaking django-elasticsearch-debug-toolbar
 # Awaiting fix https://github.com/Benoss/django-elasticsearch-debug-toolbar/pull/21 to be merged
 django-debug-toolbar < 4.2.0
+
+# selenium==4.13.0 causing test failures
+selenium==4.12.0

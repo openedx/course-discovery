@@ -38,6 +38,7 @@ LOGGER_NAME = 'course_discovery.apps.api.utils'
 
 
 @ddt.ddt
+@pytest.mark.usefixtures('django_cache')
 class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin, APITestCase):
     def setUp(self):
         super().setUp()
