@@ -1,2 +1,2 @@
-django==3.2.21
+django==3.2.22
 django-admin-sortable2==1.0.4
