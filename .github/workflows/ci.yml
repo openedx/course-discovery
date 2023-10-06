@@ -11,13 +11,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['py38']
-        django-version: ['django32', 'django42']
-        db-version: ['mysql57', 'mysql80']
+        django-version: ['django42']
+        db-version: ['mysql80']
         pytest-split-group: [1, 2, 3, 4, 5, 6]
         status: ['']
-        exclude: 
-          - django-version: "django42"
-            db-version: "mysql57"
 
     steps:
       - uses: actions/checkout@v3
@@ -32,7 +29,7 @@ jobs:
         # See https://github.com/actions/toolkit/issues/399
         continue-on-error: ${{ matrix.status == 'ignored' }}
       - name: Upload coverage
-        if: matrix.db-version == 'mysql57'  # TODO: Remove this condition when removing 'mysql57' db-version.
+        if: matrix.db-version == 'mysql80'
         uses: actions/upload-artifact@v2
         with:
           name: coverage${{ matrix.pytest-split-group }}

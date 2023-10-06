@@ -59,6 +59,7 @@ backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     # via
     #   -c requirements/constraints.txt
     #   celery
+    #   django
     #   kombu
 bcrypt==4.0.1
     # via paramiko
@@ -171,7 +172,6 @@ distlib==0.3.7
 distro==1.8.0
     # via docker-compose
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   algoliasearch-django
@@ -218,9 +218,8 @@ distro==1.8.0
     #   social-auth-app-django
     #   taxonomy-connector
     #   xss-utils
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+django-admin-sortable2==2.1.10
+    # via -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
 django-autocomplete-light==3.9.7
@@ -737,7 +736,6 @@ pytz==2023.3.post1
     # via
     #   -r requirements/base.in
     #   babel
-    #   django
     #   django-ses
     #   djangorestframework
     #   drf-yasg
