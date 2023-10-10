@@ -291,6 +291,12 @@ class Organization(ManageHistoryMixin, CachedMixin, TimeStampedModel):
         null=True,
         max_length=6,
     )
+    data_modified_timestamp = models.DateTimeField(
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_('The timestamp of the last time the organization data was modified.'),
+    )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -301,7 +307,7 @@ class Organization(ManageHistoryMixin, CachedMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        return self.has_model_changed()
+        return self.has_model_changed(excluded_fields=['data_modified_timestamp'])
 
     def clean(self):
         if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
@@ -332,12 +338,20 @@ class Organization(ManageHistoryMixin, CachedMixin, TimeStampedModel):
     def user_organizations(cls, user):
         return cls.objects.filter(organization_extension__group__in=user.groups.all())
 
+    def update_data_modified_timestamp(self):
+        """
+        Update the data_modified_timestamp field to the current time if the organization data has changed.
+        """
+        if not self.data_modified_timestamp or self.has_changed:
+            self.data_modified_timestamp = datetime.datetime.now(pytz.UTC)
+
     def save(self, *args, **kwargs):
         """
         We cache the key here before saving the record so that we can hit the correct
         endpoint in lms.
         """
         key = self._cache['key']
+        self.update_data_modified_timestamp()
         super().save(*args, **kwargs)
         key = key or self.key
         partner = self.partner

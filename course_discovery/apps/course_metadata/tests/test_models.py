@@ -1778,6 +1778,16 @@ class OrganizationTests(TestCase):
 
         assert len(Organization.user_organizations(user)) == 1
 
+    def test_data_modified_timestamp_model_field_change(self):
+        """
+        Verify data modified timestamp changes on direct organization model field changes.
+        """
+        org = factories.OrganizationFactory(name='test org')
+        data_modified_timestamp = org.data_modified_timestamp
+        org.description = 'test description'
+        org.save()
+        assert data_modified_timestamp < org.data_modified_timestamp
+
     def test_org_enterprise_subscription_inclusion_toggle_course(self):
         """Test that toggling an org's enterprise_subscription_inclusion value will turn courses in the org on"""
         org = factories.OrganizationFactory(enterprise_subscription_inclusion=True)

@@ -613,6 +613,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
     search_fields = ('uuid', 'name', 'key',)
+    readonly_fields = ['data_modified_timestamp']
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -622,10 +623,10 @@ class OrganizationAdmin(admin.ModelAdmin):
             flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
             flag = get_waffle_flag_model().get(flag_name)
             if flag.is_active(request):
-                return ['key', ]
-            return ['uuid', 'key', ]
+                return ['key', ] + self.readonly_fields
+            return ['uuid', 'key', ] + self.readonly_fields
         else:
-            return ['uuid', ]
+            return ['uuid', ] + self.readonly_fields
 
 
 @admin.register(Subject)
