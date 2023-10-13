@@ -47,7 +47,6 @@ PREFETCH_FIELDS = {
         'course__programs__partner',
         'course__programs__type',
         'course__programs__excluded_course_runs',
-        'language',
         'seats',
         'seats__currency',
         'staff',
@@ -74,7 +73,7 @@ PREFETCH_FIELDS = {
 
 SELECT_RELATED_FIELDS = {
     'course': ['level_type', 'partner', 'video'],
-    'course_run': ['course', 'language', 'video'],
+    'course_run': ['course', 'video'],
 }
 
 
@@ -486,7 +485,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(read_only=True, slug_field='key')
     content_language = serializers.SlugRelatedField(
-        read_only=True, slug_field='code', source='language',
+        read_only=True, slug_field='code',
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
@@ -500,7 +499,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video').prefetch_related(
+        return queryset.select_related('video').prefetch_related(
             'course__level_type',
             'transcript_languages',
             'video__image',
@@ -1272,7 +1271,6 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'has_enrollable_seats',
             'image_url',
             'key',
-            'language',
             'level_type',
             'logo_image_urls',
             'marketing_url',
@@ -1304,7 +1302,6 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
         ignore_fields = COMMON_IGNORED_FIELDS
         field_options = {
             'content_type': {},
-            'language': {},
             'level_type': {},
             'mobile_available': {},
             'organizations': {'size': settings.SEARCH_FACET_LIMIT},
