@@ -314,7 +314,7 @@ edx-django-utils==5.7.0
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==8.2.0
+edx-drf-extensions==8.11.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
