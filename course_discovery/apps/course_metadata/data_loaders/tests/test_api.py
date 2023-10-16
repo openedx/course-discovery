@@ -785,7 +785,9 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def assert_seats_loaded(self, body, mock_products):
         """ Assert a Seat corresponding to the specified data body was properly loaded into the database. """
         course_run = CourseRun.objects.get(key=body['id'])
-        products = [p for p in body['products'] if p['structure'] == 'child']
+        products = [p for p in body['products'] if p['structure'] == 'child' and
+                    'mobile' not in p['stockrecords'][0]['partner_sku']]
+
         # Verify that the old seat is removed
         assert course_run.seats.count() == len(products)
         assert course_run.draft_version.seats.count() == len(products)

@@ -41,11 +41,6 @@ requirements.python: ## Install Python requirements for local development.
 
 requirements: requirements.js requirements.python ## Install Python and JS requirements for local development
 
-requirements.python_dj42: ## Install Python requirements for Django 4.2 env
-	pip install -r requirements/local.txt -r requirements/django42.txt
-
-requirements_dj42: requirements.js requirements.python_dj42 ## Install Python and JS requirements for Django 4.2 env
-
 production-requirements: ## Install Python and JS requirements for production
 	pip install -r requirements.txt
 	npm install --production
@@ -58,15 +53,9 @@ $(COMMON_CONSTRAINTS_TXT):
 
 
 upgrade: $(COMMON_CONSTRAINTS_TXT)
-	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-auth-backends<4.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	sed 's/Django<4.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
 	pip-compile --allow-unsafe --upgrade -o requirements/pip.txt requirements/pip.in
@@ -79,9 +68,6 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	# Let tox control the Django version for tests
 	grep -e "^django==" requirements/local.txt > requirements/django.txt
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
-	rm -rf requirements/local.txt.tmp
-	grep -e "^django-admin-sortable2==" requirements/local.txt > requirements/django.txt
-	sed -i.tmp "/^django-admin-sortable2==/d" requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
 

@@ -1,14 +1,6 @@
 version: "2"
 
 services:
-  mysql57:
-    image: mysql:5.7
-    container_name: mysql57
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
-    environment:
-      MYSQL_ROOT_PASSWORD: "password"
-      MYSQL_DATABASE: "discovery"
-
   mysql80:
     image: mysql:8.0
     container_name: mysql80
@@ -50,7 +42,6 @@ services:
       - ../course_discovery/assets:/edx/var/discovery/staticfiles
     command: tail -f /dev/null
     depends_on:
-      - "mysql57"
       - "mysql80"
       - "es"
       - "memcached"

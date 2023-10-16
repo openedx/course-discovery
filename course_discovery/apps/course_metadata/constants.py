@@ -12,6 +12,7 @@ SUBDIRECTORY_SLUG_FORMAT_REGEX = (
     r'boot-camps\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
 )
 SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_\/]+$'
+PROGRAM_SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+'
 
 SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
 
