@@ -33,8 +33,6 @@ django-stdimage<=5.3.0
 
 semgrep==0.102.0
 
-# Version 8.3.0 introduced changes that caused users to see User Disabled error
-edx-drf-extensions < 8.3.0
 
 # Pinning sphinx as new major release is causing error while installing requirements.
 sphinx<6.0.0
