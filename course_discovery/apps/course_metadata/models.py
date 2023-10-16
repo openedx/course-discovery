@@ -483,6 +483,25 @@ class LanguageField(models.CharField):
         )
 
 
+class CommaSeparatedLanguagesField(models.CharField):
+    description = _("Comma-separated language codes")
+
+    def __init__(self, *args, **kwargs):
+        super(CommaSeparatedLanguagesField, self).__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        return value.split(',') if value else value
+
+    def from_db_value(self, value, *args, **kwargs):
+        return value.split(',') if value else value
+
+    def get_db_prep_value(self, value, *args, **kwargs):
+        return ','.join(value) if isinstance(value, list) else value
+
+    def value_to_string(self, obj):
+        return self.get_db_prep_value(obj)
+
+
 class CourseRun(TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -519,7 +538,6 @@ class CourseRun(TimeStampedModel):
     weeks_to_complete = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated number of weeks needed to complete this course run.'))
-    language = models.ForeignKey(LanguageTag, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
@@ -1057,6 +1075,7 @@ class Program(TimeStampedModel):
         help_text=_('Visibility of program')
     )
     language = LanguageField(default='en', null=True, blank=True, db_index=True)
+    languages = CommaSeparatedLanguagesField(max_length=128, null=True, blank=True)
     creator_id = models.IntegerField(
         null=True, blank=False,
         help_text=_('Program Creator(user) id')
@@ -1145,10 +1164,6 @@ class Program(TimeStampedModel):
             canonical_course_run = course.canonical_course_run
             if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
                 yield canonical_course_run
-
-    @property
-    def languages(self):
-        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
 
     @property
     def transcript_languages(self):

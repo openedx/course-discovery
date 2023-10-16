@@ -332,6 +332,7 @@ ALL_LANGUAGES = [
     [u"zu", u"Zulu"]
 ]
 
+LANGUAGES_CODES = {item[0] for item in ALL_LANGUAGES}
 
 # MEDIA CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
