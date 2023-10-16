@@ -42,7 +42,6 @@ backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     # via
     #   -c requirements/constraints.txt
     #   celery
-    #   django
     #   kombu
 beautifulsoup4==4.12.2
     # via
@@ -118,8 +117,9 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.6
+django==3.2.22
     # via
+    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   algoliasearch-django
@@ -164,8 +164,10 @@ django==4.2.6
     #   social-auth-app-django
     #   taxonomy-connector
     #   xss-utils
-django-admin-sortable2==2.1.10
-    # via -r requirements/base.in
+django-admin-sortable2==1.0.4
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
 django-autocomplete-light==3.9.7
@@ -543,6 +545,7 @@ python3-openid==3.2.0
 pytz==2023.3.post1
     # via
     #   -r requirements/base.in
+    #   django
     #   django-ses
     #   djangorestframework
     #   drf-yasg
