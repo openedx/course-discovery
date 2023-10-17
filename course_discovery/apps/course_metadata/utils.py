@@ -707,7 +707,7 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
                 self.outtextf(f'<{tag}')
                 if attrs:
                     self.outtextf(' ')
-                    self.outtextf(' '.join(f'{attr}="{value}"' for attr, value in attrs))
+                    self.outtextf(' '.join(f'{attr}="{value}"' for attr, value in attrs.items()))
                 self.outtextf('>')
             else:
                 self.outtextf(f'</{tag}>')

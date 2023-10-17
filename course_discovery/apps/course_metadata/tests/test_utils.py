@@ -660,7 +660,10 @@ class UtilsTests(TestCase):
 
         # Make sure text remains bold if p tag has rtl direction
         ('<p dir="rtl"><strong>Directed paragraph</strong></p>', '<p dir="rtl"><strong>Directed paragraph</strong></p>'),
-
+        (
+                '<p lang="en" style="font-size: 11pt; color: #000000; background-color: transparent; font-weight: 400;">Test</p>',
+                '<p>Test</p>'
+        ),
         # Make sure that only spans with lang tags are preserved in the saved string
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
