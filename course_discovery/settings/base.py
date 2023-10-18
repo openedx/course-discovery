@@ -772,6 +772,4 @@ NOTIFY_SLUG_UPDATE_RECIPIENTS = []
 # disable indexing on history_date
 SIMPLE_HISTORY_DATE_INDEX = False
 
-CSRF_TRUSTED_ORIGINS_WITH_SCHEME = [] # just for Django 4.2 upgrade
-
 USE_DEPRECATED_PYTZ = True
