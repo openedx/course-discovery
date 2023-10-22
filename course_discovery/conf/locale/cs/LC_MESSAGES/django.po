@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-24 20:35+0000\n"
+"POT-Creation-Date: 2023-10-15 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Jiří Podhorecký, 2023\n"
+"Last-Translator: Aleš Fiala <f.ales1@seznam.cz>, 2022-2023\n"
 "Language-Team: Czech (http://app.transifex.com/open-edx/edx-platform/language/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -112,19 +112,19 @@ msgstr "Chybějící hodnota pro: [{name}]."
 msgid "Incorrect data sent. "
 msgstr "Odeslaná nesprávná data."
 
-#: apps/api/v1/views/course_runs.py:45
+#: apps/api/v1/views/course_runs.py:46
 msgid "Failed to set course run data: {}"
 msgstr "Nepodařilo se nastavit data běhu kurzu: {}"
 
-#: apps/api/v1/views/course_runs.py:312
+#: apps/api/v1/views/course_runs.py:313
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr "Může aktualizovat pouze stav, omezení ofac a komentář ofac"
 
-#: apps/api/v1/views/course_runs.py:351
+#: apps/api/v1/views/course_runs.py:352
 msgid "Course run is in review. Editing disabled."
 msgstr "Probíhá kontrola průběhu kurzu. Úpravy zakázány."
 
-#: apps/api/v1/views/course_runs.py:358
+#: apps/api/v1/views/course_runs.py:359
 msgid "Invalid parameter"
 msgstr "Neplatný parametr"
 
@@ -242,132 +242,132 @@ msgstr "období musí být jedno z {period_choices}."
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
 msgstr "„míra“ musí být ve formátu definovaném DRF, například „100/hod“."
 
-#: apps/core/models.py:16
+#: apps/core/models.py:17
 msgid "Full Name"
 msgstr "Celé jméno"
 
-#: apps/core/models.py:17
+#: apps/core/models.py:18
 msgid "Referral Tracking ID"
 msgstr "ID sledování doporučení"
 
-#: apps/core/models.py:33
+#: apps/core/models.py:34
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
 msgstr "Míra požadavků na omezení tohoto uživatele. Formát je určen Django Rest Framework (viz http://www.django-rest-framework.org/api-guide/throttling/)."
 
-#: apps/core/models.py:53
+#: apps/core/models.py:54
 msgid "Short Code"
 msgstr "Krátký kód"
 
-#: apps/core/models.py:54
+#: apps/core/models.py:55
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
 msgstr "Pohodlný kód/slug používaný k identifikaci tohoto partnera (např. pro příkazy pro správu.)"
 
-#: apps/core/models.py:55
+#: apps/core/models.py:56
 msgid "Courses API URL"
 msgstr "Adresa URL rozhraní API kurzů"
 
-#: apps/core/models.py:58
+#: apps/core/models.py:59
 msgid "Course Mode API URL"
 msgstr "Adresa URL rozhraní API režimu kurzu"
 
-#: apps/core/models.py:59
+#: apps/core/models.py:60
 msgid "E-Commerce API URL"
 msgstr "Adresa URL rozhraní E-Commerce API"
 
-#: apps/core/models.py:61
+#: apps/core/models.py:62
 msgid "Organizations API URL"
 msgstr "Adresa URL rozhraní API organizací"
 
-#: apps/core/models.py:62
+#: apps/core/models.py:63
 msgid "Programs API URL"
 msgstr "Adresa URL rozhraní API programů"
 
-#: apps/core/models.py:64
+#: apps/core/models.py:65
 msgid "Marketing Site API URL"
 msgstr "Adresa URL rozhraní API marketingového webu"
 
-#: apps/core/models.py:66
+#: apps/core/models.py:67
 msgid "Marketing Site URL"
 msgstr "Adresa URL marketingového webu"
 
-#: apps/core/models.py:68
+#: apps/core/models.py:69
 msgid "Marketing Site API Username"
 msgstr "Uživatelské jméno rozhraní API marketingového webu"
 
-#: apps/core/models.py:70
+#: apps/core/models.py:71
 msgid "Marketing Site API Password"
 msgstr "Heslo API marketingového webu"
 
-#: apps/core/models.py:72
+#: apps/core/models.py:73
 msgid "Studio URL"
 msgstr "Studio URL"
 
-#: apps/core/models.py:74
+#: apps/core/models.py:75
 msgid "Publisher URL"
 msgstr "URL Publisheru"
 
-#: apps/core/models.py:75
+#: apps/core/models.py:76
 msgid ""
 "The base URL of your publisher service, if used. Example: "
 "https://publisher.example.com/"
 msgstr "Základní adresa URL vaší služby pro vydavatele, pokud je použita. Příklad: https://publisher.example.com/"
 
-#: apps/core/models.py:78
+#: apps/core/models.py:79
 msgid "LMS URL"
 msgstr "LMS URL"
 
-#: apps/core/models.py:80
+#: apps/core/models.py:81
 msgid "LMS Admin URL"
 msgstr "Adresa URL správce LMS"
 
-#: apps/core/models.py:81
+#: apps/core/models.py:82
 msgid ""
 "The public URL of your LMS Django admin. Example: https://lms-"
 "internal.example.com/admin"
 msgstr "Veřejná adresa URL vašeho správce LMS Django. Příklad: https://lms-internal.example.com/admin"
 
-#: apps/core/models.py:83
+#: apps/core/models.py:84
 msgid "Analytics API URL"
 msgstr "Analytics API URL"
 
-#: apps/core/models.py:84
+#: apps/core/models.py:85
 msgid "Analytics Access Token"
 msgstr "Přístupový token Analytics"
 
-#: apps/core/models.py:92
+#: apps/core/models.py:94
 msgid "Partner"
 msgstr "Partner"
 
-#: apps/core/models.py:93
+#: apps/core/models.py:95
 msgid "Partners"
 msgstr "Partneři"
 
-#: apps/core/models.py:119
+#: apps/core/models.py:130
 msgid "Salesforce Username"
 msgstr "Uživatelské jméno Salesforce"
 
-#: apps/core/models.py:123
+#: apps/core/models.py:134
 msgid "Salesforce Password"
 msgstr "Heslo Salesforce"
 
-#: apps/core/models.py:128
+#: apps/core/models.py:139
 msgid "Salesforce Organization Id"
 msgstr "ID organizace Salesforce"
 
-#: apps/core/models.py:134
+#: apps/core/models.py:145
 msgid "Salesforce Security Token"
 msgstr "Token zabezpečení Salesforce"
 
-#: apps/core/models.py:138
+#: apps/core/models.py:149
 msgid "Is a Salesforce Sandbox?"
 msgstr "Je Salesforce Sandbox?"
 
-#: apps/core/models.py:144
+#: apps/core/models.py:155
 msgid "Case Record Type Id"
 msgstr "ID typu záznamu případu"
 
@@ -390,23 +390,23 @@ msgstr "Ano"
 msgid "No"
 msgstr "Ne"
 
-#: apps/course_metadata/admin.py:422 apps/course_metadata/admin.py:706
+#: apps/course_metadata/admin.py:422 apps/course_metadata/admin.py:707
 msgid "Included course runs"
 msgstr "Zahrnuté běhy kurzu"
 
-#: apps/course_metadata/admin.py:712
+#: apps/course_metadata/admin.py:713
 msgid "Edit link"
 msgstr "Upravit odkaz"
 
-#: apps/course_metadata/admin.py:720
+#: apps/course_metadata/admin.py:721
 msgid "Edit course run exclusions"
 msgstr "Upravit vyloučení běhu kurzu"
 
-#: apps/course_metadata/admin.py:722
+#: apps/course_metadata/admin.py:723
 msgid "(save and continue editing to create a link)"
 msgstr "(pro vytvoření odkazu uložte a pokračujte v úpravách)"
 
-#: apps/course_metadata/admin.py:848
+#: apps/course_metadata/admin.py:849
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
 msgstr "Úspěšně %(status)s %(count)d %(items)s."
@@ -417,13 +417,13 @@ msgid "Available now"
 msgstr "Nyní dostupný"
 
 #: apps/course_metadata/algolia_models.py:97
-#: apps/course_metadata/models.py:2488
+#: apps/course_metadata/models.py:2502
 msgid "Upcoming"
 msgstr "Nadcházející"
 
 #: apps/course_metadata/algolia_models.py:99
-#: apps/course_metadata/choices.py:71 apps/course_metadata/models.py:2482
-#: apps/course_metadata/models.py:2498
+#: apps/course_metadata/choices.py:71 apps/course_metadata/models.py:2496
+#: apps/course_metadata/models.py:2512
 msgid "Archived"
 msgstr "Archivováno"
 
@@ -712,13 +712,13 @@ msgid "Short code for a partner."
 msgstr "Krátký kód pro partnera."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:20
-#: apps/course_metadata/models.py:230 apps/course_metadata/models.py:471
-#: apps/course_metadata/models.py:619 apps/course_metadata/models.py:652
-#: apps/course_metadata/models.py:682 apps/course_metadata/models.py:721
-#: apps/course_metadata/models.py:992 apps/course_metadata/models.py:1133
-#: apps/course_metadata/models.py:1295 apps/course_metadata/models.py:2040
-#: apps/course_metadata/models.py:3034 apps/course_metadata/models.py:3947
-#: apps/course_metadata/models.py:4039 apps/learner_pathway/models.py:35
+#: apps/course_metadata/models.py:230 apps/course_metadata/models.py:485
+#: apps/course_metadata/models.py:633 apps/course_metadata/models.py:666
+#: apps/course_metadata/models.py:696 apps/course_metadata/models.py:735
+#: apps/course_metadata/models.py:1006 apps/course_metadata/models.py:1147
+#: apps/course_metadata/models.py:1309 apps/course_metadata/models.py:2054
+#: apps/course_metadata/models.py:3048 apps/course_metadata/models.py:3963
+#: apps/course_metadata/models.py:4055 apps/learner_pathway/models.py:35
 #: apps/learner_pathway/models.py:84 apps/learner_pathway/models.py:159
 msgid "UUID"
 msgstr "UUID"
@@ -929,8 +929,8 @@ msgid ""
 "inputted"
 msgstr "Pro SEO umožňuje toto pole ručně zadat alternativní popis ve španělštině"
 
-#: apps/course_metadata/models.py:267 apps/course_metadata/models.py:1372
-#: apps/course_metadata/models.py:2117
+#: apps/course_metadata/models.py:267 apps/course_metadata/models.py:1386
+#: apps/course_metadata/models.py:2131
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
@@ -959,21 +959,25 @@ msgid ""
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
 msgstr "6-znaková hexadecimální hodnota barvy motivu organizace, všechny související kurzy pod stejnou organizací, budou používat tuto barvu jako barvu motivu. (např.  \"#ff0000\" což se rovná červené) Není třeba zadávat  `#`"
 
-#: apps/course_metadata/models.py:308
+#: apps/course_metadata/models.py:298
+msgid "The timestamp of the last time the organization data was modified."
+msgstr ""
+
+#: apps/course_metadata/models.py:314
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
 msgstr "V poli klíče nepoužívejte žádné mezery nebo speciální znaky kromě tečky, podtržítka nebo pomlčky."
 
-#: apps/course_metadata/models.py:371
+#: apps/course_metadata/models.py:385
 msgid "Corresponding organization code in an external product source"
 msgstr "Odpovídající kód organizace v externím zdroji produktu"
 
-#: apps/course_metadata/models.py:428
+#: apps/course_metadata/models.py:442
 msgid "LevelType model translations"
 msgstr "Překlady modelů LevelType"
 
-#: apps/course_metadata/models.py:453
+#: apps/course_metadata/models.py:467
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -981,792 +985,792 @@ msgid ""
 "program."
 msgstr "Typy sedadel, které se kvalifikují pro absolvování programů tohoto typu. Studentům, kteří absolvují související kurzy, ale jsou zapsáni v jiných typech sedadel, se jejich dokončení kurzu NEzapočítává do dokončení programu."
 
-#: apps/course_metadata/models.py:467
+#: apps/course_metadata/models.py:481
 msgid "Please provide an image file with transparent background"
 msgstr "Poskytněte prosím soubor obrázku s průhledným pozadím"
 
-#: apps/course_metadata/models.py:470 apps/course_metadata/models.py:514
-#: apps/course_metadata/models.py:686 apps/course_metadata/models.py:724
-#: apps/course_metadata/models.py:1307
+#: apps/course_metadata/models.py:484 apps/course_metadata/models.py:528
+#: apps/course_metadata/models.py:700 apps/course_metadata/models.py:738
+#: apps/course_metadata/models.py:1321
 msgid "Leave this field blank to have the value generated automatically."
 msgstr "Pro automatické vygenerování hodnoty ponechte toto pole prázdné."
 
-#: apps/course_metadata/models.py:511
+#: apps/course_metadata/models.py:525
 msgid "Name of the external source."
 msgstr "Název externího zdroje."
 
-#: apps/course_metadata/models.py:516
+#: apps/course_metadata/models.py:530
 msgid "Description of the external source."
 msgstr "Popis externího zdroje."
 
-#: apps/course_metadata/models.py:521
+#: apps/course_metadata/models.py:535
 msgid "Programs of these types will be OFAC restricted"
 msgstr "Programy tohoto typu budou omezeny OFAC"
 
-#: apps/course_metadata/models.py:535
+#: apps/course_metadata/models.py:549
 msgid "ProgramType model translations"
 msgstr "Překlady modelů typu ProgramType"
 
-#: apps/course_metadata/models.py:549
+#: apps/course_metadata/models.py:563
 msgid "This mode requires ID verification."
 msgstr "Tento režim vyžaduje ověření ID."
 
-#: apps/course_metadata/models.py:552
+#: apps/course_metadata/models.py:566
 msgid "Completion can grant credit toward an organization’s degree."
 msgstr "Dokončení může poskytnout zápočet k titulu organizace."
 
-#: apps/course_metadata/models.py:556
+#: apps/course_metadata/models.py:570
 msgid ""
 "Certificate type granted if this mode is eligible for a certificate, or "
 "blank if not."
 msgstr "Typ certifikátu udělen, pokud je tento režim způsobilý pro certifikát, nebo prázdný, pokud ne."
 
-#: apps/course_metadata/models.py:560
+#: apps/course_metadata/models.py:574
 msgid ""
 "Who gets paid for the course? Platform is the site owner, Organization is "
 "the school."
 msgstr "Kdo dostane zaplaceno za kurz? Platforma je vlastníkem webu, Organizace je škola."
 
-#: apps/course_metadata/models.py:657
+#: apps/course_metadata/models.py:671
 msgid "Sets the order for displaying Course Run Types."
 msgstr "Nastavuje pořadí pro zobrazení typů běhu kurzu."
 
-#: apps/course_metadata/models.py:660
+#: apps/course_metadata/models.py:674
 msgid ""
 "Leave this blank to allow all orgs. Otherwise, specifies which orgs can see "
 "this course type in Publisher."
 msgstr "Nechte toto prázdné, chcete-li povolit všechny organizace. Jinak určuje, které organizace mohou vidět tento typ kurzu v Publisheru."
 
-#: apps/course_metadata/models.py:716
+#: apps/course_metadata/models.py:730
 msgid "Subject model translations"
 msgstr "Překlady předmětového modelu"
 
-#: apps/course_metadata/models.py:763
+#: apps/course_metadata/models.py:777
 msgid "Topic model translations"
 msgstr "Překlady tematických modelů"
 
-#: apps/course_metadata/models.py:822
+#: apps/course_metadata/models.py:836
 msgid "SEO Meta tags for Products"
 msgstr "SEO Meta tagy pro produkty"
 
-#: apps/course_metadata/models.py:852
+#: apps/course_metadata/models.py:866
 msgid ""
 "The ID of the Taxi Form (by 2U) that would be rendered in place of the "
 "hubspot capture form"
 msgstr "ID formuláře taxi (od 2U), které by bylo vykresleno místo formuláře zachycení hubspotu"
 
-#: apps/course_metadata/models.py:858
+#: apps/course_metadata/models.py:872
 msgid ""
 "The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
 "hubspot capture form"
 msgstr "Seskupení formuláře pro taxi (po 2U), které by bylo vykresleno místo formuláře zachycení hubspotu"
 
-#: apps/course_metadata/models.py:882
+#: apps/course_metadata/models.py:896
 msgid "The URL of the paid landing page on external site"
 msgstr "Adresa URL placené vstupní stránky na externím webu"
 
-#: apps/course_metadata/models.py:888
+#: apps/course_metadata/models.py:902
 msgid "The URL of the organic landing page on external site"
 msgstr "Adresa URL organické vstupní stránky na externím webu"
 
-#: apps/course_metadata/models.py:899
+#: apps/course_metadata/models.py:913
 msgid "The start date of the external course offering for marketing purpose"
 msgstr "Datum zahájení nabídky externího kurzu pro marketingové účely"
 
-#: apps/course_metadata/models.py:903
+#: apps/course_metadata/models.py:917
 msgid "The ends date of the external course offering for marketing purpose"
 msgstr "Datum ukončení nabídky externího kurzu pro marketingové účely"
 
-#: apps/course_metadata/models.py:907
+#: apps/course_metadata/models.py:921
 msgid "The suggested deadline for enrollment for marketing purpose"
 msgstr "Navrhovaný termín pro registraci pro marketingové účely"
 
-#: apps/course_metadata/models.py:911
+#: apps/course_metadata/models.py:925
 msgid "The identifier for a product variant."
 msgstr "Identifikátor varianty produktu."
 
-#: apps/course_metadata/models.py:915
+#: apps/course_metadata/models.py:929
 msgid "Course override"
 msgstr "Přepsání kurzu"
 
-#: apps/course_metadata/models.py:916
+#: apps/course_metadata/models.py:930
 msgid "This field allows for override the default course term"
 msgstr "Toto pole umožňuje přepsat výchozí termín kurzu"
 
-#: apps/course_metadata/models.py:934
+#: apps/course_metadata/models.py:948
 msgid ""
 "This field contain external course marketing type specific to product lines"
 msgstr "Toto pole obsahuje typ marketingu externích kurzů specifický pro produktové řady"
 
-#: apps/course_metadata/models.py:943
+#: apps/course_metadata/models.py:957
 msgid ""
 "Determines weather the course should be displayed on the owning "
 "organization's page"
 msgstr ""
 
-#: apps/course_metadata/models.py:1011
+#: apps/course_metadata/models.py:1025
 msgid "A list of major works by this person. Must be valid HTML."
 msgstr "Seznam hlavních děl této osoby. Musí být platný kód HTML."
 
-#: apps/course_metadata/models.py:1019
+#: apps/course_metadata/models.py:1033
 msgid "People"
 msgstr "Lidé"
 
-#: apps/course_metadata/models.py:1130
+#: apps/course_metadata/models.py:1144
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
 msgstr "Přidejte obrázek spolupracovníka, ujistěte se, že jeho rozměry jsou 200 x 100 pixelů"
 
-#: apps/course_metadata/models.py:1154
+#: apps/course_metadata/models.py:1168
 msgid "U.S. Value Per Lead"
 msgstr "Americká hodnota na potencionálního zákazníka"
 
-#: apps/course_metadata/models.py:1155
+#: apps/course_metadata/models.py:1169
 msgid "U.S. value per lead in U.S. dollars."
 msgstr "Americká hodnota na potenciálního zákazníka v amerických dolarech."
 
-#: apps/course_metadata/models.py:1160
+#: apps/course_metadata/models.py:1174
 msgid "International Value Per Lead"
 msgstr "Mezinárodní hodnota na potenciálního zákazníka"
 
-#: apps/course_metadata/models.py:1161
+#: apps/course_metadata/models.py:1175
 msgid "International value per lead in U.S. dollars."
 msgstr "Mezinárodní hodnota na potenciálního zákazníka v amerických dolarech."
 
-#: apps/course_metadata/models.py:1166
+#: apps/course_metadata/models.py:1180
 msgid "U.S. Value Per Click"
 msgstr "Americká hodnota za proklik"
 
-#: apps/course_metadata/models.py:1167
+#: apps/course_metadata/models.py:1181
 msgid "U.S. value per click in U.S. dollars."
 msgstr "Americká hodnota za proklik v amerických dolarech."
 
-#: apps/course_metadata/models.py:1172
+#: apps/course_metadata/models.py:1186
 msgid "International Value Per Click"
 msgstr "Mezinárodní hodnota za proklik"
 
-#: apps/course_metadata/models.py:1173
+#: apps/course_metadata/models.py:1187
 msgid "International value per click in U.S. dollars."
 msgstr "Mezinárodní hodnota za proklik v amerických dolarech."
 
-#: apps/course_metadata/models.py:1211
+#: apps/course_metadata/models.py:1225
 msgid "Latitude"
 msgstr "Zeměpisná šířka"
 
-#: apps/course_metadata/models.py:1218
+#: apps/course_metadata/models.py:1232
 msgid "Longitude"
 msgstr "Zeměpisná délka"
 
-#: apps/course_metadata/models.py:1255
+#: apps/course_metadata/models.py:1269
 msgid "Allowlist"
 msgstr "Seznam povolených"
 
-#: apps/course_metadata/models.py:1256
+#: apps/course_metadata/models.py:1270
 msgid "Blocklist"
 msgstr "Seznam blokovaných"
 
-#: apps/course_metadata/models.py:1303
+#: apps/course_metadata/models.py:1317
 msgid ""
 "When making reruns for this course, they will use this key instead of the "
 "course key."
 msgstr "Při opakování tohoto kurzu použijí tento klíč místo klíče kurzu."
 
-#: apps/course_metadata/models.py:1320
+#: apps/course_metadata/models.py:1334
 msgid ""
 "The actual duration of this course as experienced by learners who complete "
 "it."
 msgstr "Skutečná doba trvání tohoto kurzu podle zkušeností studentů, kteří jej absolvují."
 
-#: apps/course_metadata/models.py:1341
+#: apps/course_metadata/models.py:1355
 msgid "Add the course image"
 msgstr "Přidejte obrázek kurzu"
 
-#: apps/course_metadata/models.py:1344 apps/course_metadata/models.py:3020
+#: apps/course_metadata/models.py:1358 apps/course_metadata/models.py:3034
 msgid "FAQ"
 msgstr "FAQ"
 
-#: apps/course_metadata/models.py:1347
+#: apps/course_metadata/models.py:1361
 msgid "Total number of learners who have enrolled in this course"
 msgstr "Celkový počet studentů, kteří se zapsali do tohoto kurzu"
 
-#: apps/course_metadata/models.py:1352
+#: apps/course_metadata/models.py:1366
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
 msgstr "Celkový počet studentů, kteří se zapsali do tohoto kurzu za posledních 6 měsíců"
 
-#: apps/course_metadata/models.py:1366
+#: apps/course_metadata/models.py:1380
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr "Formát čísla kurzu, např. CS002x, BIO1.1x, BIO1.2x"
 
-#: apps/course_metadata/models.py:1380
+#: apps/course_metadata/models.py:1394
 msgid "Additional Information"
 msgstr "Dodatečné informace"
 
-#: apps/course_metadata/models.py:1402
+#: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
 msgstr "Naposledy, kdy byl tento kurz upraven v databázi."
 
-#: apps/course_metadata/models.py:1407
+#: apps/course_metadata/models.py:1421
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
 msgstr "Toto pole označuje, zda je tento kurz v katalogu podnikových předplatných"
 
-#: apps/course_metadata/models.py:1415 apps/course_metadata/models.py:3177
+#: apps/course_metadata/models.py:1429 apps/course_metadata/models.py:3191
 msgid ""
 "If checked, this item will not be indexed in Algolia and will not show up in"
 " search results."
 msgstr "Pokud je zaškrtnuto, tato položka nebude v Algolii indexována a nezobrazí se ve výsledcích vyhledávání."
 
-#: apps/course_metadata/models.py:1423 apps/course_metadata/models.py:3185
+#: apps/course_metadata/models.py:1437 apps/course_metadata/models.py:3199
 msgid "If checked, the About Page will have a meta tag with noindex value"
 msgstr "Je-li zaškrtnuto, stránka O aplikaci bude mít metaznačku s hodnotou noindex"
 
-#: apps/course_metadata/models.py:1428
+#: apps/course_metadata/models.py:1442
 msgid "Watchers"
 msgstr ""
 
-#: apps/course_metadata/models.py:1430
+#: apps/course_metadata/models.py:1444
 msgid ""
 "The list of email addresses that will be notified if any of the course runs "
 "is published or scheduled."
 msgstr ""
 
-#: apps/course_metadata/models.py:1647
+#: apps/course_metadata/models.py:1661
 msgid "Future"
 msgstr "Budoucnost"
 
-#: apps/course_metadata/models.py:1649
+#: apps/course_metadata/models.py:1663
 msgid "Past"
 msgstr "Minulost"
 
-#: apps/course_metadata/models.py:2033 apps/course_metadata/models.py:3031
+#: apps/course_metadata/models.py:2047 apps/course_metadata/models.py:3045
 msgid "Blocked"
 msgstr "Blokováno"
 
-#: apps/course_metadata/models.py:2034 apps/course_metadata/models.py:3032
+#: apps/course_metadata/models.py:2048 apps/course_metadata/models.py:3046
 msgid "Unrestricted"
 msgstr "Neomezeno"
 
-#: apps/course_metadata/models.py:2050
+#: apps/course_metadata/models.py:2064
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
 msgstr "Název specifický pro tento běh kurzu. Ponechte tuto hodnotu prázdnou, aby výchozí název kurzu byl nadřazený."
 
-#: apps/course_metadata/models.py:2059
+#: apps/course_metadata/models.py:2073
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
 msgstr "Krátký popis specifický pro tento běh kurzu. Ponechte tuto hodnotu prázdnou, aby výchozí hodnota atributu kurzu short_description byla nadřazená."
 
-#: apps/course_metadata/models.py:2063
+#: apps/course_metadata/models.py:2077
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
 msgstr "Úplný popis specifický pro tento běh kurzu. Ponechte tuto hodnotu prázdnou, aby výchozí hodnota atributu kurzu full_description byla nadřazená."
 
-#: apps/course_metadata/models.py:2068
+#: apps/course_metadata/models.py:2082
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr "Odhadovaný minimální počet hodin týdně potřebných k dokončení běhu kurzu."
 
-#: apps/course_metadata/models.py:2071
+#: apps/course_metadata/models.py:2085
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr "Odhadovaný maximální počet hodin týdně potřebných k dokončení běhu kurzu."
 
-#: apps/course_metadata/models.py:2074
+#: apps/course_metadata/models.py:2088
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr "Odhadovaný počet týdnů potřebných k dokončení tohoto kurzu."
 
-#: apps/course_metadata/models.py:2081
+#: apps/course_metadata/models.py:2095
 msgid "Total number of learners who have enrolled in this course run"
 msgstr "Celkový počet studentů, kteří se zapsali do tohoto kurzu"
 
-#: apps/course_metadata/models.py:2085
+#: apps/course_metadata/models.py:2099
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
 msgstr "Celkový počet studentů, kteří se zapsali do tohoto kurzu, proběhl za posledních 6 měsíců"
 
-#: apps/course_metadata/models.py:2098
+#: apps/course_metadata/models.py:2112
 msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
 "this value will be overwritten by the \"Course Visibility In Catalog\" field"
 " in Studio via Refresh Course Metadata."
 msgstr "Zda má být tento běh skryt před odpověďmi API. Zde neupravujte – tato hodnota bude přepsána polem „Viditelnost kurzu v katalogu“ ve Studiu prostřednictvím Obnovit metadata kurzu."
 
-#: apps/course_metadata/models.py:2104
+#: apps/course_metadata/models.py:2118
 msgid "Indicates whether the course relation has been manually overridden."
 msgstr "Označuje, zda byl vztah kurzu ručně přepsán."
 
-#: apps/course_metadata/models.py:2111
+#: apps/course_metadata/models.py:2125
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
 msgstr "Popis „Co se naučíte“ pro tento konkrétní kurz. Ponechte tuto hodnotu prázdnou, aby se jako výchozí pro atribut Outcome nadřazeného kurzu použil."
 
-#: apps/course_metadata/models.py:2124 apps/course_metadata/models.py:3213
+#: apps/course_metadata/models.py:2138 apps/course_metadata/models.py:3227
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
 msgstr "Přidejte text omezení OFAC do sekce FAQ na stránce Marketing"
 
-#: apps/course_metadata/models.py:2144
+#: apps/course_metadata/models.py:2158
 msgid ""
 "This calculated field signifies if this course run is in the enterprise "
 "subscription catalog"
 msgstr "Toto vypočítané pole označuje, zda je tento běh kurzu v katalogu podnikových předplatných"
 
-#: apps/course_metadata/models.py:2484 apps/course_metadata/models.py:2497
+#: apps/course_metadata/models.py:2498 apps/course_metadata/models.py:2511
 msgid "Current"
 msgstr "Současné"
 
-#: apps/course_metadata/models.py:2486
+#: apps/course_metadata/models.py:2500
 msgid "Starting Soon"
 msgstr "Brzy začínající"
 
-#: apps/course_metadata/models.py:2536
+#: apps/course_metadata/models.py:2550
 msgid ""
 "Switching seat types after being reviewed is not supported. Please reach out"
 " to your project coordinator for additional help if necessary."
 msgstr "Přepínání typů sedadel po kontrole není podporováno. V případě potřeby se prosím obraťte na svého projektového koordinátora, který vám poskytne další pomoc."
 
-#: apps/course_metadata/models.py:2830
+#: apps/course_metadata/models.py:2844
 msgid "Change careers"
 msgstr ""
 
-#: apps/course_metadata/models.py:2831
+#: apps/course_metadata/models.py:2845
 msgid "Job advancement"
 msgstr ""
 
-#: apps/course_metadata/models.py:2832
+#: apps/course_metadata/models.py:2846
 msgid "Learn valuable skills"
 msgstr ""
 
-#: apps/course_metadata/models.py:2833
+#: apps/course_metadata/models.py:2847
 msgid "Learn for fun"
 msgstr ""
 
-#: apps/course_metadata/models.py:3021
+#: apps/course_metadata/models.py:3035
 msgid "FAQs"
 msgstr "Nejčastější dotazy"
 
-#: apps/course_metadata/models.py:3036
+#: apps/course_metadata/models.py:3050
 msgid "The user-facing display title for this Program."
 msgstr "Uživatelsky orientovaný zobrazovaný název tohoto programu."
 
-#: apps/course_metadata/models.py:3038
+#: apps/course_metadata/models.py:3052
 msgid "A brief, descriptive subtitle for the Program."
 msgstr "Stručný, popisný podtitul k programu."
 
-#: apps/course_metadata/models.py:3040
+#: apps/course_metadata/models.py:3054
 msgid "A brief hook for the marketing website"
 msgstr "Krátký háček pro marketingový web"
 
-#: apps/course_metadata/models.py:3043
+#: apps/course_metadata/models.py:3057
 msgid "The lifecycle status of this Program."
 msgstr "Stav životního cyklu tohoto programu."
 
-#: apps/course_metadata/models.py:3047
+#: apps/course_metadata/models.py:3061
 msgid "Slug used to generate links to the marketing site"
 msgstr "Slug se používá ke generování odkazů na marketingové stránky"
 
-#: apps/course_metadata/models.py:3053
+#: apps/course_metadata/models.py:3067
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
 msgstr "Pokud není toto políčko zaškrtnuto, budou kurzy objednány jako v poli pro výběr kurzů výše."
 
-#: apps/course_metadata/models.py:3068
+#: apps/course_metadata/models.py:3082
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
 msgstr "Toto pole je nyní zastaralé (ECOM-6021). Odhadovaný počet týdnů potřebných k dokončení kurzu patřícího k tomuto programu."
 
-#: apps/course_metadata/models.py:3094
+#: apps/course_metadata/models.py:3108
 msgid "DEPRECATED: Use the card image field"
 msgstr "DEPRECATED: Použijte pole obrázku karty"
 
-#: apps/course_metadata/models.py:3101
+#: apps/course_metadata/models.py:3115
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
 msgstr "Toto pole mohou klienti API použít k určení pořadí, ve kterém se budou instruktoři zobrazovat na stránkách programu. Instruktoři v tomto seznamu by se měli objevit před zahájením všech ostatních kurzů spojených s tímto programem."
 
-#: apps/course_metadata/models.py:3112
+#: apps/course_metadata/models.py:3126
 msgid "The description of credit redemption for courses in program"
 msgstr "Popis proplácení zápočtu za kurzy v programu"
 
-#: apps/course_metadata/models.py:3117
+#: apps/course_metadata/models.py:3131
 msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr "Povolit nákup kurzů v tomto programu v rámci jedné transakce"
 
-#: apps/course_metadata/models.py:3121
+#: apps/course_metadata/models.py:3135
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
 msgstr "Skrýt program na vstupních a vyhledávacích stránkách marketingového webu. Tento program MŮŽE mít stránku s podrobnostmi."
 
-#: apps/course_metadata/models.py:3124
+#: apps/course_metadata/models.py:3138
 msgid "Total number of learners who have enrolled in courses this program"
 msgstr "Celkový počet studentů, kteří se zapsali do kurzů tohoto programu"
 
-#: apps/course_metadata/models.py:3129
+#: apps/course_metadata/models.py:3143
 msgid ""
 "Total number of learners who have enrolled in courses in this program in the"
 " last 6 months"
 msgstr "Celkový počet studentů, kteří se zapsali do kurzů v tomto programu za posledních 6 měsíců"
 
-#: apps/course_metadata/models.py:3134
+#: apps/course_metadata/models.py:3148
 msgid ""
 "Number of credits a learner will earn upon successful completion of the "
 "program"
 msgstr "Počet zápočtu, které student získá po úspěšném absolvování programu"
 
-#: apps/course_metadata/models.py:3138
+#: apps/course_metadata/models.py:3152
 msgid ""
 "This calculated field signifies if all the courses in this program are "
 "included in the enterprise subscription catalog "
 msgstr "Toto vypočítané pole označuje, zda jsou všechny kurzy v tomto programu zahrnuty v katalogu podnikových předplatných"
 
-#: apps/course_metadata/models.py:3142
+#: apps/course_metadata/models.py:3156
 msgid ""
 "A field to override Organization short code alias specific for this program."
 msgstr "Pole pro přepsání aliasu krátkého kódu organizace specifického pro tento program."
 
-#: apps/course_metadata/models.py:3149
+#: apps/course_metadata/models.py:3163
 msgid "A field to override Organization logo specific for this program."
 msgstr "Pole pro přepsání loga organizace specifického pro tento program."
 
-#: apps/course_metadata/models.py:3153
+#: apps/course_metadata/models.py:3167
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
 msgstr "Primární obor specifický pro tento program. Užitečné pole v případě, že s tímto programem nejsou spojeny žádné kurzy."
 
-#: apps/course_metadata/models.py:3158
+#: apps/course_metadata/models.py:3172
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
 msgstr "Typ úrovně specifický pro tento program. Užitečné pole v případě, že s tímto programem nejsou spojeny žádné kurzy."
 
-#: apps/course_metadata/models.py:3163
+#: apps/course_metadata/models.py:3177
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
 msgstr "Kód jazyka specifický pro tento program. Užitečné pole v případě, že s tímto programem nejsou spojeny žádné kurzy."
 
-#: apps/course_metadata/models.py:3197
+#: apps/course_metadata/models.py:3211
 msgid ""
 "Useful field to overwrite the duration of a program. It can be a text "
 "describing a period of time, Ex: 6-9 months."
 msgstr "Užitečné pole pro přepsání doby trvání programu. Může to být text popisující časové období, Př: 6-9 měsíců."
 
-#: apps/course_metadata/models.py:3206
+#: apps/course_metadata/models.py:3220
 msgid ""
 "Pick a tag/label from the suggestions. To make a new tag, add a comma after "
 "the tag name."
 msgstr "Vyberte štítek/označení z návrhů. Chcete-li vytvořit nový štítek, přidejte za název štítku čárku."
 
-#: apps/course_metadata/models.py:3217
+#: apps/course_metadata/models.py:3231
 msgid "The last time this program was modified."
 msgstr "Naposledy byl tento program upraven."
 
-#: apps/course_metadata/models.py:3629 apps/course_metadata/models.py:3646
+#: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
 msgstr "ID"
 
-#: apps/course_metadata/models.py:3665
+#: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
 msgstr "Skutečné hodnostní číslo"
 
-#: apps/course_metadata/models.py:3666
+#: apps/course_metadata/models.py:3682
 msgid "What does the rank number mean"
 msgstr "Co znamená číslo hodnosti"
 
-#: apps/course_metadata/models.py:3667
+#: apps/course_metadata/models.py:3683
 msgid "From where the rank is obtained"
 msgstr "Odkud se získává hodnost"
 
-#: apps/course_metadata/models.py:3683
+#: apps/course_metadata/models.py:3699
 msgid "Callback URL to partner application flow"
 msgstr "Adresa URL zpětného volání toku partnerské aplikace"
 
-#: apps/course_metadata/models.py:3686
+#: apps/course_metadata/models.py:3702
 msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
 msgstr "Celkové hodnocení programu (např. „#1 v USA“)"
 
-#: apps/course_metadata/models.py:3691
+#: apps/course_metadata/models.py:3707
 msgid ""
 "The 6 character hex value of the color to make the banner borders\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
 msgstr "Šestiznaková hexadecimální hodnota barvy pro vytvoření ohraničení banneru\n            (např. \"#ff0000\", což se rovná červené) Není třeba zadávat `#`"
 
-#: apps/course_metadata/models.py:3700
+#: apps/course_metadata/models.py:3716
 msgid "Provide a campus image for the header of the degree"
 msgstr "Poskytněte obrázek kampusu pro záhlaví titulu"
 
-#: apps/course_metadata/models.py:3706
+#: apps/course_metadata/models.py:3722
 msgid "Provide a background image for the title section of the degree"
 msgstr "Poskytněte obrázek na pozadí pro titulní část titulu"
 
-#: apps/course_metadata/models.py:3711
+#: apps/course_metadata/models.py:3727
 msgid "The fine print that displays at the Tuition section's bottom"
 msgstr "Drobným písmem, které se zobrazuje v dolní části sekce Školné"
 
-#: apps/course_metadata/models.py:3716
+#: apps/course_metadata/models.py:3732
 msgid "The fine print that displays at the Deadline section's bottom"
 msgstr "Drobné písmo, které se zobrazuje v dolní části sekce Termín"
 
-#: apps/course_metadata/models.py:3723
+#: apps/course_metadata/models.py:3739
 msgid "The sailthru email list name to capture leads"
 msgstr "Název seznamu e-mailů sailthru pro zachycení potenciálních zákazníků"
 
-#: apps/course_metadata/models.py:3737
+#: apps/course_metadata/models.py:3753
 msgid "Please provide an image file for the lead capture banner."
 msgstr "Poskytněte prosím soubor obrázku pro banner pro zachycení potenciálního zákazníka."
 
-#: apps/course_metadata/models.py:3740
+#: apps/course_metadata/models.py:3756
 msgid "The Hubspot form ID for the lead capture form"
 msgstr "ID formuláře Hubspot pro formulář zachycení potenciálního zákazníka"
 
-#: apps/course_metadata/models.py:3746
+#: apps/course_metadata/models.py:3762
 msgid "URL to micromasters landing page"
 msgstr "Adresa URL vstupní stránky micromasters"
 
-#: apps/course_metadata/models.py:3752
+#: apps/course_metadata/models.py:3768
 msgid "Micromasters verbose title"
 msgstr "Podrobný název Micromasters"
 
-#: apps/course_metadata/models.py:3758
+#: apps/course_metadata/models.py:3774
 msgid "Micromasters descriptive paragraph"
 msgstr "Popisný odstavec Micromasters"
 
-#: apps/course_metadata/models.py:3771
+#: apps/course_metadata/models.py:3787
 msgid "Customized background image for the MicroMasters section."
 msgstr "Přizpůsobený obrázek na pozadí pro sekci MicroMasters."
 
-#: apps/course_metadata/models.py:3775
+#: apps/course_metadata/models.py:3791
 msgid ""
 "Override org name if micromasters program comes from different organization "
 "than Masters program"
 msgstr "Přepište název organizace, pokud program micromasters pochází z jiné organizace než program Masters"
 
-#: apps/course_metadata/models.py:3782
+#: apps/course_metadata/models.py:3798
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr "Zobrazení hodnocení pro vyhledávací kartu (např. „č. 1 v USA“"
 
-#: apps/course_metadata/models.py:3788
+#: apps/course_metadata/models.py:3804
 msgid "Cost display for search card (e.g. \"$9,999\""
 msgstr "Zobrazení nákladů na vyhledávací kartu (např. „9 999 USD“"
 
-#: apps/course_metadata/models.py:3794
+#: apps/course_metadata/models.py:3810
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr "Počet kurzů pro vyhledávací kartu (např. \"11 kurzů\""
 
-#: apps/course_metadata/models.py:3802
+#: apps/course_metadata/models.py:3818
 msgid ""
 "Designates whether the degree should be displayed on the owning "
 "organization's page"
 msgstr "Určuje, zda má být titul zobrazen na stránce vlastnící organizace"
 
-#: apps/course_metadata/models.py:3819
+#: apps/course_metadata/models.py:3835
 msgid "The redirect URL of the degree on external site"
 msgstr "Adresa URL přesměrování titulu na externím webu"
 
-#: apps/course_metadata/models.py:3824
+#: apps/course_metadata/models.py:3840
 msgid "The URL of the landing page on external site"
 msgstr "Adresa URL vstupní stránky na externím webu"
 
-#: apps/course_metadata/models.py:3859
+#: apps/course_metadata/models.py:3875
 msgid "Bell"
 msgstr "Zvonek"
 
-#: apps/course_metadata/models.py:3860
+#: apps/course_metadata/models.py:3876
 msgid "Certificate"
 msgstr "Certifikát"
 
-#: apps/course_metadata/models.py:3861
+#: apps/course_metadata/models.py:3877
 msgid "Checkmark"
 msgstr "Značka zaškrtnutí"
 
-#: apps/course_metadata/models.py:3862
+#: apps/course_metadata/models.py:3878
 msgid "Clock"
 msgstr "Hodiny"
 
-#: apps/course_metadata/models.py:3863
+#: apps/course_metadata/models.py:3879
 msgid "Desktop"
 msgstr "Pracovní plocha"
 
-#: apps/course_metadata/models.py:3864
+#: apps/course_metadata/models.py:3880
 msgid "Info"
 msgstr "Info"
 
-#: apps/course_metadata/models.py:3865
+#: apps/course_metadata/models.py:3881
 msgid "Sitemap"
 msgstr "Mapa stránky"
 
-#: apps/course_metadata/models.py:3866
+#: apps/course_metadata/models.py:3882
 msgid "User"
 msgstr "Uživatel"
 
-#: apps/course_metadata/models.py:3867
+#: apps/course_metadata/models.py:3883
 msgid "Dollar"
 msgstr "Dolar"
 
-#: apps/course_metadata/models.py:3868
+#: apps/course_metadata/models.py:3884
 msgid "Book"
 msgstr "Rezervovat"
 
-#: apps/course_metadata/models.py:3869
+#: apps/course_metadata/models.py:3885
 msgid "Mortar Board"
 msgstr "Mortar Board"
 
-#: apps/course_metadata/models.py:3870
+#: apps/course_metadata/models.py:3886
 msgid "Star"
 msgstr "Hvězda"
 
-#: apps/course_metadata/models.py:3871
+#: apps/course_metadata/models.py:3887
 msgid "Trophy"
 msgstr "Trofej"
 
-#: apps/course_metadata/models.py:3875
+#: apps/course_metadata/models.py:3891
 msgid "Icon FA class"
 msgstr "Ikona třídy FA"
 
-#: apps/course_metadata/models.py:3876
+#: apps/course_metadata/models.py:3892
 msgid "Paired text"
 msgstr "Spárovaný text"
 
-#: apps/course_metadata/models.py:3895
+#: apps/course_metadata/models.py:3911
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr "Termín platí pro tento semestr (např. jaro 2019"
 
-#: apps/course_metadata/models.py:3899
+#: apps/course_metadata/models.py:3915
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr "Popisuje uzávěrku (např. uzávěrka předčasného přijetí)"
 
-#: apps/course_metadata/models.py:3903
+#: apps/course_metadata/models.py:3919
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr "Datum, po kterém lhůta uplyne (např. 1. ledna 2019)"
 
-#: apps/course_metadata/models.py:3907
+#: apps/course_metadata/models.py:3923
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr "Čas, po kterém vyprší lhůta (např. 23:59 EST)."
 
-#: apps/course_metadata/models.py:3928
+#: apps/course_metadata/models.py:3944
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr "Popisuje, za co jsou náklady (např. školné)"
 
-#: apps/course_metadata/models.py:3932
+#: apps/course_metadata/models.py:3948
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr "Řetězcové pole uvádějící, kolik to stojí (např. 1000 $)."
 
-#: apps/course_metadata/models.py:3960
+#: apps/course_metadata/models.py:3976
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must be\n"
 "            valid HTML."
 msgstr "Přehled kurzů na vysoké úrovni. \"Krátký\" text je prvních\n            750 znaků \"marketing_text\" a musí být platný\n            HTML."
 
-#: apps/course_metadata/models.py:3968
+#: apps/course_metadata/models.py:3984
 msgid "A high-level overview of the degree's courseware."
 msgstr "Přehled kurzů na vysoké úrovni."
 
-#: apps/course_metadata/models.py:4044
+#: apps/course_metadata/models.py:4060
 msgid "Organization name"
 msgstr "Název organizace"
 
-#: apps/course_metadata/models.py:4066
+#: apps/course_metadata/models.py:4082
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr "Tyto programy jsou určeny pro jiného partnera, než je samotná cesta: {}"
 
-#: apps/course_metadata/models.py:4078
+#: apps/course_metadata/models.py:4094
 msgid "Facebook"
 msgstr "Facebook"
 
-#: apps/course_metadata/models.py:4079
+#: apps/course_metadata/models.py:4095
 msgid "Twitter"
 msgstr "Twitter"
 
-#: apps/course_metadata/models.py:4080
+#: apps/course_metadata/models.py:4096
 msgid "Blog"
 msgstr "Blog"
 
-#: apps/course_metadata/models.py:4081
+#: apps/course_metadata/models.py:4097
 msgid "Others"
 msgstr "Další"
 
-#: apps/course_metadata/models.py:4141
+#: apps/course_metadata/models.py:4157
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url slug {url_slug}"
 msgstr "Partner {partner_key} a partner kurzu {course_partner_key} se při pokusu o uložení url slug {url_slug} neshodují"
 
-#: apps/course_metadata/models.py:4161
+#: apps/course_metadata/models.py:4177
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url redirect {url_path}"
 msgstr "Partner {partner_key} a partner kurzu {course_partner_key} se při pokusu o uložení přesměrování adresy URL neshodují {url_path}"
 
-#: apps/course_metadata/models.py:4182
+#: apps/course_metadata/models.py:4198
 msgid "It expects the data will be provided in a csv file format "
 msgstr "Očekává, že data budou poskytnuta ve formátu csv"
 
-#: apps/course_metadata/models.py:4194 apps/course_metadata/models.py:4207
-#: apps/course_metadata/models.py:4220 apps/course_metadata/models.py:4240
-#: apps/course_metadata/models.py:4253 apps/course_metadata/models.py:4272
-#: apps/course_metadata/models.py:4292
+#: apps/course_metadata/models.py:4210 apps/course_metadata/models.py:4223
+#: apps/course_metadata/models.py:4236 apps/course_metadata/models.py:4256
+#: apps/course_metadata/models.py:4269 apps/course_metadata/models.py:4288
+#: apps/course_metadata/models.py:4308 apps/course_metadata/models.py:4323
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
 msgstr "Očekává, že data budou poskytnuta ve formátu souboru csv s prvním řádkem obsahujícím všechna záhlaví."
 
-#: apps/course_metadata/models.py:4264
+#: apps/course_metadata/models.py:4280
 msgid "Open Courses"
 msgstr ""
 
-#: apps/course_metadata/models.py:4265
+#: apps/course_metadata/models.py:4281
 msgid "2U Executive Education Courses"
 msgstr ""
 
-#: apps/course_metadata/models.py:4266
+#: apps/course_metadata/models.py:4282
 msgid "Bootcamps"
 msgstr ""
 
-#: apps/course_metadata/models.py:4277 apps/course_metadata/models.py:4366
+#: apps/course_metadata/models.py:4293 apps/course_metadata/models.py:4397
 msgid "Course UUIDs"
 msgstr "UUID kurzu"
 
-#: apps/course_metadata/models.py:4342
+#: apps/course_metadata/models.py:4373
 msgid "Course Run IDs"
 msgstr "ID běhu kurzu"
 
-#: apps/course_metadata/models.py:4358
+#: apps/course_metadata/models.py:4389
 msgid "Profile Image UUIDs"
 msgstr "UUID profilového obrázku"
 
-#: apps/course_metadata/models.py:4365
+#: apps/course_metadata/models.py:4396
 msgid "Tag"
 msgstr "Štítek"
 
-#: apps/course_metadata/models.py:4381
+#: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
 msgstr "Odebrat všechna přesměrování"
 
-#: apps/course_metadata/models.py:4382
+#: apps/course_metadata/models.py:4413
 msgid "Url Paths"
 msgstr "Cesty URL"
 
-#: apps/course_metadata/models.py:4390
+#: apps/course_metadata/models.py:4421
 msgid "Add redirects from all published course url slugs"
 msgstr "Přidejte přesměrování ze všech publikovaných adres URL kurzu"
 
-#: apps/course_metadata/models.py:4391 apps/taxonomy_support/models.py:55
+#: apps/course_metadata/models.py:4422 apps/taxonomy_support/models.py:55
 msgid "Course uuids"
 msgstr "Uuid kurzu"
 
