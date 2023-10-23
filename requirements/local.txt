@@ -31,7 +31,7 @@ asn1crypto==1.5.1
     # via
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.15.8
+astroid==3.0.1
     # via
     #   pylint
     #   pylint-celery
@@ -75,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.28.63
+boto3==1.28.68
     # via django-ses
-botocore==1.31.63
+botocore==1.31.68
     # via
     #   boto3
     #   s3transfer
@@ -107,7 +107,7 @@ cffi==1.16.0
     #   cryptography
     #   pynacl
     #   snowflake-connector-python
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via
     #   aiohttp
     #   requests
@@ -382,7 +382,7 @@ edx-django-utils==5.7.0
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==8.11.1
+edx-drf-extensions==8.12.0
     # via -r requirements/base.in
 edx-event-bus-kafka==5.5.0
     # via -r requirements/base.in
@@ -431,7 +431,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==19.10.0
+faker==19.11.0
     # via factory-boy
 fastavro==1.8.4
     # via openedx-events
@@ -452,7 +452,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.12.0
     # via google-api-python-client
-google-api-python-client==2.103.0
+google-api-python-client==2.104.0
     # via -r requirements/base.in
 google-auth==2.23.3
     # via
@@ -469,7 +469,7 @@ google-auth-oauthlib==1.1.0
     # via gspread
 googleapis-common-protos==1.61.0
     # via google-api-core
-gspread==5.11.3
+gspread==5.12.0
     # via -r requirements/base.in
 h11==0.14.0
     # via wsproto
@@ -518,8 +518,6 @@ jsonschema==3.2.0
     #   semgrep
 kombu==5.3.2
     # via celery
-lazy-object-proxy==1.9.0
-    # via astroid
 libsass==0.22.0
     # via django-libsass
 lxml==4.9.3
@@ -543,7 +541,7 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.0
     # via -r requirements/test.in
-newrelic==9.1.0
+newrelic==9.1.1
     # via edx-django-utils
 numpy==1.24.4
     # via pandas
@@ -563,7 +561,7 @@ openedx-events==9.0.0
     #   taxonomy-connector
 oscrypto==1.3.0
     # via snowflake-connector-python
-outcome==1.2.0
+outcome==1.3.0
     # via trio
 packaging==21.3
     # via
@@ -647,7 +645,7 @@ pyjwt[crypto]==2.8.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.17.7
+pylint==3.0.2
     # via
     #   edx-lint
     #   pylint-celery
@@ -655,7 +653,7 @@ pylint==2.17.7
     #   pylint-plugin-utils
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.5.3
+pylint-django==2.5.4
     # via edx-lint
 pylint-plugin-utils==0.8.2
     # via
@@ -798,7 +796,7 @@ rjsmin==1.2.1
     # via django-compressor
 rsa==4.9
     # via google-auth
-ruamel-yaml==0.17.35
+ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
@@ -842,9 +840,9 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.3.0
+snowflake-connector-python==3.3.1
     # via -r requirements/base.in
-social-auth-app-django==5.3.0
+social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
@@ -887,9 +885,9 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.44.3
+taxonomy-connector==1.45.0
     # via -r requirements/base.in
-testfixtures==7.2.0
+testfixtures==7.2.2
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
@@ -950,7 +948,7 @@ uritemplate==4.1.1
     # via
     #   drf-yasg
     #   google-api-python-client
-urllib3[socks]==1.26.17
+urllib3[socks]==1.26.18
     # via
     #   botocore
     #   docker
@@ -981,8 +979,6 @@ websocket-client==0.59.0
     # via
     #   docker
     #   docker-compose
-wrapt==1.15.0
-    # via astroid
 wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.5.0
