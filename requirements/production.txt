@@ -50,9 +50,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.1.0
     # via celery
-boto3==1.28.63
+boto3==1.28.69
     # via django-ses
-botocore==1.31.63
+botocore==1.31.69
     # via
     #   boto3
     #   s3transfer
@@ -80,7 +80,7 @@ cffi==1.16.0
     #   cryptography
     #   pynacl
     #   snowflake-connector-python
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via
     #   aiohttp
     #   requests
@@ -225,7 +225,9 @@ django-nested-admin==4.0.2
 django-nine==0.2.7
     # via django-elasticsearch-dsl-drf
 django-object-actions==4.2.0
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
 django-ses==3.5.0
@@ -309,7 +311,7 @@ edx-django-utils==5.7.0
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==8.11.1
+edx-drf-extensions==8.12.0
     # via -r requirements/base.in
 edx-event-bus-kafka==5.5.0
     # via -r requirements/base.in
@@ -357,7 +359,7 @@ gevent==23.9.1
     # via -r requirements/production.in
 google-api-core==2.12.0
     # via google-api-python-client
-google-api-python-client==2.103.0
+google-api-python-client==2.104.0
     # via -r requirements/base.in
 google-auth==2.23.3
     # via
@@ -376,7 +378,7 @@ googleapis-common-protos==1.61.0
     # via google-api-core
 greenlet==3.0.0
     # via gevent
-gspread==5.11.3
+gspread==5.12.0
     # via -r requirements/base.in
 gunicorn==21.2.0
     # via -r requirements/production.in
@@ -427,12 +429,10 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.0
     # via -r requirements/production.in
-newrelic==9.1.0
+newrelic==9.1.1
     # via
     #   -r requirements/production.in
     #   edx-django-utils
-numpy==1.24.4
-    # via pandas
 oauthlib==3.2.2
     # via
     #   getsmarter-api-clients
@@ -455,8 +455,6 @@ packaging==23.2
     #   drf-yasg
     #   gunicorn
     #   snowflake-connector-python
-pandas==2.0.3
-    # via taxonomy-connector
 pbr==5.11.1
     # via stevedore
 pendulum==2.1.2
@@ -518,7 +516,6 @@ python-dateutil==2.8.2
     #   celery
     #   contentful
     #   elasticsearch-dsl
-    #   pandas
     #   pendulum
 python-memcached==1.59
     # via -r requirements/production.in
@@ -539,7 +536,6 @@ pytz==2023.3.post1
     #   djangorestframework
     #   drf-yasg
     #   getsmarter-api-clients
-    #   pandas
     #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
@@ -613,9 +609,9 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==3.3.0
+snowflake-connector-python==3.3.1
     # via -r requirements/base.in
-social-auth-app-django==5.3.0
+social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
@@ -634,7 +630,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.44.3
+taxonomy-connector==1.46.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -657,14 +653,13 @@ tzdata==2023.3
     # via
     #   backports-zoneinfo
     #   celery
-    #   pandas
 unicodecsv==0.14.1
     # via djangorestframework-csv
 uritemplate==4.1.1
     # via
     #   drf-yasg
     #   google-api-python-client
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   botocore
     #   elasticsearch
