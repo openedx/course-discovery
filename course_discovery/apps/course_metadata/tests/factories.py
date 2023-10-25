@@ -120,6 +120,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     product_meta = factory.SubFactory(ProductMetaFactory, keywords=['test', 'test2'])
     product_status = ExternalProductStatus.Published
     external_course_marketing_type = FuzzyChoice([name for name, __ in ExternalCourseMarketingType.choices])
+    display_on_org_page = True
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
@@ -987,3 +988,8 @@ class CollaboratorFactory(factory.django.DjangoModelFactory):
 class MigrateCourseSlugConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MigrateCourseSlugConfiguration
+
+
+class MigrateProgramSlugConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MigrateProgramSlugConfiguration

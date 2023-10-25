@@ -8,6 +8,7 @@ import pytest
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.models.signals import m2m_changed
 from django.test import TestCase, override_settings
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
@@ -23,15 +24,23 @@ from course_discovery.apps.course_metadata.algolia_models import (
 )
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
-    BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
-    BulkUploadTagsConfig, CourseEditor, CourseRun, CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership,
-    DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
-    MigrateCourseSlugConfiguration, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program,
-    ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    AdditionalMetadata, BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig,
+    BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun, CSVDataLoaderConfiguration,
+    Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig,
+    DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
+    MigratePublisherToCourseMetadataConfig, ProductMeta, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
+    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
-from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
+from course_discovery.apps.course_metadata.signals import (
+    _duplicate_external_key_message, additional_metadata_facts_changed,
+    connect_course_data_modified_timestamp_signal_handlers, course_collaborators_changed, course_run_staff_changed,
+    course_run_transcript_languages_changed, course_subjects_changed, course_topics_taggable_changed,
+    disconnect_course_data_modified_timestamp_signal_handlers, product_meta_taggable_changed,
+    update_course_data_from_event
+)
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import GroupFactory, OrganizationExtensionFactory
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
@@ -730,6 +739,12 @@ class SalesforceTests(TestCase):
 
 
 class TestCourseDataUpdateSignal(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        factories.SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+
     def setUp(self):
         self.course_key = CourseKey.from_string('course-v1:SC+BreadX+3T2015')
         self.scheduling_data = CourseScheduleData(
@@ -1004,14 +1019,31 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     This test suite is meant for testing various signal handlers that update data modified timestamps on
     Course & Program.
 
-      * course_taggable_manager_changed
       * additional_metadata_facts_changed
+      * course_run_staff_changed
+      * course_run_transcript_languages_changed
+      * course_collaborators_changed
+      * course_subjects_changed
+      * product_meta_taggable_changed
+      * course_topics_taggable_changed
     """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_signal_handlers()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        connect_course_data_modified_timestamp_signal_handlers()
+        super().tearDownClass()
+
     def test_product_meta_keywords_change(self):
         """
         Verify that updating the keywords on ProductMeta triggers the update_data_modified_timestamp
         for ProductMeta and updates data_modified_timestamp for related courses.
         """
+        m2m_changed.connect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
         product_meta = factories.ProductMetaFactory()
         course = factories.CourseFactory(
             draft=True,
@@ -1034,12 +1066,43 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
                 f"{product_meta.keywords.through} has been updated for ProductMeta {product_meta.pk}."
             )
         )
+        m2m_changed.disconnect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
+
+    def test_course_topics_taggable_change(self):
+        """
+        Verify that updating the keywords on ProductMeta triggers the update_data_modified_timestamp
+        for ProductMeta and updates data_modified_timestamp for related courses.
+        """
+        m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
+        course = factories.CourseFactory(draft=True)
+        course_timestamp = course.data_modified_timestamp
+
+        with LogCapture(LOGGER_NAME) as log:
+            course.topics.set(['keyword_1', 'keyword_2'])
+
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"{course.topics.through} has been updated for Course {course.key}."
+            )
+        )
+        # Attempting to set the same keywords does not update the timestamp
+        course_timestamp = course.data_modified_timestamp
+        course.topics.set(['keyword_1', 'keyword_2'])
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+        m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
 
     def test_additional_metadata_fact_addition(self):
         """
         Verify that adding Fact objects on AdditionalMetadata triggers the update_data_modified_timestamp
         for AdditionalMetadata and updates data_modified_timestamp for related courses.
         """
+        m2m_changed.connect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
         additional_metadata = factories.AdditionalMetadataFactory()
         course = factories.CourseFactory(
             draft=True,
@@ -1060,3 +1123,199 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
                 f"AdditionalMetadata {additional_metadata.pk}."
             )
         )
+        m2m_changed.disconnect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
+
+    def test_course_collaborators_change__non_draft_present(self):
+        """
+        Verify the change in course collaborators will update the data timestamp for Course if the non-draft version
+        of the course is present.
+        """
+        m2m_changed.connect(course_collaborators_changed, sender=Course.collaborators.through)
+
+        draft_course = CourseFactory(draft=True)
+        non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
+        course_timestamp = draft_course.data_modified_timestamp
+        collaborator_1 = factories.CollaboratorFactory()
+        collaborator_2 = factories.CollaboratorFactory()
+        collaborator_3 = factories.CollaboratorFactory()
+        non_draft_course.collaborators.add(collaborator_1, collaborator_2, collaborator_3)
+
+        with LogCapture(LOGGER_NAME) as log:
+            draft_course.collaborators.set((collaborator_1, collaborator_2))
+        draft_course.refresh_from_db()
+        assert course_timestamp < draft_course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"Collaborator M2M relation has been updated for course {draft_course.key}."
+            )
+        )
+        m2m_changed.disconnect(course_collaborators_changed, sender=Course.collaborators.through)
+
+    def test_course_collaborators_change__non_draft_missing(self):
+        """
+        Verify the change in course collaborators will not update the data timestamp for Course if course does not
+        have a non-draft version.
+        """
+        m2m_changed.connect(course_collaborators_changed, sender=Course.collaborators.through)
+
+        course = CourseFactory(draft=True)
+        course_timestamp = course.data_modified_timestamp
+        collaborator_1 = factories.CollaboratorFactory()
+        collaborator_2 = factories.CollaboratorFactory()
+
+        with LogCapture(LOGGER_NAME) as log:
+            course.collaborators.set((collaborator_1, collaborator_2))
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+        with self.assertRaises(AssertionError):
+            log.check_present(
+                (
+                    LOGGER_NAME,
+                    'INFO',
+                    f"Collaborator M2M relation has been updated for course {course.key}."
+                )
+            )
+
+        m2m_changed.disconnect(course_collaborators_changed, sender=Course.collaborators.through)
+
+    def test_course_subjects_change__non_draft_present(self):
+        """
+        Verify the change in course subjects will update the data timestamp for Course if the non-draft version
+        of the course is present.
+        """
+        m2m_changed.connect(course_subjects_changed, sender=Course.subjects.through)
+
+        draft_course = CourseFactory(draft=True)
+        non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
+        course_timestamp = draft_course.data_modified_timestamp
+        subject_1 = factories.SubjectFactory()
+        subject_2 = factories.SubjectFactory()
+        subject_3 = factories.SubjectFactory()
+        non_draft_course.subjects.add(subject_1, subject_2, subject_3)
+
+        with LogCapture(LOGGER_NAME) as log:
+            draft_course.subjects.set((subject_1, subject_2))
+        draft_course.refresh_from_db()
+        assert course_timestamp < draft_course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"Subject M2M relation has been updated for course {draft_course.key}."
+            )
+        )
+        m2m_changed.disconnect(course_subjects_changed, sender=Course.subjects.through)
+
+    def test_course_subjects_change__non_draft_missing(self):
+        """
+        Verify the change in course subjects will not update the data timestamp for Course if course does not
+        have a non-draft version.
+        """
+        m2m_changed.connect(course_subjects_changed, sender=Course.subjects.through)
+        course = CourseFactory(draft=True)
+        course_timestamp = course.data_modified_timestamp
+        subject_1 = factories.SubjectFactory()
+        subject_2 = factories.SubjectFactory()
+
+        with LogCapture(LOGGER_NAME) as log:
+            course.subjects.set((subject_1, subject_2))
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+        with self.assertRaises(AssertionError):
+            log.check_present(
+                (
+                    LOGGER_NAME,
+                    'INFO',
+                    f"Subject M2M relation has been updated for course {course.key}."
+                )
+            )
+
+        m2m_changed.disconnect(course_subjects_changed, sender=Course.subjects.through)
+
+    def test_course_run_transcript_language_changed(self):
+        """
+        Verify the change of transcript language relationship updates the data modified timestamp for related Course.
+        """
+        m2m_changed.connect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
+        course = CourseFactory(draft=True)
+        course_run = factories.CourseRunFactory(course=course, draft=True)
+        language_tags = LanguageTag.objects.all()[:2]
+        course_timestamp = course.data_modified_timestamp
+
+        with LogCapture(LOGGER_NAME) as log:
+            course_run.transcript_languages.set(language_tags)
+
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"{course_run.transcript_languages.through} has been updated for course run {course_run.key}."
+            )
+        )
+
+        m2m_changed.disconnect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
+
+    def test_course_run_staff_changed__non_draft_present(self):
+        """
+        Verify the staff relation change in course run updates the timestamp for course if a non-draft course run
+        is present.
+        """
+        m2m_changed.connect(course_run_staff_changed, sender=CourseRun.staff.through)
+        draft_course = CourseFactory(draft=True)
+        non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
+        draft_course_run = factories.CourseRunFactory(draft=True, course=draft_course)
+        non_draft_course_run = factories.CourseRunFactory(
+            course=non_draft_course, draft_version=draft_course_run, key=draft_course_run.key
+        )
+        staff1 = factories.PersonFactory()
+        staff2 = factories.PersonFactory()
+        staff3 = factories.PersonFactory()
+        course_timestamp = draft_course.data_modified_timestamp
+
+        non_draft_course_run.staff.add(staff1, staff2, staff3)
+
+        with LogCapture(LOGGER_NAME) as log:
+            draft_course_run.staff.set((staff1, staff2))
+
+        draft_course.refresh_from_db()
+        assert course_timestamp < draft_course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_NAME,
+                'INFO',
+                f"Staff M2M relation has been updated for course run {draft_course_run.key}."
+            )
+        )
+        m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)
+
+    def test_course_run_staff_changed__non_draft_missing(self):
+        """
+        Verify the staff relation change in course run does not update the timestamp for course if non-draft course run
+        is not present.
+        """
+        m2m_changed.connect(course_run_staff_changed, sender=CourseRun.staff.through)
+        draft_course = CourseFactory(draft=True)
+        draft_course_run = factories.CourseRunFactory(draft=True, course=draft_course)
+        staff1 = factories.PersonFactory()
+        staff2 = factories.PersonFactory()
+        course_timestamp = draft_course.data_modified_timestamp
+
+        with LogCapture(LOGGER_NAME) as log:
+            draft_course_run.staff.set((staff1, staff2))
+
+        draft_course.refresh_from_db()
+        assert course_timestamp == draft_course.data_modified_timestamp
+        with self.assertRaises(AssertionError):
+            log.check_present(
+                (
+                    LOGGER_NAME,
+                    'INFO',
+                    f"Staff M2M relation has been updated for course run {draft_course_run.key}."
+                )
+            )
+        m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)

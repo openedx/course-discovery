@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
+from simple_history.admin import SimpleHistoryAdmin
 from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
@@ -122,7 +123,7 @@ class ProductValueAdmin(admin.ModelAdmin):
 
 
 @admin.register(Course)
-class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
+class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner', 'product_source')
@@ -171,6 +172,9 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
 
         return actions
 
+    @admin.action(
+        description="view course skills"
+    )
     def course_skills(self, request, obj):
         """
         Object tool handler method - redirects to "Course Skills" view
@@ -206,7 +210,6 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         return additional_urls + super().get_urls()
 
     course_skills.label = "view course skills"
-    course_skills.short_description = "view course skills"
 
 
 @admin.register(CourseEditor)
@@ -217,13 +220,14 @@ class CourseEditorAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseEntitlement)
-class CourseEntitlementAdmin(admin.ModelAdmin):
+class CourseEntitlementAdmin(SimpleHistoryAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
 
+    @admin.display(
+        description='Course key'
+    )
     def get_course_key(self, obj):
         return obj.course.key
-
-    get_course_key.short_description = 'Course key'
 
     raw_id_fields = ('course', 'draft_version',)
     search_fields = ['course__title', 'course__key']
@@ -262,7 +266,7 @@ class CourseTypeAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(admin.ModelAdmin):
+class CourseRunAdmin(SimpleHistoryAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft',)
     list_filter = (
@@ -351,7 +355,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
+class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'product_source', 'status', ProgramEligibilityFilter, 'hidden')
@@ -375,8 +379,8 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
         'instructor_ordering', 'enrollment_count', 'recent_enrollment_count', 'credit_value',
         'organization_short_code_override', 'organization_logo_override', 'primary_subject_override',
         'level_type_override', 'language_override', 'enterprise_subscription_inclusion', 'in_year_value', 'labels',
-        'geolocation', 'program_duration_override', 'ofac_comment', 'data_modified_timestamp', 'excluded_from_search',
-        'excluded_from_seo'
+        'geolocation', 'program_duration_override', 'has_ofac_restrictions', 'ofac_comment', 'data_modified_timestamp',
+        'excluded_from_search', 'excluded_from_seo'
     )
     change_actions = ('refresh_program_skills', )
 
@@ -414,10 +418,11 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
 
         return actions
 
+    @admin.display(
+        description=_('Included course runs')
+    )
     def custom_course_runs_display(self, obj):
         return format_html('<br>'.join([str(run) for run in obj.course_runs]))
-
-    custom_course_runs_display.short_description = _('Included course runs')
 
     def _redirect_course_run_update_page(self, obj):
         """ Returns a response redirect to a page where the user can update the
@@ -490,7 +495,7 @@ class ProgramTypeAdmin(TranslatableAdmin):
 
 
 @admin.register(Seat)
-class SeatAdmin(admin.ModelAdmin):
+class SeatAdmin(SimpleHistoryAdmin):
     list_display = ('course_run', 'type', 'draft', 'upgrade_deadline_override',)
     raw_id_fields = ('draft_version',)
     readonly_fields = ('_upgrade_deadline',)
@@ -566,8 +571,7 @@ class CertificateInfoAdmin(admin.ModelAdmin):
 @admin.register(AdditionalMetadata)
 class AdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
-        'courses', 'facts_list', 'certificate_info', 'organic_url', 'external_course_marketing_type'
+        'id', 'external_identifier', 'external_url', 'courses', 'facts_list', 'external_course_marketing_type',
     )
     search_fields = ('external_identifier', 'external_url')
     list_filter = ('product_status', )
@@ -609,6 +613,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
     search_fields = ('uuid', 'name', 'key',)
+    readonly_fields = ['data_modified_timestamp']
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -618,10 +623,10 @@ class OrganizationAdmin(admin.ModelAdmin):
             flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
             flag = get_waffle_flag_model().get(flag_name)
             if flag.is_active(request):
-                return ['key', ]
-            return ['uuid', 'key', ]
+                return ['key', ] + self.readonly_fields
+            return ['uuid', 'key', ] + self.readonly_fields
         else:
-            return ['uuid', ]
+            return ['uuid', ] + self.readonly_fields
 
 
 @admin.register(Subject)
@@ -698,11 +703,15 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
     model = CurriculumCourseMembership
     readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
 
+    @admin.display(
+        description=_('Included course runs')
+    )
     def custom_course_runs_display(self, obj):
         return format_html('<br>'.join([str(run) for run in obj.course_runs]))
 
-    custom_course_runs_display.short_description = _('Included course runs')
-
+    @admin.display(
+        description=_("Edit link")
+    )
     def get_edit_link(self, obj=None):
         if obj and obj.pk:
             edit_url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
@@ -712,9 +721,6 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
                 text=_("Edit course run exclusions"),
             )
         return _("(save and continue editing to create a link)")
-
-    get_edit_link.short_description = _("Edit link")
-
     extra = 0
 
 
@@ -799,46 +805,13 @@ class SpecializationAdmin(admin.ModelAdmin):
     list_display = ('value', )
 
 
-def change_degree_status(modeladmin, request, queryset, status):
-    """
-    Changes the status of a degree.
-    """
-    count = queryset.count()
-    if count:
-        for obj in queryset:
-            obj.status = status
-            obj.save()
-
-        modeladmin.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
-            "status": "published" if status == ProgramStatus.Active else "unpublished",
-            "count": count,
-            "items": model_ngettext(modeladmin.opts, count),
-        }, messages.SUCCESS)
-
-
-@admin.action(permissions=['change'], description='Publish selected Degrees')
-def publish_degrees(modeladmin, request, queryset):
-    """
-    Django admin action to bulk publish degrees.
-    """
-    change_degree_status(modeladmin, request, queryset, ProgramStatus.Active)
-
-
-@admin.action(permissions=['change'], description='Unpublish selected Degrees')
-def unpublish_degrees(modeladmin, request, queryset):
-    """
-    Django admin action to bulk unpublish degrees.
-    """
-    change_degree_status(modeladmin, request, queryset, ProgramStatus.Unpublished)
-
-
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
     This is an inheritance model from Program
 
     """
-    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden')
+    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden', 'display_on_org_page')
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     list_filter = ('partner', 'status',)
@@ -861,7 +834,55 @@ class DegreeAdmin(admin.ModelAdmin):
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
         'program_duration_override', 'display_on_org_page',
     )
-    actions = [publish_degrees, unpublish_degrees]
+    actions = ['publish_degrees', 'unpublish_degrees', 'display_degrees_on_org_page', 'hide_degrees_on_org_page']
+
+    def change_degree_status(self, request, queryset, status):
+        """
+        Changes the status of a degree.
+        """
+        count = queryset.count()
+        if count:
+            for obj in queryset:
+                obj.status = status
+                obj.save()
+
+            self.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
+                "status": "published" if status == ProgramStatus.Active else "unpublished",
+                "count": count,
+                "items": model_ngettext(self.opts, count),
+            }, messages.SUCCESS)
+
+    @admin.action(permissions=['change'], description='Publish selected Degrees')
+    def publish_degrees(self, request, queryset):
+        """
+        Django admin action to bulk publish degrees.
+        """
+        self.change_degree_status(request, queryset, ProgramStatus.Active)
+
+    @admin.action(permissions=['change'], description='Unpublish selected Degrees')
+    def unpublish_degrees(self, request, queryset):
+        """
+        Django admin action to bulk unpublish degrees.
+        """
+        self.change_degree_status(request, queryset, ProgramStatus.Unpublished)
+
+    @admin.action(permissions=['change'], description="Display selected degrees on org page")
+    def display_degrees_on_org_page(self, request, queryset):
+        updated = queryset.update(display_on_org_page=True)
+        self.message_user(
+            request,
+            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to display on org page.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(permissions=['change'], description="Hide selected degrees on org page")
+    def hide_degrees_on_org_page(self, request, queryset):
+        updated = queryset.update(display_on_org_page=False)
+        self.message_user(
+            request,
+            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to be hidden on org page.",
+            messages.SUCCESS,
+        )
 
 
 @admin.register(SearchDefaultResultsConfiguration)
@@ -929,6 +950,14 @@ class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
 class MigrateCourseSlugConfigurationAdmin(admin.ModelAdmin):
     """
     Admin for MigrateCourseSlugConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(MigrateProgramSlugConfiguration)
+class MigrateProgramSlugConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for MigrateProgramSlugConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
@@ -1006,5 +1035,6 @@ class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
     Admin settings for ProgramSubscriptionPrice
     """
     readonly_fields = ('uuid', )
-    search_fields = ("program_subscription__program__title", "program_subscription__program__uuid",
+    search_fields = ("program_subscription__program__title",
+                     "program_subscription__program__uuid",
                      "price", "currency__name")

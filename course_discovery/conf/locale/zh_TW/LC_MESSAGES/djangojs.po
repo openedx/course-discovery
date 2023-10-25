@@ -9,12 +9,12 @@
 # Julia Oppenheimer <juliaoppenheimer2017@gmail.com>, 2019
 # Mose Chen <mosechen@gmail.com>, 2017
 # Ya-chi Chang <yacchang@mail.fcu.edu.tw>, 2016
-# 區壬豪 <oldmon@livemail.tw>, 2018
+# Nicholas Ou <oldmon@livemail.tw>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-04 20:35+0000\n"
+"POT-Creation-Date: 2023-09-24 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Julia Oppenheimer <juliaoppenheimer2017@gmail.com>, 2019\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/open-edx/edx-platform/language/zh_TW/)\n"

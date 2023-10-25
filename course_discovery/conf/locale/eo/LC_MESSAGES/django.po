@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-25 20:35+0000\n"
+"POT-Creation-Date: 2023-10-15 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -484,6 +484,10 @@ msgid "Included course runs"
 msgstr "Ìnçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/course_metadata/admin.py
+msgid "Edit link"
+msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/admin.py
 msgid "Edit course run exclusions"
 msgstr "Édït çöürsé rün éxçlüsïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
@@ -492,10 +496,6 @@ msgid "(save and continue editing to create a link)"
 msgstr ""
 "(sävé änd çöntïnüé édïtïng tö çréäté ä lïnk) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
-
-#: apps/course_metadata/admin.py
-msgid "Edit link"
-msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/admin.py
 #, python-format
@@ -566,6 +566,26 @@ msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 #: apps/course_metadata/choices.py
 msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/choices.py
+msgid "mooc"
+msgstr "mööç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "spoc"
+msgstr "spöç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "test"
+msgstr "tést Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "demo"
+msgstr "démö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "other"
+msgstr "öthér Ⱡ'σяєм ιρѕ#"
 
 #: apps/course_metadata/choices.py
 msgid "Honor"
@@ -716,6 +736,10 @@ msgid "legal team"
 msgstr "légäl téäm Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
 #: apps/course_metadata/emails.py
+msgid "Project Coordinator team"
+msgstr "Pröjéçt Çöördïnätör téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/emails.py
 msgid "course team"
 msgstr "çöürsé téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
@@ -723,6 +747,11 @@ msgstr "çöürsé téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
 #, python-brace-format
 msgid "Legal review requested: {title}"
 msgstr "Légäl révïéw réqüéstéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Course URL for {title}"
+msgstr "Çöürsé ÛRL för {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/course_metadata/emails.py
 #, python-brace-format
@@ -1120,6 +1149,12 @@ msgstr ""
 "            (é.g. \"#ff0000\" whïçh éqüäls réd) Nö nééd tö prövïdé thé `#` Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
 
 #: apps/course_metadata/models.py
+msgid "The timestamp of the last time the organization data was modified."
+msgstr ""
+"Thé tïméstämp öf thé läst tïmé thé örgänïzätïön dätä wäs mödïfïéd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
@@ -1309,6 +1344,14 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py
+msgid ""
+"Determines weather the course should be displayed on the owning "
+"organization's page"
+msgstr ""
+"Détérmïnés wéäthér thé çöürsé shöüld ßé dïspläýéd ön thé öwnïng "
+"örgänïzätïön's pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
 msgstr ""
 "À lïst öf mäjör wörks ßý thïs pérsön. Müst ßé välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя"
@@ -1456,6 +1499,18 @@ msgid "If checked, the About Page will have a meta tag with noindex value"
 msgstr ""
 "Ìf çhéçkéd, thé Àßöüt Pägé wïll hävé ä métä täg wïth nöïndéx välüé Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Watchers"
+msgstr "Wätçhérs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The list of email addresses that will be notified if any of the course runs "
+"is published or scheduled."
+msgstr ""
+"Thé lïst öf émäïl äddréssés thät wïll ßé nötïfïéd ïf äný öf thé çöürsé rüns "
+"ïs püßlïshéd ör sçhédüléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
 
 #: apps/course_metadata/models.py
 msgid "Future"
@@ -2121,13 +2176,25 @@ msgstr ""
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
 msgstr ""
 "Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät wïth fïrst röw "
 "çöntäïnïng äll thé héädérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/models.py
+msgid "Open Courses"
+msgstr "Öpén Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "2U Executive Education Courses"
+msgstr "2Û Éxéçütïvé Édüçätïön Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Bootcamps"
+msgstr "Böötçämps Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Course UUIDs"
@@ -2266,22 +2333,14 @@ msgstr ""
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
 #, python-brace-format
 msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}your "
-"Project Coordinator{link_end}."
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}"
 msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt {link_start}{contact_us_email}{link_middle}ýöür "
-"Pröjéçt Çöördïnätör{link_end}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
-"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
-" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
-"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
-"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
-"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
-"σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυм#"
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt
 #, python-format
@@ -2290,15 +2349,14 @@ msgstr ""
 "Vïéw thïs Àßöüt pägé. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt
-#, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
-"comments, please contact your Project Coordinator at %(contact_us_email)s."
+"comments, please contact your Project Coordinator(s):"
 msgstr ""
 "Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
-"Ⱡ'σ#"
+"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör(s): Ⱡ'σяєм #"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #, python-brace-format
@@ -2365,17 +2423,6 @@ msgstr ""
 "{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
 "Püßlïshér{link_end} tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
 
-#: apps/course_metadata/templates/course_metadata/email/legal_review.html
-#, python-brace-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}the "
-"Project Coordinator{link_end}."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt {link_start}{contact_us_email}{link_middle}thé "
-"Pröjéçt Çöördïnätör{link_end}.#"
-
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt
 #, python-format
 msgid "%(org_name)s has submitted %(course_name)s for review."
@@ -2388,16 +2435,6 @@ msgid "View this course run in Publisher above to determine OFAC status."
 msgstr ""
 "Vïéw thïs çöürsé rün ïn Püßlïshér äßövé tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact the Project Coordinator at %(contact_us_email)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt thé Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
-"Ⱡ'σя#"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
 #, python-brace-format
@@ -2443,6 +2480,52 @@ msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 "Vïéw thé çöürsé rün ïn Püßlïshér: %(course_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
+msgstr ""
+"\n"
+"        Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw püßlïshéd ön %(course_publish_date)s. Tö séé lïvé çöürsé, gö héré: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"     #"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"        To see a preview of the Course About Page, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
+msgstr ""
+"\n"
+"        Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw réädý för püßlïçätïön. Thé çöürsé wïll ßé püßlïshéd ön %(course_publish_date)s.\n"
+"        Tö séé ä prévïéw öf thé Çöürsé Àßöüt Pägé, gö héré: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт #"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt
+#, python-format
+msgid ""
+"\n"
+"    Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: %(course_marketing_url)s\n"
+msgstr ""
+"\n"
+"    Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw püßlïshéd ön %(course_publish_date)s. Tö séé lïvé çöürsé, gö héré: %(course_marketing_url)s\n"
+" Ⱡ'σяєм ιρѕυм #\n"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt
+#, python-format
+msgid ""
+"\n"
+"   Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"    To see a preview of the Course About Page, go here: %(course_preview_url)s\n"
+msgstr ""
+"\n"
+"   Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw réädý för püßlïçätïön. Thé çöürsé wïll ßé püßlïshéd ön %(course_publish_date)s.\n"
+"    Tö séé ä prévïéw öf thé Çöürsé Àßöüt Pägé, gö héré: %(course_preview_url)s\n"
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂є#\n"
 
 #: apps/course_metadata/utils.py
 msgid "Special characters not allowed in Course Number."

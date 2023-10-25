@@ -18,7 +18,7 @@ jobs:
       # Otherwise, we must be building from a push to master, so use 'latest'.
       - name: Get tag name
         id: get-tag-name
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             const branchName = context.ref.split('/').slice(-1)[0];

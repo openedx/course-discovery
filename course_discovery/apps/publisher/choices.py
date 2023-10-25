@@ -1,8 +1,8 @@
-from djchoices import ChoiceItem, DjangoChoices
+from django.db import models
 
 
-class InternalUserRole(DjangoChoices):
-    PartnerManager = ChoiceItem('partner_manager', 'Partner Manager')  # unused nowadays
-    ProjectCoordinator = ChoiceItem('project_coordinator', 'Project Coordinator')
-    MarketingReviewer = ChoiceItem('marketing_reviewer', 'Marketing Reviewer')  # unused nowadays
-    Publisher = ChoiceItem('publisher', 'Publisher')  # unused nowadays
+class InternalUserRole(models.TextChoices):
+    PartnerManager = 'partner_manager', 'Partner Manager'  # unused nowadays
+    ProjectCoordinator = 'project_coordinator', 'Project Coordinator'
+    MarketingReviewer = 'marketing_reviewer', 'Marketing Reviewer'  # unused nowadays
+    Publisher = 'publisher', 'Publisher'  # unused nowadays

@@ -67,6 +67,7 @@ THIRD_PARTY_APPS = [
     'django_object_actions',
     'nested_admin',
     'openedx_events',
+    'multi_email_field',
 ]
 
 ALGOLIA = {
@@ -704,12 +705,39 @@ PRODUCT_METADATA_MAPPING = {
     },
 }
 
+COURSE_URL_SLUGS_PATTERN = {
+    'edx':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }},
+    'ext-source':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'executive-education-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }}
+}
+
+
 SUBSCRIPTION_METADATA_MAPPING = {
     'SHEET_ID': '',
     'INPUT_TAB_ID': '',
 }
 
 DEFAULT_PRODUCT_SOURCE_SLUG = ''
+EXTERNAL_PRODUCT_SOURCE_SLUG = ''
 
 CONTENTFUL_SPACE_ID = None
 CONTENTFUL_CONTENT_DELIVERY_API_KEY = None
@@ -740,3 +768,8 @@ JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_
 OPENAI_API_KEY = 'I am an api key'
 
 NOTIFY_SLUG_UPDATE_RECIPIENTS = []
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False
+
+USE_DEPRECATED_PYTZ = True

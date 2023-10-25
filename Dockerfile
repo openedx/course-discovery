@@ -3,8 +3,9 @@ FROM ubuntu:focal as app
 ENV DEBIAN_FRONTEND noninteractive
 # System requirements.
 RUN apt update && \
-  apt-get install -qy \ 
+  apt-get install -qy \
   curl \
+  gettext \
   # required by bower installer
   git \
   language-pack-en \
@@ -14,6 +15,8 @@ RUN apt update && \
   python3.8-distutils \
   libmysqlclient-dev \
   libssl-dev \
+  # mysqlclient >= 2.2.0 requires pkg-config.
+  pkg-config \
   libcairo2-dev && \
   rm -rf /var/lib/apt/lists/*
 

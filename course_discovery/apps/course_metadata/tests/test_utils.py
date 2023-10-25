@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from edx_toggles.toggles.testutils import override_waffle_switch
+from slugify import slugify
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -20,18 +21,19 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.constants import DEFAULT_SLUG_FORMAT_ERROR_MSG
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, CourseUrlSlug, Seat, SeatType, Track
+    Course, CourseEditor, CourseRun, CourseType, CourseUrlSlug, Seat, SeatType, Track
 )
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory,
-    SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, ModeFactory,
+    OrganizationFactory, OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
@@ -652,6 +654,14 @@ class UtilsTests(TestCase):
         # Make sure to add dir attribute to p tags if they are in attribute list
         ('<p dir="rtl" class="float">Directed paragraph</p>', '<p dir="rtl">Directed paragraph</p>'),
 
+        # Check for ul and ol tags with dir attribute
+        ('<ul dir="rtl"><li>Directed list item</li></ul>', '<ul dir="rtl">\n<li>Directed list item</li>\n</ul>'),
+        ('<ol dir="rtl"><li>Directed list item</li></ol>', '<ol dir="rtl">\n<li>Directed list item</li>\n</ol>'),
+
+        # Make sure text remains bold if p tag has rtl direction
+        ('<p dir="rtl"><strong>Directed paragraph</strong></p>', '<p dir="rtl"><strong>Directed paragraph</strong></p>'),
+        # Make sure the attributes on nested p tags remain as it is.
+        ('<p dir="rtl"><strong lang="en" style="font-size: 11pt; color: #000000; background-color: transparent; font-weight: 400;">Test</strong></p>', '<p dir="rtl"><strong lang="en" style="font-size: 11pt; color: #000000; background-color: transparent; font-weight: 400;">Test</strong></p>'),
         # Make sure that only spans with lang tags are preserved in the saved string
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
@@ -1047,10 +1057,27 @@ class CourseSlugMethodsTests(TestCase):
         course = CourseFactory(title='test-title')
         slug, error = utils.get_slug_for_course(course)
         assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+                        f"organizations"
+
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
         assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
 
         subject = SubjectFactory(name='business')
         course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+
+    def test_get_slug_for_exec_ed_course(self):
+        """
+        It will verify that slug are generated correctly for executive education courses
+        """
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(title='test-title', type=ee_type_2u)
         slug, error = utils.get_slug_for_course(course)
         assert slug is None
         assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
@@ -1059,8 +1086,59 @@ class CourseSlugMethodsTests(TestCase):
         organization = OrganizationFactory(name='test-organization')
         course.authoring_organizations.add(organization)
         slug, error = utils.get_slug_for_course(course)
+
         assert error is None
-        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+        assert slug == f"executive-education/{organization.name}-{slugify(course.title)}"
+
+    def test_get_slug_for_bootcamp_course__raise_error_for_bootcamp_with_no_authoring_org(self):
+        """
+        It will verify that slug aren't generated for bootcamp courses with no authoring org and error is raised
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+            f"organizations"
+
+    def test_get_slug_for_bootcamp_course(self):
+        """
+        It will verify that slug are generated correctly for bootcamp courses
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+
+        slug, error = utils.get_slug_for_course(course)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+
+    def test_get_slug_for_bootcamp_course__organization_short_code_override(self):
+        """
+        It will verify that during slug creation it will give priority to organization_short_code_override if it exists
+        otherwise it will use organization name
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+        org_short_code_override = 'org_override'
+        course.organization_short_code_override = org_short_code_override
+        course.save()
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org_short_code_override}-{slugify(course.title)}"
 
     def test_get_slug_for_course__with_no_url_slug(self):
         course = CourseFactory(title='test-title')
@@ -1113,6 +1191,69 @@ class CourseSlugMethodsTests(TestCase):
         assert error is None
         assert slug == f"learn/{subject.slug}/{organization.name}-{course3.title}-3"
 
+    def test_get_slug_for_exec_ed_course__with_existing_url_slug(self):
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        partner = PartnerFactory()
+        course1 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course1.authoring_organizations.add(organization)
+        course1.partner = partner
+        course1.save()
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        slug, error = utils.get_slug_for_course(course1)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course1.title)}"
+
+        course1.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course2 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course2.authoring_organizations.add(organization)
+        course2.partner = partner
+        course2.save()
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        slug, error = utils.get_slug_for_course(course2)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-2"
+
+        course2.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course3.authoring_organizations.add(organization)
+        course3.partner = partner
+        course3.save()
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        slug, error = utils.get_slug_for_course(course3)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-3"
+
+    def test_get_slug_for_bootcamp_course__with_existing_url_slug(self):
+        """
+        Test for bootcamp course with existing subdirectory url slug
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        partner = PartnerFactory()
+        subject = SubjectFactory(name='business')
+        org = OrganizationFactory(name='test-organization')
+
+        # Create and test multiple courses with the same title, subject, and organization
+        for i in range(1, 3):
+            course = CourseFactory(
+                title='test-title', type=bootcamp_type, partner=partner, organization_short_code_override=''
+            )
+            course.authoring_organizations.add(org)
+            course.subjects.add(subject)
+            course.save()
+            CourseUrlSlug.objects.filter(course=course).delete()
+            slug, error = utils.get_slug_for_course(course)
+            assert error is None
+            if i == 1:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+            else:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}-{i}"
+            course.set_active_url_slug(slug)
+
     def test_get_existing_slug_count(self):
         course1 = CourseFactory(title='test-title')
         slug = 'learn/business/test-organization-test-title'
@@ -1136,9 +1277,18 @@ class ValidateSlugFormatTest(TestCase):
     """
     def setUp(self):
         self.product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.external_product_source = SourceFactory(slug=settings.EXTERNAL_PRODUCT_SOURCE_SLUG)
+        self.bootcamp_course_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        self.exec_ed_course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         self.test_course_1 = CourseFactory(title='test-title', product_source=self.product_source)
         self.test_course_2 = CourseFactory(title='test-title-2')
         self.test_course_3 = CourseFactory(title='test-title-3', product_source=self.product_source)
+        self.test_course_4 = CourseFactory(
+            title='test-title-4', product_source=self.external_product_source, type=self.exec_ed_course_type
+        )
+        self.bootcamp_course = CourseFactory(
+            title='bootcamp-course', product_source=self.external_product_source, type=self.bootcamp_course_type
+        )
 
         CourseRunFactory(course=self.test_course_1, status=CourseRunStatus.Published)
         CourseRunFactory(course=self.test_course_2, status=CourseRunStatus.InternalReview)
@@ -1187,16 +1337,27 @@ class ValidateSlugFormatTest(TestCase):
             assert validate_slug_format(slug, self.test_course_2) is expected_result
 
     @ddt.data(
-        ('learn/physics/applied-physics', False),
-        ('learn/', True),
-        ('learn/', False),
-        ('learn/123', True),
-        ('learn/123', False),
-        ('learn/physics/applied-physics/', True),
-        ('learn$', False),
+        ('learn/physics/applied-physics', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/123', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/physics/applied-physics/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn$', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
     )
     @ddt.unpack
-    def test_validate_slug_format__raise_exception_for_ocm_course(self, slug, is_subdirectory_slug_format_active):
+    def test_validate_slug_format__raise_exception_for_ocm_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
         """
         Test that validate_slug_format raises exception if the slug is not in the correct format for OCM course
         """
@@ -1204,7 +1365,8 @@ class ValidateSlugFormatTest(TestCase):
             with self.assertRaises(ValidationError) as context:
                 validate_slug_format(slug, self.test_course_1)
 
-            expected_error_message = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+            expected_error_message = expected_error_message.format(url_slug=slug)
+
             actual_error_message = str(context.exception)
             self.assertIn(expected_error_message, actual_error_message)
 
@@ -1227,5 +1389,99 @@ class ValidateSlugFormatTest(TestCase):
                 validate_slug_format(slug, self.test_course_2)
 
             expected_error_message = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', True),
+        ('executive-education/new-org-applied-physics', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_exec_ed_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_4) is None
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            .get('executive-education-2u').get('error_msg')
+        ),
+        ('executive-education/org-name-course-name/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+        (
+            'learn/test-course', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_for_exec_ed_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.test_course_4)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('boot-camps/physics/edx-applied-physics', True),
+        ('boot-camps/python/harvard-python-for-beginners', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_bootcamps(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for bootcamps
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.bootcamp_course) is None
+
+    @ddt.data(
+        ('boot-camps/primary-subject/org-name-course-name', False),
+        ('boot-camps/primary-subject/org-name-course-name/', True),
+        ('boot-camps/primary-subject/org-name-course-name/', False),
+        ('boot-camps/org-name-course-name', True),
+        ('learn/test-course', True),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_bootcamp_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for bootcamp courses
+        """
+        expected_error_message = None
+
+        if is_subdirectory_slug_format_active:
+            expected_error_message = (
+                settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+                .get('bootcamp-2u').get('error_msg')
+            )
+        else:
+            expected_error_message = DEFAULT_SLUG_FORMAT_ERROR_MSG
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.bootcamp_course)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
             actual_error_message = str(context.exception)
             self.assertIn(expected_error_message, actual_error_message)

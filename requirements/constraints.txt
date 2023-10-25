@@ -1,10 +1,10 @@
-# Stay on an LTS release
-django<4.0
-
 # We are creating a local copy of the common constraints file and override/remove the global constraint which we don't need.
 # This approach is used temporarily and will be improved in https://openedx.atlassian.net/browse/BOM-2721
 # This file contains all common constraints for edx-repos
 -c common_constraints.txt
+
+# Stay on an LTS release
+django<4.3
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
@@ -23,18 +23,11 @@ algoliasearch<2.0.0
 # Remove this pin once newer stable version is released
 authlib==1.0.0rc1
 
-# The latest version require Django 4.0, remove once we have upgraded to Django 4.0
-django-admin-sortable2<2.0.0
-
-# The latest versions of django-simple-history & django-stdimage have breaking changes
+# The latest versions of django-stdimage has breaking changes
 # Remove this pin after fixing them.
-django-simple-history<=3.0.0
 django-stdimage<=5.3.0
 
 semgrep==0.102.0
-
-# Version 8.3.0 introduced changes that caused users to see User Disabled error
-edx-drf-extensions < 8.3.0
 
 # Pinning sphinx as new major release is causing error while installing requirements.
 sphinx<6.0.0
@@ -51,3 +44,10 @@ backports.zoneinfo;python_version<"3.9"
 
 # Pillow 10 is causing django-stdimage to break when accessing ANTIALIAS variable on Image
 pillow < 10.0.0
+
+# 4.2.0 is breaking django-elasticsearch-debug-toolbar
+# Awaiting fix https://github.com/Benoss/django-elasticsearch-debug-toolbar/pull/21 to be merged
+django-debug-toolbar < 4.2.0
+
+# selenium==4.13.0 causing test failures
+selenium==4.12.0

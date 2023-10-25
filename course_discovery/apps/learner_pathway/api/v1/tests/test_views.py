@@ -18,7 +18,7 @@ USER_PASSWORD = 'QWERTY'
 LEARNER_PATHWAY_DATA = {
     'uuid': '6b8742ce-f294-4674-aacb-34fbf75249de',
     'title': 'journey to comics',
-    'status': PathwayStatus.Active,
+    'status': PathwayStatus.Active.value,
     'banner_image': '',
     'card_image': '',
     'overview': 'learn all about Marvel and DC',
@@ -160,7 +160,7 @@ class TestLearnerPathwayViewSet(TestCase):
         another_learner_pathway = LearnerPathwayFactory(
             uuid='aaa7c03d-d2cf-420c-b109-aa227f770655',
             title='Test Pathway 2',
-            status=PathwayStatus.Active,
+            status=PathwayStatus.Active.value,
             overview='Test overview for Test Pathway 2',
         )
         url = f'/api/v1/learner-pathway/?uuid={self.learner_pathway.uuid},{another_learner_pathway.uuid}'
@@ -174,7 +174,7 @@ class TestLearnerPathwayViewSet(TestCase):
         """
         Verify that learner pathway api returns active pathway only.
         """
-        self.learner_pathway.status = PathwayStatus.Inactive
+        self.learner_pathway.status = PathwayStatus.Inactive.value
         self.learner_pathway.save()
 
         api_response = self.client.get(self.view_url)

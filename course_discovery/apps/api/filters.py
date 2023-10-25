@@ -192,6 +192,7 @@ class LevelTypeFilter(filters.FilterSet):
 class OrganizationFilter(filters.FilterSet):
     tags = CharListFilter(field_name='tags__name', lookup_expr='in')
     uuids = UUIDListFilter()
+    timestamp = filters.DateTimeFilter(field_name='data_modified_timestamp', lookup_expr='gte')
 
     class Meta:
         model = Organization

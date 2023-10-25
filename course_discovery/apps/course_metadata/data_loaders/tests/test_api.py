@@ -7,6 +7,7 @@ import ddt
 import pytest
 import pytz
 import responses
+from django.conf import settings
 from django.core.management import CommandError
 from django.http.response import HttpResponse
 from django.test import TestCase
@@ -26,10 +27,11 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory
 )
 from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
-from course_discovery.apps.course_metadata.utils import subtract_deadline_delta
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, subtract_deadline_delta
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -64,6 +66,12 @@ class AbstractDataLoaderTest(TestCase):
 @ddt.ddt
 class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.default_product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        cls.non_default_product_source = SourceFactory(slug="not-default-product-source")
 
     @property
     def api_url(self):
@@ -173,6 +181,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.everything.get(key=f"{datum['org']}+{datum['number']}", draft=False)
             mock_logger.info.assert_any_call(f"Course created with uuid {str(course.uuid)} and key {course.key}")
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
+            assert course.product_source == self.default_product_source
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -245,6 +254,35 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert original_run2_deadline != updated_run2_upgrade_deadline
         # Make sure the credit seat with a course run end date is unchanged
         assert run3.seats.first().upgrade_deadline is None
+
+    @responses.activate
+    def test_product_source_not_changed_on_update(self):
+        """
+        Verify that if an existing course is updated through the courses
+        api, its product source is not affected.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
+        api_data = self.mock_api()
+
+        course_with_non_default_source = CourseFactory(product_source=self.non_default_product_source)
+
+        assert Course.objects.count() == 1
+        assert CourseRun.objects.count() == 0
+        assert course_with_non_default_source.product_source == self.non_default_product_source
+
+        self.loader.ingest()
+        # Verify the API was called with the correct authorization header
+        self.assert_api_called(4)
+
+        # Verify the CourseRuns and Courses were created correctly
+        assert CourseRun.objects.count() == len(api_data)
+        courses_count = Course.objects.count()
+        assert courses_count > 1
+
+        # Verify that existing course's product source is not affected
+        course_with_non_default_source.refresh_from_db()
+        assert course_with_non_default_source.product_source == self.non_default_product_source
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
@@ -602,6 +640,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                           valid_stockrecord=True, product_class=None):
         """ Return a new Course Entitlement and Enrollment Code to be added by ingest """
         course = CourseFactory(type=CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT), partner=self.partner)
+        ensure_draft_world(course)
 
         # If product_class is given, make sure it's either entitlement or enrollment_code
         if product_class:
@@ -746,9 +785,12 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def assert_seats_loaded(self, body, mock_products):
         """ Assert a Seat corresponding to the specified data body was properly loaded into the database. """
         course_run = CourseRun.objects.get(key=body['id'])
-        products = [p for p in body['products'] if p['structure'] == 'child']
+        products = [p for p in body['products'] if p['structure'] == 'child' and
+                    'mobile' not in p['stockrecords'][0]['partner_sku']]
+
         # Verify that the old seat is removed
         assert course_run.seats.count() == len(products)
+        assert course_run.draft_version.seats.count() == len(products)
 
         # Validate each seat
         for product in products:
@@ -777,16 +819,25 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             bulk_sku = self.get_product_bulk_sku(certificate_type, course_run, mock_products)
             seat = course_run.seats.get(type__slug=certificate_type, credit_provider=credit_provider,
                                         currency=price_currency)
+            seat_draft = course_run.draft_version.seats.get(type__slug=certificate_type,
+                                                            credit_provider=credit_provider,
+                                                            currency=price_currency)
 
             assert seat.course_run == course_run
             assert seat.type.slug == certificate_type
+            assert seat_draft.type.slug == certificate_type
             assert seat.price == price
+            assert seat_draft.price == price
             assert seat.currency.code == price_currency
+            assert seat_draft.currency.code == price_currency
             assert seat.credit_provider == credit_provider
+            assert seat_draft.credit_provider == credit_provider
             assert seat.credit_hours == credit_hours
             assert seat.upgrade_deadline == upgrade_deadline
             assert seat.sku == sku
+            assert seat_draft.sku == sku
             assert seat.bulk_sku == bulk_sku
+            assert seat_draft.bulk_sku == bulk_sku
 
     def assert_entitlements_loaded(self, body):
         """ Assert a Course Entitlement was loaded into the database for each entry in the specified data body. """
@@ -804,11 +855,14 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             mode = SeatType.objects.get(slug=mode_name)
 
             entitlement = course.entitlements.get(mode=mode)
-
+            entitlement_draft = course.draft_version.entitlements.get(mode=mode)
             assert entitlement.course == course
             assert entitlement.price == price
+            assert entitlement_draft.price == price
             assert entitlement.currency.code == price_currency
+            assert entitlement_draft.currency.code == price_currency
             assert entitlement.sku == sku
+            assert entitlement_draft.sku == sku
 
     def assert_enrollment_codes_loaded(self, body):
         """ Assert a Course Enrollment Code was loaded into the database for each entry in the specified data body. """
@@ -821,15 +875,19 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
             mode_name = attributes['seat_type']
             seat = course_run.seats.get(type__slug=mode_name)
-
+            draft_seat = course_run.draft_version.seats.get(type__slug=mode_name)
             assert seat.course_run == course_run
             assert seat.bulk_sku == bulk_sku
+            assert draft_seat.bulk_sku == bulk_sku
+            assert draft_seat == seat.draft_version
 
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the E-Commerce API. """
         TieredCache.dangerous_clear_all_tiers()
         courses_api_data = self.mock_courses_api()
+        for course_run in CourseRun.objects.all():
+            ensure_draft_world(course_run)
         loaded_course_run_data = courses_api_data[:-1]
         loaded_seat_data = courses_api_data[:-2]
         assert CourseRun.objects.count() == len(loaded_course_run_data)
@@ -861,15 +919,24 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.mock_courses_api()
         products_api_data = self.mock_products_api()
         entitlement = CourseEntitlementFactory(partner=self.partner)
-
+        entitlement_draft_should_not_delete = CourseEntitlementFactory(draft=True, sku='', partner=self.partner)
+        entitlement_draft_should_delete = CourseEntitlementFactory(draft=True, partner=self.partner)
         self.loader.ingest()
         # Ensure that only entitlements retrieved from the Ecommerce API remain in Discovery,
         # and that the sku and partner of the deleted entitlement are logged
         self.assert_entitlements_loaded(products_api_data)
-        msg = 'Deleting entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
+        msg = 'Deleting non-draft entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
             course_title=entitlement.course.title, sku=entitlement.sku, partner=entitlement.partner
         )
+        msg_draft = 'Deleting draft entitlement for course {course_title} with sku {sku} for partner {partner}'.format(
+            course_title=entitlement_draft_should_delete.course.title,
+            sku=entitlement_draft_should_delete.sku,
+            partner=entitlement_draft_should_delete.partner
+        )
         mock_logger.info.assert_any_call(msg)
+        mock_logger.info.assert_any_call(msg_draft)
+        assert not CourseEntitlement.everything.filter(pk=entitlement_draft_should_delete.pk).exists()
+        assert CourseEntitlement.everything.filter(pk=entitlement_draft_should_not_delete.pk).exists()
 
     @responses.activate
     @mock.patch(LOGGER_PATH)

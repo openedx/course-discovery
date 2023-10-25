@@ -38,6 +38,7 @@ djangorestframework-xml
 django-elasticsearch-dsl
 django-elasticsearch-dsl-drf
 django-object-actions
+django-multi-email-field
 drf-flex-fields
 drf-extensions
 django-dry-rest-permissions
@@ -64,6 +65,7 @@ html2text
 lxml
 jsonfield
 markdown
+openedx-atlas
 pillow
 pycountry
 python-dateutil

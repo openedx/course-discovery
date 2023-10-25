@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.http.response import Http404
@@ -15,20 +14,18 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import (
-    StudioAPI, get_query_param, reviewable_data_has_changed, set_subdirectory_slug_for_course
-)
+from course_discovery.apps.api.utils import StudioAPI, get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -53,7 +50,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=useless-super-delegation
-class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
+class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = filters.CourseRunFilter
@@ -279,7 +276,6 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
-        product_source = course_run.course.product_source
         non_exempt_update = changed and course_run.status == CourseRunStatus.Reviewed
         if non_exempt_update:
             save_kwargs['status'] = CourseRunStatus.Unpublished
@@ -291,9 +287,6 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         # back into legal review if a non exempt field was changed (expected_program_name and expected_program_type)
         if not draft and (course_run.status == CourseRunStatus.Unpublished or non_exempt_update):
             save_kwargs['status'] = CourseRunStatus.LegalReview
-            if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled() and \
-                    product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG:
-                set_subdirectory_slug_for_course(course_run)
 
         course_run = serializer.save(**save_kwargs)
 
@@ -347,7 +340,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
 
         # Handle staff update on course run in review with valid status transition
         if (request.user.is_staff and course_run.in_review and 'status' in request.data and
-                request.data['status'] in CourseRunStatus.INTERNAL_STATUS_TRANSITIONS):
+                request.data['status'] in CourseRunStatus.INTERNAL_STATUS_TRANSITIONS()):
             return self.handle_internal_review(request, serializer)
 
         # Handle regular non-internal update

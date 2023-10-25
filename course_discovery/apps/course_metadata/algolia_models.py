@@ -359,8 +359,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_display_on_org_page(self):
-        # Only courses display on organization pages
-        return self.product_type == 'Course'
+        return self.additional_metadata.display_on_org_page if self.additional_metadata else True
 
     @property
     def product_external_url(self):

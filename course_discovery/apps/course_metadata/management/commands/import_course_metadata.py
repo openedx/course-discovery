@@ -123,7 +123,7 @@ class Command(BaseCommand):
 
         if product_type:
             logger.info(f"Sending Ingestion stats email for product type {product_type}")
-            email_subject = f"{product_type.replace('_', ' ').title()} Data Ingestion"
+            email_subject = f"{source.name} - {product_type.replace('_', ' ').title()} Data Ingestion"
             product_mapping = settings.PRODUCT_METADATA_MAPPING[self.PRODUCT_TYPE_SLUG_MAP[product_type]][source.slug]
             to_users = product_mapping['EMAIL_NOTIFICATION_LIST']
             ingestion_details = {
@@ -132,5 +132,5 @@ class Command(BaseCommand):
                 'products_json': products_json
             }
             send_ingestion_email(
-                partner, email_subject, to_users, product_type, ingestion_details,
+                partner, email_subject, to_users, product_type, source, ingestion_details,
             )

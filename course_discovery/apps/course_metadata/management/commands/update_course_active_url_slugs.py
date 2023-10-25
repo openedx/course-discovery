@@ -1,8 +1,10 @@
 import logging
 from csv import DictReader
 
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
+from course_discovery.apps.course_metadata.emails import send_email_for_slug_updates
 from course_discovery.apps.course_metadata.models import Course, MigrateCourseSlugConfiguration
 from course_discovery.apps.course_metadata.utils import is_valid_slug_format, is_valid_uuid
 
@@ -56,25 +58,58 @@ class Command(BaseCommand):
         for row in file_reader:
             course_uuid, course_url_slug = row.get('course_uuid', None), row.get('course_url_slug', None)
             if not is_valid_uuid(course_uuid):
-                logger.error(f'Invalid course uuid: {course_uuid}')
+                error_msg = f'Invalid course uuid: {course_uuid}'
+                logger.error(error_msg)
+                self._add_records_to_update_slugs_summary_report(course_uuid=course_uuid, error_msg=error_msg)
                 continue
             if not course_url_slug or not is_valid_slug_format(course_url_slug):
-                logger.error(f'Invalid course url slug: {course_url_slug}')
+                error_msg = f'Invalid course url slug: {course_url_slug}'
+                logger.error(error_msg)
+                self._add_records_to_update_slugs_summary_report(course_uuid, error_msg=error_msg)
                 continue
             try:
                 self.update_course_slug(course_uuid, course_url_slug)
             except Exception as exc:  # pylint: disable=broad-except
                 logger.error(f'Error occured while updating the course url slug.\n{exc}')
 
+        send_email_for_slug_updates(
+            stats=self._get_report_in_csv_format(),
+            to_users=settings.NOTIFY_SLUG_UPDATE_RECIPIENTS,
+            subject='Course URL Slugs Update Report'
+        )
+
         self._log_report_in_csv_format()
 
-    def _log_report_in_csv_format(self):
+    def _get_report_in_csv_format(self):
+        """
+        Get the course url slug update report in csv format
+        """
         report_in_csv_format = "course_uuid,old_url_slug,new_url_slug,error_msg\n"
 
         for record in self.slug_update_report:
             report_in_csv_format += f"{record['course_uuid']},{record['old_url_slug']}," \
                 f"{record['new_url_slug']},{record['error_msg']}\n"
+        return report_in_csv_format
+
+    def _log_report_in_csv_format(self):
+        """
+        Log the course url slug update report in csv format
+        """
+        report_in_csv_format = self._get_report_in_csv_format()
         logger.info(f'Course url slug update report in csv format:\n {report_in_csv_format}')
+
+    def _add_records_to_update_slugs_summary_report(
+        self, course_uuid=None, old_url_slug=None, new_url_slug=None, error_msg=None
+    ):
+        """
+        Add the course url slug update record to the summary report
+        """
+        self.slug_update_report.append({
+            'course_uuid': course_uuid,
+            'old_url_slug': old_url_slug,
+            'new_url_slug': new_url_slug,
+            'error_msg': error_msg
+        })
 
     def update_course_slug(self, course_uuid, course_url_slug):
         """
@@ -97,9 +132,5 @@ class Command(BaseCommand):
             error_msg = f'Error occured while updating the course url slug.\n{exc}'
             logger.error(error_msg)
         finally:
-            self.slug_update_report.append({
-                'course_uuid': course_uuid,
-                'old_url_slug': old_url_slug,
-                'new_url_slug': course.active_url_slug if course else None,
-                'error_msg': error_msg
-            })
+            active_url_slug = course.active_url_slug if course else None
+            self._add_records_to_update_slugs_summary_report(course_uuid, old_url_slug, active_url_slug, error_msg)

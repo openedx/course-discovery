@@ -145,7 +145,7 @@ class TestContentfulUtils(TestCase):
             mock_bootcamp_response.bootcamp_transformed_data, 'test-uuid') == expected_data
 
     def test_get_aggregated_data_from_contentful__degree(self):
-        mock_degree_response = MockContenfulDegreeResponse()
+        mock_degree_response = MockContenfulDegreeResponse(uuid='test-uuid')
         expected_data = 'faq question Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
                         'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
                         'Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
@@ -163,24 +163,24 @@ class TestContentfulUtils(TestCase):
             mock_degree_response.degree_transformed_data, 'test-uuid') == expected_data
 
     @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
-                return_value=[MockContenfulDegreeResponse().mock_contentful_degree_entry])
+                return_value=[MockContenfulDegreeResponse(uuid='test-uuid').mock_contentful_degree_entry])
     def test_transform_degree_contentful_data(self, *args):
         """
         Test transform_degree_contentful_data given a mocked entry from contentful.
         """
-        mock_degree_response = MockContenfulDegreeResponse()
+        mock_degree_response = MockContenfulDegreeResponse(uuid='test-uuid')
         transformed_data = fetch_and_transform_degree_contentful_data()
         self.assertDictEqual(
             transformed_data, mock_degree_response.degree_transformed_data)
 
     @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
-                return_value=[MockContenfulDegreeResponse().mock_contentful_degree_missing_rich_text])
+                return_value=[MockContenfulDegreeResponse(uuid='test-uuid').mock_contentful_degree_missing_rich_text])
     def test_transform_degree_contentful_data__missing_rich_text(self, *args):
         """
         Test transform_degree_contentful_data fall backs to introduction if rich text intro is not present.
         """
         expected_response = {}
-        for key, transformed_data in MockContenfulDegreeResponse().degree_transformed_data.items():
+        for key, transformed_data in MockContenfulDegreeResponse(uuid='test-uuid').degree_transformed_data.items():
             expected_response[key] = {
                 **transformed_data,
                 'featured_products': {
@@ -195,3 +195,14 @@ class TestContentfulUtils(TestCase):
 
         transformed_data = fetch_and_transform_degree_contentful_data()
         self.assertDictEqual(expected_response, transformed_data)
+
+    @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
+                return_value=[MockContenfulDegreeResponse(uuid=None).mock_contentful_degree_entry])
+    def test_transform_degree_contentful_data_no_uuid(self, *args):
+        """
+        Test transform_degree_contentful_data given a mocked entry not having uuid from contentful.
+        """
+        mock_degree_response = MockContenfulDegreeResponse(uuid=None)
+        transformed_data = fetch_and_transform_degree_contentful_data()
+        self.assertDictEqual(
+            transformed_data, mock_degree_response.degree_transformed_data)

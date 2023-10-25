@@ -226,7 +226,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
-            'in_year_value': ProductValueSerializer(course.in_year_value).data
+            'in_year_value': ProductValueSerializer(course.in_year_value).data,
+            'watchers': [],
         })
 
         return expected
@@ -1090,6 +1091,8 @@ class MinimalProgramSerializerTests(TestCase):
             'program_duration_override': program.program_duration_override,
             'excluded_from_seo': program.excluded_from_seo,
             'excluded_from_search': program.excluded_from_search,
+            'has_ofac_restrictions': program.has_ofac_restrictions,
+            'ofac_comment': program.ofac_comment,
             'subscription_eligible': None,
             'subscription_prices': [],
         }
@@ -1724,6 +1727,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'certificate_logo_image_url': certificate_logo_image_url,
             'logo_image_url': logo_image_url,
             'organization_hex_color': organization.organization_hex_color,
+            'data_modified_timestamp': json_date_format(organization.data_modified_timestamp),
         }
 
     def test_data(self):
@@ -2039,6 +2043,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'course_term_override': additional_metadata.course_term_override,
             'product_status': additional_metadata.product_status,
             'external_course_marketing_type': additional_metadata.external_course_marketing_type,
+            'display_on_org_page': additional_metadata.display_on_org_page,
         }
         assert serializer.data == expected
 

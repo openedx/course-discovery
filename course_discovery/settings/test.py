@@ -121,3 +121,34 @@ GETSMARTER_CLIENT_CREDENTIALS = {
 }
 
 DEFAULT_PRODUCT_SOURCE_SLUG = 'test-source'
+EXTERNAL_PRODUCT_SOURCE_SLUG = 'external-test-source'
+
+SLUG_FORMAT_REGEX = '[a-zA-Z0-9-_]+$'
+SUBDIRECTORY_SLUG_FORMAT_REGEX = 'learn/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+$'
+EXEC_ED_SLUG_FORMAT_REGEX = 'executive-education/[a-zA-Z0-9-_]+$'
+BOOTCAMP_SLUG_FORMAT_REGEX = 'boot-camps/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+$'
+
+COURSE_URL_SLUGS_PATTERN = {
+    'test-source':
+        {'default': {
+            'slug_format': f'{SLUG_FORMAT_REGEX}|{SUBDIRECTORY_SLUG_FORMAT_REGEX}',
+            'error_msg': 'Course edit was unsuccessful. The course URL slug "[{url_slug}]" is an invalid format. Please ensure that the slug is in the format `learn/<primary_subject>/<organization_name>-<course_title>`',
+        },
+         'bootcamp-2u': {
+            'slug_format': f'{SLUG_FORMAT_REGEX}|{BOOTCAMP_SLUG_FORMAT_REGEX}',
+            'error_msg': 'Course edit was unsuccessful. The course URL slug "[{url_slug}]" is an invalid format. Please ensure that the slug is in the format `boot-camps/<primary_subject>/<organization_name>-<course_title>`',
+        }},
+    'external-test-source':
+        {'default': {
+            'slug_format': f'{SLUG_FORMAT_REGEX}',
+            'error_msg': 'Enter a valid "slug" consisting of letters, numbers, underscores or hyphens.',
+        },
+        'executive-education-2u': {
+            'slug_format': f'{SLUG_FORMAT_REGEX}|{EXEC_ED_SLUG_FORMAT_REGEX}',
+            'error_msg': 'Course edit was unsuccessful. The course URL slug "[{url_slug}]" is an invalid format. Please ensure that the slug is in the format `executive-education/<organization_name>-<course_title>`',
+        },
+        'bootcamp-2u': {
+            'slug_format': f'{SLUG_FORMAT_REGEX}|{BOOTCAMP_SLUG_FORMAT_REGEX}',
+            'error_msg': 'Course edit was unsuccessful. The course URL slug "[{url_slug}]" is an invalid format. Please ensure that the slug is in the format `boot-camps/<primary_subject>/<organization_name>-<course_title>`',
+        }},
+}
