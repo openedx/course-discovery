@@ -239,7 +239,10 @@ def send_email_to_notify_course_watchers(course, course_run_publish_date, course
         'course_marketing_url': course.marketing_url,
         'course_preview_url': course.preview_url,
     }
-    to_users = course.watchers
+    to_users = []
+    if course.watchers:
+        to_users.extend(course.watchers)
+    to_users.append(settings.ORGANIC_MARKETING_EMAIL)
     txt_template = 'course_metadata/email/watchers_course_url.txt'
     html_template = 'course_metadata/email/watchers_course_url.html'
     template = get_template(txt_template)

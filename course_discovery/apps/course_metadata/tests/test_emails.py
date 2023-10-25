@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.template.loader import render_to_string
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture, StringComparison
 
@@ -153,6 +153,7 @@ class EmailTests(TestCase):
             ],
         )
 
+    @override_settings(ORGANIC_MARKETING_EMAIL='marketing_email@email.com')
     def test_send_email_to_notify_course_watchers(self):
         """
         Verify that send_email_to_notify_course_watchers's happy path works as expected
@@ -163,8 +164,10 @@ class EmailTests(TestCase):
         self.course.save()
         emails.send_email_to_notify_course_watchers(self.course, test_course_run.go_live_date, test_course_run.status)
         email = mail.outbox[0]
+        email_to_list = self.course.watchers
+        email_to_list.append('marketing_email@email.com')
 
-        assert email.to == self.course.watchers
+        assert email.to == email_to_list
         assert str(email.subject) == f'Course URL for {self.course.title}'
         assert len(mail.outbox) == 1
         assert email.alternatives[0][1] == 'text/html'
