@@ -398,7 +398,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         try:
             # Then the course itself
             course = serializer.save()
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception:
             logger.exception(
                 f"Exception raised when attempting to save course {course.key} with arguments {data}"
             )

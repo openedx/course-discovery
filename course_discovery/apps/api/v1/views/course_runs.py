@@ -290,7 +290,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
 
         try:
             course_run = serializer.save(**save_kwargs)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception:
             log.exception(
                 f"Exception raised when attempting to save course run {course_run.key} with arguments {save_kwargs}"
             )
