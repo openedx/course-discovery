@@ -154,15 +154,17 @@ class EmailTests(TestCase):
         )
 
     @override_settings(ORGANIC_MARKETING_EMAIL='marketing_email@email.com')
-    def test_send_email_to_notify_course_watchers(self):
+    def test_send_email_to_notify_course_watchers_and_marketing(self):
         """
-        Verify that send_email_to_notify_course_watchers's happy path works as expected
+        Verify that send_email_to_notify_course_watchers_and_marketing's happy path works as expected
         """
         test_course_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
         test_course_run.go_live_date = datetime.datetime.now()
         self.course.watchers = ['test@test.com']
         self.course.save()
-        emails.send_email_to_notify_course_watchers(self.course, test_course_run.go_live_date, test_course_run.status)
+        emails.send_email_to_notify_course_watchers_and_marketing(
+            self.course, test_course_run.go_live_date, test_course_run.status
+        )
         email = mail.outbox[0]
         email_to_list = self.course.watchers
         email_to_list.append('marketing_email@email.com')

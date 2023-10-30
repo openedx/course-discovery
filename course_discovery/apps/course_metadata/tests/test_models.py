@@ -1281,7 +1281,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=20),
     )
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
-    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
     def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_is_published(
         self, when, mock_course_url_email, mock_email
     ):
@@ -1320,7 +1320,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=20),
     )
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
-    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
     def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_run_is_scheduled(
         self, when, mock_course_url_email, mock_email
     ):
