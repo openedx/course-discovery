@@ -213,6 +213,41 @@ class TestCourse(TestCase):
                     assert not official_version.course.active_url_slug.startswith('boot-camps/')
                     assert official_version.course.active_url_slug == f'{active_url_slug}'
 
+    def test_automate_url_restructuring_for_missing_active_url_slug(self):
+        """
+        Tests automate url slug restructuring generates slug for studio created courses.
+
+        Studio generated courses do not get a default slug generated using course title. Due to that, active_url_slug
+        is None for such courses.
+        """
+        source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        course_draft = CourseFactory(draft=True, type=audit_type, product_source=source)
+
+        # Delete the random slug created by Factory
+        course_draft.url_slug_history.all().delete()
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+        subject = SubjectFactory(name='Subject1')
+        org = OrganizationFactory(name='organization1')
+        course_draft.subjects.add(subject)
+        course_draft.authoring_organizations.add(org)
+        course_draft.save()
+
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+        assert draft_course_run.course.active_url_slug is None
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            draft_course_run.status = CourseRunStatus.LegalReview
+            draft_course_run.save()
+            course = draft_course_run.course
+            official_version = draft_course_run.update_or_create_official_version()
+            course.refresh_from_db()
+            assert course.active_url_slug.startswith('learn/')
+            assert course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
+            assert official_version.course.active_url_slug.startswith('learn/')
+            assert official_version.course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
+
     @ddt.data(
         ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),
         # pylint: disable=line-too-long

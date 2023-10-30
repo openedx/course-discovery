@@ -1915,7 +1915,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         Sets the active url slug for draft and non-draft courses if the current
         slug is not validated as per the new format.
         """
-        is_slug_in_subdirectory_format = bool(re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug))
+        is_slug_in_subdirectory_format = bool(
+            re.match(SUBDIRECTORY_SLUG_FORMAT_REGEX, self.active_url_slug)
+        ) if self.active_url_slug else False  # Unless assigned, the active slug is None for Studio created courses.
         is_exec_ed_course = self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         is_bootcamp_course = self.type.slug == CourseType.BOOTCAMP_2U
         if is_exec_ed_course and not IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED.is_enabled():
