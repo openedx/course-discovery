@@ -2668,9 +2668,9 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         if send_emails and email_method:
             email_method(self)
-            if (self.course.watchers and (self.status in [CourseRunStatus.Reviewed, CourseRunStatus.Published])):
+            if self.go_live_date and self.status in [CourseRunStatus.Reviewed, CourseRunStatus.Published]:
                 self.refresh_from_db()
-                emails.send_email_to_notify_course_watchers(self.course, self.go_live_date, self.status)
+                emails.send_email_to_notify_course_watchers_and_marketing(self.course, self.go_live_date, self.status)
 
     def _check_enterprise_subscription_inclusion(self):
         if not self.course.enterprise_subscription_inclusion:

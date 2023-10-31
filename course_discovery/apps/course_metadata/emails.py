@@ -221,9 +221,9 @@ def send_email_for_legal_review(course_run):
     send_email_to_legal(course_run, 'course_metadata/email/legal_review', subject)
 
 
-def send_email_to_notify_course_watchers(course, course_run_publish_date, course_run_status):
+def send_email_to_notify_course_watchers_and_marketing(course, course_run_publish_date, course_run_status):
     """
-    Send email to the watchers of the course when the course run is scheduled or published.
+    Send email to the watchers of the course and marketing team when the course run is scheduled or published.
 
     Arguments:
         course (Object): Course object
@@ -239,7 +239,14 @@ def send_email_to_notify_course_watchers(course, course_run_publish_date, course
         'course_marketing_url': course.marketing_url,
         'course_preview_url': course.preview_url,
     }
-    to_users = course.watchers
+    to_users = []
+    if course.watchers:
+        to_users.extend(course.watchers)
+    if settings.ORGANIC_MARKETING_EMAIL:
+        to_users.append(settings.ORGANIC_MARKETING_EMAIL)
+    if not to_users:
+        logger.info("Skipping send email to the course watchers and marketing because to_users list is empty")
+        return
     txt_template = 'course_metadata/email/watchers_course_url.txt'
     html_template = 'course_metadata/email/watchers_course_url.html'
     template = get_template(txt_template)
