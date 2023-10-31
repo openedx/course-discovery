@@ -243,9 +243,7 @@ class TestCourse(TestCase):
             course = draft_course_run.course
             official_version = draft_course_run.update_or_create_official_version()
             course.refresh_from_db()
-            assert course.active_url_slug.startswith('learn/')
             assert course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
-            assert official_version.course.active_url_slug.startswith('learn/')
             assert official_version.course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
 
     @ddt.data(
