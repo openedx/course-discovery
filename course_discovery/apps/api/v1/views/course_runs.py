@@ -288,13 +288,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         if not draft and (course_run.status == CourseRunStatus.Unpublished or non_exempt_update):
             save_kwargs['status'] = CourseRunStatus.LegalReview
 
-        try:
-            course_run = serializer.save(**save_kwargs)
-        except Exception:
-            log.exception(
-                f"Exception raised when attempting to save course run {course_run.key} with arguments {save_kwargs}"
-            )
-            raise  # re-raise the exception so that it is captured by writable_request_wrapper
+        course_run = serializer.save(**save_kwargs)
 
         if course_run in course_run.course.active_course_runs:
             course_run.update_or_create_seats(course_run.type, prices, upgrade_deadline_override,)
