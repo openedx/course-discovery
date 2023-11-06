@@ -17,7 +17,7 @@ algoliasearch-django==1.7.3
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-amqp==5.1.1
+amqp==5.2.0
     # via kombu
 asgiref==3.7.2
     # via
@@ -46,7 +46,7 @@ beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-billiard==4.1.0
+billiard==4.2.0
     # via celery
 boto3==1.28.78
     # via django-ses
@@ -646,6 +646,8 @@ tzdata==2023.3
     # via
     #   backports-zoneinfo
     #   celery
+unicodecsv==0.14.1
+    # via -r requirements/base.in
 uritemplate==4.1.1
     # via
     #   drf-yasg
