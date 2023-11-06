@@ -18,7 +18,10 @@ from course_discovery.apps.api.utils import (
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseRunFactory
+from course_discovery.apps.course_metadata.models import CourseType
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory
+)
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
 
@@ -102,7 +105,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         self.api = StudioAPI(self.partner)
         self.studio_url = self.partner.studio_url
 
-    def make_studio_data(self, run, add_pacing=True, add_schedule=True, team=None):
+    def make_studio_data(self, run, add_pacing=True, add_schedule=True, team=None, add_enrollment_dates=False):
         key = CourseKey.from_string(run.key)
         data = {
             'title': run.title,
@@ -118,23 +121,12 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
                 'start': serialize_datetime(run.start),
                 'end': serialize_datetime(run.end),
             }
+        if add_enrollment_dates:
+            data['schedule'] = {
+                'enrollment_start': serialize_datetime(run.enrollment_start),
+                'enrollment_end': serialize_datetime(run.enrollment_end),
+            }
         return data
-
-    def assert_data_generated_correctly(self, course_run, expected_team_data, creating=False):
-        course = course_run.course
-        expected = {
-            'title': course_run.title_override or course.title,
-            'org': course.organizations.first().key,
-            'number': course.number,
-            'run': StudioAPI.calculate_course_run_key_run_value(course.number, course_run.start_date_temporary),
-            'schedule': {
-                'start': serialize_datetime(course_run.start_date_temporary),
-                'end': serialize_datetime(course_run.end_date_temporary),
-            },
-            'team': expected_team_data,
-            'pacing_type': course_run.pacing_type_temporary,
-        }
-        assert StudioAPI.generate_data_for_studio_api(course_run, creating=creating) == expected
 
     def test_create_rerun(self):
         run1 = CourseRunFactory()
@@ -194,6 +186,36 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
             'being created without a course team.',
             run.key.split('+')[1]
         )
+
+    def test_generate_data_for_studio_api__external_course_enrollment_dates(self):
+        """
+        Verify that when updating the course run, the enrollment dates are added for external courses if present.
+        """
+        exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        run = CourseRunFactory(course=CourseFactory(type=exec_ed_type))
+        with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
+            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False, add_enrollment_dates=True)
+            output_data = StudioAPI.generate_data_for_studio_api(run, False)
+            assert output_data == expected_data
+        mock_logger.info.assert_called_with(
+            f'Enrollment information added to data {output_data} for course run {run.key}'
+        )
+
+    def test_generate_data_for_studio_api__external_course_missing_enrollment_dates(self):
+        """
+        Verify that when updating the course run, the enrollment dates are NOT added for external courses if missing.
+        """
+        exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        run = CourseRunFactory(course=CourseFactory(type=exec_ed_type), enrollment_start=None, enrollment_end=None)
+        with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
+            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
+            output_data = StudioAPI.generate_data_for_studio_api(run, False)
+            assert output_data == expected_data
+
+        with self.assertRaises(AssertionError):
+            mock_logger.info.assert_called_with(
+                f'Enrollment information added to data {output_data} for course run {run.key}'
+            )
 
     def test_calculate_course_run_key_run_value_with_multiple_runs_per_trimester(self):
         start = datetime.datetime(2017, 2, 1)
