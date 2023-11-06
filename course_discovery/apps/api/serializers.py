@@ -45,6 +45,7 @@ from course_discovery.apps.course_metadata.models import (
     ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice,
     ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
 )
+from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
@@ -910,6 +911,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
+    variant_id = serializers.UUIDField(allow_null=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -927,7 +929,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end', 'weeks_to_complete',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability',
+                  'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -981,6 +984,14 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
             raise serializers.ValidationError({'term': _('Term cannot be changed')})
 
         return super().validate(attrs)
+
+    def update(self, instance, validated_data):
+        """
+        Overrides update method to ignore variant_id from validated_data in case of update (PUT/PATCH) request.
+        """
+        if not IS_COURSE_RUN_VARIANT_ID_EDITABLE.is_enabled():
+            validated_data.pop('variant_id', None)
+        return super().update(instance, validated_data)
 
 
 class CourseRunSerializer(MinimalCourseRunSerializer):

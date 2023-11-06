@@ -54,3 +54,14 @@ IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED = WaffleSwitch(
 IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED = WaffleSwitch(
     'course_metadata.is_subdirectory_slug_format_for_bootcamp_enabled', __name__
 )
+# .. toggle_name: course_metadata.is_course_run_variant_id_editable
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to make course run variant id editable via CourseRun API (for external LOBs).
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-11-06
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3733
+IS_COURSE_RUN_VARIANT_ID_EDITABLE = WaffleSwitch(
+    'course_metadata.is_course_run_variant_id_editable', __name__
+)
