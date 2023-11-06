@@ -4,7 +4,7 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements/pip.txt requirements/pip.in
 #
-wheel==0.41.2
+wheel==0.41.3
     # via -r requirements/pip.in
 
 # The following packages are considered to be unsafe in a requirements file:
