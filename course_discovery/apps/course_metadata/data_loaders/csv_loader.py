@@ -3,8 +3,8 @@ Data loader responsible for creating course and course runs entries in discovery
 creating and updating related objects in Studio, and ecommerce, provided a csv containing the required information.
 """
 import csv
-import logging
 import datetime
+import logging
 
 import unicodecsv
 from django.conf import settings
@@ -75,9 +75,7 @@ class CSVDataLoader(AbstractDataLoader):
             * product_type: course type slug to identify the product type present in CSV
             * product_source: slug of the external source that actually owns the product.
         """
-        # super().__init__(partner, api_url, max_workers, is_threadsafe)
-        self.partner = partner
-        self.enable_api = True
+        super().__init__(partner, api_url, max_workers, is_threadsafe)
         self.error_logs = {}
         self.ingestion_summary = {
             'total_products_count': 0,
