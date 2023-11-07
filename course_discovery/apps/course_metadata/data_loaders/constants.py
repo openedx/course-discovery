@@ -12,6 +12,7 @@ class CSVIngestionErrors:
     MISSING_COURSE_RUN_TYPE = 'MISSING_COURSE_RUN_TYPE'
     MISSING_REQUIRED_DATA = 'MISSING_REQUIRED_DATA'
     COURSE_CREATE_ERROR = 'COURSE_CREATE_ERROR'
+    COURSE_RUN_CREATE_ERROR = 'COURSE_RUN_CREATE_ERROR'
     IMAGE_DOWNLOAD_FAILURE = 'IMAGE_DOWNLOAD_FAILURE'
     LOGO_IMAGE_DOWNLOAD_FAILURE = 'LOGO_IMAGE_DOWNLOAD_FAILURE'
     COURSE_UPDATE_ERROR = 'COURSE_UPDATE_ERROR'
@@ -36,6 +37,10 @@ class CSVIngestionErrorMessages:
 
     COURSE_CREATE_ERROR = '[COURSE_CREATE_ERROR] Unable to create course {course_title} in the system. The ingestion ' \
                           'failed with the exception: {exception_message}'
+
+    COURSE_RUN_CREATE_ERROR = '[COURSE_RUN_CREATE_ERROR] Unable to create course run of the course {course_title} ' \
+                              'with variant_id {variant_id} in the system. The ingestion failed with the exception: ' \
+                                '{exception_message}'
 
     COURSE_UPDATE_ERROR = '[COURSE_UPDATE_ERROR] Unable to update course {course_title} in the system. The update ' \
                           'failed with the exception: {exception_message}'

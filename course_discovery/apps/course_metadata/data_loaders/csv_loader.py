@@ -4,6 +4,7 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 """
 import csv
 import logging
+import datetime
 
 import unicodecsv
 from django.conf import settings
@@ -74,7 +75,9 @@ class CSVDataLoader(AbstractDataLoader):
             * product_type: course type slug to identify the product type present in CSV
             * product_source: slug of the external source that actually owns the product.
         """
-        super().__init__(partner, api_url, max_workers, is_threadsafe)
+        # super().__init__(partner, api_url, max_workers, is_threadsafe)
+        self.partner = partner
+        self.enable_api = True
         self.error_logs = {}
         self.ingestion_summary = {
             'total_products_count': 0,
@@ -172,8 +175,14 @@ class CSVDataLoader(AbstractDataLoader):
 
             if course:
                 # New method here to create new course run if dates are different and variant_id is different
-                course_run = CourseRun.objects.filter_drafts(course=course).first()
-                logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
+                # If course run is not found, create a new course run
+                # import pdb; pdb.set_trace()
+                try:
+                    logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    course_run, is_course_run_created = self._get_or_create_course_run(row, course, course_type, course_run_type.uuid)
+                except Exception as exc:  # pylint: disable=broad-except
+                    logger.exception(exc)
+                    continue
             else:
                 logger.info("Course key {} could not be found in database, creating the course.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 try:
@@ -193,6 +202,7 @@ class CSVDataLoader(AbstractDataLoader):
                 course = Course.everything.get(key=course_key, partner=self.partner)
                 course_run = CourseRun.everything.filter(course=course).first()
                 is_course_created = True
+                is_course_run_created = True
 
             is_downloaded = download_and_save_course_image(
                 course,
@@ -271,6 +281,40 @@ class CSVDataLoader(AbstractDataLoader):
         self._render_error_logs()
         self._render_course_uuids()
 
+    def _get_or_create_course_run(self, data, course, course_type, course_run_type_uuid):
+        """
+        Helper method to get or create a course run for external LOB courses.
+        """
+        is_course_run_created = False
+        course_runs = CourseRun.objects.filter_drafts(course=course)
+        course_run = course_runs.filter(variant_id=data.get('variant_id', '')).first()
+        if not course_run:
+            course_runs = course_runs.filter(
+                start=datetime.datetime.strptime(f'{data["start_date"]} {data["start_time"]}', '%Y-%m-%d %H:%M:%S'),
+                end=datetime.datetime.strptime(f'{data["end_date"]} {data["end_time"]}', '%Y-%m-%d %H:%M:%S'),
+            )
+            course_run = course_runs.last()
+        if not course_run:
+            logger.info("Course Run with variant_id {} isn't found".format(data.get('variant_id', '')))
+            logger.info("Creating new course run for course {} with variant_id {}".format(course.key, data.get('variant_id', '')))
+        try:
+            _ = self._create_course_run(data, course, course_type, course_run_type_uuid)
+            is_course_run_created = True
+        except Exception as exc:  # pylint: disable=broad-except
+            exception_message = exc
+            if hasattr(exc, 'response'):
+                exception_message = exc.response.content.decode('utf-8')
+            error_message = CSVIngestionErrorMessages.COURSE_RUN_CREATE_ERROR.format(
+                    course_title=course.title,
+                    variant_id=data.get("variant_id", ""),
+                    exception_message=exception_message
+            )
+            self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_CREATE_ERROR, exception_message)
+            raise Exception(error_message)
+        if not course_run and is_course_run_created:
+            course_run = CourseRun.objects.filter_drafts(course=course).filter(variant_id=data.get('variant_id', '')).first()
+        return course_run, is_course_run_created
+      
     def validate_course_data(self, course_type, data):
         """
         Verify the required data key-values for a course type are present in the provided
@@ -391,6 +435,30 @@ class CSVDataLoader(AbstractDataLoader):
             'course_run': course_run_creation_fields
         }
 
+    def _create_course_run_api_request_data(self, data, course, course_type, course_run_type_uuid):
+        """
+        Given a data dictionary, return a reduced data representation in dict
+        which will be used as input for course run creation via course run api.
+        """
+        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        registration_deadline = data.get('reg_close_date', '')
+        variant_id = data.get('variant_id', '')
+        course_run_creation_fields = {
+            'pacing_type': self.get_pacing_type(data['course_pacing']),
+            'start': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'end': self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
+            'run_type': str(course_run_type_uuid),
+            'prices': pricing,
+            'course': course.key,
+        }
+        if registration_deadline:
+            course_run_creation_fields.update({'enrollment_end': self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            )})
+        if variant_id:
+            course_run_creation_fields.update({'variant': variant_id})
+        return course_run_creation_fields
+  
     def get_draft_flag(self, course_run):
         """
         To keep behavior of CSV loader consistent with publisher, draft flag is false only when:
@@ -564,6 +632,18 @@ class CSVDataLoader(AbstractDataLoader):
         if response.status_code not in (200, 201):
             logger.info("Course creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
+
+    def _create_course_run(self, data, course, course_type, course_run_type_uuid):
+        """
+        Make a course run entry through course run api.
+        """
+        course_run_api_url = reverse('api:v1:course_run-list')
+        url = f"{settings.DISCOVERY_BASE_URL}{course_run_api_url}"
+
+        request_data = self._create_course_run_api_request_data(data, course, course_type, course_run_type_uuid)
+        response = self._call_course_api('POST', url, request_data)
+        if response.status_code not in (200, 201):
+            logger.info("Course run creation response: {}".format(response.content))
 
     def _update_course(self, data, course, is_draft):
         """
