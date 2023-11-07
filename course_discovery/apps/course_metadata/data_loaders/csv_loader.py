@@ -362,6 +362,7 @@ class CSVDataLoader(AbstractDataLoader):
         """
         pricing = self.get_pricing_representation(data['verified_price'], course_type)
         product_source = self.product_source.slug if self.product_source else None
+        registration_deadline = data.get('reg_close_date', '')
 
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
@@ -370,6 +371,10 @@ class CSVDataLoader(AbstractDataLoader):
             'run_type': str(course_run_type_uuid),
             'prices': pricing,
         }
+        if registration_deadline:
+            course_run_creation_fields.update({'enrollment_end': self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            )})
         return {
             'org': data['organization'],
             'title': data['title'],
