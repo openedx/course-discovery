@@ -168,8 +168,10 @@ class CSVDataLoader(AbstractDataLoader):
             course_key = self.get_course_key(org_key, row['number'])
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             is_course_created = False
+            is_course_run_created = False
 
             if course:
+                # New method here to create new course run if dates are different and variant_id is different
                 course_run = CourseRun.objects.filter_drafts(course=course).first()
                 logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             else:
@@ -363,6 +365,7 @@ class CSVDataLoader(AbstractDataLoader):
         pricing = self.get_pricing_representation(data['verified_price'], course_type)
         product_source = self.product_source.slug if self.product_source else None
         registration_deadline = data.get('reg_close_date', '')
+        variant_id = data.get('variant_id', '')
 
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
@@ -375,6 +378,9 @@ class CSVDataLoader(AbstractDataLoader):
             course_run_creation_fields.update({'enrollment_end': self.get_formatted_datetime_string(
                 f"{data['reg_close_date']} {data['reg_close_time']}"
             )})
+        if variant_id:
+            course_run_creation_fields.update({'variant': variant_id})
+
         return {
             'org': data['organization'],
             'title': data['title'],
