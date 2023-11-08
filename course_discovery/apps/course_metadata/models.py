@@ -684,12 +684,6 @@ class CourseType(TimeStampedModel):
         """ Empty types are special - they are the default type used when we don't know a real type """
         return self.slug == self.EMPTY
 
-    @classmethod
-    def is_enterprise_catalog_course_type(cls, course_type):
-        return course_type.slug in [
-            cls.AUDIT, cls.VERIFIED_AUDIT, cls.PROFESSIONAL, cls.CREDIT_VERIFIED_AUDIT, cls.EMPTY
-        ]
-
 
 class Subject(TranslatableModel, TimeStampedModel):
     """ Subject model. """
@@ -1479,13 +1473,20 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
     def _check_enterprise_subscription_inclusion(self):
         # if false has been passed in, or it's already been set to false
-        if not CourseType.is_enterprise_catalog_course_type(self.type) or \
+        if not self.is_enterprise_catalog_allowed_course() or \
                 self.enterprise_subscription_inclusion is False:
             return False
         for org in self.authoring_organizations.all():
             if not org.enterprise_subscription_inclusion:
                 return False
         return True
+
+    def is_enterprise_catalog_allowed_course(self):
+        """
+        As documented in ADR docs/decisions/0012-enterprise-program-inclusion-boolean.rst, OC course types
+        are allowed in Enterprise catalog inclusion. OC types are all course types excluding ExecEd and Bootcamp.
+        """
+        return not self.is_external_course
 
     def update_data_modified_timestamp(self):
         """
