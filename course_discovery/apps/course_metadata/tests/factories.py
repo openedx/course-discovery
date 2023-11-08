@@ -306,6 +306,7 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = CourseType
+        django_get_or_create = ('slug',)
 
     @factory.post_generation
     def entitlement_types(self, create, extracted, **kwargs):

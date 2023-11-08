@@ -485,8 +485,8 @@ class TestCourse(TestCase):
         assert course.additional_metadata.end_date == additional_metadata.end_date
         assert course.additional_metadata.product_status == ExternalProductStatus.Published
 
-    def test_enterprise_subscription_inclusion(self):
-        """ Verify the enterprise inclusion boolean is calculated as expected. """
+    def test_enterprise_subscription_inclusion__authoring_organizations(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on authoring orgs inclusion."""
         org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org_list = [org1, org2]
@@ -502,6 +502,26 @@ class TestCourse(TestCase):
             authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
         )
         assert course1.enterprise_subscription_inclusion is False
+
+    @ddt.data(
+        (CourseType.VERIFIED_AUDIT, True),
+        (CourseType.AUDIT, True),
+        (CourseType.PROFESSIONAL, True),
+        (CourseType.EMPTY, True),
+        ('verified', True),
+        (CourseType.CREDIT_VERIFIED_AUDIT, True),
+        (CourseType.BOOTCAMP_2U, False),
+        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+    )
+    @ddt.unpack
+    def test_enterprise_subscription_inclusion__course_type(self, course_type_slug, expected_inclusion_value):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on allowed course types."""
+        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseTypeFactory(slug=course_type_slug)
+        course = factories.CourseFactory(
+            authoring_organizations=[org1], enterprise_subscription_inclusion=None, type=course_type,
+        )
+        assert course.enterprise_subscription_inclusion is expected_inclusion_value
 
     def test_set_active_url_slug__draft_only(self):
         """
