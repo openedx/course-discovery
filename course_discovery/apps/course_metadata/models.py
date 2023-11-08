@@ -1484,7 +1484,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
     def is_enterprise_catalog_allowed_course(self):
         """
         As documented in ADR docs/decisions/0012-enterprise-program-inclusion-boolean.rst, OC course types
-        are allowed in Enterprise catalog inclusion. By definition, OC types are all types excluding ExecEd and Bootcamp.
+        are allowed in Enterprise catalog inclusion. OC types are all course types excluding ExecEd and Bootcamp.
         """
         return not self.is_external_course
 
