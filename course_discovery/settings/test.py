@@ -11,6 +11,10 @@ ALLOWED_HOSTS = ['*']
 
 DEFAULT_PARTNER_ID = 1
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',  # Use MD5 hasher for testing
+]
+
 TEST_NON_SERIALIZED_APPS = [
     # Prevents the issue described at https://code.djangoproject.com/ticket/23727.
     'django.contrib.contenttypes',
