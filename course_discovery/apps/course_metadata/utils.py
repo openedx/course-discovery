@@ -34,7 +34,9 @@ from course_discovery.apps.course_metadata.exceptions import (
 )
 from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -414,38 +416,62 @@ def calculated_seat_upgrade_deadline(seat):
 
 
 def serialize_seat_for_ecommerce_api(seat, mode):
+    """
+    Serializes seat data for ecommerce publication API.
+    """
+    attribute_values_list = [
+        {
+            'name': 'certificate_type',
+            'value': mode.certificate_type,
+        },
+        {
+            'name': 'id_verification_required',
+            'value': mode.is_id_verified,
+        }
+    ]
+
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course_run = seat.course_run
+        if course_run and course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course_run.variant_id),
+            })
+
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
         'product_class': 'Seat',
         'stockrecords': [{'partner_sku': getattr(seat, 'sku', None)}],
-        'attribute_values': [
-            {
-                'name': 'certificate_type',
-                'value': mode.certificate_type,
-            },
-            {
-                'name': 'id_verification_required',
-                'value': mode.is_id_verified,
-            }
-        ]
+        'attribute_values': attribute_values_list,
     }
 
 
 def serialize_entitlement_for_ecommerce_api(entitlement):
+    """
+    Serializes entitlement data for ecommerce publication API.
+    """
     attribute_values_list = [
         {
             'name': 'certificate_type',
             'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
         },
     ]
-    additional_metadata = entitlement.course.additional_metadata
-    if additional_metadata and additional_metadata.variant_id:
-        attribute_values_list.append({
-            'name': 'variant_id',
-            'value': str(additional_metadata.variant_id),
 
-        })
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course = entitlement.course
+        if course.advertised_course_run and course.advertised_course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course.advertised_course_run.variant_id),
+            })
+    else:
+        additional_metadata = entitlement.course.additional_metadata
+        if additional_metadata and additional_metadata.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(additional_metadata.variant_id),
+            })
 
     return {
         'price': str(entitlement.price),

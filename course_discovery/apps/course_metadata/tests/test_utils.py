@@ -36,7 +36,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
     SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
@@ -162,46 +164,144 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
 
 @ddt.ddt
 class TestSerializeSeatForEcommerceApi(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.course_run_missing_variant = CourseRunFactory(variant_id=None)
+        self.course_run_variant_id = CourseRunFactory(variant_id='00000000-0000-0000-0000-000000000000')
+
     @ddt.data(
-        ('', False),
-        ('verified', True),
+        ('', False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+            ]
+        }),
+        ('verified', True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+            ]
+        }),
     )
     @ddt.unpack
-    def test_serialize_seat_for_ecommerce_api(self, certificate_type, is_id_verified):
-        seat = SeatFactory()
+    def test_serialize_seat_for_ecommerce_api_without_variant_id(self, certificate_type, is_id_verified, expected):
+        """
+        Test that serialize_seat_for_ecommerce_api returns the expected data for a seat of OCM course
+        """
+        seat = SeatFactory(course_run=self.course_run_missing_variant, sku='example_sku', price=100.00)
         mode = ModeFactory(certificate_type=certificate_type, is_id_verified=is_id_verified)
+
         actual = serialize_seat_for_ecommerce_api(seat, mode)
-        expected = {
-            'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
-            'price': str(seat.price),
-            'product_class': 'Seat',
-            'stockrecords': [{'partner_sku': seat.sku}],
-            'attribute_values': [
-                {
-                    'name': 'certificate_type',
-                    'value': mode.certificate_type,
-                },
-                {
-                    'name': 'id_verification_required',
-                    'value': mode.is_id_verified,
-                }
-            ]
-        }
+        expected['expires'] = serialize_datetime(calculated_seat_upgrade_deadline(seat))
+        expected['price'] = str(seat.price)
+
         assert actual == expected
+
         seat.sku = None
-        actual = serialize_seat_for_ecommerce_api(seat, mode)
+        seat.course_run = self.course_run_missing_variant
         expected['stockrecords'][0]['partner_sku'] = None
+
+        actual = serialize_seat_for_ecommerce_api(seat, mode)
         assert actual == expected
+
+    @ddt.data(
+        ('', False, False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+            ]
+        }),
+        ('verified', True, False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+            ]
+        }),
+        ('', False, True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+                {'name': 'variant_id', 'value': '00000000-0000-0000-0000-000000000000'},
+            ]
+        }),
+        ('verified', True, True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+                {'name': 'variant_id', 'value': '00000000-0000-0000-0000-000000000000'},
+            ]
+        }),
+    )
+    @ddt.unpack
+    def test_serialize_seat_for_ecommerce_api_with_variant_id_present(
+        self, certificate_type, is_id_verified, variant_id_flag, expected
+    ):
+        """
+        Test that serialize_seat_for_ecommerce_api returns the expected data for a seat of external LOBs course
+        """
+        seat = SeatFactory(course_run=self.course_run_variant_id, sku='example_sku', price=100.00)
+        mode = ModeFactory(certificate_type=certificate_type, is_id_verified=is_id_verified)
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, active=variant_id_flag):
+            actual = serialize_seat_for_ecommerce_api(seat, mode)
+            expected['expires'] = serialize_datetime(calculated_seat_upgrade_deadline(seat))
+            expected['price'] = str(seat.price)
+
+            assert actual == expected
+            seat.sku = None
+            seat.course_run = self.course_run_variant_id
+            expected['stockrecords'][0]['partner_sku'] = None
+
+            actual = serialize_seat_for_ecommerce_api(seat, mode)
+            assert actual == expected
 
 
 @pytest.mark.django_db
-class TestSerializeEntitlementForEcommerceApi:
+@ddt.ddt
+class TestSerializeEntitlementForEcommerceApi(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.ocm_course = CourseFactory(additional_metadata=None)
+        self.external_course = CourseFactory()
+        CourseRunFactory(
+            start=datetime.datetime(2022, 10, 13, tzinfo=pytz.UTC),
+            end=datetime.datetime(2050, 3, 1, tzinfo=pytz.UTC),
+            course=self.external_course,
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+            draft=False,
+        )
+        SeatFactory(course_run=self.external_course.course_runs.first(), sku='example_sku', price=100.00)
+
     def test_serialize_entitlement_for_ecommerce_api(self):
         """
         CourseEntitlement should be able to be serialized as expected for
         call to ecommerce api.
         """
-        entitlement = CourseEntitlementFactory(course__additional_metadata=None)
+        entitlement = CourseEntitlementFactory(course=self.ocm_course)
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
             'price': str(entitlement.price),
@@ -221,7 +321,7 @@ class TestSerializeEntitlementForEcommerceApi:
         Additional metadata should be included in attribute values sent to Ecommerce
         if they are present on a course object.
         """
-        entitlement = CourseEntitlementFactory()
+        entitlement = CourseEntitlementFactory(course=self.external_course)
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
             'price': str(entitlement.price),
@@ -239,6 +339,46 @@ class TestSerializeEntitlementForEcommerceApi:
         }
 
         assert actual == expected
+
+    @ddt.data(False, True)
+    def test_serialize_entitlement_for_ecommerce_api_with_variant_id_flag(
+        self, variant_id_flag
+    ):
+        """
+        Test to verify that certificate type and variant_id should be included in attribute values
+        sent to Ecommerce if they are present on a course object.
+
+        If IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE is False, variant_id is taken from course.additional_metadata
+        If IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE is True, variant_id is taken from course.advertised_course_run
+        """
+        entitlement = CourseEntitlementFactory(course=self.external_course)
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, active=variant_id_flag):
+            actual = serialize_entitlement_for_ecommerce_api(entitlement)
+            attribute_values_list = [
+                {
+                    'name': 'certificate_type',
+                    'value': entitlement.mode.slug,
+                },
+            ]
+            if variant_id_flag:
+                course = entitlement.course
+                attribute_values_list.append({
+                    'name': 'variant_id',
+                    'value': str(course.advertised_course_run.variant_id),
+                })
+            else:
+                attribute_values_list.append({
+                    'name': 'variant_id',
+                    'value': str(entitlement.course.additional_metadata.variant_id),
+                })
+
+            expected = {
+                'price': str(entitlement.price),
+                'product_class': 'Course Entitlement',
+                'attribute_values': attribute_values_list
+            }
+
+            assert actual == expected
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
