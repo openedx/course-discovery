@@ -17,7 +17,7 @@ services:
       - ./.dev/volumes/db:/var/lib/mysql
 
   es:
-    image: elasticsearch:7.17.14
+    image: elasticsearch:7.17.15
     container_name: es
     volumes:
       - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
