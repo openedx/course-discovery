@@ -244,11 +244,11 @@ def send_email_to_notify_course_watchers_and_marketing(course, course_run_publis
         to_users.extend(course.watchers)
     if settings.ORGANIC_MARKETING_EMAIL:
         # Temporary: Allow both string and list email groups for backwards compatibility
-        to_users.append(
-            settings.ORGANIC_MARKETING_EMAIL
-        ) if isinstance(settings.ORGANIC_MARKETING_EMAIL, str) else to_users.extend(
-            settings.ORGANIC_MARKETING_EMAIL
-        )
+        organic_marketing_users = settings.ORGANIC_MARKETING_EMAIL
+        if isinstance(organic_marketing_users, str):
+            organic_marketing_users = [organic_marketing_users]
+        to_users.extend(organic_marketing_users)
+
     if not to_users:
         logger.info("Skipping send email to the course watchers and marketing because to_users list is empty")
         return
