@@ -243,7 +243,12 @@ def send_email_to_notify_course_watchers_and_marketing(course, course_run_publis
     if course.watchers:
         to_users.extend(course.watchers)
     if settings.ORGANIC_MARKETING_EMAIL:
-        to_users.append(settings.ORGANIC_MARKETING_EMAIL)
+        # Temporary: Allow both string and list email groups for backwards compatibility
+        to_users.append(
+            settings.ORGANIC_MARKETING_EMAIL
+        ) if isinstance(settings.ORGANIC_MARKETING_EMAIL, str) else to_users.extend(
+            settings.ORGANIC_MARKETING_EMAIL
+        )
     if not to_users:
         logger.info("Skipping send email to the course watchers and marketing because to_users list is empty")
         return
@@ -261,6 +266,7 @@ def send_email_to_notify_course_watchers_and_marketing(course, course_run_publis
 
     try:
         email_msg.send()
+        logger.info(f"Email sent to the course watchers and marketing group {to_users} for course {course.title}")
     except Exception as exc:  # pylint: disable=broad-except
         logger.exception(
             f'Failed to send email notification with subject "{subject}" to users {to_users}. Error: {exc}'
