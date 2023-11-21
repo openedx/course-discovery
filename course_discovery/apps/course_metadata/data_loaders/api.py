@@ -48,7 +48,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
         super().__init__(partner, api_url, max_workers, is_threadsafe, enable_api)
-        self.default_product_source = Source.objects.get(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.default_product_source, __ = Source.objects.get_or_create(
+            name=settings.DEFAULT_PRODUCT_SOURCE_NAME,
+            slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG
+        )
 
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
