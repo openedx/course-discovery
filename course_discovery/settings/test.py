@@ -120,6 +120,7 @@ GETSMARTER_CLIENT_CREDENTIALS = {
     'PRODUCTS_DETAILS_URL' : 'https://test-getsmarter.com/api/v1/products?detail=2',
 }
 
+DEFAULT_PRODUCT_SOURCE_NAME = 'Test Source'
 DEFAULT_PRODUCT_SOURCE_SLUG = 'test-source'
 EXTERNAL_PRODUCT_SOURCE_SLUG = 'external-test-source'
 
