@@ -65,3 +65,16 @@ IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED = WaffleSwitch(
 IS_COURSE_RUN_VARIANT_ID_EDITABLE = WaffleSwitch(
     'course_metadata.is_course_run_variant_id_editable', __name__
 )
+# .. toggle_name: course_metadata.is_course_run_variant_id_ecommerce_consumable
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable the sending of the course run's variant_id to the ecommerce for external courses,
+# .. rather than retrieving it from the additional metadata of the course.
+# .. toggle_use_cases: open_edx
+# .. toggle_type: temporary
+# .. toggle_creation_date: 2023-11-17
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3733
+IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE = WaffleSwitch(
+    'course_metadata.is_course_run_variant_id_ecommerce_consumable', __name__
+)
