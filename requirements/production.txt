@@ -48,9 +48,9 @@ beautifulsoup4==4.12.2
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.29.3
+boto3==1.29.6
     # via django-ses
-botocore==1.32.3
+botocore==1.32.6
     # via
     #   boto3
     #   s3transfer
@@ -62,7 +62,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.3.5
+celery==5.3.6
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -167,7 +167,7 @@ django==4.2.7
     #   xss-utils
 django-admin-sortable2==2.1.10
     # via -r requirements/base.in
-django-appconf==1.0.5
+django-appconf==1.0.6
     # via django-compressor
 django-autocomplete-light==3.9.7
     # via -r requirements/base.in
@@ -203,7 +203,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.2.3
     # via -r requirements/base.in
-django-filter==23.3
+django-filter==23.4
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -231,7 +231,7 @@ django-object-actions==4.2.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.5.0
+django-ses==3.5.1
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
@@ -346,7 +346,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via anyio
 fastavro==1.9.0
     # via openedx-events
@@ -391,9 +391,9 @@ httplib2==0.22.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-httpx==0.25.1
+httpx==0.25.2
     # via openai
-idna==3.4
+idna==3.6
     # via
     #   anyio
     #   httpx
@@ -440,7 +440,7 @@ oauthlib==3.2.2
     #   getsmarter-api-clients
     #   requests-oauthlib
     #   social-auth-core
-openai==1.3.3
+openai==1.3.5
     # via taxonomy-connector
 openedx-atlas==0.5.0
     # via -r requirements/base.in
@@ -478,7 +478,7 @@ protobuf==4.25.1
     #   googleapis-common-protos
 psutil==5.9.6
     # via edx-django-utils
-pyasn1==0.5.0
+pyasn1==0.5.1
     # via
     #   pyasn1-modules
     #   rsa
@@ -488,9 +488,9 @@ pycountry==22.3.5
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pydantic==2.5.1
+pydantic==2.5.2
     # via openai
-pydantic-core==2.14.3
+pydantic-core==2.14.5
     # via pydantic
 pyjwt[crypto]==2.8.0
     # via
@@ -681,7 +681,7 @@ vine==5.1.0
     #   kombu
 walrus==0.9.3
     # via edx-event-bus-redis
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via prompt-toolkit
 webencodings==0.5.1
     # via

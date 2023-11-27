@@ -73,9 +73,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.29.3
+boto3==1.29.6
     # via django-ses
-botocore==1.32.3
+botocore==1.32.6
     # via
     #   boto3
     #   s3transfer
@@ -91,7 +91,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.3.5
+celery==5.3.6
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -227,7 +227,7 @@ distro==1.8.0
     #   xss-utils
 django-admin-sortable2==2.1.10
     # via -r requirements/base.in
-django-appconf==1.0.5
+django-appconf==1.0.6
     # via django-compressor
 django-autocomplete-light==3.9.7
     # via -r requirements/base.in
@@ -270,7 +270,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.2.3
     # via -r requirements/base.in
-django-filter==23.3
+django-filter==23.4
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -298,7 +298,7 @@ django-object-actions==4.2.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.5.0
+django-ses==3.5.1
     # via taxonomy-connector
 django-simple-history==3.4.0
     # via -r requirements/base.in
@@ -429,7 +429,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via
     #   anyio
     #   pytest
@@ -441,7 +441,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==20.0.3
+faker==20.1.0
     # via factory-boy
 fastavro==1.9.0
     # via openedx-events
@@ -489,9 +489,9 @@ httplib2==0.22.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-httpx==0.25.1
+httpx==0.25.2
     # via openai
-idna==3.4
+idna==3.6
     # via
     #   anyio
     #   httpx
@@ -557,7 +557,7 @@ oauthlib==3.2.2
     #   getsmarter-api-clients
     #   requests-oauthlib
     #   social-auth-core
-openai==1.3.3
+openai==1.3.5
     # via taxonomy-connector
 openedx-atlas==0.5.0
     # via -r requirements/base.in
@@ -618,7 +618,7 @@ protobuf==4.25.1
     #   googleapis-common-protos
 psutil==5.9.6
     # via edx-django-utils
-pyasn1==0.5.0
+pyasn1==0.5.1
     # via
     #   pyasn1-modules
     #   rsa
@@ -630,13 +630,13 @@ pycountry==22.3.5
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pydantic==2.5.1
+pydantic==2.5.2
     # via openai
-pydantic-core==2.14.3
+pydantic-core==2.14.5
     # via pydantic
 pydata-sphinx-theme==0.14.3
     # via sphinx-book-theme
-pygments==2.17.1
+pygments==2.17.2
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -703,7 +703,7 @@ pytest-responses==0.5.1
     # via -r requirements/test.in
 pytest-split==0.8.1
     # via -r requirements/local.in
-pytest-xdist==3.4.0
+pytest-xdist==3.5.0
     # via -r requirements/test.in
 python-dateutil==2.8.2
     # via
@@ -969,13 +969,13 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.6
+virtualenv==20.24.7
     # via tox
 walrus==0.9.3
     # via edx-event-bus-redis
 wcmatch==8.5
     # via semgrep
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via prompt-toolkit
 webencodings==0.5.1
     # via
