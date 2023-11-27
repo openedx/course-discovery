@@ -570,6 +570,7 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': None,
                         'url_slug': url_slug,
+                        're-run': True,
                     }
                 ],
             }
@@ -605,16 +606,19 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': 'sprint',
                         'url_slug': url_slug,
+                        're-run': True
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'course_stack',
                         'url_slug': url_slug,
+                        're-run': True
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'short_course',
                         'url_slug': url_slug,
+                        're-run': True
                     },
                 ],
             }

@@ -12,7 +12,7 @@ Archived Products: {{ archived_products_count }}
 {% if created_products_count > 0 %}
 New Products
 {% for new_product in created_products %}
-{{ new_product.uuid }} - {{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}
+{{ new_product.uuid }} - {{ new_product.url_slug}} {% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %} {% if new_product.rerun %} A new run has been created {% endif %}
 {% endfor %}
 {% endif %}
 {% if created_products_count > 0 %}

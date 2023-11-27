@@ -368,8 +368,8 @@ class CSVLoaderMixin:
         },
         'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>'],
         'start_date': '2020-01-25T00:00:00+00:00',
-        'end_date': '2020-02-25T00:00:00+00:00',
-        'registration_deadline': '2020-01-25T00:00:00+00:00',
+        'end_date': '2050-02-25T00:00:00+00:00',
+        'registration_deadline': '2050-01-25T00:00:00+00:00',
         'variant_id': "00000000-0000-0000-0000-000000000000",
         "meta_title": "SEO Title",
         "meta_description": "SEO Description",
@@ -391,6 +391,7 @@ class CSVLoaderMixin:
         'go_live_date': '2020-01-25T00:00:00+00:00',
         'expected_program_type': 'professional-certificate',
         'expected_program_name': 'New Program for all',
+        'registration_deadline': '2050-01-25T00:00:00+00:00',
     }
 
     def setUp(self):
@@ -495,7 +496,6 @@ class CSVLoaderMixin:
         course_entitlement = CourseEntitlement.everything.get(
             draft=expected_data['draft'], mode__slug=self.paid_exec_ed_slug, course=course
         )
-
         assert course.draft is expected_data['draft']
         assert course.title == expected_data['title']
         assert course.faq == expected_data['faq']
@@ -547,6 +547,7 @@ class CSVLoaderMixin:
         assert course_run_seat.draft is expected_data['draft']
         assert course_run.status == expected_data['status']
         assert course_run.weeks_to_complete == expected_data['length']
+        assert course_run.enrollment_end.isoformat() == expected_data['registration_deadline']
         assert course_run.min_effort == expected_data['minimum_effort']
         assert course_run.max_effort == expected_data['maximum_effort']
         assert course_run_seat.price == expected_data['verified_price']
