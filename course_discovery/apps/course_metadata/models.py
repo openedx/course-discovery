@@ -2038,7 +2038,7 @@ class FAQ(TimeStampedModel):
 class Program(PkSearchableMixin, TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
-        help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
+        help_text=_('The user-facing display title for this Program.'), max_length=255)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
     marketing_hook = models.CharField(
@@ -2140,6 +2140,11 @@ class Program(PkSearchableMixin, TimeStampedModel):
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()
+
+    class Meta:
+        unique_together = (
+            ('partner', 'title'),
+        )
 
     def __str__(self):
         return self.title
