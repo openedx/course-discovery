@@ -136,6 +136,9 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
+            expected_slug = f'{mock_data.VALID_DEGREE_CSV_DICT["product_type"]}/' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["organization_key"]}-' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["slug"]}'
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
@@ -154,7 +157,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=expected_slug, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -189,6 +192,9 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
+            expected_slug = f'{mock_data.VALID_DEGREE_CSV_DICT["product_type"]}/' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["organization_key"]}-' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["slug"]}'
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
@@ -206,7 +212,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=expected_slug, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -236,6 +242,9 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(
                 csv, [mock_data.VALID_DEGREE_CSV_DICT], self.MINIMAL_CSV_DATA_KEYS_ORDER
             )
+            expected_slug = f'{mock_data.VALID_DEGREE_CSV_DICT["product_type"]}/' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["organization_key"]}-' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["slug"]}'
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
@@ -254,7 +263,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=expected_slug, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -266,7 +275,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.title == 'Test Degree'
                 assert degree.overview == 'Test Degree Overview'
                 assert degree.type == self.program_type
-                assert degree.marketing_slug == 'test-degree'
+                assert degree.marketing_slug == expected_slug
                 assert degree.additional_metadata.external_url == 'http://example.com/landing-page.html'
                 assert degree.additional_metadata.external_identifier == '123456'
                 assert degree.additional_metadata.organic_url == 'http://example.com/organic-page.html'
@@ -290,6 +299,9 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_DEGREE_CSV_DICT])
+            expected_slug = f'{mock_data.VALID_DEGREE_CSV_DICT["product_type"]}/' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["organization_key"]}-' \
+                            f'{mock_data.VALID_DEGREE_CSV_DICT["slug"]}'
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name, product_source=self.product_source.slug)
@@ -312,7 +324,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         LOGGER_PATH,
                         'ERROR',
                         '[IMAGE_DOWNLOAD_FAILURE] The degree image download failed for the degree'
-                        ' {degree_slug}.'.format(degree_slug=self.DEGREE_SLUG)
+                        ' {degree_slug}.'.format(degree_slug=expected_slug)
                     )
                 )
 
@@ -360,10 +372,12 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             type=self.program_type, product_source=self.product_source
         )
         _ = DegreeAdditionalMetadataFactory(degree=degree, external_identifier='123456')
-        updated_slug = 'test-degree-2'
+        expected_slug = f'{mock_data.VALID_DEGREE_CSV_DICT["product_type"]}/' \
+                        f'{mock_data.VALID_DEGREE_CSV_DICT["organization_key"]}-' \
+                        f'{mock_data.VALID_DEGREE_CSV_DICT["slug"]}'
 
         degree_data = mock_data.VALID_DEGREE_CSV_DICT.copy()
-        degree_data['slug'] = updated_slug
+        degree_data['slug'] = expected_slug
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [degree_data])
 
@@ -373,4 +387,4 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             assert Degree.objects.count() == 1
             assert Program.objects.count() == 1
             assert Curriculum.objects.count() == 1
-            assert Degree.objects.first().marketing_slug == updated_slug
+            assert Degree.objects.first().marketing_slug == expected_slug

@@ -147,10 +147,11 @@ class DegreeCSVLoaderMixin:
         Verify the degree's data fields have same values as the expected data dict.
         """
 
+        expected_slug = f"{expected_data['type']}/{expected_data['organization_key']}-{expected_data['marketing_slug']}"
         assert degree.title == expected_data['title']
         assert degree.overview == expected_data['overview']
         assert degree.type == self.program_type
-        assert degree.marketing_slug == expected_data['marketing_slug']
+        assert degree.marketing_slug == expected_slug
         assert degree.additional_metadata.external_url == expected_data['paid_landing_page_url']
         assert degree.additional_metadata.external_identifier == expected_data['external_identifier']
         assert degree.additional_metadata.organic_url == expected_data['organic_url']

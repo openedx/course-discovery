@@ -585,7 +585,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Explore water management concepts and technologies',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'water-management',
+        'marketing_slug': 'xseries/delftx-water-management',
         'organizations': [
             {
                 'display_name': 'Delft University of Technology',
@@ -680,7 +680,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Learn how to design and optimize the supply chain to enhance business performance.',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'supply-chain-management-0',
+        'marketing_slug': 'xseries/mitx-supply-chain-management',
         'organizations': [
             {
                 'display_name': 'Massachusetts Institute of Technology',

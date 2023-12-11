@@ -49,7 +49,7 @@ class ProgramAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['type'].required = True
-        self.fields['marketing_slug'].required = True
+        self.fields['marketing_slug'].required = False
         self.fields['courses'].required = False
         if self.fields.get('product_source'):
             self.fields['product_source'].required = True
