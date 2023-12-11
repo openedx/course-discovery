@@ -3069,7 +3069,9 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         choices=ProgramStatus.choices, default=ProgramStatus.Unpublished
     )
     marketing_slug = models.CharField(
-        help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
+        unique=True, max_length=255, db_index=True,
+        help_text=_('Leave this field blank to have the value generated automatically.')
+    )
     # Normally you don't need this limit_choices_to line, because Course.objects will return official rows by default.
     # But our Django admin form for this field does more low level querying than that and needs to be limited.
     courses = SortedManyToManyField(Course, related_name='programs', limit_choices_to={'draft': False})
