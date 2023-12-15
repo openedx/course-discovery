@@ -418,7 +418,7 @@ class CSVDataLoader(AbstractDataLoader):
                     'uuid': course_uuid,
                     'external_course_marketing_type': external_course_marketing_type,
                     'url_slug': active_url_slug,
-                    're-run': is_course_run_created
+                    'rerun': is_course_run_created
                 }
             )
         else:
