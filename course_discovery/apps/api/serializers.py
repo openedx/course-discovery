@@ -1275,7 +1275,7 @@ class ProgramLocationRestrictionSerializer(AbstractLocationRestrictionSerializer
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = SlugRelatedTranslatableField(required=False, allow_null=True, slug_field='name_t',
-                                              queryset=LevelType.objects.all())
+                                              queryset=LevelTypeSerializer.prefetch_queryset(LevelType.objects.all()))
     subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
                                                   queryset=SubjectSerializer.prefetch_queryset(),
                                                   read_serializer=SubjectSerializer())
@@ -1307,19 +1307,13 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
-    product_source = serializers.SlugRelatedField(required=False, slug_field='slug', queryset=Source.objects.all())
+    product_source = SlugRelatedFieldWithReadSerializer(
+        required=False, slug_field='slug', queryset=Source.objects.all(),
+        read_serializer=SourceSerializer()
+    )
     watchers = serializers.ListField(
         child=serializers.EmailField(), allow_empty=True, allow_null=True, required=False
     )
-
-    def to_representation(self, instance):
-        """
-        Conversion of the source slug to the source serializer data
-        """
-        representation = super().to_representation(instance)
-        if representation.get('product_source'):
-            representation['product_source'] = SourceSerializer(Source.objects.get(slug=representation['product_source'])).data  # pylint: disable=line-too-long
-        return representation
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1667,14 +1661,19 @@ class CatalogCourseSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-
-        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+        return queryset.select_related(
+            'type', '_official_version', 'level_type', 'video', 'partner', 'additional_metadata',
+            'location_restriction', 'in_year_value', 'product_source', 'canonical_course_run'
+        ).prefetch_related(
             'expected_learning_items',
+            'collaborators',
             'prerequisites',
-            'subjects',
+            'subjects__translations',
             'url_slug_history',
+            'topics',
             'editors',
             'url_redirects',
+            'level_type__translations',
             cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),

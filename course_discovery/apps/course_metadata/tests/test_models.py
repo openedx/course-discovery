@@ -18,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
+from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
 from slugify import slugify
@@ -562,6 +563,9 @@ class TestCourse(TestCase):
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
         draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
         non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
         with LogCapture(LOGGER_PATH) as logger:
@@ -590,7 +594,9 @@ class TestCourse(TestCase):
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
-
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
         CourseUrlSlugFactory(course=draft_course, is_active=True, is_active_on_draft=True, url_slug='test-course')
         CourseUrlSlugFactory(course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1')
         non_draft_slug_obj = CourseUrlSlugFactory(
