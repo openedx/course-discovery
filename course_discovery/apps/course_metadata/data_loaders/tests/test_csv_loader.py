@@ -261,7 +261,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'uuid': str(course.uuid),
                             'external_course_marketing_type': 'short_course',
                             'url_slug': expected_slug,
-                            're-run': True
+                            'rerun': True
                         }],
                         'archived_products_count': 0,
                         'archived_products': [],
@@ -343,7 +343,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'uuid': str(course.uuid),
                             'external_course_marketing_type': 'short_course',
                             'url_slug': 'csv-course',
-                            're-run': True
+                            'rerun': True
                         }],
                         'archived_products_count': 2,
                         'errors': loader.error_logs
@@ -543,7 +543,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                                 'external_course_marketing_type':
                                     course.additional_metadata.external_course_marketing_type,
                                 'url_slug': course.active_url_slug,
-                                're-run': True
+                                'rerun': True
                             }],
                             'archived_products_count': 0,
                             'archived_products': [],

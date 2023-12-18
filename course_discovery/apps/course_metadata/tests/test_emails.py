@@ -570,7 +570,7 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': None,
                         'url_slug': url_slug,
-                        're-run': True,
+                        'rerun': True,
                     }
                 ],
             }
@@ -584,7 +584,8 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} </li>"
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
+                f"A new run has been created</li>"
             ]
         )
 
@@ -606,19 +607,19 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': 'sprint',
                         'url_slug': url_slug,
-                        're-run': True
+                        'rerun': True
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'course_stack',
                         'url_slug': url_slug,
-                        're-run': True
+                        'rerun': True
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'short_course',
                         'url_slug': url_slug,
-                        're-run': True
+                        'rerun': True
                     },
                 ],
             }
@@ -633,11 +634,11 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
                 f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(sprint) </li>"
+                f"(sprint) A new run has been created</li>"
                 f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(course_stack) </li>"
+                f"(course_stack) A new run has been created</li>"
                 f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(short_course) </li>"
+                f"(short_course) A new run has been created</li>"
             ]
         )
 
