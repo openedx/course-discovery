@@ -309,7 +309,7 @@ edx-django-utils==5.8.0
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==8.13.1
+edx-drf-extensions==9.0.1
     # via -r requirements/base.in
 edx-event-bus-kafka==5.5.0
     # via -r requirements/base.in
