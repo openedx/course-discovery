@@ -23,6 +23,7 @@ from edx_django_utils.cache import RequestCache, get_cache_key
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
@@ -1230,3 +1231,11 @@ def clear_slug_request_cache_for_course(course_uuid):
     active_url_cache = RequestCache("active_url_cache")
     active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=True))
     active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=False))
+
+
+def get_product_skill_names(product_identifier, product_type):
+    """
+    Util method to get list of skill names associated with a product (course/program).
+    """
+    product_skills = get_whitelisted_serialized_skills(product_identifier, product_type=product_type)
+    return list({product_skill['name'] for product_skill in product_skills})

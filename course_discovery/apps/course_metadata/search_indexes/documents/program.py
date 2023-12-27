@@ -1,10 +1,11 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Degree, Program
+from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
 from .common import BaseDocument, OrganizationsMixin
@@ -97,8 +98,7 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         return [seat_type.slug for seat_type in obj.seat_types]
 
     def prepare_skill_names(self, obj):
-        program_skills = get_whitelisted_product_skills(obj.uuid, product_type=ProductTypes.Program)
-        return list(set(program_skill.skill.name for program_skill in program_skills))
+        return get_product_skill_names(obj.uuid, ProductTypes.Program)
 
     def prepare_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.uuid, product_type=ProductTypes.Program)

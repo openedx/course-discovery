@@ -4,11 +4,11 @@ import pytz
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
@@ -98,8 +98,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         return list(set(seat_types))
 
     def get_skill_names(self, result):
-        course_skills = get_whitelisted_product_skills(result.key, product_type=ProductTypes.Course)
-        return list(set(course_skill.skill.name for course_skill in course_skills))
+        return get_product_skill_names(result.key, ProductTypes.Course)
 
     def get_skills(self, result):
         return get_whitelisted_serialized_skills(result.key, product_type=ProductTypes.Course)

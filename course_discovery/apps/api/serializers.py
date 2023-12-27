@@ -25,7 +25,7 @@ from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -46,7 +46,9 @@ from course_discovery.apps.course_metadata.models import (
     ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
+from course_discovery.apps.course_metadata.utils import (
+    get_course_run_estimated_hours, get_product_skill_names, parse_course_key_fragment
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 
@@ -1396,8 +1398,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     def get_skill_names(self, obj):
-        course_skills = get_whitelisted_product_skills(obj.key, product_type=ProductTypes.Course)
-        return list({course_skill.skill.name for course_skill in course_skills})
+        return get_product_skill_names(obj.key, ProductTypes.Course)
 
     def get_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.key, product_type=ProductTypes.Course)
@@ -2227,8 +2228,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         return [topic.name for topic in obj.topics]
 
     def get_skill_names(self, obj):
-        program_skills = get_whitelisted_product_skills(obj.uuid, product_type=ProductTypes.Program)
-        return list({program_skill.skill.name for program_skill in program_skills})
+        return get_product_skill_names(obj.uuid, ProductTypes.Program)
 
     def get_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.uuid, product_type=ProductTypes.Program)
