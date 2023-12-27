@@ -59,8 +59,9 @@ from course_discovery.apps.course_metadata.toggles import (
     IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, get_slug_for_course, is_ocm_course,
-    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
+    UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
+    get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run,
+    set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -1704,7 +1705,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         for course_run in self.course_runs.all():
             if course_run.hidden:
                 continue
-            elif course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
+            if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
                 statuses.add('archived')
             else:
                 statuses.add(course_run.status)
@@ -1783,11 +1784,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'  # lint-amnesty, pylint: disable=logging-format-interpolation
                     .format(self.url_slug, slug, self.draft))
 
-        # Clear cache for both draft and non-draft entries to ensure data consistency. There are too many branches
-        # in this method, and it is ok to clear cache than to serve stale data.
-        active_url_cache = RequestCache("active_url_cache")
-        active_url_cache.delete(get_cache_key(course_uuid=self.uuid, draft=True))
-        active_url_cache.delete(get_cache_key(course_uuid=self.uuid, draft=False))
+        # There are too many branches in this method, and it is ok to clear cache than to serve stale data.
+        clear_slug_request_cache_for_course(self.uuid)
 
         if slug:
             # case 0: if slug is already in use with another, raise an IntegrityError

@@ -19,6 +19,7 @@ from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
+from edx_django_utils.cache import RequestCache, get_cache_key
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
@@ -1220,3 +1221,12 @@ def transform_dict_keys(data):
         transformed_dict[updated_key] = value
 
     return transformed_dict
+
+
+def clear_slug_request_cache_for_course(course_uuid):
+    """
+    Clear request cache for both draft and non-draft entries to ensure data consistency.
+    """
+    active_url_cache = RequestCache("active_url_cache")
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=True))
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=False))
