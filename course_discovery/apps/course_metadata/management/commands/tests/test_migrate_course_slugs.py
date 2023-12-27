@@ -1,6 +1,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase
+from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from slugify import slugify
 from testfixtures import LogCapture
@@ -50,6 +51,7 @@ class TestMigrateCourseSlugs(TestCase):
             product_source=self.product_source, partner=partner, title='test_course'
         )
         self.course3_non_draft.url_slug_history.add(course_url_slug)
+        RequestCache("active_url_cache").clear()
         self.csv_header = 'course_uuids\n'
         self.csv_file_content = self.csv_header + str(self.course1.uuid) + '\n' + str(self.course2.uuid)
         self.csv_file = SimpleUploadedFile(

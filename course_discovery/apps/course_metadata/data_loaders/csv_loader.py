@@ -176,14 +176,14 @@ class CSVDataLoader(AbstractDataLoader):
                     course_run, is_course_run_created = self._get_or_create_course_run(
                         row, course, course_type, course_run_type.uuid
                     )
-                except Exception as exc:
+                except Exception as exc:  # pylint: disable=broad-except
                     logger.exception(exc)
                     continue
             else:
                 logger.info("Course key {} could not be found in database, creating the course.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 try:
                     _ = self._create_course(row, course_type, course_run_type.uuid)
-                except Exception as exc:
+                except Exception as exc:  # pylint: disable=broad-except
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
@@ -316,7 +316,7 @@ class CSVDataLoader(AbstractDataLoader):
                 last_run = course_runs.last()
                 _ = self._create_course_run(data, course, course_type, course_run_type_uuid, last_run.key)
                 is_course_run_created = True
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 exception_message = exc
                 if hasattr(exc, 'response'):
                     exception_message = exc.response.content.decode('utf-8')

@@ -12,6 +12,7 @@ import responses
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from slugify import slugify
 
@@ -1287,49 +1288,33 @@ class CourseSlugMethodsTests(TestCase):
         organization = OrganizationFactory(name='test-organization')
         course.authoring_organizations.add(organization)
         CourseUrlSlug.objects.filter(course=course).delete()
+        RequestCache("active_url_cache").clear()
         slug, error = utils.get_slug_for_course(course)
         assert error is None
         assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}"
 
     def test_get_slug_for_course__with_existing_url_slug(self):
+        """
+        Verify that get slug utility factors in courses with same org, title, and subject in subdirectory
+        slug generation by prefixing the slugs with increasing integers.
+        """
         partner = PartnerFactory()
-        course1 = CourseFactory(title='test-title')
         subject = SubjectFactory(name='business')
-        course1.subjects.add(subject)
         organization = OrganizationFactory(name='test-organization')
-        course1.authoring_organizations.add(organization)
-        course1.partner = partner
-        course1.save()
-        CourseUrlSlug.objects.filter(course=course1).delete()
-        slug, error = utils.get_slug_for_course(course1)
-        course1.set_active_url_slug(slug)
+        for course_count in range(3):
+            course = CourseFactory(title='test-title')
+            course.subjects.add(subject)
+            course.authoring_organizations.add(organization)
+            course.partner = partner
+            course.save()
+            CourseUrlSlug.objects.filter(course=course).delete()
+            RequestCache("active_url_cache").clear()
+            slug, error = utils.get_slug_for_course(course)
 
-        # duplicate a new course with same title, subject and organization
-        course2 = CourseFactory(title='test-title')
-        subject = SubjectFactory(name='business')
-        course2.subjects.add(subject)
-        organization = OrganizationFactory(name='test-organization')
-        course2.authoring_organizations.add(organization)
-        course2.partner = partner
-        course2.save()
-        CourseUrlSlug.objects.filter(course=course2).delete()
-        slug, error = utils.get_slug_for_course(course2)
-        assert error is None
-        assert slug == f"learn/{subject.slug}/{organization.name}-{course2.title}-2"
-
-        course2.set_active_url_slug(slug)
-        # duplicate a new course with same title, subject and organization
-        course3 = CourseFactory(title='test-title')
-        subject = SubjectFactory(name='business')
-        course3.subjects.add(subject)
-        organization = OrganizationFactory(name='test-organization')
-        course3.authoring_organizations.add(organization)
-        course3.partner = partner
-        course3.save()
-        CourseUrlSlug.objects.filter(course=course3).delete()
-        slug, error = utils.get_slug_for_course(course3)
-        assert error is None
-        assert slug == f"learn/{subject.slug}/{organization.name}-{course3.title}-3"
+            assert error is None
+            slug_end_prefix = f"-{course_count+1}" if course_count else ""
+            assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}{slug_end_prefix}"
+            course.set_active_url_slug(slug)
 
     def test_get_slug_for_exec_ed_course__with_existing_url_slug(self):
         ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
