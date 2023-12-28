@@ -44,7 +44,7 @@ jobs:
       - run: make ci_up
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
       - name: Run coverage
         run: make ci_coverage
       - uses: codecov/codecov-action@v1
