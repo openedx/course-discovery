@@ -2,9 +2,10 @@ from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword
 from .common import BaseCourseDocument, filter_visible_runs
@@ -104,8 +105,7 @@ class CourseDocument(BaseCourseDocument):
         return list(set(seat_types))
 
     def prepare_skill_names(self, obj):
-        course_skills = get_whitelisted_product_skills(obj.key, product_type=ProductTypes.Course)
-        return list(set(course_skill.skill.name for course_skill in course_skills))
+        return get_product_skill_names(obj.key, ProductTypes.Course)
 
     def prepare_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.key, product_type=ProductTypes.Course)
