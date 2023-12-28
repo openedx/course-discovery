@@ -8,7 +8,7 @@ accessible-pygments==0.0.4
     # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
-babel==2.13.1
+babel==2.14.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
@@ -35,11 +35,11 @@ elasticsearch-dsl==7.4.1
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.4
+idna==3.6
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.8.0
+importlib-metadata==7.0.1
     # via sphinx
 jinja2==3.1.2
     # via sphinx
@@ -49,9 +49,9 @@ packaging==23.2
     # via
     #   pydata-sphinx-theme
     #   sphinx
-pydata-sphinx-theme==0.14.3
+pydata-sphinx-theme==0.14.4
     # via sphinx-book-theme
-pygments==2.17.1
+pygments==2.17.2
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -91,7 +91,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via pydata-sphinx-theme
 urllib3==1.26.18
     # via

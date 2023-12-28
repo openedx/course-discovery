@@ -30,7 +30,7 @@ asgiref==3.7.2
     #   django-countries
 asn1crypto==1.5.1
     # via snowflake-connector-python
-astroid==3.0.1
+astroid==3.0.2
     # via
     #   pylint
     #   pylint-celery
@@ -48,7 +48,7 @@ attrs==21.4.0
     #   semgrep
     #   trio
     #   zeep
-babel==2.13.1
+babel==2.14.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
@@ -60,7 +60,8 @@ backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     #   celery
     #   django
     #   kombu
-bcrypt==4.0.1
+    #   pendulum
+bcrypt==4.1.2
     # via paramiko
 beautifulsoup4==4.12.2
     # via
@@ -74,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.29.3
+boto3==1.34.9
     # via django-ses
-botocore==1.32.3
+botocore==1.34.9
     # via
     #   boto3
     #   s3transfer
@@ -92,7 +93,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.3.5
+celery==5.3.6
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -146,11 +147,11 @@ colorama==0.4.6
     #   tox
 contentful==2.1.1
     # via -r requirements/base.in
-coverage[toml]==7.3.2
+coverage[toml]==7.4.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==41.0.5
+cryptography==41.0.7
     # via
     #   paramiko
     #   pyjwt
@@ -171,9 +172,9 @@ defusedxml==0.7.1
     #   social-auth-core
 dill==0.3.7
     # via pylint
-distlib==0.3.7
+distlib==0.3.8
     # via virtualenv
-distro==1.8.0
+distro==1.9.0
     # via docker-compose
     # via
     #   -c requirements/constraints.txt
@@ -224,7 +225,7 @@ distro==1.8.0
     #   xss-utils
 django-admin-sortable2==2.1.10
     # via -r requirements/base.in
-django-appconf==1.0.5
+django-appconf==1.0.6
     # via django-compressor
 django-autocomplete-light==3.9.7
     # via -r requirements/base.in
@@ -267,7 +268,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.2.3
     # via -r requirements/base.in
-django-filter==23.3
+django-filter==23.5
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -295,7 +296,7 @@ django-object-actions==4.2.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.5.0
+django-ses==3.5.2
     # via taxonomy-connector
 django-simple-history==3.4.0
     # via -r requirements/base.in
@@ -317,13 +318,13 @@ django-taggit==5.0.1
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.4.1
     # via -r requirements/base.in
-django-waffle==4.0.0
+django-waffle==4.1.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==2.0.1
+django-webpack-loader==3.0.0
     # via -r requirements/base.in
 djangorestframework==3.14.0
     # via
@@ -337,11 +338,11 @@ djangorestframework==3.14.0
     #   edx-api-doc-tools
     #   edx-drf-extensions
     #   taxonomy-connector
-djangorestframework-csv==3.0.1
+djangorestframework-csv==3.0.2
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==6.1.3
+docker[ssh]==7.0.0
     # via
     #   docker
     #   docker-compose
@@ -377,7 +378,7 @@ edx-django-release-util==1.3.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.2
     # via -r requirements/base.in
-edx-django-utils==5.8.0
+edx-django-utils==5.9.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -426,7 +427,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via
     #   pytest
     #   trio
@@ -437,18 +438,18 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==20.0.3
+faker==21.0.0
     # via factory-boy
-fastavro==1.9.0
+fastavro==1.9.2
     # via openedx-events
 filelock==3.13.1
     # via
     #   snowflake-connector-python
     #   tox
     #   virtualenv
-freezegun==1.2.2
+freezegun==1.4.0
     # via -r requirements/test.in
-frozenlist==1.4.0
+frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
@@ -456,26 +457,26 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 glom==22.1.0
     # via semgrep
-google-api-core==2.14.0
+google-api-core==2.15.0
     # via google-api-python-client
-google-api-python-client==2.108.0
+google-api-python-client==2.111.0
     # via -r requirements/base.in
-google-auth==2.23.4
+google-auth==2.25.2
     # via
     #   google-api-core
     #   google-api-python-client
     #   google-auth-httplib2
     #   google-auth-oauthlib
     #   gspread
-google-auth-httplib2==0.1.1
+google-auth-httplib2==0.2.0
     # via
     #   -r requirements/base.in
     #   google-api-python-client
-google-auth-oauthlib==1.1.0
+google-auth-oauthlib==1.2.0
     # via gspread
-googleapis-common-protos==1.61.0
+googleapis-common-protos==1.62.0
     # via google-api-core
-gspread==5.12.0
+gspread==5.12.3
     # via -r requirements/base.in
 h11==0.14.0
     # via wsproto
@@ -485,7 +486,7 @@ httplib2==0.22.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-idna==3.4
+idna==3.6
     # via
     #   requests
     #   snowflake-connector-python
@@ -493,18 +494,22 @@ idna==3.4
     #   yarl
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.8.0
+importlib-metadata==7.0.1
     # via
     #   -r requirements/base.in
     #   markdown
     #   sphinx
+importlib-resources==5.13.0
+    # via
+    #   pendulum
+    #   pycountry
 inflection==0.5.1
     # via drf-yasg
 iniconfig==2.0.0
     # via pytest
 isodate==0.6.1
     # via zeep
-isort==5.12.0
+isort==5.13.2
     # via
     #   -r requirements/test.in
     #   pylint
@@ -526,7 +531,7 @@ kombu==5.3.4
     # via celery
 libsass==0.22.0
     # via django-libsass
-lxml==4.9.3
+lxml==4.9.4
     # via
     #   -r requirements/base.in
     #   edx-i18n-tools
@@ -545,9 +550,9 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-mysqlclient==2.2.0
+mysqlclient==2.2.1
     # via -r requirements/test.in
-newrelic==9.2.0
+newrelic==9.3.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -579,15 +584,15 @@ packaging==21.3
     #   snowflake-connector-python
     #   sphinx
     #   tox
-paramiko==3.3.1
+paramiko==3.4.0
     # via docker
-path==16.7.1
+path==16.9.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
 peewee==3.17.0
     # via semgrep
-pendulum==2.1.2
+pendulum==3.0.0
     # via simple-salesforce
 pillow==9.5.0
     # via
@@ -597,7 +602,6 @@ pillow==9.5.0
     #   django-stdimage
 platformdirs==3.11.0
     # via
-    #   -c requirements/common_constraints.txt
     #   pylint
     #   snowflake-connector-python
     #   tox
@@ -609,15 +613,15 @@ pluggy==1.3.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-prompt-toolkit==3.0.41
+prompt-toolkit==3.0.43
     # via click-repl
 protobuf==4.25.1
     # via
     #   google-api-core
     #   googleapis-common-protos
-psutil==5.9.6
+psutil==5.9.7
     # via edx-django-utils
-pyasn1==0.5.0
+pyasn1==0.5.1
     # via
     #   pyasn1-modules
     #   rsa
@@ -625,13 +629,13 @@ pyasn1-modules==0.3.0
     # via google-auth
 pycodestyle==2.11.1
     # via -r requirements/test.in
-pycountry==22.3.5
+pycountry==23.12.11
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pydata-sphinx-theme==0.14.3
+pydata-sphinx-theme==0.14.4
     # via sphinx-book-theme
-pygments==2.17.1
+pygments==2.17.2
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -646,7 +650,7 @@ pyjwt[crypto]==2.8.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==3.0.2
+pylint==3.0.3
     # via
     #   edx-lint
     #   pylint-celery
@@ -699,7 +703,9 @@ pytest-responses==0.5.1
 pytest-split==0.8.1
     # via -r requirements/local.in
 pytest-xdist==3.4.0
-    # via -r requirements/test.in
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.in
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
@@ -710,11 +716,12 @@ python-dateutil==2.8.2
     #   faker
     #   freezegun
     #   pendulum
+    #   time-machine
 python-dotenv==0.21.1
     # via docker-compose
 python-lsp-jsonrpc==1.0.0
     # via semgrep
-python-memcached==1.59
+python-memcached==1.60
     # via -r requirements/test.in
 python-monkey-business==1.0.0
     # via django-nested-admin
@@ -737,8 +744,6 @@ pytz==2023.3.post1
     #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
-pytzdata==2020.1
-    # via pendulum
 pywatchman==1.4.1
     # via -r requirements/local.in
 pyyaml==5.4.1
@@ -801,7 +806,7 @@ ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
-s3transfer==0.7.0
+s3transfer==0.10.0
     # via boto3
 selenium==4.12.0
     # via
@@ -829,7 +834,6 @@ six==1.16.0
     #   isodate
     #   jsonschema
     #   python-dateutil
-    #   python-memcached
     #   python-monkey-business
     #   requests-file
     #   websocket-client
@@ -839,13 +843,13 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.5.0
+snowflake-connector-python==3.6.0
     # via -r requirements/base.in
 social-auth-app-django==5.4.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.5.0
+social-auth-core==4.5.1
     # via
     #   edx-auth-backends
     #   social-auth-app-django
@@ -892,6 +896,8 @@ text-unidecode==1.3
     # via python-slugify
 texttable==1.7.0
     # via docker-compose
+time-machine==2.13.0
+    # via pendulum
 tinycss2==1.2.1
     # via
     #   cairosvg
@@ -913,13 +919,13 @@ tqdm==4.66.1
     # via
     #   openai
     #   semgrep
-trio==0.23.1
+trio==0.23.2
     # via
     #   selenium
     #   trio-websocket
 trio-websocket==0.11.1
     # via selenium
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   asgiref
     #   astroid
@@ -935,7 +941,8 @@ tzdata==2023.3
     # via
     #   backports-zoneinfo
     #   celery
-ujson==5.8.0
+    #   pendulum
+ujson==5.9.0
     # via python-lsp-jsonrpc
 unicodecsv==0.14.1
     # via -r requirements/base.in
@@ -958,32 +965,32 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.6
+virtualenv==20.25.0
     # via tox
 walrus==0.9.3
     # via edx-event-bus-redis
 wcmatch==8.5
     # via semgrep
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via prompt-toolkit
 webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
 websocket-client==0.59.0
-    # via
-    #   docker
-    #   docker-compose
+    # via docker-compose
 wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.5.0
     # via -r requirements/base.in
-yarl==1.9.3
+yarl==1.9.4
     # via aiohttp
 zeep==4.2.1
     # via simple-salesforce
 zipp==3.17.0
-    # via importlib-metadata
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
