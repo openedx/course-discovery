@@ -54,3 +54,11 @@ selenium==4.12.0
 
 # Open AI version 1.0.0 dropped support for openai.ChatCompletion which is currently in use in enterprise.
 openai<=0.28.1
+
+# Version 3.5.0 is causing some tests (learner_pathway models, test_add_provisioning_data, etc.) to fail
+# all of a sudden. The v3.5.0 introduces some ordering changes in `loadscope` dist and that is causing an existing test(s)
+# that do not clean up properly to cause failures. Pinning the version to unblock requirements upgrade.
+# This is happening on some other open source repositories as well.
+# https://github.com/PrefectHQ/prefect/pull/11229/files
+# https://github.com/hyperspy/hyperspy/pull/3274
+pytest-xdist < 3.5.0

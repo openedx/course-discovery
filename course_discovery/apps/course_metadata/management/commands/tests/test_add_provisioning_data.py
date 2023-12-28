@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import responses
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.course_metadata.models import (
@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 
 
-class AddProvisioningDataCommandTests(TestCase, OAuth2Mixin):
+class AddProvisioningDataCommandTests(TransactionTestCase, OAuth2Mixin):
     """
     Test suite for add_provisioning_data management command.
     """

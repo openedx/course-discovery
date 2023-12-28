@@ -4,7 +4,6 @@ from unittest import mock
 import ddt
 import pytest
 import responses
-from django.contrib.auth.models import ContentType
 from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
 from waffle.testutils import override_switch
@@ -28,18 +27,6 @@ JSON = 'application/json'
 class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
     def setUp(self):
         super().setUp()
-        # ContentTypeManager uses a cache to speed up ContentType retrieval. This
-        # cache persists across tests. This is fine in the context of a regular
-        # TestCase which uses a transaction to reset the database between tests.
-        # However, it becomes a problem in subclasses of TransactionTestCase which
-        # truncate all tables to reset the database between tests. When tables are
-        # truncated, ContentType objects in the ContentTypeManager's cache become
-        # stale. Attempting to use these stale objects in tests such as the ones
-        # below, which create LogEntry objects as a side-effect of interacting with
-        # the admin, will result in IntegrityErrors on databases that check foreign
-        # key constraints (e.g., MySQL). Preemptively clearing the cache prevents
-        # stale ContentType objects from being used.
-        ContentType.objects.clear_cache()
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [

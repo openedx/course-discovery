@@ -702,8 +702,10 @@ pytest-responses==0.5.1
     # via -r requirements/test.in
 pytest-split==0.8.1
     # via -r requirements/local.in
-pytest-xdist==3.5.0
-    # via -r requirements/test.in
+pytest-xdist==3.4.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.in
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
