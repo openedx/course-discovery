@@ -2,16 +2,19 @@ from rest_framework import permissions
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
+from course_discovery.apps.api.mixins import AnonymousUserThrottleAuthenticatedEndpointMixin
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.taxonomy_support.api.v1.serializers import CourseRecommendationsSerializer
+from course_discovery.apps.taxonomy_support.throttles import CourseRecommendationsViewAnonymousUserThrottle
 
 
-class CourseRecommendationsAPIView(ListAPIView):
+class CourseRecommendationsAPIView(AnonymousUserThrottleAuthenticatedEndpointMixin, ListAPIView):
     """
     Course recommendations API.
     Example:
-        GET discovery.edx.org/taxonomy/api/v1/course_recommendations/edX+DemoX/
+        GET /taxonomy/api/v1/course_recommendations/edX+DemoX/
     """
+    anonymous_user_throttle_class = CourseRecommendationsViewAnonymousUserThrottle
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Course.objects.all()
     serializer_class = CourseRecommendationsSerializer
