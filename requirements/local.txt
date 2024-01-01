@@ -75,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.9
+boto3==1.34.11
     # via django-ses
-botocore==1.34.9
+botocore==1.34.11
     # via
     #   boto3
     #   s3transfer
@@ -438,7 +438,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==21.0.0
+faker==22.0.0
     # via factory-boy
 fastavro==1.9.2
     # via openedx-events
@@ -476,7 +476,7 @@ google-auth-oauthlib==1.2.0
     # via gspread
 googleapis-common-protos==1.62.0
     # via google-api-core
-gspread==5.12.3
+gspread==5.12.4
     # via -r requirements/base.in
 h11==0.14.0
     # via wsproto
@@ -531,7 +531,7 @@ kombu==5.3.4
     # via celery
 libsass==0.22.0
     # via django-libsass
-lxml==4.9.4
+lxml==5.0.0
     # via
     #   -r requirements/base.in
     #   edx-i18n-tools
@@ -686,7 +686,7 @@ pyrsistent==0.20.0
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -721,7 +721,7 @@ python-dotenv==0.21.1
     # via docker-compose
 python-lsp-jsonrpc==1.0.0
     # via semgrep
-python-memcached==1.60
+python-memcached==1.61
     # via -r requirements/test.in
 python-monkey-business==1.0.0
     # via django-nested-admin
@@ -937,7 +937,7 @@ typing-extensions==4.9.0
     #   pylint
     #   semgrep
     #   snowflake-connector-python
-tzdata==2023.3
+tzdata==2023.4
     # via
     #   backports-zoneinfo
     #   celery
