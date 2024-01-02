@@ -1,4 +1,5 @@
 """Custom API throttles."""
+from django.conf import settings
 from django.core.cache import InvalidCacheBackendError, caches
 from rest_framework.throttling import UserRateThrottle
 
@@ -35,3 +36,18 @@ class OverridableUserRateThrottle(UserRateThrottle):
                     return True
 
         return super().allow_request(request, view)
+
+class ServiceUserThrottle(OverridableUserRateThrottle):
+    """A throttle allowing service users to override rate limiting"""
+
+    def allow_request(self, request, view):
+        """Returns True if the request is coming from one of the service users
+        and defaults to OverridableUserRateThrottle's configured setting otherwise.
+        """
+        service_users = [
+            settings.PROSPECTUS_WORKER_USERNAME,
+            settings.DISCOVERY_WORKER_USERNAME,
+        ]
+        if request.user.username in service_users:
+            return True
+        return super(ServiceUserThrottle, self).allow_request(request, view)

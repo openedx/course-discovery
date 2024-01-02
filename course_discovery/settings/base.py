@@ -414,7 +414,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
-        'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
+        'course_discovery.apps.core.throttles.ServiceUserThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
@@ -775,3 +775,7 @@ SIMPLE_HISTORY_DATE_INDEX = False
 
 USE_DEPRECATED_PYTZ = True
 ORGANIC_MARKETING_EMAIL = None
+
+# Worker user used by services to consume discovery endpoints
+PROSPECTUS_WORKER_USERNAME = 'prospectus_worker'
+DISCOVERY_WORKER_USERNAME = 'course_discovery_worker'
