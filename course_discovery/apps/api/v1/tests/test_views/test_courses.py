@@ -103,7 +103,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(43, threshold=3):
+        with self.assertNumQueries(26, threshold=3):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -112,7 +112,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(44):
+        with self.assertNumQueries(27):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -121,7 +121,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(43):
+        with self.assertNumQueries(26):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -134,7 +134,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(47):
+        with self.assertNumQueries(29):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
@@ -2385,6 +2385,12 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert self.course.entitlements.exists() == has_entitlement
 
         # Now with editable=1 for real
+        response = self.client.get(url, {'editable': 1})
+        # This is not a no-op. Essentially, once we hit the endpoint for a course that
+        # has no entitlements, and an entitlement is created, we'll get a stale response
+        # Only when we hit it the second time do we get the updated response. This is because
+        # the entitlements are prefetched on the course object and the call to
+        # create_missing_entitlement is made after the prefetch.
         response = self.client.get(url, {'editable': 1})
 
         assert response.status_code == 200
