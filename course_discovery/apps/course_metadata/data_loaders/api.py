@@ -116,7 +116,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
         return self.api_client.courses().get(
             page=page, page_size=self.PAGE_SIZE,
             username=self.username,
-            org=self.partner.short_code
+            org=self.partner.short_code,
+            modified_in_hours=24
         )
 
     def _process_response(self, response):
