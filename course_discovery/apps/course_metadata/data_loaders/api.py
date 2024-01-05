@@ -1,4 +1,5 @@
 import concurrent.futures
+from datetime import datetime
 import logging
 import math
 import time
@@ -113,12 +114,26 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
-        return self.api_client.courses().get(
-            page=page, page_size=self.PAGE_SIZE,
-            username=self.username,
-            org=self.partner.short_code,
-            modified_in_hours=24
-        )
+        _hour = datetime.now().hour
+        _is_incremental_query = False \
+            if self.maintenance_period and self.maintenance_period[0] <= _hour <= self.maintenance_period[0] \
+            else True       # Maintenance Period means that we have to load all courses records from LMS.
+                            # Because we judges deleted courses by `course.modified` field.
+        if _is_incremental_query:
+            logger.info('*** Query incremental courses from LMS.')
+            return self.api_client.courses().get(
+                page=page, page_size=self.PAGE_SIZE,
+                username=self.username,
+                org=self.partner.short_code,
+                modified_in_hours=24            # Only query new edited courses in 24hrs from LMS
+            )
+        else:
+            logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS.'.format(self.maintenance_period[0], self.maintenance_period[1]))
+            return self.api_client.courses().get(
+                page=page, page_size=self.PAGE_SIZE,
+                username=self.username,
+                org=self.partner.short_code
+            )
 
     def _process_response(self, response):
         results = response['results']

@@ -2,7 +2,6 @@ import concurrent.futures
 import fcntl
 import itertools
 import logging
-import subprocess
 import time
 
 import jwt
@@ -51,28 +50,6 @@ def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
     connection.close()
 
     execute_loader(loader_class, *loader_args, **loader_kwargs)
-
-
-def is_still_running():
-    """Return 'True' if script 'refresh_course_metadata.py' is still running
-    """
-    _ps_stdout = subprocess.check_output(
-        'ps ax|grep refresh_course_metadata',
-        shell=True
-    )
-    _ps_stdout = _ps_stdout.decode('utf-8').replace(' ', '')
-    print(_ps_stdout)
-    first_located_index = 0
-    for i in range(2):
-        if i == 0:
-            first_located_index = _ps_stdout[first_located_index:].find('pythonmanage.pyrefresh_course_metadata')
-            if first_located_index > 10:
-                continue
-        else:
-            if _ps_stdout[first_located_index+15:].find('pythonmanage.pyrefresh_course_metadata') > 10:
-                return True     # Another script process is still running
-
-    return False
 
 
 class ScriptLock:
