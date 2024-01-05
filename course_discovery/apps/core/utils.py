@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.conf import settings
+from django.db.models import Max, Min
 
 from course_discovery.settings.process_synonyms import get_synonyms
 
@@ -103,7 +104,23 @@ def delete_orphans(model):
 
 
 def delete_expired_courses():
-    pass
+    """We only delete Courses + Related data with `modified` date before 2 month ago.
+    """
+    from course_discovery.apps.course_metadata.models import CourseRun
+
+    _range = CourseRun.objects.values('modified').aggregate(Max('modified'), Min('modified'))
+    _modified__min = _range['modified__min']
+    _modified__max = _range['modified__max']
+    _before_last_months = datetime.datetime.now() - datetime.timedelta(days=60)
+
+    if _modified__min.replace(tzinfo=None) < _before_last_months < _modified__max.replace(tzinfo=None):
+        # We have some expired Courses related records invalidated for months. Then can be deleted from MySql now.
+        # *** The `OneToOneField` was defined with on_delete set to CASCADE, which is the default ***
+        try:
+            logger.info('Deleting expired courses...')
+            CourseRun.objects.filter(modified__lte=datetime.datetime.now()).delete()
+        except Exception as e:
+            logger.error('Got exception while deleting courses : {}', str(e))
 
 
 class SearchQuerySetWrapper(object):
