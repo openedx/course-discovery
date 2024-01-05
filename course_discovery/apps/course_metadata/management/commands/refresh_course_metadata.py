@@ -93,7 +93,7 @@ class Command(BaseCommand):
             '--maintenance_period',
             action='store',
             dest='maintenance_period',
-            default=None,
+            default='3~5',
             help='maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "10~16"'
         )
 
