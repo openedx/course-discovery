@@ -47,6 +47,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
         self.username = kwargs.get('username')
+        self.maintenance_period = kwargs.get('maintenance_period')
 
     @cached_property
     def api_client(self):
