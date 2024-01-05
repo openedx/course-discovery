@@ -52,7 +52,7 @@ def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
     execute_loader(loader_class, *loader_args, **loader_kwargs)
 
 
-class ScriptLock:
+class _ScriptLock:
     """Only one script running in a time
     """
     _lock_file_path = '/var/run/refresh_course_metadata.lock'
@@ -70,6 +70,15 @@ class ScriptLock:
 
 
 class Command(BaseCommand):
+    """
+        We have two ways to sync. courses data from LMS to Discovery:
+
+            - Usage A: python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5 ~Am7, we sync. all of courses from LMS
+            - Usage B: python manage.py refresh_course_metadata                             # We Only sync. courses edited in 24 hrs from LMS
+
+            Commend Usage A.
+
+    """
     help = 'Refresh course metadata from external sources.'
 
     def add_arguments(self, parser):
@@ -89,7 +98,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        with ScriptLock() as _script_locker:    # It make sure Only one script running in a time.
+        with _ScriptLock() as _script_locker:    # It make sure Only one script running in a time.
+
             # We only want to invalidate the API response cache once data loading
             # completes. Disconnecting the api_change_receiver function from post_save
             # and post_delete signals prevents model changes during data loading from
