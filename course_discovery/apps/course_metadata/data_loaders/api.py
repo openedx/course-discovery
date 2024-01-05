@@ -107,6 +107,12 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
         self.delete_orphans()
+        self.delete_expired_courses()
+
+    def delete_expired_courses(self):
+        from course_discovery.apps.core.utils import delete_expired_courses
+        logger.info('Deleting expired courses which have not been updated for a quite a long time on field `modified`...')
+        delete_expired_courses()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -114,6 +120,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
+        """Make incremental query ( load new edited courses in 24 hours Only ) if out of `Maintenance Period`,
+            Otherwise load all of courses from LMS.
+        """
         _hour = datetime.now().hour
         _is_incremental_query = False \
             if self.maintenance_period and self.maintenance_period[0] <= _hour <= self.maintenance_period[0] \

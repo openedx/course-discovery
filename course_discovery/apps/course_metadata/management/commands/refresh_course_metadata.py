@@ -57,14 +57,15 @@ class ScriptLock:
     """
     _lock_file_path = '/var/run/refresh_course_metadata.lock'
     def __init__(self):
-        self.lock = open(self._lock_file_path, 'w')
+        logger.info('Opening lock file : {}.'.format(self._lock_file_path))
+        self._lock = open(self._lock_file_path, 'w')
 
     def __enter__(self):
-        fcntl.lockf(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fcntl.lockf(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         logger.info('Lock file : {} acquired.'.format(self._lock_file_path))
 
     def __exit__(self, t, v, tb):
-        fcntl.lockf(self.lock, fcntl.LOCK_UN)
+        fcntl.lockf(self._lock, fcntl.LOCK_UN)
         logger.info('Lock file released.')
 
 

@@ -102,6 +102,10 @@ def delete_orphans(model):
     model.objects.filter(**kwargs).delete()
 
 
+def delete_expired_courses():
+    pass
+
+
 class SearchQuerySetWrapper(object):
     """
     Decorates a SearchQuerySet object using a generator for efficient iteration
