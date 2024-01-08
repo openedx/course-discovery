@@ -55,7 +55,7 @@ def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
 class _ScriptLock:
     """Only one script running in a time
     """
-    _lock_file_path = '/var/run/refresh_course_metadata.lock'
+    _lock_file_path = '/tmp/refresh_course_metadata.lock'
     def __init__(self):
         logger.info('Opening lock file : {}.'.format(self._lock_file_path))
         self._lock = open(self._lock_file_path, 'w')
