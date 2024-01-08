@@ -73,10 +73,12 @@ class Command(BaseCommand):
     """
         We have two ways to sync. courses data from LMS to Discovery:
 
-            - Usage A: python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5 ~Am7, we sync. all of courses from LMS
-            - Usage B: python manage.py refresh_course_metadata                             # We Only sync. courses edited in 24 hrs from LMS
+            - Usage A: python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5:00 ~Am7:00, we sync. all of courses from LMS
+            - Usage B: python manage.py refresh_course_metadata                             # We Only sync. courses edited in 24 hrs from LMS ( except : Am3:00 ~ Am5:00 )
 
             Commend Usage A.
+
+        *** Only allows one script instance running in a time with a file locker. ***
 
     """
     help = 'Refresh course metadata from external sources.'
@@ -94,7 +96,7 @@ class Command(BaseCommand):
             action='store',
             dest='maintenance_period',
             default='3~5',
-            help='maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "10~16"'
+            help='maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~15"'
         )
 
     def handle(self, *args, **options):
