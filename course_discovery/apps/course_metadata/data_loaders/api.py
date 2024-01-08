@@ -129,7 +129,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             else True       # Maintenance Period means that we have to load all courses records from LMS.
                             # Because we judges deleted courses by `course.modified` field.
         if _is_incremental_query:
-            logger.info('*** Query incremental courses from LMS.')
+            logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
@@ -137,7 +137,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 modified_in_hours=24            # Only query new edited courses in 24hrs from LMS
             )
         else:
-            logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS.'.format(self.maintenance_period[0], self.maintenance_period[1]))
+            logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS. page_no={}'.format(self.maintenance_period[0], self.maintenance_period[1], page))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
