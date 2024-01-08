@@ -134,7 +134,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
                 org=self.partner.short_code,
-                modified_in_hours=24            # Only query new edited courses in 24hrs from LMS
+                modified_in_hours=1             # Only query new edited courses in one hour from LMS
             )
         else:
             logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS. page_no={}'.format(self.maintenance_period[0], self.maintenance_period[1], page))
