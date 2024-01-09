@@ -6,7 +6,6 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Q
-from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -156,9 +155,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 programs=programs,
             )
         if pub_q and edit_mode:
-            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by(Lower('key'))
+            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by('key')
 
-        return queryset.order_by(Lower('key'))
+        return queryset.order_by('key')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

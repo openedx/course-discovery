@@ -1595,7 +1595,11 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         if cached_active_url.is_found:
             return cached_active_url.value
 
-        active_url = CourseUrlSlug.objects.filter(course=self, is_active=True).first()
+        # The if clause is simply to prevent N+1 issues
+        if hasattr(self, '_prefetched_active_slug') and self._prefetched_active_slug:
+            active_url = self._prefetched_active_slug[0]
+        else:
+            active_url = CourseUrlSlug.objects.filter(course=self, is_active=True).first()
 
         if not active_url and self.draft and self.official_version:
             # current draft url slug has already been published at least once, so get it from the official course
@@ -1786,6 +1790,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
         # There are too many branches in this method, and it is ok to clear cache than to serve stale data.
         clear_slug_request_cache_for_course(self.uuid)
+        if hasattr(self, '_prefetched_active_slug'):
+            del self._prefetched_active_slug
 
         if slug:
             # case 0: if slug is already in use with another, raise an IntegrityError
