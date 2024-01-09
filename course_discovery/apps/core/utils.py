@@ -112,7 +112,7 @@ def delete_expired_courses(removed_course_keys):
     try:
         logger.info('Deleting expired courses... ( number = {} )'.format(len(removed_course_keys)))
 
-        CourseRun.objects.filter(key__iexact=removed_course_keys).delete()
+        CourseRun.objects.filter(key__in=removed_course_keys).delete()
 
     except Exception:
         logger.error('Got exception while deleting courses : {}', format_exc())
