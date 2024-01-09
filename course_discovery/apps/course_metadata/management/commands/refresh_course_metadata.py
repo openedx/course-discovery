@@ -94,8 +94,8 @@ class Command(BaseCommand):
             '--maintenance_period',
             action='store',
             dest='maintenance_period',
-            default='3~5',
-            help='Maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~15"'
+            default='3~4',
+            help='Maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~14"'
         )
         parser.add_argument(
             '--maintain_course_list',
