@@ -121,7 +121,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def delete_expired_courses(self):
         if self.is_maintaining_course_list:
             logger.info(
-                '*** Maintaining course list...... ( local course num : {}, loaded course num : {} )'.format(
+                '*** Maintaining course list...... ( cached course num : {}, loaded course num : {} )'.format(
                     len(self.loaded_course_keys), self.course_count
                 )
             )
