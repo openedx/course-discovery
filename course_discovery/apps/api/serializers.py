@@ -12,6 +12,7 @@ from uuid import uuid4
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -39,11 +40,12 @@ from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHt
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
     CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseReview, CourseRun,
-    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree,
-    DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image,
-    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
-    ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice,
-    ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
+    CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
+    Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing,
+    Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position,
+    Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription,
+    ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic,
+    Track, Video
 )
 from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 from course_discovery.apps.course_metadata.utils import (
@@ -888,7 +890,11 @@ class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
         # Explicitly check for None to avoid returning all Programs when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Program.objects.all()
-        return queryset.select_related('type').prefetch_related('type__translations')
+        return queryset.select_related('type', 'partner').prefetch_related(
+            'type__translations'
+        ).annotate(
+            Count('courses', distinct=True)
+        )
 
     class Meta:
         model = Program
@@ -896,6 +902,8 @@ class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
         read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_attrs')
 
     def get_number_of_courses(self, obj):
+        if hasattr(obj, 'courses__count'):
+            return obj.courses__count
         return obj.courses.count()
 
 
@@ -1330,7 +1338,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
         return queryset.select_related(
-            'level_type',
             'video',
             'video__image',
             'partner',
@@ -1344,12 +1351,20 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'in_year_value',
             'location_restriction'
         ).prefetch_related(
+            # The level_type is here instead of inside select_related to
+            # prevent the optimizer from choosing a poor query plan
+            'level_type',
             'expected_learning_items',
             'level_type__translations',
             'prerequisites',
             'collaborators',
             'topics',
             'url_slug_history',
+            Prefetch(
+                'url_slug_history',
+                queryset=CourseUrlSlug.objects.filter(is_active=True),
+                to_attr='_prefetched_active_slug'
+            ),
             'url_redirects',
             'editors',
             cls.prefetch_course_runs(CourseRunSerializer, course_runs),
