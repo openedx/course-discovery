@@ -75,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.14
+boto3==1.34.15
     # via django-ses
-botocore==1.34.14
+botocore==1.34.15
     # via
     #   boto3
     #   s3transfer
@@ -389,7 +389,7 @@ edx-django-utils==5.9.0
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==9.1.1
+edx-drf-extensions==9.1.2
     # via -r requirements/base.in
 edx-event-bus-kafka==5.5.0
     # via -r requirements/base.in
@@ -438,9 +438,9 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==22.0.0
+faker==22.1.0
     # via factory-boy
-fastavro==1.9.2
+fastavro==1.9.3
     # via openedx-events
 filelock==3.13.1
     # via
@@ -459,7 +459,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.15.0
     # via google-api-python-client
-google-api-python-client==2.112.0
+google-api-python-client==2.113.0
     # via -r requirements/base.in
 google-auth==2.26.1
     # via
@@ -531,7 +531,7 @@ kombu==5.3.4
     # via celery
 libsass==0.23.0
     # via django-libsass
-lxml==5.0.1
+lxml==5.1.0
     # via
     #   -r requirements/base.in
     #   edx-i18n-tools
@@ -544,7 +544,7 @@ mccabe==0.7.0
     # via pylint
 mock==5.1.0
     # via -r requirements/test.in
-more-itertools==10.1.0
+more-itertools==10.2.0
     # via simple-salesforce
 multidict==6.0.4
     # via
@@ -552,7 +552,7 @@ multidict==6.0.4
     #   yarl
 mysqlclient==2.2.1
     # via -r requirements/test.in
-newrelic==9.3.0
+newrelic==9.4.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -888,7 +888,7 @@ stevedore==5.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.46.0
+taxonomy-connector==1.46.1
     # via -r requirements/base.in
 testfixtures==7.2.2
     # via -r requirements/test.in
