@@ -76,10 +76,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
+        setattr(self, 'course_count', 0)
+        setattr(self, 'loaded_course_keys', set())
         response = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
         self._process_response(response)
+
+        if not self.course_count:
+            self.course_count = count
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -109,10 +114,33 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self.delete_orphans()
         self.delete_expired_courses()
 
+    @property
+    def is_maintaining_course_list(self):
+        return not self.is_incremental_query and self.maintain_course_list
+
     def delete_expired_courses(self):
-        from course_discovery.apps.core.utils import delete_expired_courses
-        logger.info('Deleting expired courses which have not been updated for a quite a long time on field `modified`...')
-        delete_expired_courses()
+        if self.is_maintaining_course_list:
+            logger.info(
+                '*** Maintaining course list...... ( local course num : {}, loaded course num : {} )'.format(
+                    len(self.loaded_course_keys), self.course_count
+                )
+            )
+
+            from course_discovery.apps.core.utils import delete_expired_courses
+
+            if len(self.loaded_course_keys) == self.course_count:
+                local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
+                removed_course_keys = local_course_keys - self.loaded_course_keys
+
+                if removed_course_keys:
+                    delete_expired_courses(removed_course_keys)
+
+            else:
+                logger.error(
+                    '*** Integrity Error of loaded course keys ( Loaded Number({}) != Expect Number({}) )'.format(
+                        len(self.loaded_course_keys), self.course_count
+                    )
+                )
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -123,12 +151,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         """Make incremental query ( load new edited courses in 24 hours Only ) if out of `Maintenance Period`,
             Otherwise load all of courses from LMS.
         """
-        _hour = datetime.now().hour
-        _is_incremental_query = False \
-            if self.maintenance_period and self.maintenance_period[0] <= _hour <= self.maintenance_period[0] \
-            else True       # Maintenance Period means that we have to load all courses records from LMS.
-                            # Because we judges deleted courses by `course.modified` field.
-        if _is_incremental_query:
+        if self.is_incremental_query:
             logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
@@ -136,6 +159,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 org=self.partner.short_code,
                 modified_in_hours=1             # Only query new edited courses in one hour from LMS
             )
+
         else:
             logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS. page_no={}'.format(self.maintenance_period[0], self.maintenance_period[1], page))
             return self.api_client.courses().get(
@@ -146,10 +170,18 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def _process_response(self, response):
         results = response['results']
-        logger.info('Retrieved %d course runs...', len(results))
+
+        logger.info(
+            'Retrieved {} {}...'.format(len(results), 'Course Keys' if self.is_maintaining_course_list else 'Course runs')
+        )
 
         for body in results:
             course_run_id = body['id']
+
+            if self.is_maintaining_course_list:
+                # Loading course key Only...
+                self.loaded_course_keys.add(course_run_id)
+                continue
 
             try:
                 body = self.clean_strings(body)

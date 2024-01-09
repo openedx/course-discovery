@@ -1,4 +1,5 @@
 import abc
+from datetime import datetime
 import re
 
 import html2text
@@ -48,6 +49,12 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.is_threadsafe = is_threadsafe
         self.username = kwargs.get('username')
         self.maintenance_period = kwargs.get('maintenance_period')
+        self.maintain_course_list = kwargs.get('maintain_course_list')
+        self.is_incremental_query = False  \
+            if self.maintenance_period and self.maintenance_period[0] <= datetime.now().hour <= self.maintenance_period[1] \
+            else True       # Maintenance Period means that we have to load all courses records from LMS.
+                            # Because we judges deleted courses by `course.modified` field.
+
 
     @cached_property
     def api_client(self):

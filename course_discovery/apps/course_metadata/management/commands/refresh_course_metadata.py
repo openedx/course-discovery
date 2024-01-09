@@ -73,10 +73,9 @@ class Command(BaseCommand):
     """
         We have two ways to sync. courses data from LMS to Discovery:
 
-            - Usage A: python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5:00 ~Am7:00, we sync. all of courses from LMS
-            - Usage B: python manage.py refresh_course_metadata                             # We Only sync. courses edited in 24 hrs from LMS ( except : Am3:00 ~ Am5:00 )
-
-            Commend Usage A.
+            Usages:
+             - [A] python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5:00 ~Am7:00, we sync all of courses from LMS
+             - [B] python manage.py refresh_course_metadata                             # We Only sync courses modified in hours from LMS if not in maintenance period(Am3:00 ~ Am5:00, default value)
 
         *** Only allows one script instance running in a time with a file locker. ***
 
@@ -96,7 +95,15 @@ class Command(BaseCommand):
             action='store',
             dest='maintenance_period',
             default='3~5',
-            help='maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~15"'
+            help='Maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~15"'
+        )
+        parser.add_argument(
+            '--maintain_course_list',
+            action='store',
+            dest='maintain_course_list',
+            type=lambda x: (str(x).lower() == 'true'),
+            default=True,
+            help='If "True" then deleting deleted courses from Discovery, otherwise update the content of courses only. We use it with --maintenance_period.'
         )
 
     def handle(self, *args, **options):
@@ -143,6 +150,7 @@ class Command(BaseCommand):
                 username = jwt.decode(access_token, verify=False)['preferred_username']
                 kwargs = {'username': username} if username else {}
                 kwargs['maintenance_period'] = maintenance_period
+                kwargs['maintain_course_list'] = options['maintain_course_list']
 
                 # The Linux kernel implements copy-on-write when fork() is called to create a new
                 # process. Pages that the parent and child processes share, such as the database

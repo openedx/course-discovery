@@ -103,27 +103,19 @@ def delete_orphans(model):
     model.objects.filter(**kwargs).delete()
 
 
-def delete_expired_courses():
-    """We only delete Courses + Related data with `modified` date before 2 month ago.
-    """
+def delete_expired_courses(removed_course_keys):
+    """Remove courses not existing in LMS."""
     from traceback import format_exc
     from course_discovery.apps.course_metadata.models import CourseRun
 
-    _range = CourseRun.objects.values('modified').aggregate(Max('modified'), Min('modified'))
-    _modified__min = _range['modified__min']
-    _modified__max = _range['modified__max']
-    _before_last_months = datetime.datetime.now() - datetime.timedelta(days=60)
+    # *** The `OneToOneField` was defined with on_delete set to CASCADE, which is the default ***
+    try:
+        logger.info('Deleting expired courses... ( number = {} )'.format(len(removed_course_keys)))
 
-    if _modified__min.replace(tzinfo=None) < _before_last_months < _modified__max.replace(tzinfo=None):
-        # We have some expired Courses related records invalidated for months. Then can be deleted from MySql now.
-        # *** The `OneToOneField` was defined with on_delete set to CASCADE, which is the default ***
-        try:
-            logger.info('Deleting expired courses... ( field `modified` <= {} )'.format(_before_last_months))
-            CourseRun.objects.filter(
-                modified__lte=_before_last_months       # We delete expired courses with field `modified` earlier than 2 months ago.
-            ).delete()
-        except Exception:
-            logger.error('Got exception while deleting courses : {}', format_exc())
+        CourseRun.objects.filter(key__iexact=removed_course_keys).delete()
+
+    except Exception:
+        logger.error('Got exception while deleting courses : {}', format_exc())
 
 
 class SearchQuerySetWrapper(object):
