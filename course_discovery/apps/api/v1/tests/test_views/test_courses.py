@@ -2386,12 +2386,6 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         # Now with editable=1 for real
         response = self.client.get(url, {'editable': 1})
-        # This is not a no-op. Essentially, once we hit the endpoint for a course that
-        # has no entitlements, and an entitlement is created, we'll get a stale response
-        # Only when we hit it the second time do we get the updated response. This is because
-        # the entitlements are prefetched on the course object and the call to
-        # create_missing_entitlement is made after the prefetch.
-        response = self.client.get(url, {'editable': 1})
 
         assert response.status_code == 200
         assert 'entitlements' in response.json()
