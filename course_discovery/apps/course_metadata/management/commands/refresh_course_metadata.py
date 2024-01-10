@@ -1,6 +1,7 @@
 import concurrent.futures
 import fcntl
 import itertools
+from io import BlockingIOError
 import logging
 import time
 
@@ -57,16 +58,22 @@ class _ScriptLock:
     """
     _lock_file_path = '/tmp/refresh_course_metadata.lock'
     def __init__(self):
-        logger.info('Opening lock file : {}.'.format(self._lock_file_path))
+        self._time_t = int(time.time())
+        logger.info('[Script refresh_course_metadata.py running] Opening lock file : {}.'.format(self._lock_file_path))
         self._lock = open(self._lock_file_path, 'w')
 
     def __enter__(self):
-        fcntl.lockf(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        logger.info('Lock file : {} acquired.'.format(self._lock_file_path))
+        try:
+            fcntl.lockf(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            logger.info('[Script refresh_course_metadata.py] Lock file : {} acquired.'.format(self._lock_file_path))
+
+        except BlockingIOError:
+            logger.info('[Script refresh_course_metadata.py] Cannot lock file({}). Process terminated.'.format(self._lock_file_path))
+            raise
 
     def __exit__(self, t, v, tb):
         fcntl.lockf(self._lock, fcntl.LOCK_UN)
-        logger.info('Lock file released.')
+        logger.info('[Script refresh_course_metadata.py ended] Lock file released. Task spent time = {}(sec)'.format(int(time.time()) - self._time_t))
 
 
 class Command(BaseCommand):
