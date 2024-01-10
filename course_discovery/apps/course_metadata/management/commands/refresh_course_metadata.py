@@ -109,7 +109,7 @@ class Command(BaseCommand):
             dest='modified_x_min_ago',
             type=int,
             default=None,
-            help='If "True" then deleting deleted courses from Discovery, otherwise update the content of courses only.'
+            help='Download courses modified in specified minutes.'
         )
 
     def handle(self, *args, **options):
