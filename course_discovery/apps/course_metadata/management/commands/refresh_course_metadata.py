@@ -1,4 +1,5 @@
 import concurrent.futures
+from datetime import datetime
 import fcntl
 import itertools
 from io import BlockingIOError
@@ -58,7 +59,7 @@ class _ScriptLock:
     """
     _lock_file_path = '/tmp/refresh_course_metadata.lock'
     def __init__(self, modified_x_min_ago):
-        self._time_t = int(time.time())
+        self._time_t = datetime.now()
 
         if modified_x_min_ago:
             logger.info('COURSE SYNC -- modified-x-min-ago={} -- START'.format(modified_x_min_ago))
@@ -78,7 +79,7 @@ class _ScriptLock:
 
     def __exit__(self, t, v, tb):
         fcntl.lockf(self._lock, fcntl.LOCK_UN)
-        logger.info('COURSE SYNC -- END (duration: {} seconds)'.format(int(time.time()) - self._time_t))
+        logger.info('COURSE SYNC -- END (duration: {} seconds)'.format(datetime.now() - self._time_t))
 
 
 class Command(BaseCommand):
