@@ -74,8 +74,8 @@ class Command(BaseCommand):
         We have two ways to sync. courses data from LMS to Discovery:
 
             Usages:
-             - [A] python manage.py refresh_course_metadata --maintenance_period=5~7    # In Am5:00 ~Am7:00, we sync all of courses from LMS
-             - [B] python manage.py refresh_course_metadata                             # We Only sync courses modified in hours from LMS if not in maintenance period(Am3:00 ~ Am5:00, default value)
+             - [A] python manage.py refresh_course_metadata --modified-x-min-ago=60     # Sync courses modified in specified minutes
+             - [B] python manage.py refresh_course_metadata                             # Sync all courses from LMS + remove deleted courses from course-discovery
 
         *** Only allows one script instance running in a time with a file locker. ***
 
@@ -91,19 +91,12 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
         parser.add_argument(
-            '--maintenance_period',
+            '--modified-x-min-ago',
             action='store',
-            dest='maintenance_period',
-            default='3~4',
-            help='Maintenance period for some special tasks.  (e.g: sync. all of courses from LMS) Argument format: "--maintenance_period=13~14"'
-        )
-        parser.add_argument(
-            '--maintain_course_list',
-            action='store',
-            dest='maintain_course_list',
-            type=lambda x: (str(x).lower() == 'true'),
-            default=True,
-            help='If "True" then deleting deleted courses from Discovery, otherwise update the content of courses only. We use it with --maintenance_period.'
+            dest='modified_x_min_ago',
+            type=int,
+            default=None,
+            help='If "True" then deleting deleted courses from Discovery, otherwise update the content of courses only.'
         )
 
     def handle(self, *args, **options):
@@ -128,11 +121,6 @@ class Command(BaseCommand):
             if not partners:
                 raise CommandError('No partners available!')
 
-            # parse maintenance period. script can do some special tasks in this period
-            maintenance_period = options.get('maintenance_period')
-            maintenance_period = [int(h) for h in maintenance_period.split('~')] if maintenance_period and '~' in maintenance_period else []
-            maintenance_period.sort()
-
             token_type = 'JWT'
             for partner in partners:
                 logger.info('Retrieving access token for partner [{}]'.format(partner.short_code))
@@ -149,8 +137,7 @@ class Command(BaseCommand):
                     raise
                 username = jwt.decode(access_token, verify=False)['preferred_username']
                 kwargs = {'username': username} if username else {}
-                kwargs['maintenance_period'] = maintenance_period
-                kwargs['maintain_course_list'] = options['maintain_course_list']
+                kwargs['modified_x_min_ago'] = options.get('modified_x_min_ago', None)
 
                 # The Linux kernel implements copy-on-write when fork() is called to create a new
                 # process. Pages that the parent and child processes share, such as the database

@@ -115,13 +115,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self.delete_expired_courses()
 
     @property
-    def is_maintaining_course_list(self):
-        return not self.is_incremental_query and self.maintain_course_list
+    def is_loading_all_courses(self):
+        return not self.modified_x_min_ago
 
     def delete_expired_courses(self):
-        if self.is_maintaining_course_list:
+        if self.is_loading_all_courses:
             logger.info(
-                '*** Maintaining course list...... ( cached course num : {}, loaded course num : {} )'.format(
+                '*** Maintaining course list...... ( Cached Course number={}, Loaded Course number={} )'.format(
                     len(self.loaded_course_keys), self.course_count
                 )
             )
@@ -151,17 +151,17 @@ class CoursesApiDataLoader(AbstractDataLoader):
         """Make incremental query ( load new edited courses in 24 hours Only ) if out of `Maintenance Period`,
             Otherwise load all of courses from LMS.
         """
-        if self.is_incremental_query:
+        if self.modified_x_min_ago:
             logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
                 org=self.partner.short_code,
-                modified_in_hours=1             # Only query new edited courses in one hour from LMS
+                modified_in_minutes=self.modified_x_min_ago   # Only query new edited courses in one hour from LMS
             )
 
         else:
-            logger.info('*** [Maintenance Period: {}~{}] Query all of courses from LMS. page_no={}'.format(self.maintenance_period[0], self.maintenance_period[1], page))
+            logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
@@ -172,16 +172,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         results = response['results']
 
         logger.info(
-            'Retrieved {} {}...'.format(len(results), 'Course Keys' if self.is_maintaining_course_list else 'Course runs')
+            'Retrieved {} {}...'.format(len(results), 'Course Keys' if self.is_loading_all_courses else 'Course runs')
         )
 
         for body in results:
             course_run_id = body['id']
 
-            if self.is_maintaining_course_list:
+            if self.is_loading_all_courses:
                 # Loading course key Only...
                 self.loaded_course_keys.add(course_run_id)
-                continue
 
             try:
                 body = self.clean_strings(body)
