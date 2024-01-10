@@ -79,7 +79,7 @@ class _ScriptLock:
 
     def __exit__(self, t, v, tb):
         fcntl.lockf(self._lock, fcntl.LOCK_UN)
-        logger.info('COURSE SYNC -- END (duration: {} seconds)'.format(datetime.now() - self._time_t))
+        logger.info('COURSE SYNC -- END (duration: {})'.format(datetime.now() - self._time_t))
 
 
 class Command(BaseCommand):
