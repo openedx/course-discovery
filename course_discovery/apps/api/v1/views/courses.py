@@ -516,8 +516,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = self.get_object()
         if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
-
-        return super().retrieve(request, *args, **kwargs)
+            course.refresh_from_db(fields=['entitlements'])
+        # Rather than call super().retrieve, we instantiate the serializer and return its
+        # data ourselves. This is to prevent duplicate calls (and hence duplicate queries)
+        # to self.get_object. Note that we have called get_object once already(see above).
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)
 
 
 class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
