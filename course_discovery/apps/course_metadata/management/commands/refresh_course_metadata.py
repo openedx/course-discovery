@@ -57,23 +57,28 @@ class _ScriptLock:
     """Only one script running in a time
     """
     _lock_file_path = '/tmp/refresh_course_metadata.lock'
-    def __init__(self):
+    def __init__(self, modified_x_min_ago):
         self._time_t = int(time.time())
-        logger.info('[Script refresh_course_metadata.py running] Opening lock file : {}.'.format(self._lock_file_path))
+
+        if modified_x_min_ago:
+            logger.info('COURSE SYNC -- modified-x-min-ago={} -- START'.format(modified_x_min_ago))
+        else:
+            logger.info('COURSE SYNC -- all courses -- START')
+
         self._lock = open(self._lock_file_path, 'w')
 
     def __enter__(self):
         try:
             fcntl.lockf(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            logger.info('[Script refresh_course_metadata.py] Lock file : {} acquired.'.format(self._lock_file_path))
+            logger.info('COURSE SYNC -- Lock file {} acquired.'.format(self._lock_file_path))
 
         except BlockingIOError:
-            logger.info('[Script refresh_course_metadata.py] Cannot lock file({}). Process terminated.'.format(self._lock_file_path))
+            logger.info('COURSE SYNC -- CANCELLED as another one is already running')
             raise
 
     def __exit__(self, t, v, tb):
         fcntl.lockf(self._lock, fcntl.LOCK_UN)
-        logger.info('[Script refresh_course_metadata.py ended] Lock file released. Task spent time = {}(sec)'.format(int(time.time()) - self._time_t))
+        logger.info('COURSE SYNC -- END (duration: {} seconds)'.format(int(time.time()) - self._time_t))
 
 
 class Command(BaseCommand):
@@ -107,7 +112,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        with _ScriptLock() as _script_locker:    # It make sure Only one script running in a time.
+        modified_x_min_ago = options.get('modified_x_min_ago', None)
+
+        with _ScriptLock(modified_x_min_ago) as _script_locker:    # It make sure Only one script running in a time.
 
             # We only want to invalidate the API response cache once data loading
             # completes. Disconnecting the api_change_receiver function from post_save
@@ -144,7 +151,7 @@ class Command(BaseCommand):
                     raise
                 username = jwt.decode(access_token, verify=False)['preferred_username']
                 kwargs = {'username': username} if username else {}
-                kwargs['modified_x_min_ago'] = options.get('modified_x_min_ago', None)
+                kwargs['modified_x_min_ago'] = modified_x_min_ago
 
                 # The Linux kernel implements copy-on-write when fork() is called to create a new
                 # process. Pages that the parent and child processes share, such as the database
