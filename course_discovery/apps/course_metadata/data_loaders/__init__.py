@@ -1,4 +1,5 @@
 import abc
+from datetime import datetime
 import re
 
 import html2text
@@ -47,6 +48,8 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
         self.username = kwargs.get('username')
+        self.modified_x_min_ago = kwargs.get('modified_x_min_ago')
+
 
     @cached_property
     def api_client(self):

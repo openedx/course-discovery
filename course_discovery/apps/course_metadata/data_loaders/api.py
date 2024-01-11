@@ -1,4 +1,5 @@
 import concurrent.futures
+from datetime import datetime
 import logging
 import math
 import time
@@ -75,10 +76,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
+        setattr(self, 'course_count', 0)
+        setattr(self, 'loaded_course_keys', set())
         response = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
         self._process_response(response)
+
+        if not self.course_count:
+            self.course_count = count
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -106,6 +112,35 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
         self.delete_orphans()
+        self.delete_expired_courses()
+
+    @property
+    def is_loading_all_courses(self):
+        return not self.modified_x_min_ago
+
+    def delete_expired_courses(self):
+        if self.is_loading_all_courses:
+            logger.info(
+                '*** Maintaining course list...... ( Cached Course number={}, Loaded Course number={} )'.format(
+                    len(self.loaded_course_keys), self.course_count
+                )
+            )
+
+            from course_discovery.apps.core.utils import delete_expired_courses
+
+            if len(self.loaded_course_keys) == self.course_count:
+                local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
+                removed_course_keys = local_course_keys - self.loaded_course_keys
+
+                if removed_course_keys:
+                    delete_expired_courses(removed_course_keys)
+
+            else:
+                logger.error(
+                    '*** Integrity Error of loaded course keys ( Loaded Number({}) != Expect Number({}) )'.format(
+                        len(self.loaded_course_keys), self.course_count
+                    )
+                )
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -113,18 +148,39 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
-        return self.api_client.courses().get(
-            page=page, page_size=self.PAGE_SIZE,
-            username=self.username,
-            org=self.partner.short_code
-        )
+        """Make incremental query ( load new edited courses in 24 hours Only ) if out of `Maintenance Period`,
+            Otherwise load all of courses from LMS.
+        """
+        if self.modified_x_min_ago:
+            logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
+            return self.api_client.courses().get(
+                page=page, page_size=self.PAGE_SIZE,
+                username=self.username,
+                org=self.partner.short_code,
+                modified_in_minutes=self.modified_x_min_ago   # Only query new edited courses in one hour from LMS
+            )
+
+        else:
+            logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
+            return self.api_client.courses().get(
+                page=page, page_size=self.PAGE_SIZE,
+                username=self.username,
+                org=self.partner.short_code
+            )
 
     def _process_response(self, response):
         results = response['results']
-        logger.info('Retrieved %d course runs...', len(results))
+
+        logger.info(
+            'Retrieved {} {}...'.format(len(results), 'Course Keys' if self.is_loading_all_courses else 'Course runs')
+        )
 
         for body in results:
             course_run_id = body['id']
+
+            if self.is_loading_all_courses:
+                # Loading course key Only...
+                self.loaded_course_keys.add(course_run_id)
 
             try:
                 body = self.clean_strings(body)

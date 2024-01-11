@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.conf import settings
+from django.db.models import Max, Min
 
 from course_discovery.settings.process_synonyms import get_synonyms
 
@@ -100,6 +101,21 @@ def delete_orphans(model):
     field_names = get_all_related_field_names(model)
     kwargs = {'{0}__isnull'.format(field_name): True for field_name in field_names}
     model.objects.filter(**kwargs).delete()
+
+
+def delete_expired_courses(removed_course_keys):
+    """Remove courses not existing in LMS."""
+    from traceback import format_exc
+    from course_discovery.apps.course_metadata.models import CourseRun
+
+    # *** The `OneToOneField` was defined with on_delete set to CASCADE, which is the default ***
+    try:
+        logger.info('Deleting expired courses... ( number = {} )'.format(len(removed_course_keys)))
+
+        CourseRun.objects.filter(key__in=removed_course_keys).delete()
+
+    except Exception:
+        logger.error('Got exception while deleting courses : {}', format_exc())
 
 
 class SearchQuerySetWrapper(object):
