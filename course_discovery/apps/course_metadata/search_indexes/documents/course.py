@@ -123,7 +123,7 @@ class CourseDocument(BaseCourseDocument):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('course_runs__seats__type')
+        return super().get_queryset().prefetch_related('course_runs__seats__type', 'course_runs__type')
 
     def prepare_course_type(self, obj):
         return obj.type.slug
