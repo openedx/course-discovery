@@ -775,3 +775,11 @@ SIMPLE_HISTORY_DATE_INDEX = False
 
 USE_DEPRECATED_PYTZ = True
 ORGANIC_MARKETING_EMAIL = None
+
+CSRF_TRUSTED_ORIGINS = (
+    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:1991',  # frontend-app-admin-portal
+    'http://localhost:18400',  # frontend-app-publisher
+    'http://localhost:18450',  # frontend-app-support-tools
+    'http://localhost:2000',  # frontend-app-learning
+)

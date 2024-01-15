@@ -44,7 +44,7 @@ class Command(BaseCommand):
             'short_code': 'edx',
             'site': self.site,
             'organizations_api_url': "http://edx.devstack.lms:18000/api/organizations/v0/",
-            'studio_url': "http://edx.devstack.studio:18010/"
+            'studio_url': "http://edx.devstack.cms:18010/"
         })
         self.org, _ = Organization.objects.get_or_create(key="edX", defaults={
             'partner': self.partner,
