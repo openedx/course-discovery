@@ -57,14 +57,6 @@ JWT_AUTH.update({
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 })
 
-CSRF_TRUSTED_ORIGINS = (
-    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
-    'http://localhost:1991',  # frontend-app-admin-portal
-    'http://localhost:18400',  # frontend-app-publisher
-    'http://localhost:18450',  # frontend-app-support-tools
-    'http://localhost:2000',  # frontend-app-learning
-)
-
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
