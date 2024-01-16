@@ -1,5 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.utils import model_ngettext
 from django.db.utils import IntegrityError
@@ -1042,3 +1043,18 @@ class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
     search_fields = ("program_subscription__program__title",
                      "program_subscription__program__uuid",
                      "price", "currency__name")
+
+
+class CourseReviewAdmin(admin.ModelAdmin):
+    """
+    Admin settings for CourseReview model
+    """
+    list_display = (
+        'course_key', 'reviews_count', 'avg_course_rating',
+        'confident_learners_percentage', 'most_common_goal',
+        'most_common_goal_learners_percentage', 'total_enrollments'
+    )
+
+
+if settings.ENABLE_COURSE_REVIEWS_ADMIN:
+    admin.site.register(CourseReview, CourseReviewAdmin)
