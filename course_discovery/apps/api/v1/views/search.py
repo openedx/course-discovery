@@ -194,7 +194,14 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         },
         'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'course_type': {'field': 'course_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'course_type': {
+            'field': 'course_type',
+            'lookups': [
+                LOOKUP_FILTER_TERM,
+                LOOKUP_FILTER_TERMS,
+                LOOKUP_QUERY_EXCLUDE,
+            ]
+        },
         'enterprise_subscription_inclusion': {
             'field': 'enterprise_subscription_inclusion',
             'lookups': [LOOKUP_FILTER_TERM],
