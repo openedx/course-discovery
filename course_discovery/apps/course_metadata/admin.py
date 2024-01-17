@@ -212,6 +212,12 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     course_skills.label = "view course skills"
 
 
+@admin.register(CourseReview)
+class CourseReviewAdmin(admin.ModelAdmin):
+    list_display = ['course_key', 'reviews_count', 'avg_course_rating', 'total_enrollments']
+    search_fields = ('course_key', 'reviews_count')
+
+
 @admin.register(CourseEditor)
 class CourseEditorAdmin(admin.ModelAdmin):
     list_display = ('user', 'course',)
