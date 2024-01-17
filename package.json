@@ -14,7 +14,7 @@
     "datatables.net-bs": "1.13.8",
     "mini-css-extract-plugin": "2.7.7",
     "file-loader": "6.2.0",
-    "imports-loader": "0.8.0",
+    "imports-loader": "5.0.0",
     "jquery": "3.7.1",
     "sass": "1.69.7",
     "sass-loader": "12.1.0",
