@@ -783,3 +783,5 @@ CSRF_TRUSTED_ORIGINS = (
     'http://localhost:18450',  # frontend-app-support-tools
     'http://localhost:2000',  # frontend-app-learning
 )
+
+ENABLE_COURSE_REVIEWS_ADMIN = False
