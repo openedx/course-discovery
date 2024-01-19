@@ -103,21 +103,6 @@ def delete_orphans(model):
     model.objects.filter(**kwargs).delete()
 
 
-def delete_expired_courses(removed_course_keys):
-    """Remove courses not existing in LMS."""
-    from traceback import format_exc
-    from course_discovery.apps.course_metadata.models import CourseRun
-
-    # *** The `OneToOneField` was defined with on_delete set to CASCADE, which is the default ***
-    try:
-        logger.info('Deleting expired courses... ( number = {} )'.format(len(removed_course_keys)))
-
-        CourseRun.objects.filter(key__in=removed_course_keys).delete()
-
-    except Exception:
-        logger.error('Got exception while deleting courses : {}', format_exc())
-
-
 class SearchQuerySetWrapper(object):
     """
     Decorates a SearchQuerySet object using a generator for efficient iteration
