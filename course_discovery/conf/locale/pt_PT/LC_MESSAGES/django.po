@@ -16,6 +16,7 @@
 # Manuela Silva <mmsrs@sky.com>, 2016
 # MS, 2016,2018
 # Nika Shahidian, 2022
+# Pedro Cabral <pedro.cabral.nau@gmail.com>, 2024
 # Rui Cardoso <rui.cardoso@primesenior.com>, 2020
 # Rui Ribeiro <info@nau.edu.pt>, 2018-2019
 msgid ""
@@ -24,7 +25,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-15 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Manuela Silva <mmsrs@sky.com>, 2022\n"
+"Last-Translator: Pedro Cabral <pedro.cabral.nau@gmail.com>, 2024\n"
 "Language-Team: Portuguese (Portugal) (http://app.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -81,7 +82,7 @@ msgstr "Dicionário com as equivalências entre as IDs das edições de curso e 
 
 #: apps/api/serializers.py:1242
 msgid "Restriction Type cannot be empty"
-msgstr ""
+msgstr "Tipo de Restrição tem que estar preenchido"
 
 #: apps/api/serializers.py:1685
 msgid "Dictionary mapping course IDs to boolean values"
@@ -153,7 +154,7 @@ msgstr "O Tipo de Curso [{course_type}] não existe. "
 #: apps/api/v1/views/courses.py:200
 #, python-brace-format
 msgid "Product Source [{product_source}] does not exist. "
-msgstr ""
+msgstr "Fonte do Produto [{product_source}] é inexistente."
 
 #: apps/api/v1/views/courses.py:218
 #, python-brace-format
@@ -237,7 +238,7 @@ msgstr "Configuração Analítica"
 #: apps/core/admin.py:59
 msgid ""
 "Configure the analytics API that will be used to retrieve enrollment data"
-msgstr ""
+msgstr "Configurar a API de analítica que será utilizada para recuperar os dados de inscrição"
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
@@ -437,7 +438,7 @@ msgstr "Arquivado"
 
 #: apps/course_metadata/algolia_models.py:596
 msgid "Available by subscription"
-msgstr ""
+msgstr "Disponível por subscrição"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:30
 msgid "Unpublished"
@@ -486,19 +487,19 @@ msgstr "Eliminado"
 
 #: apps/course_metadata/choices.py:37
 msgid "mooc"
-msgstr ""
+msgstr "mooc"
 
 #: apps/course_metadata/choices.py:38
 msgid "spoc"
-msgstr ""
+msgstr "spoc"
 
 #: apps/course_metadata/choices.py:39
 msgid "test"
-msgstr ""
+msgstr "teste"
 
 #: apps/course_metadata/choices.py:40
 msgid "demo"
-msgstr ""
+msgstr "demonstração"
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
@@ -550,23 +551,23 @@ msgstr "Organização"
 
 #: apps/course_metadata/choices.py:62
 msgid "Short"
-msgstr ""
+msgstr "Curto"
 
 #: apps/course_metadata/choices.py:63
 msgid "Medium"
-msgstr ""
+msgstr "Médio"
 
 #: apps/course_metadata/choices.py:64
 msgid "Long"
-msgstr ""
+msgstr "Longo"
 
 #: apps/course_metadata/choices.py:79
 msgid "Short Course"
-msgstr ""
+msgstr "Curso Curto"
 
 #: apps/course_metadata/choices.py:80
 msgid "Sprint"
-msgstr ""
+msgstr "Sprint"
 
 #: apps/course_metadata/choices.py:81
 msgid "Course Stack"
@@ -636,7 +637,7 @@ msgstr "equipa legal"
 
 #: apps/course_metadata/emails.py:187
 msgid "Project Coordinator team"
-msgstr ""
+msgstr "Equipa de Coordenação de Projeto"
 
 #: apps/course_metadata/emails.py:211
 msgid "course team"
@@ -650,7 +651,7 @@ msgstr "Revisão legal solicitada: {title}"
 #: apps/course_metadata/emails.py:233
 #, python-brace-format
 msgid "Course URL for {title}"
-msgstr ""
+msgstr "URL do curso para {title}"
 
 #: apps/course_metadata/emails.py:272
 #, python-brace-format
@@ -682,7 +683,7 @@ msgstr "Comentário adicionado: {title}"
 msgid ""
 "Enter a valid “slug” consisting of letters, numbers, slashes, underscores or"
 " hyphens."
-msgstr ""
+msgstr "Introduza um “slug” válido que contenha letras, números, barras, sublinhados ou hífens."
 
 #: apps/course_metadata/forms.py:66
 msgid "Programs can only be activated if they have a banner image."
