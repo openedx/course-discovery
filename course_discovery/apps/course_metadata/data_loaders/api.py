@@ -178,6 +178,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
         for body in results:
             course_run_id = body['id']
 
+            if self.is_loading_all_courses:
+                # Loading course key Only...
+                self.loaded_course_keys.add(course_run_id)
+
             try:
                 body = self.clean_strings(body)
                 course_run = self.get_course_run(body)
