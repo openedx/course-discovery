@@ -1,10 +1,10 @@
-# Stay on an LTS release
-django<4.0
-
 # We are creating a local copy of the common constraints file and override/remove the global constraint which we don't need.
 # This approach is used temporarily and will be improved in https://openedx.atlassian.net/browse/BOM-2721
 # This file contains all common constraints for edx-repos
 -c common_constraints.txt
+
+# Stay on an LTS release
+django<4.3
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
@@ -23,21 +23,42 @@ algoliasearch<2.0.0
 # Remove this pin once newer stable version is released
 authlib==1.0.0rc1
 
-# The latest version require Django 4.0, remove once we have upgraded to Django 4.0
-django-admin-sortable2<2.0.0
-
-# The latest versions of django-simple-history and django-stdimage have breaking changes
+# The latest versions of django-stdimage has breaking changes
 # Remove this pin after fixing them.
-django-simple-history<=3.0.0
 django-stdimage<=5.3.0
 
 semgrep==0.102.0
-
-# Version 8.3.0 introduced changes that caused users to see User Disabled error
-edx-drf-extensions < 8.3.0
 
 # Pinning sphinx as new major release is causing error while installing requirements.
 sphinx<6.0.0
 
 # This dependency is causing issues with semgrep CI, failing on metadata checks
 cairocffi < 1.5.0
+
+# 1.0.0 has breaking changes
+requests-toolbelt==0.10.1
+
+# Support for backports.zoneinfo in Python 3.9+ is currently minimal
+# https://pypi.org/project/backports.zoneinfo/
+backports.zoneinfo;python_version<"3.9"
+
+# Pillow 10 is causing django-stdimage to break when accessing ANTIALIAS variable on Image
+pillow < 10.0.0
+
+# 4.2.0 is breaking django-elasticsearch-debug-toolbar
+# Awaiting fix https://github.com/Benoss/django-elasticsearch-debug-toolbar/pull/21 to be merged
+django-debug-toolbar < 4.2.0
+
+# selenium==4.13.0 causing test failures
+selenium==4.12.0
+
+# Open AI version 1.0.0 dropped support for openai.ChatCompletion which is currently in use in enterprise.
+openai<=0.28.1
+
+# Version 3.5.0 is causing some tests (learner_pathway models, test_add_provisioning_data, etc.) to fail
+# all of a sudden. The v3.5.0 introduces some ordering changes in `loadscope` dist and that is causing an existing test(s)
+# that do not clean up properly to cause failures. Pinning the version to unblock requirements upgrade.
+# This is happening on some other open source repositories as well.
+# https://github.com/PrefectHQ/prefect/pull/11229/files
+# https://github.com/hyperspy/hyperspy/pull/3274
+pytest-xdist < 3.5.0

@@ -12,12 +12,16 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
+    AbstractLocationRestrictionModel, Course, CourseType, ProductValue, Program, ProgramType
 )
 from course_discovery.apps.course_metadata.utils import transform_skills_data
 
 # Algolia can't filter on an empty list, provide a value we can still filter on
 ALGOLIA_EMPTY_LIST = ['null']
+
+# Every record needs geolocation data to show up in results after we turn on georanking.
+# These are the coordinates of the  North Atlantic
+ALGOLIA_DEFAULT_GEO_COORDINATES = 34.921696, -40.839980
 
 
 # Utility methods used by both courses and programs
@@ -59,7 +63,7 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'product_source', 'primary_description',
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
-                    'product_allowed_in', 'product_blocked_in', 'product_weeks_to_complete']
+                    'product_allowed_in', 'product_blocked_in', 'product_weeks_to_complete', 'learning_type']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -67,8 +71,9 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields',
-                     'subscription_eligible', 'subscription_prices',]
+                     'product_meta_title', 'product_display_on_org_page', 'product_external_url',
+                     'contentful_fields', 'subscription_eligible', 'subscription_prices', 'product_key',
+                     'product_marketing_video_url', ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -129,12 +134,8 @@ class AlgoliaProxyProduct(Program):
             contentful_product = contentful_data[product_uuid]
             self.product.contentful_fields = contentful_product
 
-    @property
     def coordinates(self):
-        geolocation = getattr(self.product, 'geolocation', None)
-        if geolocation:
-            return getattr(geolocation, 'coordinates', None)
-        return None
+        return self.product.coordinates
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
@@ -165,29 +166,23 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     def product_recent_enrollment_count(self):
         return self.recent_enrollment_count
 
+    # For product_value_per_*, return default values if in_year_value is None to ensure that products don't get lost
+    # in the ranking
     @property
     def product_value_per_click_usa(self):
-        if self.in_year_value:
-            return self.in_year_value.per_click_usa
-        return None
+        return getattr(self.in_year_value, 'per_click_usa', ProductValue.DEFAULT_VALUE_PER_CLICK)
 
     @property
     def product_value_per_click_international(self):
-        if self.in_year_value:
-            return self.in_year_value.per_click_international
-        return None
+        return getattr(self.in_year_value, 'per_click_international', ProductValue.DEFAULT_VALUE_PER_CLICK)
 
     @property
     def product_value_per_lead_usa(self):
-        if self.in_year_value:
-            return self.in_year_value.per_lead_usa
-        return None
+        return getattr(self.in_year_value, 'per_lead_usa', ProductValue.DEFAULT_VALUE_PER_LEAD)
 
     @property
     def product_value_per_lead_international(self):
-        if self.in_year_value:
-            return self.in_year_value.per_lead_international
-        return None
+        return getattr(self.in_year_value, 'per_lead_international', ProductValue.DEFAULT_VALUE_PER_LEAD)
 
     @property
     def product_organization_short_code_override(self):
@@ -202,6 +197,13 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     @property
     def product_source(self):
         return self.product_source.slug if self.product_source else None
+
+    @property
+    def coordinates(self):
+        geolocation = getattr(self, 'geolocation', None)
+        if geolocation:
+            return getattr(geolocation, 'coordinates', ALGOLIA_DEFAULT_GEO_COORDINATES)
+        return ALGOLIA_DEFAULT_GEO_COORDINATES
 
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
@@ -289,6 +291,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return [program.type.name_t for program in self.programs.all()]
 
     @property
+    def learning_type(self):
+        return [self.product_type, *self.program_types]
+
+    @property
     def product_card_image_url(self):
         if self.image:
             return getattr(self.image, 'url', None)
@@ -353,8 +359,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_display_on_org_page(self):
-        # Only courses display on organization pages
-        return self.product_type == 'Course'
+        return self.additional_metadata.display_on_org_page if self.additional_metadata else True
+
+    @property
+    def product_external_url(self):
+        return self.additional_metadata.external_url if self.additional_metadata else None
 
     @property
     def should_index(self):
@@ -414,6 +423,14 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     def subscription_prices(self):
         """ Courses do not have subscription_prices attribute. Returning empty list explicitly"""
         return []
+
+    @property
+    def product_key(self):
+        return self.key
+
+    @property
+    def product_marketing_video_url(self):
+        return self.video.src if self.video else None
 
 
 class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
@@ -516,6 +533,12 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return None
 
     @property
+    def learning_type(self):
+        if self.type:
+            return [self.type.name_t]
+        return []
+
+    @property
     def tags(self):
         topics = [topic.name for topic in self.topics]
         labels = [label.name for label in self.labels.all()]
@@ -568,6 +591,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             course_status = get_course_availability(course)
             for status in course_status:
                 availability.add(status)
+
+        if self.subscription_eligible:
+            availability.add(_('Available by subscription'))
 
         return list(availability)
 
@@ -626,6 +652,13 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             data = [{'price': price.price, 'currency': price.currency.code} for price in prices]
             return data
         return []
+
+    @property
+    def product_external_url(self):
+        if hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata'):
+            return self.degree.additional_metadata.external_url
+        else:
+            return None
 
 
 class SearchDefaultResultsConfiguration(models.Model):

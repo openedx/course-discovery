@@ -19,3 +19,62 @@ from edx_toggles.toggles import WaffleSwitch
 BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK = WaffleSwitch(
     'course_metadata.bypass_lms_data_loader__end_date_updated_check', __name__
 )
+
+# .. toggle_name: course_metadata.is_subdirectory_slug_format_enabled
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to use subdirectory slug format for OCM courses.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-06-26
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3444
+IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED = WaffleSwitch(
+    'course_metadata.is_subdirectory_slug_format_enabled', __name__
+)
+
+# .. toggle_name: course_metadata.is_subdirectory_slug_format_for_exec_ed_enabled
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to use subdirectory slug format for exec ed courses.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-08-17
+# .. toggle_target_removal_date: 2023-09-01
+# .. toggle_tickets: PROD-3574
+IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED = WaffleSwitch(
+    'course_metadata.is_subdirectory_slug_format_for_exec_ed_enabled', __name__
+)
+# .. toggle_name: course_metadata.is_subdirectory_slug_format_for_bootcamp_enabled
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to use subdirectory slug format for bootcamp courses.
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-09-05
+# .. toggle_target_removal_date: 2023-09-20
+# .. toggle_tickets: PROD-3611
+IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED = WaffleSwitch(
+    'course_metadata.is_subdirectory_slug_format_for_bootcamp_enabled', __name__
+)
+# .. toggle_name: course_metadata.is_course_run_variant_id_editable
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable to make course run variant id editable via CourseRun API (for external LOBs).
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2023-11-06
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3733
+IS_COURSE_RUN_VARIANT_ID_EDITABLE = WaffleSwitch(
+    'course_metadata.is_course_run_variant_id_editable', __name__
+)
+# .. toggle_name: course_metadata.is_course_run_variant_id_ecommerce_consumable
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable the sending of the course run's variant_id to the ecommerce for external courses,
+# .. rather than retrieving it from the additional metadata of the course.
+# .. toggle_use_cases: open_edx
+# .. toggle_type: temporary
+# .. toggle_creation_date: 2023-11-17
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-3733
+IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE = WaffleSwitch(
+    'course_metadata.is_course_run_variant_id_ecommerce_consumable', __name__
+)

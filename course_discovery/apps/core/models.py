@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from edx_rest_api_client.client import OAuthAPIClient
 from guardian.mixins import GuardianUserMixin
+from model_utils import FieldTracker
 from simple_history.models import HistoricalRecords
 
 
@@ -84,6 +85,7 @@ class Partner(TimeStampedModel):
     analytics_token = models.CharField(max_length=255, blank=True, verbose_name=_('Analytics Access Token'), default='')
 
     history = HistoricalRecords()
+    field_tracker = FieldTracker()
 
     def __str__(self):
         return self.name
@@ -110,6 +112,15 @@ class Partner(TimeStampedModel):
             settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
             timeout=settings.OAUTH_API_TIMEOUT,
         )
+
+    @property
+    def has_changed(self):
+        """
+        Returns True if any of the fields tracked by field tracker have changed.
+        """
+        if not self.pk:
+            return False
+        return self.field_tracker.changed()
 
 
 class SalesforceConfiguration(models.Model):

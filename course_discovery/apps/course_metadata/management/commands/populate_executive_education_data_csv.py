@@ -17,6 +17,8 @@ from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
 from course_discovery.apps.course_metadata.data_loaders import utils
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
+from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +28,7 @@ class Command(BaseCommand):
 
     # The list to define order of the header keys in csv.
     OUTPUT_CSV_HEADERS = [
-        '2u_organization_code', 'title', '2u_title', 'edx_title', 'number',
+        'organization', '2u_organization_code', 'title', '2u_title', 'edx_title', 'number',
         'alternate_number', 'course_enrollment_track', 'image', 'short_description', 'long_description',
         'what_will_you_learn', 'course_level', 'primary_subject', '2u_primary_subject', 'subject_subcategory',
         'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
@@ -55,6 +57,7 @@ class Command(BaseCommand):
             '--auth_token',
             dest='auth_token',
             type=str,
+            required=False,
             help='Bearer token for making API calls to Product API'
         )
         parser.add_argument(
@@ -78,16 +81,32 @@ class Command(BaseCommand):
             required=False,
             help='Path to JSON file containing the product details, only meant for development usage/purposes'
         )
+        parser.add_argument(
+            '--use_getsmarter_api_client',
+            dest='getsmarter_flag',
+            type=bool,
+            required=False,
+            help='Flag to indicate if the command is being run using Getsmarter api client'
+        )
+        parser.add_argument(
+            '--product_source',
+            dest='product_source',
+            type=str,
+            default='edx',
+            help='Product source to be used for mapping external organization code to internal organization code'
+        )
 
     def handle(self, *args, **options):
         input_csv = options.get('input_csv')
         output_csv = options.get('output_csv')
         auth_token = options.get('auth_token')
         dev_input_json = options.get('dev_input_json')
+        getsmarter_flag = options.get('getsmarter_flag')
+        product_source = options.get('product_source')
 
-        if not (dev_input_json or auth_token):
+        if not (dev_input_json or auth_token or getsmarter_flag):
             raise CommandError(
-                "auth_token or dev_input_json should be provided to perform data transformation."
+                "auth_token or dev_input_json or getsmarter_flag should be provided to perform data transformation."
             )
 
         # Error/Warning messages to be displayed at the end of population
@@ -106,8 +125,10 @@ class Command(BaseCommand):
 
         if dev_input_json:
             products = self.mock_product_details(dev_input_json)
-        else:
+        elif auth_token:
             products = self.get_product_details(auth_token)
+        elif getsmarter_flag:
+            products = fetch_getsmarter_products()
 
         if not products:
             raise CommandError("Unexpected error occurred while fetching products")
@@ -126,7 +147,9 @@ class Command(BaseCommand):
                         row = self.transform_dict_keys(row[0])
                 else:
                     row = {}
-
+                if getsmarter_flag:
+                    product['organization'] = map_external_org_code_to_internal_org_code(
+                        product['universityAbbreviation'], product_source)
                 output_dict = self.get_transformed_data(row, product)
                 output_writer = self.write_csv_row(output_writer, output_dict)
                 logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -277,6 +300,7 @@ class Command(BaseCommand):
 
         return {
             **default_values,
+            'organization': product_dict.get('organization', ''),
             'organization_short_code_override': product_dict['altUniversityAbbreviation'],
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
@@ -298,10 +322,10 @@ class Command(BaseCommand):
             'lead_capture_form_url': utils.format_base64_strings(product_dict['lcfURL']),
             'certificate_header': product_dict['certificate'].get('headline', ''),
             'certificate_text': product_dict['certificate'].get('blurb', ''),
-            'stat1': stats['stat1'],
-            'stat1_text': stats['stat1Blurb'],
-            'stat2': stats['stat2'],
-            'stat2_text': stats['stat2Blurb'],
+            'stat1': stats.get('stat1', ''),
+            'stat1_text': stats.get('stat1Blurb', ''),
+            'stat2': stats.get('stat2', ''),
+            'stat2_text': stats.get('stat2Blurb', ''),
             'organic_url': utils.format_base64_strings(product_dict.get('edxRedirectUrl', '')),
             'meta_title': product_dict.get('metaTitle', ''),
             'meta_description': product_dict.get('metaDescription', ''),

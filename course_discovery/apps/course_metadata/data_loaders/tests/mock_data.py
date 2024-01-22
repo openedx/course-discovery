@@ -247,6 +247,24 @@ ECOMMERCE_API_BODIES = [
                     }
                 ]
             },
+            # Mobile seat which we will discarded since we arn't syncing mobile skus see decicion 0025
+            {
+                "structure": "child",
+                "expires": "2017-01-01T12:00:00Z",
+                "attribute_values": [
+                    {
+                        "name": "certificate_type",
+                        "value": "verified"
+                    }
+                ],
+                "stockrecords": [
+                    {
+                        "price_currency": "EUR",
+                        "price_excl_tax": "250.00",
+                        "partner_sku": "mobile.android.sku003",
+                    }
+                ]
+            },
             {
                 "structure": "standalone",
                 "expires": "2017-01-01T12:00:00Z",
@@ -567,7 +585,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Explore water management concepts and technologies',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'water-management',
+        'marketing_slug': 'xseries/delftx-water-management',
         'organizations': [
             {
                 'display_name': 'Delft University of Technology',
@@ -662,7 +680,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Learn how to design and optimize the supply chain to enhance business performance.',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'supply-chain-management-0',
+        'marketing_slug': 'xseries/mitx-supply-chain-management',
         'organizations': [
             {
                 'display_name': 'Massachusetts Institute of Technology',
@@ -3090,6 +3108,58 @@ VALID_DEGREE_CSV_DICT = {
     'organization_short_code_override': 'Org Override',
 }
 
+# degree data containing organization_key which is already existing in the DB.
+DEGREE_WITH_ORG_KEY_COLLISION_CSV_DICT = {
+    'identifier': '123456',
+    'title': 'Test Degree',
+    'card_image_url': 'https://example.com/image.jpg',
+    'product_type': 'masters',
+    'organization_key': 'ext-key',
+    'slug': 'test-degree',
+    'paid_landing_page_url': 'http://example.com/landing-page.html',
+    'organic_url': 'http://example.com/organic-page.html',
+    'overview': 'Test Degree Overview',
+    'specializations': 'Marketing | Finance',
+    'courses': 'ABC|D&E|Harvard CS50',
+    'course_level': 'Intermediate',
+    'primary_subject': 'Computer Science',
+    'content_language': 'English - United States',
+    'organization_logo_override': 'https://example.com/image.jpg',
+    'organization_short_code_override': 'Org Override',
+}
+
+VALID_PROGRAM_SUBSCRIPTION_DICT = {
+    'uuid': '0668c6f0-5dcf-41dc-80cd-6222d2de4df0',
+    'title': 'Test Program',
+    'subscription price': '$79.89',
+    'subscription_eligible': 'TRUE',
+    'currency': 'USD',
+}
+
+INVALID_PROGRAM_SUBSCRIPTION_DICT = {
+    'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
+    'title': 'Test Program 2',
+    'subscription price': '$79.99',
+    'subscription_eligible': 'FALSE',
+    'currency': 'USD',
+}
+
+PROGRAM_WITH_INVALID_SUBSCRIPTION_ELIGIBILITY_DICT = {
+    'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
+    'title': 'Test Program 2',
+    'subscription price': '$79.99',
+    'subscription_eligible': 'test-flag',
+    'currency': 'USD',
+}
+
+PROGRAM_WITH_INVALID_CURRENCY_DICT = {
+    'uuid': '0668eef0-5dcf-41dc-80cd-6222d2de4d22',
+    'title': 'Test Program 2',
+    'subscription price': '$79.99',
+    'subscription_eligible': 'TRUE',
+    'currency': 'invalid-currency',
+}
+
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT
 
 
@@ -3130,9 +3200,9 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'publish_date': '01/25/2020',
     'start_date': '01/25/2020',
     'start_time': '00:00',
-    'end_date': '02/25/2020',
+    'end_date': '02/25/2050',
     'end_time': '00:00',
-    'reg_close_date': '01/25/2020',
+    'reg_close_date': '01/25/2050',
     'reg_close_time': '00:00',
     'course_pacing': 'self-paced',
     'course_run_enrollment_track': 'Paid Executive Education',
@@ -3286,4 +3356,13 @@ VALID_GEOLOCATION_CSV_DICT = {
     'LOCATION NAME': 'Harvard University',
     'LATITUDE': '40.146339',
     'LONGITUDE': '-73.971038',
+}
+
+VALID_PRODUCT_VALUE_CSV_DICT = {
+    'UUID': '3f10df65fd0641df9b42ad2cbaeb7fee',
+    'PRODUCT TYPE': 'course',
+    'PER CLICK USA': 10,
+    'PER CLICK INTERNATIONAL': 10,
+    'PER LEAD USA': 10,
+    'PER LEAD INTERNATIONAL': 10,
 }

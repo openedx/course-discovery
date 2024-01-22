@@ -3,8 +3,9 @@ FROM ubuntu:focal as app
 ENV DEBIAN_FRONTEND noninteractive
 # System requirements.
 RUN apt update && \
-  apt-get install -qy \ 
+  apt-get install -qy \
   curl \
+  gettext \
   # required by bower installer
   git \
   language-pack-en \
@@ -14,6 +15,8 @@ RUN apt update && \
   python3.8-distutils \
   libmysqlclient-dev \
   libssl-dev \
+  # mysqlclient >= 2.2.0 requires pkg-config.
+  pkg-config \
   libcairo2-dev && \
   rm -rf /var/lib/apt/lists/*
 
@@ -46,28 +49,19 @@ RUN nodeenv ${DISCOVERY_NODEENV_DIR} --node=16.14.0 --prebuilt && npm install -g
 # Working directory will be root of repo.
 WORKDIR ${DISCOVERY_CODE_DIR}
 
-# Copy just JS requirements and install them.
-COPY package.json package.json
-COPY package-lock.json package-lock.json
-COPY bower.json bower.json
-RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production
+# Copy over repository
+COPY . .
+
+RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production && ./node_modules/.bin/webpack --config webpack.config.js --progress
 
 # Expose canonical Discovery port
-EXPOSE 18381
 EXPOSE 8381
 
 FROM app as prod
 
 ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.production"
 
-COPY requirements/production.txt ${DISCOVERY_CODE_DIR}/requirements/production.txt
-
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/production.txt
-
-# Copy over rest of code.
-# We do this AFTER requirements so that the requirements cache isn't busted
-# every time any bit of code is changed.
-COPY . .
 
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
@@ -75,19 +69,11 @@ FROM app as dev
 
 ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.devstack"
 
-COPY requirements/local.txt ${DISCOVERY_CODE_DIR}/requirements/local.txt
-COPY requirements/django.txt ${DISCOVERY_CODE_DIR}/requirements/django.txt
-
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/django.txt
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
 
 # Devstack related step for backwards compatibility
 RUN touch ${DISCOVERY_APP_DIR}/discovery_env
-
-# Copy over rest of code.
-# We do this AFTER requirements so that the requirements cache isn't busted
-# every time any bit of code is changed.
-COPY . .
 
 CMD while true; do python ./manage.py runserver 0.0.0.0:8381; sleep 2; done
 

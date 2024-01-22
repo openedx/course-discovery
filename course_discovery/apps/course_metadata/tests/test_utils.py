@@ -10,27 +10,41 @@ import pytz
 import requests
 import responses
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.test import TestCase
+from edx_django_utils.cache import RequestCache
+from edx_toggles.toggles.testutils import override_waffle_switch
+from slugify import slugify
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.constants import DEFAULT_SLUG_FORMAT_ERROR_MSG
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType, Track
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, CourseRun, CourseType, CourseUrlSlug, Seat, SeatType, Track
+)
+from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, ModeFactory,
+    OrganizationFactory, OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
+    SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
     is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
-    transform_skills_data
+    transform_skills_data, validate_slug_format
 )
 
 
@@ -151,46 +165,144 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
 
 @ddt.ddt
 class TestSerializeSeatForEcommerceApi(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.course_run_missing_variant = CourseRunFactory(variant_id=None)
+        self.course_run_variant_id = CourseRunFactory(variant_id='00000000-0000-0000-0000-000000000000')
+
     @ddt.data(
-        ('', False),
-        ('verified', True),
+        ('', False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+            ]
+        }),
+        ('verified', True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+            ]
+        }),
     )
     @ddt.unpack
-    def test_serialize_seat_for_ecommerce_api(self, certificate_type, is_id_verified):
-        seat = SeatFactory()
+    def test_serialize_seat_for_ecommerce_api_without_variant_id(self, certificate_type, is_id_verified, expected):
+        """
+        Test that serialize_seat_for_ecommerce_api returns the expected data for a seat of OCM course
+        """
+        seat = SeatFactory(course_run=self.course_run_missing_variant, sku='example_sku', price=100.00)
         mode = ModeFactory(certificate_type=certificate_type, is_id_verified=is_id_verified)
+
         actual = serialize_seat_for_ecommerce_api(seat, mode)
-        expected = {
-            'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
-            'price': str(seat.price),
-            'product_class': 'Seat',
-            'stockrecords': [{'partner_sku': seat.sku}],
-            'attribute_values': [
-                {
-                    'name': 'certificate_type',
-                    'value': mode.certificate_type,
-                },
-                {
-                    'name': 'id_verification_required',
-                    'value': mode.is_id_verified,
-                }
-            ]
-        }
+        expected['expires'] = serialize_datetime(calculated_seat_upgrade_deadline(seat))
+        expected['price'] = str(seat.price)
+
         assert actual == expected
+
         seat.sku = None
-        actual = serialize_seat_for_ecommerce_api(seat, mode)
+        seat.course_run = self.course_run_missing_variant
         expected['stockrecords'][0]['partner_sku'] = None
+
+        actual = serialize_seat_for_ecommerce_api(seat, mode)
         assert actual == expected
+
+    @ddt.data(
+        ('', False, False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+            ]
+        }),
+        ('verified', True, False, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+            ]
+        }),
+        ('', False, True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': ''},
+                {'name': 'id_verification_required', 'value': False},
+                {'name': 'variant_id', 'value': '00000000-0000-0000-0000-000000000000'},
+            ]
+        }),
+        ('verified', True, True, {
+            'expires': 'expected_expiry_date',
+            'price': '100.00',
+            'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': 'example_sku'}],
+            'attribute_values': [
+                {'name': 'certificate_type', 'value': 'verified'},
+                {'name': 'id_verification_required', 'value': True},
+                {'name': 'variant_id', 'value': '00000000-0000-0000-0000-000000000000'},
+            ]
+        }),
+    )
+    @ddt.unpack
+    def test_serialize_seat_for_ecommerce_api_with_variant_id_present(
+        self, certificate_type, is_id_verified, variant_id_flag, expected
+    ):
+        """
+        Test that serialize_seat_for_ecommerce_api returns the expected data for a seat of external LOBs course
+        """
+        seat = SeatFactory(course_run=self.course_run_variant_id, sku='example_sku', price=100.00)
+        mode = ModeFactory(certificate_type=certificate_type, is_id_verified=is_id_verified)
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, active=variant_id_flag):
+            actual = serialize_seat_for_ecommerce_api(seat, mode)
+            expected['expires'] = serialize_datetime(calculated_seat_upgrade_deadline(seat))
+            expected['price'] = str(seat.price)
+
+            assert actual == expected
+            seat.sku = None
+            seat.course_run = self.course_run_variant_id
+            expected['stockrecords'][0]['partner_sku'] = None
+
+            actual = serialize_seat_for_ecommerce_api(seat, mode)
+            assert actual == expected
 
 
 @pytest.mark.django_db
-class TestSerializeEntitlementForEcommerceApi:
+@ddt.ddt
+class TestSerializeEntitlementForEcommerceApi(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.ocm_course = CourseFactory(additional_metadata=None)
+        self.external_course = CourseFactory()
+        CourseRunFactory(
+            start=datetime.datetime(2022, 10, 13, tzinfo=pytz.UTC),
+            end=datetime.datetime(2050, 3, 1, tzinfo=pytz.UTC),
+            course=self.external_course,
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+            draft=False,
+        )
+        SeatFactory(course_run=self.external_course.course_runs.first(), sku='example_sku', price=100.00)
+
     def test_serialize_entitlement_for_ecommerce_api(self):
         """
         CourseEntitlement should be able to be serialized as expected for
         call to ecommerce api.
         """
-        entitlement = CourseEntitlementFactory(course__additional_metadata=None)
+        entitlement = CourseEntitlementFactory(course=self.ocm_course)
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
             'price': str(entitlement.price),
@@ -210,7 +322,7 @@ class TestSerializeEntitlementForEcommerceApi:
         Additional metadata should be included in attribute values sent to Ecommerce
         if they are present on a course object.
         """
-        entitlement = CourseEntitlementFactory()
+        entitlement = CourseEntitlementFactory(course=self.external_course)
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
             'price': str(entitlement.price),
@@ -228,6 +340,46 @@ class TestSerializeEntitlementForEcommerceApi:
         }
 
         assert actual == expected
+
+    @ddt.data(False, True)
+    def test_serialize_entitlement_for_ecommerce_api_with_variant_id_flag(
+        self, variant_id_flag
+    ):
+        """
+        Test to verify that certificate type and variant_id should be included in attribute values
+        sent to Ecommerce if they are present on a course object.
+
+        If IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE is False, variant_id is taken from course.additional_metadata
+        If IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE is True, variant_id is taken from course.advertised_course_run
+        """
+        entitlement = CourseEntitlementFactory(course=self.external_course)
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, active=variant_id_flag):
+            actual = serialize_entitlement_for_ecommerce_api(entitlement)
+            attribute_values_list = [
+                {
+                    'name': 'certificate_type',
+                    'value': entitlement.mode.slug,
+                },
+            ]
+            if variant_id_flag:
+                course = entitlement.course
+                attribute_values_list.append({
+                    'name': 'variant_id',
+                    'value': str(course.advertised_course_run.variant_id),
+                })
+            else:
+                attribute_values_list.append({
+                    'name': 'variant_id',
+                    'value': str(entitlement.course.additional_metadata.variant_id),
+                })
+
+            expected = {
+                'price': str(entitlement.price),
+                'product_class': 'Course Entitlement',
+                'attribute_values': attribute_values_list
+            }
+
+            assert actual == expected
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
@@ -640,6 +792,17 @@ class UtilsTests(TestCase):
         ('<script>Script</script>', ''),
         ('NB&nbsp;SP', '<p>NBSP</p>'),
 
+        # Make sure to add dir attribute to p tags if they are in attribute list
+        ('<p dir="rtl" class="float">Directed paragraph</p>', '<p dir="rtl">Directed paragraph</p>'),
+
+        # Check for ul and ol tags with dir attribute
+        ('<ul dir="rtl"><li>Directed list item</li></ul>', '<ul dir="rtl">\n<li>Directed list item</li>\n</ul>'),
+        ('<ol dir="rtl"><li>Directed list item</li></ol>', '<ol dir="rtl">\n<li>Directed list item</li>\n</ol>'),
+
+        # Make sure text remains bold if p tag has rtl direction
+        ('<p dir="rtl"><strong>Directed paragraph</strong></p>', '<p dir="rtl"><strong>Directed paragraph</strong></p>'),
+        # Make sure the attributes on nested p tags remain as it is.
+        ('<p dir="rtl"><strong lang="en" style="font-size: 11pt; color: #000000; background-color: transparent; font-weight: 400;">Test</strong></p>', '<p dir="rtl"><strong lang="en" style="font-size: 11pt; color: #000000; background-color: transparent; font-weight: 400;">Test</strong></p>'),
         # Make sure that only spans with lang tags are preserved in the saved string
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
@@ -723,6 +886,16 @@ class UtilsTests(TestCase):
         output = transform_skills_data(input_data)
         assert output == expected_data
 
+    def test_validate_org_map_method(self):
+        partner = PartnerFactory.create(lms_url='http://127.0.0.1:8000')
+        source = SourceFactory(slug='text-source', name='text-source')
+        org = OrganizationFactory(name='edx', key='edx', partner=partner)
+        OrganizationMappingFactory(
+            organization=org, source=source, organization_external_key='ext-key'
+        )
+        key = map_external_org_code_to_internal_org_code('ext-key', source.slug)
+        assert key == org.key
+
 
 class TestConvertSvgToPngFromUrl(TestCase):
     """Test Convert SVG to PNG"""
@@ -766,13 +939,19 @@ class TestDownloadAndSaveImage(TestCase):
         )
         return image_url, body
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_course_image__using_drive_link(self, mock_get_file_from_drive_link):
+    def test_download_and_save_course_image__using_drive_link(self, mock_get_file_from_drive_link, mock_logger):
         """ Verify that download_and_save_course_image will save image in course model using drive link """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
+        data_field = 'image'
         course = CourseFactory(card_image_url=image_url, image=None)
         mock_get_file_from_drive_link.return_value = ('image/jpeg', self.IMG_CONTENT)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is True
+        assert download_and_save_course_image(
+            course, course.card_image_url, data_field=data_field, headers=None) is True
+        mock_logger.info.assert_called_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.card_image_url == image_url
@@ -780,40 +959,56 @@ class TestDownloadAndSaveImage(TestCase):
         assert course.image.read() == self.IMG_CONTENT
         assert str(course.uuid) in course.image.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__using_request_library(self):
+    def test_download_and_save_course_image__using_request_library(self, mock_logger):
         """ Verify that download_and_save_course_image will save image in course model using request response """
         image_url = 'https://example.com/image.jpg'
+        data_field = 'image'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, content = self.mock_image_response()
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is True
+        mock_logger.info.assert_called_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image is not None
         assert course.image.read() == content
         assert str(course.uuid) in course.image.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
     @responses.activate
-    def test_download_and_save_course_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_course_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link, mock_logger):  # pylint: disable=line-too-long
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         course = CourseFactory(card_image_url=image_url, image=None)
-        mock_get_file_from_drive_link.return_value = ('text/plain', b'invalid')
+        content_type, content = ('text/plain', b'invalid')
+        mock_get_file_from_drive_link.return_value = (content_type, content)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
+        mock_logger.error.assert_called_with(
+            'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.',
+            course.key, course.card_image_url, content_type
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image.name == ''
         assert not bool(course.image)
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__with_invalid_content_type_using_request_library(self):
+    def test_download_and_save_course_image__with_invalid_content_type_using_request_library(self, mock_logger):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
+        mock_logger.error.assert_called_with(
+            'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.',
+            course.key, course.card_image_url, 'text/plain'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.image.name == ''
@@ -871,32 +1066,42 @@ class TestDownloadAndSaveImage(TestCase):
         assert program.card_image.name == ''
         assert not bool(program.card_image)
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @responses.activate
-    def test_download_and_save_course_image__for_organization_logo_override_using_request_library(self):
+    def test_download_and_save_course_image__for_organization_logo_override_using_request_library(self, mock_logger):
         """
         Verify that download_and_save_course_image will save image in course model
         for organization_logo_override using request response
         """
         image_url = 'https://www.example.com/image.jpg'
+        data_field = 'organization_logo_override'
         course = CourseFactory(card_image_url=image_url, image=None)
         image_url, content = self.mock_image_response(url=image_url)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='organization_logo_override', headers=None) is True  # pylint: disable=line-too-long
+        assert download_and_save_course_image(course, course.card_image_url, data_field=data_field) is True
+        mock_logger.info.assert_called_once_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         course.refresh_from_db()
         assert course.card_image_url == image_url
         assert course.organization_logo_override.read() == content
         assert course.organization_logo_override is not None
         assert str(course.uuid) in course.organization_logo_override.name
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger')
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_course_image__for_organization_logo_override_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_course_image__for_organization_logo_override_using_drive_link(self, mock_get_file_from_drive_link, mock_logger):  # pylint: disable=line-too-long
         """
         Verify that download_and_save_course_image will save image in course model
         for organization_logo_override using drive link
         """
         image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
+        data_field = 'organization_logo_override'
         course = CourseFactory(card_image_url=image_url, image=None)
         mock_get_file_from_drive_link.return_value = ('image/png', self.IMG_CONTENT)
-        assert download_and_save_course_image(course, course.card_image_url, data_field='organization_logo_override', headers=None) is True  # pylint: disable=line-too-long
+        assert download_and_save_course_image(course, course.card_image_url, data_field=data_field) is True
+        mock_logger.info.assert_called_once_with(
+            f'Image for course {course.key} successfully updated in {data_field} field'
+        )
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
         course.refresh_from_db()
         assert course.organization_logo_override is not None
@@ -909,84 +1114,7 @@ class TestGEAGApiProductDetails(TestCase):
     Test for GEAG API Product Details using getsmarter_api_client
     """
     SUCCESS_API_RESPONSE = {
-        'products': [
-            {
-                "id": "12345678",
-                "name": "CSV Course",
-                "altName": "Alternative CSV Course",
-                "abbreviation": "TC",
-                "altAbbreviation": "UCT",
-                "blurb": "A short description for CSV course",
-                "language": "Español",
-                "subjectMatter": "Marketing",
-                "altSubjectMatter": "Design and Marketing",
-                "altSubjectMatter1": "Marketing, Sales, and Techniques",
-                "universityAbbreviation": "edX",
-                "altUniversityAbbreviation": "altEdx",
-                "cardUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=",
-                "edxRedirectUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
-                "edxPlpUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
-                "durationWeeks": 10,
-                "effort": "7–10 hours per week",
-                'introduction': 'Very short description\n',
-                'isThisCourseForYou': 'This is supposed to be a long description',
-                'whatWillSetYouApart': "New ways to learn",
-                "videoURL": "",
-                "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
-                "logoUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=g",
-                "metaTitle": "SEO Title",
-                "metaDescription": "SEO Description",
-                "metaKeywords": "Keyword 1, Keyword 2",
-                "slug": "csv-course-slug",
-                "variant": {
-                    "id": "00000000-0000-0000-0000-000000000000",
-                    "endDate": "2022-05-06",
-                    "finalPrice": "1998",
-                    "startDate": "2022-03-06",
-                    "regCloseDate": "2022-02-06",
-                },
-                "curriculum": {
-                    "heading": "Course curriculum",
-                    "blurb": "Test Curriculum",
-                    "modules": [
-                        {
-                            "module_number": 0,
-                            "heading": "Module 0",
-                            "description": "Welcome to your course"
-                        },
-                        {
-                            "module_number": 1,
-                            "heading": "Module 1",
-                            "description": "Welcome to Module 1"
-                        },
-                    ]
-                },
-                "testimonials": [
-                    {
-                        "name": "Lorem Ipsum",
-                        "title": "Gibberish",
-                        "text": " This is a good course"
-                    },
-                ],
-                "faqs": [
-                    {
-                        "id": "faq-1",
-                        "headline": "FAQ 1",
-                        "blurb": "This should answer it"
-                    }
-                ],
-                "certificate": {
-                    "headline": "About the certificate",
-                    "blurb": "how this makes you special"
-                },
-                "stats": {
-                    "stat1": "90%",
-                    "stat1Blurb": "<p>A vast number of special beings take this course</p>",
-                    "stat2": "100 million",
-                    "stat2Blurb": "<p>VC fund</p>"
-                }
-            },
-        ]
+        'products': MOCK_PRODUCTS_DATA
     }
 
     def tearDown(self):
@@ -1028,3 +1156,457 @@ class TestGEAGApiProductDetails(TestCase):
         products = fetch_getsmarter_products()
         mock_logger.assert_called_with(f'Failed to retrieve products from getsmarter API: {exception_message}')
         assert products == []
+
+
+@ddt.ddt
+class CourseSlugMethodsTests(TestCase):
+    """
+    Test the methods related to course slugs
+    """
+
+    @ddt.data(
+        ('learn/primary-subject/organization-course-title', True, True),
+        ('learn/some-text/some-text-some-text', True, True),
+        ('learn/', False, True),
+        ('/learn/', False, True),
+        ('/media/', False, True),
+        ('media/primary-subject/organization_name-course_title', False, True),
+        ('learn2/primary-subject/organization-name-course-title', False, True),
+        ('learn', True, False),
+        ('/learn/', False, False),
+        ('welcome-to-python', True, False),
+        ('learn/subject_with_underscore/organization_name-course_title', True, True),
+        ('test/learn/subject_with_underscore/organization_name-course_title', False, True),
+    )
+    @ddt.unpack
+    def test_is_valid_slug_format_with_active_waffle_flag(self, text, expected_response, waffle_flag_active_value):
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=waffle_flag_active_value):
+            response = utils.is_valid_slug_format(text)
+            assert response == expected_response
+
+    @ddt.data(
+        ('f0392cca-886e-449d-b978-b09de1154745', True),
+        ('some-random-text-sometext-449d-b978-b09de1154745', False),
+        ('false_text', False),
+    )
+    @ddt.unpack
+    def test_is_valid_uuid(self, text, expected_response):
+        response = utils.is_valid_uuid(text)
+        assert response == expected_response
+
+    def test_get_slug_for_course(self):
+        course = CourseFactory(title='test-title')
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+                        f"organizations"
+
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.active_url_slug}"
+
+    def test_get_slug_for_exec_ed_course(self):
+        """
+        It will verify that slug are generated correctly for executive education courses
+        """
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(title='test-title', type=ee_type_2u)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+                        f"organizations"
+
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course.title)}"
+
+    def test_get_slug_for_bootcamp_course__raise_error_for_bootcamp_with_no_authoring_org(self):
+        """
+        It will verify that slug aren't generated for bootcamp courses with no authoring org and error is raised
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type)
+        slug, error = utils.get_slug_for_course(course)
+        assert slug is None
+        assert error == f"Course with uuid {course.uuid} and title {course.title} does not have any authoring " \
+            f"organizations"
+
+    def test_get_slug_for_bootcamp_course(self):
+        """
+        It will verify that slug are generated correctly for bootcamp courses
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+
+        slug, error = utils.get_slug_for_course(course)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+
+    def test_get_slug_for_bootcamp_course__organization_short_code_override(self):
+        """
+        It will verify that during slug creation it will give priority to organization_short_code_override if it exists
+        otherwise it will use organization name
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        course = CourseFactory(title='test-bootcamp', type=bootcamp_type, organization_short_code_override='')
+        org = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(org)
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        slug, error = utils.get_slug_for_course(course)
+
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+        org_short_code_override = 'org_override'
+        course.organization_short_code_override = org_short_code_override
+        course.save()
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"boot-camps/{subject.slug}/{org_short_code_override}-{slugify(course.title)}"
+
+    def test_get_slug_for_course__with_no_url_slug(self):
+        course = CourseFactory(title='test-title')
+        subject = SubjectFactory(name='business')
+        course.subjects.add(subject)
+        organization = OrganizationFactory(name='test-organization')
+        course.authoring_organizations.add(organization)
+        CourseUrlSlug.objects.filter(course=course).delete()
+        RequestCache("active_url_cache").clear()
+        slug, error = utils.get_slug_for_course(course)
+        assert error is None
+        assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}"
+
+    def test_get_slug_for_course__with_existing_url_slug(self):
+        """
+        Verify that get slug utility factors in courses with same org, title, and subject in subdirectory
+        slug generation by prefixing the slugs with increasing integers.
+        """
+        partner = PartnerFactory()
+        subject = SubjectFactory(name='business')
+        organization = OrganizationFactory(name='test-organization')
+        for course_count in range(3):
+            course = CourseFactory(title='test-title')
+            course.subjects.add(subject)
+            course.authoring_organizations.add(organization)
+            course.partner = partner
+            course.save()
+            CourseUrlSlug.objects.filter(course=course).delete()
+            RequestCache("active_url_cache").clear()
+            slug, error = utils.get_slug_for_course(course)
+
+            assert error is None
+            slug_end_prefix = f"-{course_count+1}" if course_count else ""
+            assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}{slug_end_prefix}"
+            course.set_active_url_slug(slug)
+
+    def test_get_slug_for_exec_ed_course__with_existing_url_slug(self):
+        ee_type_2u = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        partner = PartnerFactory()
+        course1 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course1.authoring_organizations.add(organization)
+        course1.partner = partner
+        course1.save()
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        slug, error = utils.get_slug_for_course(course1)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course1.title)}"
+
+        course1.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course2 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course2.authoring_organizations.add(organization)
+        course2.partner = partner
+        course2.save()
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        slug, error = utils.get_slug_for_course(course2)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-2"
+
+        course2.set_active_url_slug(slug)
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title', type=ee_type_2u)
+        organization = OrganizationFactory(name='test-organization')
+        course3.authoring_organizations.add(organization)
+        course3.partner = partner
+        course3.save()
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        slug, error = utils.get_slug_for_course(course3)
+        assert error is None
+        assert slug == f"executive-education/{organization.name}-{slugify(course2.title)}-3"
+
+    def test_get_slug_for_bootcamp_course__with_existing_url_slug(self):
+        """
+        Test for bootcamp course with existing subdirectory url slug
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        partner = PartnerFactory()
+        subject = SubjectFactory(name='business')
+        org = OrganizationFactory(name='test-organization')
+
+        # Create and test multiple courses with the same title, subject, and organization
+        for i in range(1, 3):
+            course = CourseFactory(
+                title='test-title', type=bootcamp_type, partner=partner, organization_short_code_override=''
+            )
+            course.authoring_organizations.add(org)
+            course.subjects.add(subject)
+            course.save()
+            CourseUrlSlug.objects.filter(course=course).delete()
+            slug, error = utils.get_slug_for_course(course)
+            assert error is None
+            if i == 1:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}"
+            else:
+                assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}-{i}"
+            course.set_active_url_slug(slug)
+
+    def test_get_existing_slug_count(self):
+        course1 = CourseFactory(title='test-title')
+        slug = 'learn/business/test-organization-test-title'
+        CourseUrlSlug.objects.filter(course=course1).delete()
+        course1.set_active_url_slug(slug)
+
+        # duplicate a new course with same title, subject and organization
+        course2 = CourseFactory(title='test-title')
+        CourseUrlSlug.objects.filter(course=course2).delete()
+        course2.set_active_url_slug(f"{slug}-2")
+        # duplicate a new course with same title, subject and organization
+        course3 = CourseFactory(title='test-title')
+        CourseUrlSlug.objects.filter(course=course3).delete()
+        assert utils.get_existing_slug_count(slug) == 2
+
+
+@ddt.ddt
+class ValidateSlugFormatTest(TestCase):
+    """
+    Test suite for validate_slug_format method
+    """
+    def setUp(self):
+        self.product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        self.external_product_source = SourceFactory(slug=settings.EXTERNAL_PRODUCT_SOURCE_SLUG)
+        self.bootcamp_course_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        self.exec_ed_course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        self.test_course_1 = CourseFactory(title='test-title', product_source=self.product_source)
+        self.test_course_2 = CourseFactory(title='test-title-2')
+        self.test_course_3 = CourseFactory(title='test-title-3', product_source=self.product_source)
+        self.test_course_4 = CourseFactory(
+            title='test-title-4', product_source=self.external_product_source, type=self.exec_ed_course_type
+        )
+        self.bootcamp_course = CourseFactory(
+            title='bootcamp-course', product_source=self.external_product_source, type=self.bootcamp_course_type
+        )
+
+        CourseRunFactory(course=self.test_course_1, status=CourseRunStatus.Published)
+        CourseRunFactory(course=self.test_course_2, status=CourseRunStatus.InternalReview)
+        CourseRunFactory(course=self.test_course_3, status=CourseRunStatus.Unpublished)
+
+    @ddt.data(
+        ('learn/physics/applied-physics', None, True),
+        # will make this false once we will migrate all the OCM courses to new slug format
+        ('learn-course', None, True),
+        ('learn-course', None, False),
+        ('learn-123', None, False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_ocm_course(self, slug, expected_result, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in the correct format for OCM course
+        with course runs past/in their review phase.
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_1) is expected_result
+
+    @ddt.data(
+        ('learn/physics/applied-physics', None, True),
+        ('learn-course', None, True),
+        ('learn-course', None, False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_unpublished_ocm_course(self, slug, expected_result, is_subdirectory_slug_format_active):  # pylint: disable=line-too-long
+        """
+        Test that validate_slug_format to check if the slug is in the correct format for unpublished OCM course to make
+        sure that it is allowing both the slug formats
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_3) is expected_result
+
+    @ddt.data(
+        ('learn-physics', None, True),
+        ('learn-physics', None, False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_non_ocm_course(self, slug, expected_result, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in the correct format for non OCM course
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_2) is expected_result
+
+    @ddt.data(
+        ('learn/physics/applied-physics', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn/123', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'learn/physics/applied-physics/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.DEFAULT_PRODUCT_SOURCE_SLUG]['default']['error_msg']
+        ),
+        ('learn$', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_ocm_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format for OCM course
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.test_course_1)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
+
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('learn/physics/applied-physics', False),
+        ('learn/physics/applied-physics/', True),
+        ('learn/physics/applied-physics/', False),
+        ('learn/physics/applied-physics/123', True),
+        ('learn/', True),
+        ('learn/', False),
+        ('learn$', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_non_ocm_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format for non OCM course
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.test_course_2)
+
+            expected_error_message = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', True),
+        ('executive-education/new-org-applied-physics', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_exec_ed_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.test_course_4) is None
+
+    @ddt.data(
+        ('executive-education/org-name-course-name', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            .get('executive-education-2u').get('error_msg')
+        ),
+        ('executive-education/org-name-course-name/', False, DEFAULT_SLUG_FORMAT_ERROR_MSG),
+        (
+            'executive-education/org-name-course-name/123', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+        (
+            'learn/test-course', True,
+            settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+            ['executive-education-2u']['error_msg']
+        ),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_for_exec_ed_course(
+        self, slug, is_subdirectory_slug_format_active, expected_error_message
+    ):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for executive education courses
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.test_course_4)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)
+
+    @ddt.data(
+        ('boot-camps/physics/edx-applied-physics', True),
+        ('boot-camps/python/harvard-python-for-beginners', True),
+        ('custom-slug', True),
+        ('custom-slug', False),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__for_bootcamps(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format to check if the slug is in correct format for bootcamps
+        """
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            assert validate_slug_format(slug, self.bootcamp_course) is None
+
+    @ddt.data(
+        ('boot-camps/primary-subject/org-name-course-name', False),
+        ('boot-camps/primary-subject/org-name-course-name/', True),
+        ('boot-camps/primary-subject/org-name-course-name/', False),
+        ('boot-camps/org-name-course-name', True),
+        ('learn/test-course', True),
+    )
+    @ddt.unpack
+    def test_validate_slug_format__raise_exception_for_bootcamp_course(self, slug, is_subdirectory_slug_format_active):
+        """
+        Test that validate_slug_format raises exception if the slug is not in the correct format
+        for bootcamp courses
+        """
+        expected_error_message = None
+
+        if is_subdirectory_slug_format_active:
+            expected_error_message = (
+                settings.COURSE_URL_SLUGS_PATTERN[settings.EXTERNAL_PRODUCT_SOURCE_SLUG]
+                .get('bootcamp-2u').get('error_msg')
+            )
+        else:
+            expected_error_message = DEFAULT_SLUG_FORMAT_ERROR_MSG
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_active):
+            with self.assertRaises(ValidationError) as context:
+                validate_slug_format(slug, self.bootcamp_course)
+
+            expected_error_message = expected_error_message.format(url_slug=slug)
+            actual_error_message = str(context.exception)
+            self.assertIn(expected_error_message, actual_error_message)

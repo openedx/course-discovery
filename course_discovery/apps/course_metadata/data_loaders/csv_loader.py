@@ -168,10 +168,17 @@ class CSVDataLoader(AbstractDataLoader):
             course_key = self.get_course_key(org_key, row['number'])
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             is_course_created = False
+            is_course_run_created = False
 
             if course:
-                course_run = CourseRun.objects.filter_drafts(course=course).first()
-                logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
+                try:
+                    logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    course_run, is_course_run_created = self._get_or_create_course_run(
+                        row, course, course_type, course_run_type.uuid
+                    )
+                except Exception as exc:  # pylint: disable=broad-except
+                    logger.exception(exc)
+                    continue
             else:
                 logger.info("Course key {} could not be found in database, creating the course.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 try:
@@ -191,6 +198,7 @@ class CSVDataLoader(AbstractDataLoader):
                 course = Course.everything.get(key=course_key, partner=self.partner)
                 course_run = CourseRun.everything.filter(course=course).first()
                 is_course_created = True
+                is_course_run_created = True
 
             is_downloaded = download_and_save_course_image(
                 course,
@@ -204,7 +212,7 @@ class CSVDataLoader(AbstractDataLoader):
             if not is_course_created:
                 self.add_product_source(course)
 
-            is_draft = self.get_draft_flag(course_run)
+            is_draft = self.get_draft_flag(course=course)
             logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
 
             try:
@@ -252,17 +260,76 @@ class CSVDataLoader(AbstractDataLoader):
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
                     continue
 
+            if course_run.status == CourseRunStatus.Unpublished:
+                course_run.refresh_from_db()
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=['status'])
+
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
-                str(course.uuid), is_course_created, row.get('external_course_marketing_type', None)
-            )
+                str(course.uuid), is_course_created, is_course_run_created, course.active_url_slug,
+                row.get('external_course_marketing_type', None))
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
 
         self._render_error_logs()
         self._render_course_uuids()
+
+    def _get_or_create_course_run(self, data, course, course_type, course_run_type_uuid):
+        """
+        Helper method to get or create a course run for external LOB courses.
+
+        This method will first try to find a course run with the given variant_id and if it does not find one,
+        it will try to find a course run with the given start and end date. If it does not find a course run with
+        either of these, it will create a new course run.
+
+        Args:
+            data(dict): Dictionary containing the course run data
+            course(Course): Course object
+            course_type(CourseType): CourseType object
+            course_run_type_uuid(uuid): UUID of the course run type
+
+        Returns:
+            course_run(CourseRun): CourseRun object
+            is_course_run_created(bool): Boolean indicating if a new course run was created
+        """
+        is_course_run_created = False
+
+        course_runs = CourseRun.objects.filter_drafts(course=course)
+        variant_id = data.get('variant_id', '')
+        start_datetime = self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}")
+        end_datetime = self.get_formatted_datetime_string(f'{data["end_date"]} {data["end_time"]}')
+
+        filtered_course_runs = course_runs.filter(
+            Q(variant_id=variant_id) | (Q(start=start_datetime) & Q(end=end_datetime))
+        ).order_by('created')
+        course_run = filtered_course_runs.last()
+
+        if not course_run:
+            logger.info(
+                f'Course Run with variant_id {variant_id} could not be found.'
+                f'Creating new course run for course {course.key} with variant_id {variant_id}'
+            )
+            try:
+                last_run = course_runs.last()
+                _ = self._create_course_run(data, course, course_type, course_run_type_uuid, last_run.key)
+                is_course_run_created = True
+            except Exception as exc:
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                error_message = CSVIngestionErrorMessages.COURSE_RUN_CREATE_ERROR.format(
+                    course_title=course.title,
+                    variant_id=variant_id,
+                    exception_message=exception_message
+                )
+                self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_CREATE_ERROR, exception_message)
+                raise Exception(error_message)  # pylint: disable=raise-missing-from
+        if not course_run and is_course_run_created:
+            course_run = CourseRun.objects.filter_drafts(course=course).order_by('created').last()
+        return course_run, is_course_run_created
 
     def validate_course_data(self, course_type, data):
         """
@@ -280,13 +347,13 @@ class CSVDataLoader(AbstractDataLoader):
             )
             # Remove some fields for specific external course marketing type
             external_course_marketing_type = data.get('external_course_marketing_type', '')
-            if external_course_marketing_type == ExternalCourseMarketingType.Sprint:
+            if external_course_marketing_type == ExternalCourseMarketingType.Sprint.value:
                 required_fields.remove('certificate_header')
                 required_fields.remove('certificate_text')
 
         for field in required_fields:
             if not (field in data and data[field]):
-                missing_fields.append(field)
+                missing_fields.append(settings.GEAG_API_INGESTION_FIELDS_MAPPING.get(field) or field)
 
         if missing_fields:
             return ', '.join(missing_fields)
@@ -333,16 +400,25 @@ class CSVDataLoader(AbstractDataLoader):
             'errors': self.error_logs
         }
 
-    def _register_successful_ingestion(self, course_uuid, created, external_course_marketing_type=None):
+    def _register_successful_ingestion(
+        self,
+        course_uuid,
+        is_course_created,
+        is_course_run_created,
+        active_url_slug,
+        external_course_marketing_type=None
+    ):
         """
         Register the summary of a successful ingestion.
         """
         self.ingestion_summary['success_count'] += 1
-        if created:
+        if is_course_created or is_course_run_created:
             self.ingestion_summary['created_products'].append(
                 {
                     'uuid': course_uuid,
                     'external_course_marketing_type': external_course_marketing_type,
+                    'url_slug': active_url_slug,
+                    'rerun': is_course_run_created
                 }
             )
         else:
@@ -363,6 +439,7 @@ class CSVDataLoader(AbstractDataLoader):
             'run_type': str(course_run_type_uuid),
             'prices': pricing,
         }
+
         return {
             'org': data['organization'],
             'title': data['title'],
@@ -373,15 +450,33 @@ class CSVDataLoader(AbstractDataLoader):
             'course_run': course_run_creation_fields
         }
 
-    def get_draft_flag(self, course_run):
+    def _create_course_run_api_request_data(self, data, course, course_type, course_run_type_uuid, rerun=None):
+        """
+        Given a data dictionary, return a reduced data representation in dict
+        which will be used as input for course run creation via course run api.
+        """
+        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        course_run_creation_fields = {
+            'pacing_type': self.get_pacing_type(data['course_pacing']),
+            'start': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'end': self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
+            'run_type': str(course_run_type_uuid),
+            'prices': pricing,
+            'course': course.key,
+        }
+        if rerun:
+            course_run_creation_fields['rerun'] = rerun
+        return course_run_creation_fields
+
+    def get_draft_flag(self, course):
         """
         To keep behavior of CSV loader consistent with publisher, draft flag is false only when:
             1. Course run is moved from Unpublished -> Review State
             2. Any of the Course run is in published state
-        No 1 is not applicable at the moment. For 2, CSV loader right now only expects
-        one course run for each course, hence the status of the single fetched course run is checked.
+        No 1 is not applicable at the moment as we are changing status via CSV loader, so we are sending false
+        draft flag to the course_run api directly for now.
         """
-        return not course_run.status == CourseRunStatus.Published
+        return not CourseRun.objects.filter_drafts(course=course, status=CourseRunStatus.Published).exists()
 
     def _archive_stale_products(self, course_external_identifiers):
         """
@@ -394,12 +489,12 @@ class CSVDataLoader(AbstractDataLoader):
         all_product_additional_metadatas = AdditionalMetadata.objects.filter(
             related_courses__type__slug=self.product_type,
             related_courses__product_source=self.product_source,
-            product_status='Published'
+            product_status=ExternalProductStatus.Published.value,
         ).values_list('external_identifier', flat=True)
 
         archived_products = set(all_product_additional_metadatas).difference(course_external_identifiers)
         archived_products_queryset = AdditionalMetadata.objects.filter(external_identifier__in=archived_products)
-        archived_products_queryset.update(product_status="Archived")
+        archived_products_queryset.update(product_status=ExternalProductStatus.Archived)
         self.ingestion_summary['archived_products'] = list(archived_products)
 
         logger.info(
@@ -425,7 +520,7 @@ class CSVDataLoader(AbstractDataLoader):
             'draft': is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
-            'url_slug': data.get('slug') or course.active_url_slug,
+            'url_slug': course.active_url_slug,
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
@@ -455,6 +550,8 @@ class CSVDataLoader(AbstractDataLoader):
         staff_uuids = self.process_staff_names(data.get('staff', ''), course_run.key)
         content_language = self.verify_and_get_language_tags(data['content_language'])
         transcript_language = self.verify_and_get_language_tags(data['transcript_language'])
+        registration_deadline = data.get('reg_close_date', '')
+        variant_id = data.get('variant_id', '')
 
         update_course_run_data = {
             'run_type': str(course_run.type.uuid),
@@ -476,6 +573,13 @@ class CSVDataLoader(AbstractDataLoader):
                 f"{data.get('upgrade_deadline_override_time', '')}".strip()
             ),
         }
+
+        if registration_deadline:
+            update_course_run_data.update({'enrollment_end': self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            )})
+        if variant_id:
+            update_course_run_data.update({'variant_id': variant_id})
         return update_course_run_data
 
     def get_formatted_datetime_string(self, date_string):
@@ -492,9 +596,9 @@ class CSVDataLoader(AbstractDataLoader):
             pacing = pacing.lower()
 
         if pacing == 'instructor-paced':
-            return CourseRunPacing.Instructor
+            return CourseRunPacing.Instructor.value
         elif pacing == 'self-paced':
-            return CourseRunPacing.Self
+            return CourseRunPacing.Self.value
         else:
             return None
 
@@ -545,6 +649,17 @@ class CSVDataLoader(AbstractDataLoader):
         response = self._call_course_api('POST', url, request_data)
         if response.status_code not in (200, 201):
             logger.info("Course creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        return response.json()
+
+    def _create_course_run(self, data, course, course_type, course_run_type_uuid, rerun=None):
+        """
+        Make a course run entry through course run api.
+        """
+        url = f"{settings.DISCOVERY_BASE_URL}{reverse('api:v1:course_run-list')}"
+        request_data = self._create_course_run_api_request_data(data, course, course_type, course_run_type_uuid, rerun)
+        response = self._call_course_api('POST', url, request_data)
+        if response.status_code not in (200, 201):
+            logger.info("Course run creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
     def _update_course(self, data, course, is_draft):
@@ -772,6 +887,6 @@ class CSVDataLoader(AbstractDataLoader):
                 data.get('meta_description', ''),
                 data.get('meta_keywords', '')
             )})
-        if external_course_marketing_type in dict(ExternalCourseMarketingType):
+        if external_course_marketing_type in dict(ExternalCourseMarketingType.choices):
             additional_metadata.update({'external_course_marketing_type': external_course_marketing_type})
         return additional_metadata

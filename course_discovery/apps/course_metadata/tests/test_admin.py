@@ -195,7 +195,7 @@ class AdminTests(SiteMixin, TestCase):
     def test_program_activation_restrictions(self, booleans, label):
         """Verify that program activation requires both a marketing slug and a banner image."""
         has_banner_image, can_be_activated = booleans
-        status = getattr(ProgramStatus, label)
+        status = getattr(ProgramStatus, str(label))
 
         banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 
@@ -280,7 +280,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished
+            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished,
+            product_source=None
         )
 
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -323,20 +324,20 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         expected = [
             'field-uuid', 'field-title', 'field-subtitle',
-            'field-marketing_hook', 'field-status', 'field-type', 'field-partner', 'field-banner_image',
-            'field-banner_image_url', 'field-card_image', 'field-marketing_slug', 'field-overview',
-            'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete',
-            'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
-            'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
-            'field-product_source', 'field-authoring_organizations', 'field-credit_backing_organizations',
+            'field-marketing_hook', 'field-product_source', 'field-type', 'field-status', 'field-partner',
+            'field-banner_image', 'field-banner_image_url', 'field-card_image', 'field-marketing_slug',
+            'field-overview', 'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort',
+            'field-weeks_to_complete', 'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week',
+            'field-courses', 'field-order_courses_by_start_date', 'field-custom_course_runs_display',
+            'field-excluded_course_runs', 'field-authoring_organizations', 'field-credit_backing_organizations',
             'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
             'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
             'field-instructor_ordering', 'field-enrollment_count', 'field-recent_enrollment_count',
             'field-credit_value', 'field-organization_short_code_override', 'field-organization_logo_override',
             'field-primary_subject_override', 'field-level_type_override', 'field-language_override',
             'field-enterprise_subscription_inclusion', 'field-in_year_value', 'field-labels', 'field-geolocation',
-            'field-program_duration_override', 'field-ofac_comment', 'field-data_modified_timestamp',
-            'field-excluded_from_search', 'field-excluded_from_seo'
+            'field-program_duration_override', 'field-has_ofac_restrictions', 'field-ofac_comment',
+            'field-data_modified_timestamp', 'field-excluded_from_search', 'field-excluded_from_seo'
         ]
         assert actual == expected
 
@@ -376,9 +377,10 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def test_program_update(self):
         self._navigate_to_edit_page()
         self.assert_form_fields_present()
-
         title = 'Test Program'
         subtitle = 'This is a test.'
+
+        assert self.program.product_source is None
 
         # Update the program
         data = (
@@ -390,13 +392,14 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             element = self.browser.find_element(By.ID, 'id_' + field)
             element.clear()
             element.send_keys(value)
-
+        self._select_option('id_product_source', str(self.product_source.id))
         self._submit_program_form()
 
         # Verify the program was updated
         self.program = Program.objects.get(pk=self.program.pk)
         assert self.program.title == title
         assert self.program.subtitle == subtitle
+        assert self.program.product_source == self.product_source
 
 
 class ProgramEligibilityFilterTests(SiteMixin, TestCase):
@@ -465,6 +468,8 @@ class DegreeAdminTest(TestCase):
         admin_actions = self.degree_admin.get_actions(self.request)
         assert 'publish_degrees' in admin_actions
         assert 'unpublish_degrees' in admin_actions
+        assert 'display_degrees_on_org_page' in admin_actions
+        assert 'hide_degrees_on_org_page' in admin_actions
 
     @ddt.data(
         (ProgramStatus.Unpublished, ProgramStatus.Active, 'publish_degrees', b'Successfully published 1 degree.'),
@@ -486,6 +491,44 @@ class DegreeAdminTest(TestCase):
         assert success_message in response.content
         updated_degree = Degree.objects.get(id=self.degree.id)
         assert updated_degree.status == after_status
+
+    @ddt.data(
+        (False, True, 'display_degrees_on_org_page', '1 degree was successfully set to display on org page.'),
+        (True, False, 'hide_degrees_on_org_page', '1 degree was successfully set to be hidden on org page.')
+    )
+    @ddt.unpack
+    def test_display_on_org_page_actions__single_degree(self, before_value, after_value, admin_action, success_message):
+        self.degree.display_on_org_page = before_value
+        self.degree.save()
+        response = self.client.post(
+            reverse('admin:course_metadata_degree_changelist'),
+            {'action': admin_action, '_selected_action': [self.degree.id, ]},
+            follow=True
+        )
+        assert response.status_code == HTTP_200_OK
+        assert success_message in response.content.decode('utf-8')
+        updated_degree = Degree.objects.get(id=self.degree.id)
+        assert updated_degree.display_on_org_page == after_value
+
+    @ddt.data(
+        (False, True, 'display_degrees_on_org_page', '3 degrees were successfully set to display on org page.'),
+        (True, False, 'hide_degrees_on_org_page', '3 degrees were successfully set to be hidden on org page.')
+    )
+    @ddt.unpack
+    def test_display_on_org_page_actions__multiple_degrees(self, before_value, after_value,
+                                                           admin_action, success_message):
+        test_degrees = factories.DegreeFactory.create_batch(3, display_on_org_page=before_value)
+        response = self.client.post(
+            reverse('admin:course_metadata_degree_changelist'),
+            {'action': admin_action, '_selected_action': [degree.id for degree in test_degrees]},
+            follow=True
+        )
+        assert response.status_code == HTTP_200_OK
+        assert success_message in response.content.decode('utf-8')
+
+        for degree in test_degrees:
+            degree.refresh_from_db()
+            assert degree.display_on_org_page == after_value
 
 
 class PersonPositionAdminTest(TestCase):

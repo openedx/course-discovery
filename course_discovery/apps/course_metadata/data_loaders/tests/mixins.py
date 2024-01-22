@@ -8,7 +8,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
-    PartnerFactory, ProgramFactory, SeatTypeFactory, SourceFactory, SubjectFactory, TrackFactory
+    OrganizationMappingFactory, PartnerFactory, ProductValueFactory, ProgramFactory, SeatTypeFactory, SourceFactory,
+    SubjectFactory, TrackFactory
 )
 
 
@@ -49,6 +50,7 @@ class DegreeCSVLoaderMixin:
     """
     DEGREE_TITLE = 'Test Degree'
     DEGREE_SLUG = 'test-degree'
+    EXTERNAL_IDENTIFIER = '123456'
 
     CSV_DATA_KEYS_ORDER = [
         'identifier',
@@ -116,17 +118,22 @@ class DegreeCSVLoaderMixin:
         csv.seek(0)
         return csv
 
-    def _setup_organization(self, partner):
+    def _setup_organization(self, partner, add_org_map=False):
         """
         setup test-only organization.
         """
-        OrganizationFactory(name='edx', key='edx', partner=partner)
+        org = OrganizationFactory(name='edx', key='edx', partner=partner)
 
-    def _setup_prerequisites(self, partner):
+        if add_org_map:
+            OrganizationMappingFactory(
+                organization=org, organization_external_key='ext-key', source=self.product_source
+            )
+
+    def _setup_prerequisites(self, partner, add_org_map=False):
         """
         Setup pre-reqs for Degree Program.
         """
-        self._setup_organization(partner)
+        self._setup_organization(partner, add_org_map)
 
         intermediate = LevelTypeFactory(name='Intermediate')
         intermediate.set_current_language('en')
@@ -140,10 +147,11 @@ class DegreeCSVLoaderMixin:
         Verify the degree's data fields have same values as the expected data dict.
         """
 
+        expected_slug = f"{expected_data['type']}/{expected_data['organization_key']}-{expected_data['marketing_slug']}"
         assert degree.title == expected_data['title']
         assert degree.overview == expected_data['overview']
         assert degree.type == self.program_type
-        assert degree.marketing_slug == expected_data['marketing_slug']
+        assert degree.marketing_slug == expected_slug
         assert degree.additional_metadata.external_url == expected_data['paid_landing_page_url']
         assert degree.additional_metadata.external_identifier == expected_data['external_identifier']
         assert degree.additional_metadata.organic_url == expected_data['organic_url']
@@ -192,6 +200,76 @@ class GeotargetingCSVLoaderMixin:
         'PRODUCT TYPE',
         'INCLUDE OR EXCLUDE',
         'Countries',
+    ]
+
+    def _write_csv(self, csv, lines_dict_list, headers=None):
+        """
+        Helper method to write given list of data dictionaries to csv, including the csv header.
+        """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
+        header = ''
+        lines = ''
+        for key in headers:
+            title_case_key = key.replace('_', ' ').title()
+            header = '{}{},'.format(header, title_case_key)
+        header = f"{header[:-1]}\n"
+
+        for line_dict in lines_dict_list:
+            for key in headers:
+                lines = '{}"{}",'.format(lines, line_dict[key])
+            lines = f"{lines[:-1]}\n"
+
+        csv.write(header.encode())
+        csv.write(lines.encode())
+        csv.seek(0)
+        return csv
+
+
+class ProductValueCSVLoaderMixin:
+    """
+    Mixin to contain various variables and methods used for ProductValueCSVDataLoader testing.
+    """
+    def _setup_course(self, course_uuid, with_product_value=False):
+        """
+        setup test-only course.
+        """
+        if with_product_value:
+            CourseFactory(uuid=course_uuid)
+        else:
+            CourseFactory(uuid=course_uuid, in_year_value=None)
+
+    def _setup_program(self, program_uuid, with_product_value=False):
+        """
+        setup test-only program.
+        """
+        if with_product_value:
+            ProgramFactory(uuid=program_uuid)
+        else:
+            ProgramFactory(uuid=program_uuid, in_year_value=None)
+
+    def _setup_course_with_product_value(self, course_uuid, product_value=None):
+        """
+        setup test-only course.
+        """
+        CourseFactory(uuid=course_uuid, in_year_value=product_value)
+
+    def _setup_program_with_product_value(self, program_uuid, product_value=None):
+        """
+        setup test-only program.
+        """
+        ProgramFactory(uuid=program_uuid, in_year_value=product_value)
+
+    def _set_up_product_value(self):
+        return ProductValueFactory()
+
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'PER CLICK USA',
+        'PER CLICK INTERNATIONAL',
+        'PER LEAD USA',
+        'PER LEAD INTERNATIONAL',
     ]
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
@@ -291,8 +369,8 @@ class CSVLoaderMixin:
         },
         'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>'],
         'start_date': '2020-01-25T00:00:00+00:00',
-        'end_date': '2020-02-25T00:00:00+00:00',
-        'registration_deadline': '2020-01-25T00:00:00+00:00',
+        'end_date': '2050-02-25T00:00:00+00:00',
+        'registration_deadline': '2050-01-25T00:00:00+00:00',
         'variant_id': "00000000-0000-0000-0000-000000000000",
         "meta_title": "SEO Title",
         "meta_description": "SEO Description",
@@ -303,7 +381,7 @@ class CSVLoaderMixin:
         # Loader does not publish newly created course or a course that has not reached published status.
         # That's why only the draft version of the course run exists.
         'draft': True,
-        'status': CourseRunStatus.Unpublished,
+        'status': CourseRunStatus.LegalReview,
         'length': 10,
         'minimum_effort': 4,
         'maximum_effort': 10,
@@ -314,6 +392,7 @@ class CSVLoaderMixin:
         'go_live_date': '2020-01-25T00:00:00+00:00',
         'expected_program_type': 'professional-certificate',
         'expected_program_name': 'New Program for all',
+        'registration_deadline': '2050-01-25T00:00:00+00:00',
     }
 
     def setUp(self):
@@ -418,7 +497,6 @@ class CSVLoaderMixin:
         course_entitlement = CourseEntitlement.everything.get(
             draft=expected_data['draft'], mode__slug=self.paid_exec_ed_slug, course=course
         )
-
         assert course.draft is expected_data['draft']
         assert course.title == expected_data['title']
         assert course.faq == expected_data['faq']
@@ -470,6 +548,7 @@ class CSVLoaderMixin:
         assert course_run_seat.draft is expected_data['draft']
         assert course_run.status == expected_data['status']
         assert course_run.weeks_to_complete == expected_data['length']
+        assert course_run.enrollment_end.isoformat() == expected_data['registration_deadline']
         assert course_run.min_effort == expected_data['minimum_effort']
         assert course_run.max_effort == expected_data['maximum_effort']
         assert course_run_seat.price == expected_data['verified_price']

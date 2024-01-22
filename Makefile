@@ -53,15 +53,9 @@ $(COMMON_CONSTRAINTS_TXT):
 
 
 upgrade: $(COMMON_CONSTRAINTS_TXT)
-	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-auth-backends<4.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	sed 's/Django<4.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
 	pip-compile --allow-unsafe --upgrade -o requirements/pip.txt requirements/pip.in
@@ -104,8 +98,19 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
+ifeq ($(OPENEDX_ATLAS_PULL),)
 pull_translations: ## Pull translations from Transifex
 	tx pull -a -f -t --mode reviewed --minimum-perc=1
+else
+# Experimental: OEP-58 Pulls translations using atlas
+pull_translations:
+	find course_discovery/conf/locale -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+	atlas pull $(OPENEDX_ATLAS_ARGS) translations/course-discovery/course_discovery/conf/locale:course_discovery/conf/locale
+	python manage.py compilemessages
+
+	@echo "Translations have been pulled via Atlas and compiled."
+	@echo "'make static' or 'make static.dev' is required to update the js i18n files."
+endif
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 push_translations: ## Push source translation files (.po) to Transifex

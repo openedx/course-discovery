@@ -242,6 +242,8 @@ class StudioAPI:
         start = course_run.start if creating else None
         end = course_run.end if creating else None
         pacing = course_run.pacing_type if creating else None
+        enrollment_start = course_run.enrollment_start
+        enrollment_end = course_run.enrollment_end
 
         if user:
             editors.append(user)
@@ -275,6 +277,18 @@ class StudioAPI:
                 'start': serialize_datetime(start),
                 'end': serialize_datetime(end),
             }
+
+        if not creating and course_run.course.is_external_course and (enrollment_start or enrollment_end):
+            # The dates are intentionally not allowed when creating the course run.
+            # It is possible to send enrollment dates in API when the course run is being created.
+            # But when the course run is created, in Studio or Discovery, the enrollment dates are not taken as input.
+            # It is better to keep the flow consistent across places.
+            # Allow sending enrollment start and end dates for external courses as part of Update only.
+            data['schedule'] = {
+                'enrollment_start': serialize_datetime(course_run.enrollment_start),
+                'enrollment_end': serialize_datetime(course_run.enrollment_end),
+            }
+            logger.info(f"Enrollment information added to data {data} for course run {course_run.key}")
 
         return data
 

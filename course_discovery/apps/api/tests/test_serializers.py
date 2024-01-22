@@ -20,7 +20,7 @@ from course_discovery.apps.api.serializers import (
     AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
     CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
-    CourseLocationRestrictionSerializer, CourseRecommendationSerializer, CourseRunSerializer,
+    CourseLocationRestrictionSerializer, CourseRecommendationSerializer, CourseReviewSerializer, CourseRunSerializer,
     CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
     CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
     DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
@@ -43,7 +43,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -226,7 +226,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
-            'in_year_value': ProductValueSerializer(course.in_year_value).data
+            'in_year_value': ProductValueSerializer(course.in_year_value).data,
+            'watchers': [],
         })
 
         return expected
@@ -637,6 +638,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
             'availability': course_run.availability,
+            'variant_id': str(course_run.variant_id),
         }
 
 
@@ -1090,6 +1092,8 @@ class MinimalProgramSerializerTests(TestCase):
             'program_duration_override': program.program_duration_override,
             'excluded_from_seo': program.excluded_from_seo,
             'excluded_from_search': program.excluded_from_search,
+            'has_ofac_restrictions': program.has_ofac_restrictions,
+            'ofac_comment': program.ofac_comment,
             'subscription_eligible': None,
             'subscription_prices': [],
         }
@@ -1724,6 +1728,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'certificate_logo_image_url': certificate_logo_image_url,
             'logo_image_url': logo_image_url,
             'organization_hex_color': organization.organization_hex_color,
+            'data_modified_timestamp': json_date_format(organization.data_modified_timestamp),
         }
 
     def test_data(self):
@@ -2039,6 +2044,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'course_term_override': additional_metadata.course_term_override,
             'product_status': additional_metadata.product_status,
             'external_course_marketing_type': additional_metadata.external_course_marketing_type,
+            'display_on_org_page': additional_metadata.display_on_org_page,
         }
         assert serializer.data == expected
 
@@ -3102,3 +3108,45 @@ class LocationRestrictionSerializerTests(TestCase):
         serializer.is_valid()
 
         assert serializer.errors['location_restriction']
+
+
+class CourseReviewSerializerTests(TestCase):
+    def setUp(self):
+        self.data = {
+            'course_key': 'CS101',
+            'reviews_count': 10,
+            'avg_course_rating': 4.500001,
+            'confident_learners_percentage': 80.012345,
+            'most_common_goal': CourseReview.CHANGE_CAREERS,
+            'most_common_goal_learners_percentage': 50.012345,
+            'total_enrollments': 1000,
+        }
+
+    def test_valid_data(self):
+        serializer = CourseReviewSerializer(data=self.data)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.data['course_key'], 'CS101')
+        self.assertEqual(serializer.data['reviews_count'], 10)
+        self.assertEqual(serializer.data['avg_course_rating'], '4.500001')
+        self.assertEqual(serializer.data['confident_learners_percentage'], '80.012345')
+        self.assertEqual(serializer.data['most_common_goal'], CourseReview.CHANGE_CAREERS)
+        self.assertEqual(serializer.data['most_common_goal_learners_percentage'], '50.012345')
+        self.assertEqual(serializer.data['total_enrollments'], 1000)
+
+    def test_required_fields(self):
+        required_fields = ['course_key', 'most_common_goal']
+        for field in required_fields:
+            data = self.data.copy()
+            data.pop(field)
+            serializer = CourseReviewSerializer(data=data)
+            self.assertFalse(serializer.is_valid())
+            self.assertIn(field, serializer.errors)
+
+    def test_decimal_fields(self):
+        decimal_fields = ['avg_course_rating', 'confident_learners_percentage', 'most_common_goal_learners_percentage']
+        for field in decimal_fields:
+            data = self.data.copy()
+            data[field] = 'invalid'
+            serializer = CourseReviewSerializer(data=data)
+            self.assertFalse(serializer.is_valid())
+            self.assertIn(field, serializer.errors)

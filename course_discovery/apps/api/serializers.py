@@ -12,6 +12,7 @@ from uuid import uuid4
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -25,7 +26,7 @@ from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -33,18 +34,23 @@ from course_discovery.apps.api.fields import (
 from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
+from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
-    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
-    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
-    DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
-    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
-    Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice, ProgramType, Ranking, Seat,
-    SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
+    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseReview, CourseRun,
+    CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
+    Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing,
+    Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position,
+    Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription,
+    ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic,
+    Track, Video
 )
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
+from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
+from course_discovery.apps.course_metadata.utils import (
+    get_course_run_estimated_hours, get_product_skill_names, parse_course_key_fragment
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 
@@ -257,7 +263,7 @@ class SubjectSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Subject.objects.all().prefetch_related('translations')
+        return Subject.objects.prefetch_related('translations')
 
     class Meta:
         model = Subject
@@ -408,9 +414,9 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
         model = Organization
         fields = (
             'uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url', 'logo_image_url',
-            'organization_hex_color'
+            'organization_hex_color', 'data_modified_timestamp'
         )
-        read_only_fields = ('auto_generate_course_run_keys',)
+        read_only_fields = ('auto_generate_course_run_keys', 'data_modified_timestamp')
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
@@ -703,7 +709,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date', 'end_date',
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
-            'product_meta', 'external_course_marketing_type',
+            'product_meta', 'external_course_marketing_type', 'display_on_org_page',
         )
 
     def _update_product_meta(self, instance, product_meta):
@@ -883,7 +889,12 @@ class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all Programs when the
         # queryset passed in happens to be empty.
-        return queryset if queryset is not None else Program.objects.all()
+        queryset = queryset if queryset is not None else Program.objects.all()
+        return queryset.select_related('type', 'partner').prefetch_related(
+            'type__translations'
+        ).annotate(
+            Count('courses', distinct=True)
+        )
 
     class Meta:
         model = Program
@@ -891,6 +902,8 @@ class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
         read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_attrs')
 
     def get_number_of_courses(self, obj):
+        if hasattr(obj, 'courses__count'):
+            return obj.courses__count
         return obj.courses.count()
 
 
@@ -908,6 +921,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
+    variant_id = serializers.UUIDField(allow_null=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -925,7 +939,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end', 'weeks_to_complete',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability',
+                  'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -980,6 +995,14 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
 
         return super().validate(attrs)
 
+    def update(self, instance, validated_data):
+        """
+        Overrides update method to ignore variant_id from validated_data in case of update (PUT/PATCH) request.
+        """
+        if not IS_COURSE_RUN_VARIANT_ID_EDITABLE.is_enabled():
+            validated_data.pop('variant_id', None)
+        return super().update(instance, validated_data)
+
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
@@ -987,12 +1010,13 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     course_uuid = serializers.ReadOnlyField(source='course.uuid', default=None)
     content_language = serializers.SlugRelatedField(
         required=False, allow_null=True, slug_field='code', source='language',
-        queryset=LanguageTag.objects.all().order_by('name'),
+        queryset=LanguageTag.objects.prefetch_related('translations').order_by('name'),
         help_text=_('Language in which the course is administered')
     )
     content_language_search_facet_name = serializers.SerializerMethodField()
     transcript_languages = serializers.SlugRelatedField(
-        required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all().order_by('name')
+        required=False, many=True, slug_field='code',
+        queryset=LanguageTag.objects.prefetch_related('translations').order_by('name')
     )
     video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
@@ -1020,10 +1044,17 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video').prefetch_related(
+        return queryset.select_related(
             'course__level_type',
+            'course__video__image',
+            'language',
+            'video',
+            'expected_program_type'
+        ).prefetch_related(
+            'course__level_type__translations',
             'transcript_languages',
             'video__image',
+            'language__translations',
             Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
         )
 
@@ -1097,7 +1128,11 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.prefetch_related('course__programs__excluded_course_runs')
+        return queryset.select_related('course').prefetch_related(
+            Prefetch('course__programs', queryset=(
+                Program.objects.select_related('type', 'partner').prefetch_related('excluded_course_runs', 'courses')
+            ))
+        )
 
     def get_programs(self, obj):
         programs = []
@@ -1250,9 +1285,9 @@ class ProgramLocationRestrictionSerializer(AbstractLocationRestrictionSerializer
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = SlugRelatedTranslatableField(required=False, allow_null=True, slug_field='name_t',
-                                              queryset=LevelType.objects.all())
+                                              queryset=LevelTypeSerializer.prefetch_queryset(LevelType.objects.all()))
     subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
-                                                  queryset=Subject.objects.all(),
+                                                  queryset=SubjectSerializer.prefetch_queryset(),
                                                   read_serializer=SubjectSerializer())
     prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
@@ -1282,16 +1317,13 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
-    product_source = serializers.SlugRelatedField(required=False, slug_field='slug', queryset=Source.objects.all())
-
-    def to_representation(self, instance):
-        """
-        Conversion of the source slug to the source serializer data
-        """
-        representation = super().to_representation(instance)
-        if representation.get('product_source'):
-            representation['product_source'] = SourceSerializer(Source.objects.get(slug=representation['product_source'])).data  # pylint: disable=line-too-long
-        return representation
+    product_source = SlugRelatedFieldWithReadSerializer(
+        required=False, slug_field='slug', queryset=Source.objects.all(),
+        read_serializer=SourceSerializer()
+    )
+    watchers = serializers.ListField(
+        child=serializers.EmailField(), allow_empty=True, allow_null=True, required=False
+    )
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1306,7 +1338,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
         return queryset.select_related(
-            'level_type',
             'video',
             'video__image',
             'partner',
@@ -1320,13 +1351,22 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'in_year_value',
             'location_restriction'
         ).prefetch_related(
+            # The level_type is here instead of inside select_related to
+            # prevent the optimizer from choosing a poor query plan
+            'level_type',
             'expected_learning_items',
+            'level_type__translations',
             'prerequisites',
-            'subjects',
             'collaborators',
             'topics',
             'url_slug_history',
+            Prefetch(
+                'url_slug_history',
+                queryset=CourseUrlSlug.objects.filter(is_active=True),
+                to_attr='_prefetched_active_slug'
+            ),
             'url_redirects',
+            'editors',
             cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             'canonical_course_run',
             'canonical_course_run__seats',
@@ -1336,6 +1376,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
+            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset())
         )
 
     class Meta(MinimalCourseSerializer.Meta):
@@ -1349,7 +1390,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
             'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
-            'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo'
+            'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo', 'watchers',
         )
         read_only_fields = ('enterprise_subscription_inclusion', 'product_source', 'data_modified_timestamp')
         extra_kwargs = {
@@ -1372,8 +1413,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     def get_skill_names(self, obj):
-        course_skills = get_whitelisted_product_skills(obj.key, product_type=ProductTypes.Course)
-        return list({course_skill.skill.name for course_skill in course_skills})
+        return get_product_skill_names(obj.key, ProductTypes.Course)
 
     def get_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.key, product_type=ProductTypes.Course)
@@ -1385,8 +1425,11 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         existing_facts = instance.facts.all()
         if len(existing_facts) == len(facts_data):
+            changed = False
             for i, fact in enumerate(existing_facts):
-                Fact.objects.filter(id=fact.id).update(**facts_data[i])
+                _, fact_changed = update_instance(fact, facts_data[i], True)
+                changed = changed or fact_changed
+            return changed
         else:
             instance.facts.clear()
             for fact in facts_data:
@@ -1404,52 +1447,60 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                     fact_obj = Fact.objects.create(**fact)
 
                 instance.facts.add(fact_obj)
+            return True
 
     def update_certificate_info(self, instance, certificate_info_data):
-
         if instance.certificate_info:
-            CertificateInfo.objects.filter(id=instance.certificate_info.id).update(**certificate_info_data)
+            return update_instance(instance.certificate_info, certificate_info_data, True)
         else:
             instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
             instance.save()
+            return instance.certificate_info, False
 
     def update_product_meta(self, instance, product_meta_data):
         """ Updates product metadata (inside additional metadata) for a course. """
         keywords = product_meta_data.pop('keywords', None)
 
         if instance.product_meta:
-            ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
-            # This is needed to get the latest value for Product Meta from DB.
-            # Otherwise, the previous values re-appear when keywords are handled and product_meta is saved.
-            instance.product_meta.refresh_from_db()
+            _, changed = update_instance(instance.product_meta, product_meta_data, True)
         else:
             instance.product_meta = ProductMeta.objects.create(**product_meta_data)
             instance.save()
+            changed = True
 
-        if keywords and instance.product_meta:
-            instance.product_meta.keywords.set(keywords, clear=True)
+        if instance.product_meta and keywords is not None:
+            instance.product_meta.keywords.set(keywords)
             instance.product_meta.save()
+            changed = True
+
+        return instance.product_meta, changed
 
     def update_additional_metadata(self, instance, additional_metadata):
 
+        changed = False
         facts = additional_metadata.pop('facts', None)
         certificate_info = additional_metadata.pop('certificate_info', None)
         product_meta = additional_metadata.pop('product_meta', None)
 
         if instance.additional_metadata:
-            AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
+            _, additional_metadata_changed = update_instance(instance.additional_metadata, additional_metadata, True)
+            changed = changed or additional_metadata_changed
         else:
             instance.additional_metadata = AdditionalMetadata.objects.create(**additional_metadata)
 
         if facts:
-            self.update_facts(instance.additional_metadata, facts)
+            facts_changed = self.update_facts(instance.additional_metadata, facts)
+            changed = changed or facts_changed
 
         if product_meta:
-            self.update_product_meta(instance.additional_metadata, product_meta)
+            _, product_meta_changed = self.update_product_meta(instance.additional_metadata, product_meta)
+            changed = changed or product_meta_changed
 
         if certificate_info:
-            self.update_certificate_info(instance.additional_metadata, certificate_info)
+            _, certification_info_changed = self.update_certificate_info(instance.additional_metadata, certificate_info)
+            changed = changed or certification_info_changed
 
+        return changed
         # save() will be called by main update()
 
     def update_geolocation(self, instance, geolocation):
@@ -1475,23 +1526,29 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def update_location_restriction(self, instance, location_restriction):
         if instance.location_restriction:
-            CourseLocationRestriction.objects.filter(id=instance.location_restriction.id).update(**location_restriction)
+            _, location_restriction_changed = update_instance(instance.location_restriction, location_restriction, True)
+            return location_restriction_changed
         else:
             instance.location_restriction = CourseLocationRestriction.objects.create(**location_restriction)
+            return True
 
     def update_in_year_value(self, instance, in_year_value):
         if instance.in_year_value:
-            ProductValue.objects.filter(id=instance.in_year_value.id).update(**in_year_value)
+            _, in_year_value_changed = update_instance(instance.in_year_value, in_year_value, True)
+            return in_year_value_changed
         else:
             instance.in_year_value = ProductValue.objects.create(**in_year_value)
+            return True
 
     def update(self, instance, validated_data):
+        changed = False
         # Handle writing nested fields separately
         if 'additional_metadata' in validated_data:
-            # Handle additional metadata only for 2U courses else just pop
+            # Handle additional metadata only for external courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
             if instance.is_external_course:
-                self.update_additional_metadata(instance, additional_metadata_data)
+                additional_metadata_changed = self.update_additional_metadata(instance, additional_metadata_data)
+                changed = changed or additional_metadata_changed
         if 'geolocation' in validated_data:
             geolocation = validated_data.pop('geolocation')
             if all(bool(value) is True for value in geolocation.values()):
@@ -1499,9 +1556,16 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if 'location_restriction' in validated_data:
             location_restriction_data = validated_data.pop('location_restriction')
             if not all(bool(value) is False for value in location_restriction_data.values()):
-                self.update_location_restriction(instance, location_restriction_data)
+                location_restriction_changed = self.update_location_restriction(instance, location_restriction_data)
+                changed = changed or location_restriction_changed
         if 'in_year_value' in validated_data:
-            self.update_in_year_value(instance, validated_data.pop('in_year_value'))
+            in_year_value_changed = self.update_in_year_value(instance, validated_data.pop('in_year_value'))
+            changed = changed or in_year_value_changed
+
+        if changed:
+            # If any of the related model has updated timestamp for Course, refresh the timestamp
+            # value on the instance to represent correct state of field.
+            instance.refresh_from_db(fields=('data_modified_timestamp',))
         return super().update(instance, validated_data)
 
 
@@ -1520,28 +1584,9 @@ class CourseWithProgramsSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-        return queryset.select_related(
-            'level_type',
-            'video',
-            'video__image',
-            'partner',
-            'canonical_course_run',
-            'type',
-            'geolocation',
-            'in_year_value',
-            'location_restriction'
-        ).prefetch_related(
-            '_official_version',
-            'expected_learning_items',
-            'prerequisites',
-            'topics',
-            'url_slug_history',
-            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
-            cls.prefetch_course_runs(CourseRunSerializer, course_runs),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
-            Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+        queryset = super().prefetch_queryset(partner=partner, queryset=queryset, course_runs=course_runs)
+        return queryset.prefetch_related(
             Prefetch('programs', queryset=NestedProgramSerializer.prefetch_queryset(queryset=programs)),
-            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
     def get_advertised_course_run_uuid(self, course):
@@ -1632,14 +1677,19 @@ class CatalogCourseSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-
-        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+        return queryset.select_related(
+            'type', '_official_version', 'level_type', 'video', 'partner', 'additional_metadata',
+            'location_restriction', 'in_year_value', 'product_source', 'canonical_course_run'
+        ).prefetch_related(
             'expected_learning_items',
+            'collaborators',
             'prerequisites',
-            'subjects',
+            'subjects__translations',
             'url_slug_history',
+            'topics',
             'editors',
             'url_redirects',
+            'level_type__translations',
             cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -1962,10 +2012,12 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
             'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
-            'excluded_from_search', 'excluded_from_seo', 'subscription',
+            'excluded_from_search', 'excluded_from_seo', 'subscription', 'has_ofac_restrictions', 'ofac_comment'
 
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp')
+        read_only_fields = (
+            'uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp', 'has_ofac_restrictions', 'ofac_comment'
+        )
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)
@@ -2191,8 +2243,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         return [topic.name for topic in obj.topics]
 
     def get_skill_names(self, obj):
-        program_skills = get_whitelisted_product_skills(obj.uuid, product_type=ProductTypes.Program)
-        return list({program_skill.skill.name for program_skill in program_skills})
+        return get_product_skill_names(obj.uuid, ProductTypes.Program)
 
     def get_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.uuid, product_type=ProductTypes.Program)
@@ -2624,3 +2675,19 @@ class MetadataWithType(MetadataWithRelatedChoices):
             return self.create_type_options(info)
 
         return info
+
+
+class CourseReviewSerializer(serializers.ModelSerializer):
+    most_common_goal = serializers.CharField(source='get_most_common_goal_display')
+
+    class Meta:
+        model = CourseReview
+        fields = (
+            'course_key',
+            'reviews_count',
+            'avg_course_rating',
+            'confident_learners_percentage',
+            'most_common_goal',
+            'most_common_goal_learners_percentage',
+            'total_enrollments'
+        )

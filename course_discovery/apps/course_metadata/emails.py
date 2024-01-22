@@ -1,5 +1,7 @@
 import datetime
+import json
 import logging
+from email.mime.text import MIMEText
 from urllib.parse import urljoin
 
 import dateutil.parser
@@ -10,6 +12,7 @@ from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
@@ -40,8 +43,8 @@ def log_missing_project_coordinator(key, org, template_name):
         )
 
 
-def get_project_coordinator(org):
-    """ Get the registered project coordinator for an organization.
+def get_project_coordinators(org):
+    """ Get the registered project coordinators for an organization.
 
         Only returns the first one. Technically the database supports multiple. But in practice, we only use one.
         Requires a OrganizationUserRole to be set up first.
@@ -50,7 +53,7 @@ def get_project_coordinator(org):
             org (Object): Organization object
 
         Returns:
-            Object: a User object or None if no project coordinator is registered
+            list(Object): a list of User objects or None if no project coordinator is registered
     """
     # Model imports here to avoid a circular import
     from course_discovery.apps.publisher.models import OrganizationUserRole  # pylint: disable=import-outside-toplevel
@@ -58,13 +61,14 @@ def get_project_coordinator(org):
     if not org:
         return None
 
-    role = OrganizationUserRole.objects.filter(organization=org,
-                                               role=InternalUserRole.ProjectCoordinator).first()
-    return role.user if role else None
+    project_coordinators = [pc.user for pc in OrganizationUserRole.objects.filter(
+        organization=org, role=InternalUserRole.ProjectCoordinator.value
+    ).select_related('user')]
+    return project_coordinators or None
 
 
 def send_email(template_name, subject, to_users, recipient_name,
-               course_run=None, course=None, context=None, project_coordinator=None):
+               course_run=None, course=None, context=None, project_coordinators=None):
     """ Send an email template out to the given users with some standard context variables.
 
         Arguments:
@@ -75,13 +79,13 @@ def send_email(template_name, subject, to_users, recipient_name,
             course_run (Object): CourseRun object
             course (Object): Course object
             context (dict): additional context for the template
-            project_coordinator (Object): optional optimization if you have the PC User already, to prevent a lookup
+            project_coordinators (list): optional optimization if you have the PC User(s) already, to prevent a lookup
     """
     course = course or course_run.course
     partner = course.partner
     org = course.authoring_organizations.first()
-    project_coordinator = project_coordinator or get_project_coordinator(org)
-    if not project_coordinator:
+    project_coordinators = project_coordinators or get_project_coordinators(org)
+    if not project_coordinators:
         log_missing_project_coordinator(course.key, org, template_name)
         return
 
@@ -112,7 +116,7 @@ def send_email(template_name, subject, to_users, recipient_name,
             'recipient_name': recipient_name,
             'platform_name': settings.PLATFORM_NAME,
             'org_name': org.name,
-            'contact_us_email': project_coordinator.email,
+            'contact_us_emails': [project_coordinator.email for project_coordinator in project_coordinators],
             'course_page_url': review_url,
             'studio_url': run_studio_url,
             'preview_url': course_run.marketing_url,
@@ -124,7 +128,7 @@ def send_email(template_name, subject, to_users, recipient_name,
             'recipient_name': recipient_name,
             'platform_name': settings.PLATFORM_NAME,
             'org_name': org.name,
-            'contact_us_email': project_coordinator.email,
+            'contact_us_emails': [project_coordinator.email for project_coordinator in project_coordinators],
         })
     if context:
         base_context.update(context)
@@ -175,14 +179,13 @@ def send_email_to_project_coordinator(course_run, template_name, subject, contex
             context (dict): additional context for the template
     """
     org = course_run.course.authoring_organizations.first()
-    project_coordinator = get_project_coordinator(org)
-    if not project_coordinator:
+    project_coordinators = get_project_coordinators(org)
+    if not project_coordinators:
         log_missing_project_coordinator(course_run.course.key, org, template_name)
         return
 
-    recipient_name = project_coordinator.full_name or project_coordinator.username
-    send_email(template_name, subject, [project_coordinator], recipient_name, context=context,
-               project_coordinator=project_coordinator, course_run=course_run)
+    send_email(template_name, subject, project_coordinators, _('Project Coordinator team'), context=context,
+               project_coordinators=project_coordinators, course_run=course_run)
 
 
 def send_email_to_editors(course_run, template_name, subject, context=None):
@@ -216,6 +219,52 @@ def send_email_for_legal_review(course_run):
     """
     subject = _('Legal review requested: {title}').format(title=course_run.title)
     send_email_to_legal(course_run, 'course_metadata/email/legal_review', subject)
+
+
+def send_email_to_notify_course_watchers_and_marketing(course, course_run_publish_date, course_run_status):
+    """
+    Send email to the watchers of the course and marketing team when the course run is scheduled or published.
+
+    Arguments:
+        course (Object): Course object
+        course_run_publish_date (datetime): Course run publish date
+        course_run_status (str): Course run status
+    """
+    subject = _('Course URL for {title}').format(title=course.title)
+    context = {
+        'course_name': course.title,
+        'marketing_service_name': settings.MARKETING_SERVICE_NAME,
+        'course_publish_date': course_run_publish_date.strftime("%m/%d/%Y"),
+        'is_course_published': course_run_status == CourseRunStatus.Published,
+        'course_marketing_url': course.marketing_url,
+        'course_preview_url': course.preview_url,
+    }
+    to_users = []
+    if course.watchers:
+        to_users.extend(course.watchers)
+    if settings.ORGANIC_MARKETING_EMAIL:
+        to_users.append(settings.ORGANIC_MARKETING_EMAIL)
+    if not to_users:
+        logger.info("Skipping send email to the course watchers and marketing because to_users list is empty")
+        return
+    txt_template = 'course_metadata/email/watchers_course_url.txt'
+    html_template = 'course_metadata/email/watchers_course_url.html'
+    template = get_template(txt_template)
+    plain_content = template.render(context)
+    template = get_template(html_template)
+    html_content = template.render(context)
+
+    email_msg = EmailMultiAlternatives(
+        subject, plain_content, settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    email_msg.attach_alternative(html_content, 'text/html')
+
+    try:
+        email_msg.send()
+    except Exception as exc:  # pylint: disable=broad-except
+        logger.exception(
+            f'Failed to send email notification with subject "{subject}" to users {to_users}. Error: {exc}'
+        )
 
 
 def send_email_for_internal_review(course_run):
@@ -279,10 +328,10 @@ def send_email_for_comment(comment, course, author):
     )
 
     org = course.authoring_organizations.first()
-    project_coordinator = get_project_coordinator(org)
+    project_coordinators = get_project_coordinators(org)
     recipients = list(CourseEditor.course_editors(course))
-    if project_coordinator:
-        recipients.append(project_coordinator)
+    if project_coordinators:
+        recipients.extend(project_coordinators)
 
     # remove email of comment owner if exists
     recipients = filter(lambda x: x.email != author.email, recipients)
@@ -299,12 +348,12 @@ def send_email_for_comment(comment, course, author):
 
     try:
         send_email('course_metadata/email/comment', subject, recipients, '',
-                   course=course, context=context, project_coordinator=project_coordinator)
+                   course=course, context=context, project_coordinators=project_coordinators)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for comment on course %s', course.uuid)
 
 
-def send_ingestion_email(partner, subject, to_users, product_type, ingestion_details):
+def send_ingestion_email(partner, subject, to_users, product_type, product_source, ingestion_details):
     """ Send an overall report of a product's ingestion.
 
         Arguments:
@@ -312,13 +361,17 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             subject (str): subject line for email
             to_users (list(str)): a list of email addresses to whom the email should be sent to
             product_type (str): the product whose ingestion has been run
+            product_source (Object): the source of the product
             ingestion_details (dict): Stats of ingestion, along with reported errors
     """
+    products_json = ingestion_details.pop('products_json', None)
     context = {
         **ingestion_details,
         'product_type': product_type,
         'publisher_url': partner.publisher_url,
-        'ingestion_contact_email': settings.LOADER_INGESTION_CONTACT_EMAIL
+        'ingestion_contact_email': settings.LOADER_INGESTION_CONTACT_EMAIL,
+        'marketing_service_name': settings.MARKETING_SERVICE_NAME,
+        'product_source': product_source.name,
     }
     txt_template = 'course_metadata/email/loader_ingestion.txt'
     html_template = 'course_metadata/email/loader_ingestion.html'
@@ -331,6 +384,9 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
         subject, plain_content, settings.PUBLISHER_FROM_EMAIL, to_users
     )
     email_msg.attach_alternative(html_content, 'text/html')
+    if products_json:
+        products_json = json.dumps(products_json, indent=2)
+        email_msg.attach(filename='products.json', content=products_json, mimetype='application/json')
 
     try:
         email_msg.send()
@@ -341,3 +397,22 @@ def send_ingestion_email(partner, subject, to_users, product_type, ingestion_det
             subject,
             context
         )
+
+
+def send_email_for_slug_updates(stats, to_users, subject=None):
+    """ Send an email with the summary of course slugs update.
+
+        Arguments:
+            stats (str): stats of course slugs update
+            to_users (list(str)): a list of email addresses to whom the email should be sent to
+            subject (str): subject line for email
+    """
+    subject = subject or 'Migrate Course Slugs Summary Report'
+    body = 'Please find the attached csv file for the summary of course slugs update.'
+    email_msg = EmailMultiAlternatives(
+        subject, body, settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    attachment = MIMEText(stats, 'csv')
+    attachment.add_header('Content-Disposition', 'attachment', filename='slugs_update_summary.csv')
+    email_msg.attach(attachment)
+    email_msg.send()

@@ -4,5 +4,5 @@
 -r github.in              # Forks and other dependencies not yet on PyPI
 
 django-elasticsearch-dsl
-edx-sphinx-theme
+sphinx-book-theme
 Sphinx

@@ -2,10 +2,15 @@
 Mixins for the API application.
 """
 # pylint: disable=not-callable
+import math
 
+from django.contrib.auth.models import AnonymousUser
 from elasticsearch.exceptions import RequestError
+from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     FacetedFieldSearchFilterBackend, FacetedQueryFilterBackend
@@ -162,3 +167,39 @@ class DetailMixin:
             "or override the `get_detail_serializer_class()` method." % self.__class__.__name__
         )
         return self.detail_serializer_class
+
+
+class AnonymousUserThrottleAuthenticatedEndpointMixin:
+    """
+    Mixin to perform anonymous user throttling on API endpoints that require authentication.
+
+    Utilize anonymous_user_throttle_class attribute on View to determine the throttle instance, falling back to
+    AnonRateThrottle if not provided. This is a patchy workaround to run throttling against unauthenticated users
+    hitting an endpoint that requires Authentication. The evaluation order of DRF is authentication, permissions, and
+    throttling. If user is unauthenticated, the throttle checks are not performed because authentication evaluation
+    stops code flow. This leaves API vulnerable to unauth requests brute force attack.
+
+    See https://github.com/encode/django-rest-framework/issues/5234 for more context.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if isinstance(user, AnonymousUser) and (
+                self.authentication_classes or (self.permission_classes and IsAuthenticated in self.permission_classes)
+        ):
+            throttle_instance = getattr(self, 'anonymous_user_throttle_class', AnonRateThrottle)()
+            if not throttle_instance.allow_request(request, self):
+                # The following set of lines are similar to how dispatch works in DRF.
+                # This bare minimum is there to ensure the response meets DRF requirements.
+                # Similar thing is already being done in ValidElasticSearchQueryRequiredMixin.
+                wait = math.ceil(throttle_instance.wait())
+                self.args = args
+                self.kwargs = kwargs
+                self.request = self.initialize_request(request, *args, **kwargs)
+                self.headers = {**self.default_response_headers, 'Retry-After': wait}
+                self.format_kwarg = self.get_format_suffix(**kwargs)
+                response = Response(
+                    {"detail": f"Request was throttled. Expected available in {wait} seconds."},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS
+                )
+                return self.finalize_response(self.request, response, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)

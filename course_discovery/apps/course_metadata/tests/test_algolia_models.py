@@ -13,12 +13,12 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType
+from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
-    DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
+    DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
     ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory,
-    SourceFactory, SubjectFactory
+    SourceFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -153,7 +153,7 @@ class TestAlgoliaDataMixin():
 
     def create_blocked_course_run(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner,
-                                           product_source=SourceFactory(name='blocked'))
+                                           product_source=SourceFactory(slug='blocked'))
 
         course_run = CourseRunFactory(
             course=course,
@@ -381,15 +381,27 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
     @ddt.data(
         (None, True),
-        (CourseType.BOOTCAMP_2U, False),
-        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+        (CourseType.BOOTCAMP_2U, True),
+        (CourseType.EXECUTIVE_EDUCATION_2U, True)
     )
     @ddt.unpack
     def test_display_on_org_page(self, type_slug, display_on_org_page):
+        """
+        Verify default values of product_display_on_org_page.
+        """
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         if type_slug:
             course.type = CourseTypeFactory(slug=type_slug)
+        assert course.product_display_on_org_page == display_on_org_page
+
+    @ddt.data(True, False)
+    def test_course_display_on_org_page(self, display_on_org_page):
+        """
+        Verify that the course index has display_on_org_page field.
+        """
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.additional_metadata = AdditionalMetadataFactory(display_on_org_page=display_on_org_page)
         assert course.product_display_on_org_page == display_on_org_page
 
     @ddt.data((AlgoliaProxyCourse, 'source_1'), (AlgoliaProxyProgram, 'source_2'))
@@ -423,10 +435,20 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.should_index
 
     @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=['blocked'])
-    def test_product_source_shoud_excluded(self):
+    def test_product_source_should_excluded(self):
         course = self.create_blocked_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
+
+    def test_external_url_when_present(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.additional_metadata = AdditionalMetadataFactory(external_url='https://external-url.com')
+        assert course.product_external_url == 'https://external-url.com'
+
+    def test_external_url_when_no_additional_metadata_is_present(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.additional_metadata = None
+        assert course.product_external_url is None
 
     def test_course_subscription_eligibility(self):
         """
@@ -441,6 +463,75 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         """
         course = AlgoliaProxyCourseFactory()
         assert len(course.subscription_prices) == 0
+
+    def test_course_coordinates_match_geolocation(self):
+        """
+        Verify the course's coordinates match its associated geolocation
+        """
+        geolocation = GeoLocationFactory()
+        course = AlgoliaProxyCourseFactory(geolocation=geolocation)
+        assert course.coordinates == geolocation.coordinates
+
+    def test_default_course_coordinates_if_no_geolocation(self):
+        """
+        Verify default course coordinates if geolocation is None
+        """
+        course = AlgoliaProxyCourseFactory(geolocation=None)
+        assert course.coordinates == (34.921696, -40.839980)
+
+    def test_course_key(self):
+        """
+        Verify the course key is returned for course.
+        """
+        product_key = 'test+TestCourse'
+        product = AlgoliaProxyCourseFactory(
+            partner=self.__class__.edxPartner,
+            key=product_key
+        )
+        assert product.product_key is product_key
+
+    def test_product_marketing_video_url(self):
+        """
+        Verify the product marketing video url is returned for course.
+        """
+        product_marketing_video_url = 'example.com/video_url'
+        video = VideoFactory(src=product_marketing_video_url)
+        product = AlgoliaProxyCourseFactory(
+            partner=self.__class__.edxPartner,
+            video=video
+        )
+        assert product.product_marketing_video_url is product_marketing_video_url
+
+    def test_null_in_year_value(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        course.in_year_value = None
+        assert course.product_value_per_click_usa == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert course.product_value_per_click_international == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert course.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
+        assert course.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
+
+    @ddt.data(False, True)
+    def test_learning_type_open_course(self, has_program):
+        course_type = CourseTypeFactory()
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner, type=course_type)
+        if has_program:
+            program_type = ProgramTypeFactory()
+            program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+            course.programs.set([program])
+            assert course.learning_type == ['Course', program_type.name_t]
+        else:
+            assert course.learning_type == ['Course']
+
+    @ddt.data(
+        (CourseType.EXECUTIVE_EDUCATION_2U, 'Executive Education'),
+        (CourseType.BOOTCAMP_2U, 'Boot Camp'),
+    )
+    @ddt.unpack
+    def test_learning_type_non_open_course(self, course_type_slug, expected_result):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.type = CourseTypeFactory(slug=course_type_slug)
+        assert course.learning_type == [expected_result]
 
 
 @ddt.ddt
@@ -690,6 +781,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.subscription = None if subscription_eligible is None else \
             ProgramSubscriptionFactory(subscription_eligible=subscription_eligible)
         self.assertEqual(program.subscription_eligible, subscription_eligible)
+        if subscription_eligible:
+            assert 'Available by subscription' in program.availability_level
+        else:
+            assert program.availability_level == []
 
     @ddt.data(
         None,
@@ -709,3 +804,48 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         else:
             program = AlgoliaProxyProgramFactory(subscription=None)
             assert len(program.subscription_prices) == 0
+
+    def test_coordinates_match_geolocation(self):
+        """
+        Verify the program's coordinates match its associated geolocation
+        """
+        geolocation = GeoLocationFactory()
+        program = AlgoliaProxyProgramFactory(geolocation=geolocation)
+        assert program.coordinates == geolocation.coordinates
+
+    def test_default_coordinates_if_no_geolocation(self):
+        """
+        Verify default program coordinates if geolocation is None
+        """
+        program = AlgoliaProxyProgramFactory(geolocation=None)
+        assert program.coordinates == (34.921696, -40.839980)
+
+    def test_external_url_when_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory()
+        degree.additional_metadata = DegreeAdditionalMetadataFactory(external_url='https://external-url.com')
+        program.degree = degree
+        assert program.product_external_url == 'https://external-url.com'
+
+    def test_external_url_when_no_additional_metadata_is_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory()
+        program.degree = degree
+        assert program.product_external_url is None
+
+    def test_external_url_when_no_degree_is_present(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        assert program.product_external_url is None
+
+    def test_null_in_year_value(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        program.in_year_value = None
+        assert program.product_value_per_click_usa == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert program.product_value_per_click_international == ProductValue.DEFAULT_VALUE_PER_CLICK
+        assert program.product_value_per_lead_usa == ProductValue.DEFAULT_VALUE_PER_LEAD
+        assert program.product_value_per_lead_international == ProductValue.DEFAULT_VALUE_PER_LEAD
+
+    def test_learning_type(self):
+        program_type = ProgramTypeFactory()
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+        assert program.learning_type == [program_type.name_t]

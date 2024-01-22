@@ -2,6 +2,7 @@
 Management command to import, create, and/or update course and course run information for
 executive education courses.
 """
+import csv
 import logging
 from datetime import datetime
 
@@ -92,7 +93,7 @@ class Command(BaseCommand):
         for model in apps.get_app_config('course_metadata').get_models():
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
-
+        products_json = []
         try:
             loader = CSVDataLoader(
                 partner,
@@ -102,6 +103,10 @@ class Command(BaseCommand):
                 product_type=self.PRODUCT_TYPE_SLUG_MAP[product_type],
                 product_source=source.slug
             )
+            if csv_path:
+                with open(csv_path, mode='r', encoding='utf-8') as csv_file:
+                    products_json = list(csv.DictReader(csv_file))
+
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             ingestion_time = datetime.now()
             loader.ingest()
@@ -118,13 +123,14 @@ class Command(BaseCommand):
 
         if product_type:
             logger.info(f"Sending Ingestion stats email for product type {product_type}")
-            email_subject = f"{product_type.replace('_', ' ').title()} Data Ingestion"
+            email_subject = f"{source.name} - {product_type.replace('_', ' ').title()} Data Ingestion"
             product_mapping = settings.PRODUCT_METADATA_MAPPING[self.PRODUCT_TYPE_SLUG_MAP[product_type]][source.slug]
             to_users = product_mapping['EMAIL_NOTIFICATION_LIST']
             ingestion_details = {
                 'ingestion_run_time': ingestion_time,
-                **loader.get_ingestion_stats()
+                **loader.get_ingestion_stats(),
+                'products_json': products_json
             }
             send_ingestion_email(
-                partner, email_subject, to_users, product_type, ingestion_details,
+                partner, email_subject, to_users, product_type, source, ingestion_details,
             )

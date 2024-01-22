@@ -66,6 +66,8 @@ THIRD_PARTY_APPS = [
     'taxonomy',
     'django_object_actions',
     'nested_admin',
+    'openedx_events',
+    'multi_email_field',
 ]
 
 ALGOLIA = {
@@ -523,6 +525,7 @@ ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (frontend-ap
 PUBLISHER_FROM_EMAIL = None
 
 LOADER_INGESTION_CONTACT_EMAIL = None
+MARKETING_SERVICE_NAME = None
 
 USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
 
@@ -592,15 +595,25 @@ MEDIA_STORAGE_BACKEND = {
 
 # Settings related to the taxonomy_support
 TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_COURSE_RUN_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseRunMetadataProvider'
 TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryProgramMetadataProvider'
 TAXONOMY_XBLOCK_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryXBlockMetadataProvider'
 TAXONOMY_XBLOCK_SUPPORTED_TYPES = ['video', 'vertical']
+
+SKILLS_VERIFICATION_THRESHOLD = 10  # minimum votes required for a skill to be marked verified
+SKILLS_VERIFICATION_RATIO_THRESHOLD = 0.7 # 70% validation threshold out of total votes
+SKILLS_IGNORED_THRESHOLD = 10 # minimum votes required for skill to be marked ignored
+SKILLS_IGNORED_RATIO_THRESHOLD = 0.7 # 70% ignored threshold out of total votes
 
 # Settings related to the EMSI client
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
 EMSI_API_BASE_URL = 'https://emsiservices.com'
 EMSI_CLIENT_ID = ''
 EMSI_CLIENT_SECRET = ''
+
+# Settings related to Snowflake
+SNOWFLAKE_ACCOUNT = 'edx.us-east-1'
+SNOWFLAKE_DATABASE = 'prod'
 
 
 ################################### BEGIN CELERY ###################################
@@ -683,14 +696,49 @@ PRODUCT_METADATA_MAPPING = {
         }
     },
     'DEGREES': {
-        'SHEET_ID': '',
-        'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': '',
-        'EMAIL_NOTIFICATION_LIST': []
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
     },
 }
 
-DEFAULT_PRODUCT_SOURCE_SLUG = ''
+COURSE_URL_SLUGS_PATTERN = {
+    'edx':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }},
+    'ext-source':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'executive-education-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }}
+}
+
+
+SUBSCRIPTION_METADATA_MAPPING = {
+    'SHEET_ID': '',
+    'INPUT_TAB_ID': '',
+}
+
+DEFAULT_PRODUCT_SOURCE_NAME = 'edX'
+DEFAULT_PRODUCT_SOURCE_SLUG = 'edx'
+EXTERNAL_PRODUCT_SOURCE_SLUG = ''
 
 CONTENTFUL_SPACE_ID = None
 CONTENTFUL_CONTENT_DELIVERY_API_KEY = None
@@ -709,7 +757,31 @@ CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS = {
     },
 }
 
-EVENT_BUS_KAFKA_PROCESSING_DELAY_SECONDS = 60
-EVENT_BUS_KAFKA_MESSAGE_DELAY_THRESHOLD_SECONDS = 60
+EVENT_BUS_PROCESSING_DELAY_SECONDS = 60
+EVENT_BUS_MESSAGE_DELAY_THRESHOLD_SECONDS = 60
 
 ALGOLIA_INDEX_EXCLUDED_SOURCES = []
+
+DEGREE_VARIANTS_FIELD_MAP = {}
+
+JOB_DESCRIPTION_PROMPT = 'Generate a description for {job_name} job role.'
+JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_job_name} job role.'
+OPENAI_API_KEY = 'I am an api key'
+
+NOTIFY_SLUG_UPDATE_RECIPIENTS = []
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False
+
+USE_DEPRECATED_PYTZ = True
+ORGANIC_MARKETING_EMAIL = None
+
+CSRF_TRUSTED_ORIGINS = (
+    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:1991',  # frontend-app-admin-portal
+    'http://localhost:18400',  # frontend-app-publisher
+    'http://localhost:18450',  # frontend-app-support-tools
+    'http://localhost:2000',  # frontend-app-learning
+)
+
+ENABLE_COURSE_REVIEWS_ADMIN = False

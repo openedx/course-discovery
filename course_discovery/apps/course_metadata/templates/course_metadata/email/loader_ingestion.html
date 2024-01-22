@@ -3,7 +3,7 @@
 {% block body %}
 
 <p>
-    The data ingestion has been run for product type <strong>{{ product_type }}</strong>. See below for the ingestion stats.
+    The data ingestion has been run for product type <strong>{{ product_type }}</strong> and product source <strong>{{ product_source }}</strong>. See below for the ingestion stats.
 </p>
 <div>
     <table border="2" width="50%" style="padding: 5px;">
@@ -49,7 +49,14 @@
         <ul>
             {% for new_product in created_products %}
                 {% if product_type != "DEGREES" %}
-                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a>{% if new_product.external_course_marketing_type %} ({{ new_product.external_course_marketing_type }}) {% endif %}</li>
+                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a> - {{ new_product.url_slug}} 
+                        {% if new_product.external_course_marketing_type %}
+                            ({{ new_product.external_course_marketing_type }})
+                        {% endif %}
+                        {% if new_product.rerun %}
+                            A new run has been created
+                        {% endif %}
+                    </li>
                 {% else %}
                     <li>{{ new_product.uuid }}</li>
                 {% endif %}
@@ -83,6 +90,9 @@
 {% endif %}
 
 <p>
-    <strong>Note: For queries or comments, reach out to {{ingestion_contact_email}} via email.</strong>
+    <strong>Note: Products are ingested in Catalog and currently not published.
+        The changes will be live on http://edx.org once {{marketing_service_name}} build runs.
+        The average turnaround time is between 24 to 48 hours.
+        For queries or comments, reach out to {{ingestion_contact_email}} via email.</strong>
 </p>
 {% endblock body %}

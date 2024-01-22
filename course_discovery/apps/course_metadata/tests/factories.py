@@ -120,6 +120,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     product_meta = factory.SubFactory(ProductMetaFactory, keywords=['test', 'test2'])
     product_status = ExternalProductStatus.Published
     external_course_marketing_type = FuzzyChoice([name for name, __ in ExternalCourseMarketingType.choices])
+    display_on_org_page = True
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
@@ -263,6 +264,19 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
         return super()._create(model_class, *args, **kwargs)
 
 
+class CourseReviewsFactory(factory.django.DjangoModelFactory):
+    course_key = FuzzyText()
+    reviews_count = FuzzyInteger(1)
+    avg_course_rating = FuzzyDecimal(0.0, 5.0)
+    confident_learners_percentage = FuzzyDecimal(0.0, 100.0)
+    most_common_goal = 'Change careers'
+    most_common_goal_learners_percentage = FuzzyDecimal(0.0, 100.0)
+    total_enrollments = FuzzyInteger(1)
+
+    class Meta:
+        model = CourseReview
+
+
 class ProgramSkillFactory(factory.django.DjangoModelFactory):
     program_uuid = factory.LazyFunction(uuid4)
     skill = factory.SubFactory(SkillFactory)
@@ -292,6 +306,7 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = CourseType
+        django_get_or_create = ('slug',)
 
     @factory.post_generation
     def entitlement_types(self, create, extracted, **kwargs):
@@ -305,11 +320,6 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
 
 class ProductValueFactory(factory.django.DjangoModelFactory):
-    per_click_usa = FuzzyInteger(100)
-    per_click_international = FuzzyInteger(100)
-    per_lead_usa = FuzzyInteger(100)
-    per_lead_international = FuzzyInteger(100)
-
     class Meta:
         model = ProductValue
 
@@ -469,6 +479,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     has_ofac_restrictions = True
     enterprise_subscription_inclusion = False
     type = factory.SubFactory(CourseRunTypeFactory)
+    variant_id = factory.LazyFunction(uuid4)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):
@@ -932,6 +943,11 @@ class GeolocationDataLoaderConfigurationFactory(factory.django.DjangoModelFactor
         model = GeolocationDataLoaderConfiguration
 
 
+class ProductValueDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductValueDataLoaderConfiguration
+
+
 class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CSVDataLoaderConfiguration
@@ -940,6 +956,11 @@ class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
 class DegreeDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DegreeDataLoaderConfiguration
+
+
+class ProgramSubscriptionConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProgramSubscriptionConfiguration
 
 
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
@@ -964,3 +985,13 @@ class CollaboratorFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     image = factory.django.ImageField()
     uuid = factory.LazyFunction(uuid4)
+
+
+class MigrateCourseSlugConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MigrateCourseSlugConfiguration
+
+
+class MigrateProgramSlugConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MigrateProgramSlugConfiguration

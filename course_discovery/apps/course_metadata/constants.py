@@ -6,16 +6,33 @@ COURSE_SKILLS_URL_NAME = 'course_skills'
 REFRESH_COURSE_SKILLS_URL_NAME = 'refresh_course_skills'
 REFRESH_PROGRAM_SKILLS_URL_NAME = 'refresh_program_skills'
 COURSE_UUID_REGEX = r'[0-9a-f-]+'
+SUBDIRECTORY_SLUG_FORMAT_REGEX = (
+    r'learn\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$|'
+    r'executive-education\/[a-zA-Z0-9-_]+$|'
+    r'boot-camps\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$'
+)
+SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_\/]+$'
+PROGRAM_SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+'
+
+SLUG_FORMAT_REGEX = r'[a-zA-Z0-9-_]+$'
+
+DEFAULT_SLUG_FORMAT_ERROR_MSG = 'Enter a valid “slug” consisting of letters, numbers, underscores or hyphens.'
 
 MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 
 IMAGE_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
-    'image/svg+xml': 'svg'  # SVG image will be converted into PNG, not stored as SVG
+    'image/svg+xml': 'svg',  # SVG image will be converted into PNG, not stored as SVG
+    'application/binary': 'jpg',  # Dropbox binary images are downloaded as JPG
 }
 
 ALLOWED_ANCHOR_TAG_ATTRIBUTES = ['href', 'title', 'target', 'rel']
+ALLOWED_PARAGRAPH_TAG_ATTRIBUTES = ['dir', 'lang']
+HTML_TAGS_ATTRIBUTE_WHITELIST = {
+    'a': ALLOWED_ANCHOR_TAG_ATTRIBUTES,
+    'p': ALLOWED_PARAGRAPH_TAG_ATTRIBUTES,
+}
 
 DRIVE_LINK_PATTERNS = [r"https://docs\.google\.com/uc\?id=\w+",
                        r"https://drive\.google\.com/file/d/\w+/view?usp=sharing"]
@@ -119,4 +136,18 @@ SNOWFLAKE_POPULATE_COURSE_LENGTH_QUERY = '''
         end as course_length_bin
     from
         courses
+'''
+
+
+SNOWFLAKE_REFRESH_COURSE_REVIEWS_QUERY = '''
+    select
+        COURSE_KEY,
+        REVIEWS_COUNT,
+        AVG_COURSE_RATING,
+        CONFIDENT_LEARNERS_PERCENTAGE,
+        MOST_COMMON_GOAL,
+        MOST_COMMON_GOAL_LEARNERS_PERCENTAGE,
+        TOTAL_ENROLLMENTS_IN_LAST_12_MONTHS
+    from
+        prod.enterprise.course_reviews
 '''

@@ -16,8 +16,11 @@ Usage: identical to clean_duplicate_history:
 
 https://django-simple-history.readthedocs.io/en/latest/utils.html#clean-duplicate-history
 """
+from django.core.management import CommandError
 from django.utils import timezone
 from simple_history.management.commands import clean_duplicate_history
+
+from course_discovery.apps.course_metadata.models import DeduplicateHistoryConfig
 
 
 class Command(clean_duplicate_history.Command):
@@ -25,6 +28,40 @@ class Command(clean_duplicate_history.Command):
         "Deduplicate course metadata history rows that were unnecessarily created "
         "while running refresh_course_metadata."
     )
+
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+
+        parser.add_argument(
+            '--args-from-database',
+            action='store_true',
+            help='Use arguments from the DeduplicateHistoryConfig model instead of the command line.',
+        )
+
+    def get_args_from_database(self):
+        config = DeduplicateHistoryConfig.get_solo()
+        argv = config.arguments.split()
+        parser = self.create_parser('manage.py', 'deduplicate_course_metadata_history')
+        return parser.parse_args(argv).__dict__
+
+    def handle(self, *args, **options):
+        """
+        Entry point for management command execution
+        """
+        if not (options['args_from_database'] or options['auto'] or options['models']):
+            raise CommandError('Either args_from_database, auto or models must be provided.')
+
+        if options['args_from_database']:
+            options = self.get_args_from_database()
+
+        # Ignore changes in the `modified` field alongside provided excluded fields.
+        # This does not require overriding _check_and_delete anymore
+        excluded_fields = options.get("excluded_fields")
+        if excluded_fields is None:
+            excluded_fields = []
+        excluded_fields.extend(["modified"])
+        options['excluded_fields'] = excluded_fields
+        super().handle(*args, **options)
 
     def _process(self, to_process, date_back=None, dry_run=True):
         """
@@ -65,17 +102,3 @@ class Command(clean_duplicate_history.Command):
 
             for o in model_query.iterator():
                 self._process_instance(o, model, stop_date=stop_date, dry_run=dry_run)
-
-    def _check_and_delete(self, entry1, entry2, dry_run=True):
-        """
-        The body of this method is copied VERBATIM from upstream except for the
-        following change:
-
-        Ignore changes in the `modified` field.
-        """
-        delta = entry1.diff_against(entry2)
-        if set(delta.changed_fields).issubset({"modified"}):  # This is the only line that differs from upstream.
-            if not dry_run:
-                entry1.delete()
-            return 1
-        return 0

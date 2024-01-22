@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+import re
 import string
 import uuid
 from tempfile import NamedTemporaryFile
@@ -12,22 +13,32 @@ import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
+from edx_django_utils.cache import RequestCache, get_cache_key
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
+from slugify import slugify
 from stdimage.models import StdImageFieldFile
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import ALLOWED_ANCHOR_TAG_ATTRIBUTES, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import (
+    DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
+    SUBDIRECTORY_SLUG_FORMAT_REGEX
+)
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -407,38 +418,62 @@ def calculated_seat_upgrade_deadline(seat):
 
 
 def serialize_seat_for_ecommerce_api(seat, mode):
+    """
+    Serializes seat data for ecommerce publication API.
+    """
+    attribute_values_list = [
+        {
+            'name': 'certificate_type',
+            'value': mode.certificate_type,
+        },
+        {
+            'name': 'id_verification_required',
+            'value': mode.is_id_verified,
+        }
+    ]
+
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course_run = seat.course_run
+        if course_run and course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course_run.variant_id),
+            })
+
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
         'product_class': 'Seat',
         'stockrecords': [{'partner_sku': getattr(seat, 'sku', None)}],
-        'attribute_values': [
-            {
-                'name': 'certificate_type',
-                'value': mode.certificate_type,
-            },
-            {
-                'name': 'id_verification_required',
-                'value': mode.is_id_verified,
-            }
-        ]
+        'attribute_values': attribute_values_list,
     }
 
 
 def serialize_entitlement_for_ecommerce_api(entitlement):
+    """
+    Serializes entitlement data for ecommerce publication API.
+    """
     attribute_values_list = [
         {
             'name': 'certificate_type',
             'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
         },
     ]
-    additional_metadata = entitlement.course.additional_metadata
-    if additional_metadata and additional_metadata.variant_id:
-        attribute_values_list.append({
-            'name': 'variant_id',
-            'value': str(additional_metadata.variant_id),
 
-        })
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course = entitlement.course
+        if course.advertised_course_run and course.advertised_course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course.advertised_course_run.variant_id),
+            })
+    else:
+        additional_metadata = entitlement.course.additional_metadata
+        if additional_metadata and additional_metadata.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(additional_metadata.variant_id),
+            })
 
     return {
         'price': str(entitlement.price),
@@ -653,9 +688,58 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
         self.ignore_links = True
         self.in_lang_span = False
         self.images_with_size = True
+        self.is_p_tag_with_dir = False
+
+    def add_and_filter_attrs(self, tag, dict_attrs):
+        """
+        This method adds only allowed attributes to the whitelisted tags
+        """
+        self.outtextf(f'<{tag}')
+        filtered_attrs_list = [
+            (attr, value) for attr, value in dict_attrs.items()
+            if attr in HTML_TAGS_ATTRIBUTE_WHITELIST[tag]
+        ]
+        for attr, value in filtered_attrs_list:
+            self.outtextf(f' {attr}="{value}"')
+        self.outtextf('>')
+
+    def whitelist_html_tags_attribute(self, tag, dict_attrs, start):
+        """
+        This method overrides the default behavior of html2text to include only allowed tags from attr_dict
+        because by default it only includes the href and title attributes for <a> tags and
+        discards the dir attribrute for <p> tags
+        """
+        if tag in HTML_TAGS_ATTRIBUTE_WHITELIST:
+            if start:
+                if HTML_TAGS_ATTRIBUTE_WHITELIST[tag][0] in dict_attrs:
+                    if tag == 'p':
+                        self.is_p_tag_with_dir = True
+                    self.add_and_filter_attrs(tag, dict_attrs)
+            elif (tag == 'p' and self.is_p_tag_with_dir) or (tag == 'a'):
+                if tag == 'p':
+                    self.is_p_tag_with_dir = False
+                self.outtextf(f'</{tag}>')
 
     def handle_tag(self, tag, attrs, start):
-        super().handle_tag(tag, attrs, start)
+        """
+        This method overrides the default behavior of html2text behavior for <span> tags (adding 'lang' attribute)
+        and <p> tags (adding 'dir' attribute). Additionally, within <p dir="rtl"> tags, it retains the original text
+        format to ensure consistent handling, addressing an issue where inner HTML content was not converting back to
+        HTML.
+        """
+        if not self.is_p_tag_with_dir:
+            super().handle_tag(tag, attrs, start)
+
+        elif tag not in HTML_TAGS_ATTRIBUTE_WHITELIST:
+            if start:
+                self.outtextf(f'<{tag}')
+                if attrs:
+                    self.outtextf(' ')
+                    self.outtextf(' '.join(f'{attr}="{value}"' for attr, value in attrs.items()))
+                self.outtextf('>')
+            else:
+                self.outtextf(f'</{tag}>')
+
         if tag == 'span':
             if attrs and start and 'lang' in dict(attrs):
                 self.outtextf(f'<span lang="{dict(attrs)["lang"]}">')
@@ -663,30 +747,33 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
             if not start and self.in_lang_span:
                 self.outtextf('</span>')
                 self.in_lang_span = False
-
-        if tag == 'a':
-            # override the default behavior of html2text to include only allowed tags from attr_dict for <a> tags
-            # because by default it only includes the href and title attributes
-            if attrs and start and 'href' in dict(attrs):
-                self.outtextf('<a')
-                filtered_attrs_list = [
-                    (attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES
-                ]
-                for attr, value in filtered_attrs_list:
-                    self.outtextf(f' {attr}="{value}"')
-                self.outtextf('>')
-            if not start:
-                self.outtextf('</a>')
+        self.whitelist_html_tags_attribute(tag, dict(attrs), start)
 
 
 def clean_html(content):
-    """Cleans HTML from a string.
+    """
+    Cleans HTML from a string.
 
     This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
-    attributes), and converts the Markdown back to HTML.
+    attributes), and converts the Markdown back to HTML. This is done to ensure that the HTML is as clean as
+    possible, and that it is consistent with the HTML that is generated by the tinymce editor.
+
+    Additionally, if certain HTML tags (e.g., <ul>, <ol>) contain the 'dir' attribute with the value 'rtl'
+    (indicating right-to-left direction), this method will ensure that the 'dir' attribute is preserved
+    or added to maintain consistency with the original content.
     """
+    LIST_TAGS = ['ul', 'ol']
+    is_list_with_dir_attr_present = False
+
     cleaned = content.replace('&nbsp;', '')  # Keeping the removal of nbsps for historical consistency
-    cleaned = str(BeautifulSoup(cleaned, 'lxml'))
+    # Parse the HTML using BeautifulSoup
+    soup = BeautifulSoup(cleaned, 'lxml')
+
+    for tag in soup.find_all(LIST_TAGS, dir="rtl"):
+        tag.attrs.pop('dir')
+        is_list_with_dir_attr_present = True
+
+    cleaned = str(soup)
     # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
     cleaned = cleaned.replace('·', '&middot;')
     # Need to clean empty <b> and <p> tags which are converted to <hr/> by html2text
@@ -695,6 +782,8 @@ def clean_html(content):
     html_converter.wrap_links = False
     cleaned = html_converter.handle(cleaned).strip()
     cleaned = markdown.markdown(cleaned)
+    for tag in LIST_TAGS:
+        cleaned = cleaned.replace(f'<{tag}>', f'<{tag} dir="rtl">') if is_list_with_dir_attr_present else cleaned
 
     return cleaned
 
@@ -753,7 +842,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
                 else:
                     logger.error('Update organization logo override failed for course [%s]', course.key)
                     return False
-            logger.info('Image for course [%s] successfully updated.', course.key)
+            logger.info(f'Image for course {course.key} successfully updated in {data_field} field')
             return True
         else:
             msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
@@ -898,7 +987,7 @@ def fetch_getsmarter_products():
     )
     try:
         response = getsmarter_api_client.request(method='GET',
-                                                 url=settings.GETSMARTER_CLIENT_CREDENTIALS['PRODUCTS_DETAILS_URL'])
+                                                 url=f"{settings.GETSMARTER_CLIENT_CREDENTIALS['PRODUCTS_DETAILS_URL']}?detail=2")  # pylint: disable=line-too-long
         response.raise_for_status()
         response = response.json()
 
@@ -912,3 +1001,241 @@ def fetch_getsmarter_products():
     except Exception as ex:  # pylint: disable=broad-except
         logger.error(f"Failed to retrieve products from getsmarter API: {ex}")
     return products
+
+
+def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Receiver function to trigger update data modified timestamp on Course or Program
+    from one of their related models in reverse(ForeignKey or M2M).
+
+    This wrapper expects the following two things on a model instance:
+     * Field tracker
+     * A method called update_product_data_modified_stamp which will be implemented by each model
+     depending upon its relation with Course/Program.
+    """
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
+        instance.update_product_data_modified_timestamp()
+
+
+def is_valid_slug_format(val):
+    """
+    Checks whether a given value follows the slug format, taking into account the selected slug format based on the
+    'IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED' waffle toggle value.
+
+    Args:
+        val: value to be checked
+
+    Returns:
+        True if value follow the slug format else False
+    """
+    if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
+        valid_slug_pattern = SUBDIRECTORY_SLUG_FORMAT_REGEX
+    else:
+        valid_slug_pattern = SLUG_FORMAT_REGEX
+    return bool(re.match(valid_slug_pattern, val))
+
+
+def is_ocm_course(course):
+    """
+    Checks whether a given course is an OCM or not
+
+    Args:
+        course: a course instance
+
+    Returns:
+        True for all edx courses other than exec-ed and bootcamps
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseType  # pylint: disable=import-outside-toplevel
+
+    non_ocm_types = [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
+    is_ocm_course_type = course.type.slug not in non_ocm_types
+    is_default_product_source = course.product_source.slug == settings.DEFAULT_PRODUCT_SOURCE_SLUG
+    return is_ocm_course_type and is_default_product_source
+
+
+def get_slug_for_course(course):
+    """
+    Given a course it will return slug and error if there is any'
+
+    Arguments:
+          course: course object
+
+    Returns:
+        slug: slug in the format 'learn/<primary_subject>/<organization_name>-<course_title>' for open courses and
+        'executive-education/<course_title> for executive_education courses'
+        error: error while creating slug in the required format
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseType  # pylint: disable=import-outside-toplevel
+    error = None
+
+    organizations = course.authoring_organizations.all()
+    if not organizations:
+        error = f"Course with uuid {course.uuid} and title {course.title} does not have any authoring organizations"
+        logger.info(error)
+        return None, error
+    organization_slug = slugify(organizations[0].name.replace('\'', ''))
+
+    def create_slug_for_exec_ed():
+        """
+        Method to create subdirectory url slug for executive education courses
+        """
+        course_slug = slugify(course.title)
+        slug = f"executive-education/{organization_slug}-{course_slug}"
+        if is_existing_slug(slug, course):
+            logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{slugify(course.title)}-{get_existing_slug_count(slug) + 1}"
+            slug = f"executive-education/{organization_slug}-{course_slug}"
+        return slug, error
+
+    def create_slug_for_bootcamps():
+        """
+        Method to create subdirectory url slug for bootcamps
+        """
+        course_slug = slugify(course.title)
+        course_subjects = course.subjects.all()
+        if not course_subjects:
+            error = f"Bootcamp with uuid {course.uuid} and title {course.title} does not have any subject"
+            logger.info(error)
+            return None, error
+        primary_subject_slug = course_subjects[0].slug
+        organization_short_code = course.organization_short_code_override or organization_slug
+
+        slug = f'boot-camps/{primary_subject_slug}/{organization_short_code}-{course_slug}'
+        if is_existing_slug(slug, course):
+            logger.info(
+                f"Bootcamp Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title"
+            )
+            course_slug = f"{slugify(course.title)}-{get_existing_slug_count(slug) + 1}"
+            slug = f"boot-camps/{primary_subject_slug}/{organization_short_code}-{course_slug}"
+        return slug, None
+
+    def create_slug_for_ocm():
+        """
+        Method to create subdirectory url slug for OCM courses
+        """
+        course_subjects = course.subjects.all()
+        if not course_subjects:
+            error = f"Course with uuid {course.uuid} and title {course.title} does not have any subject"
+            logger.info(error)
+            return None, error
+
+        primary_subject_slug = course_subjects[0].slug
+        course_slug = course.active_url_slug
+
+        # course slug is None for courses which are created from studio
+        if not course_slug:
+            course_slug = slugify(course.title)
+            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+            if is_existing_slug(slug, course):
+                logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+                course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
+        slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        return slug, None
+
+    if course.type.slug == CourseType.BOOTCAMP_2U:
+        return create_slug_for_bootcamps()
+
+    if course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
+        return create_slug_for_exec_ed()
+
+    return create_slug_for_ocm()
+
+
+def is_existing_slug(slug, course):
+    """
+    Given a slug and course it check if that slug exists for any other course in DB or not
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    all_course_historical_slugs_excluding_current = CourseUrlSlug.objects.filter(
+        url_slug=slug, partner=course.partner).exclude(course__uuid=course.uuid)
+    return all_course_historical_slugs_excluding_current.exists()
+
+
+def get_existing_slug_count(slug):
+    """
+    Given a slug it will return count of CourseUrlSlugs objects which is starting from it
+    """
+    # to avoid circular dependency
+    from course_discovery.apps.course_metadata.models import CourseUrlSlug  # pylint: disable=import-outside-toplevel
+    return CourseUrlSlug.objects.filter(url_slug__startswith=slug).count()
+
+
+def is_valid_uuid(val):
+    """
+    Given a value it will check if value is valid uuid or not
+    """
+    try:
+        uuid.UUID(str(val))
+        return True
+    except ValueError:
+        return False
+
+
+def validate_slug_format(url_slug, course):
+    """
+    Given a url_slug and course it will check if url_slug is valid or not based on
+    subdirectory_slug_flag and course_run_statuses
+
+    Args:
+        url_slug: url_slug to be validated
+        course: course object
+
+    Returns:
+        none if url_slug is valid else throws ValidationError
+    """
+    slug_pattern = None
+
+    DEFAULT_SLUG_PATTERN = {
+        'slug_format': SLUG_FORMAT_REGEX,
+        'error_msg': DEFAULT_SLUG_FORMAT_ERROR_MSG,
+    }
+
+    if IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED.is_enabled():
+        product_source = course.product_source.slug if course.product_source else None
+        product_source_product_type_url_slugs_dict = settings.COURSE_URL_SLUGS_PATTERN.get(product_source, {})
+        slug_pattern = product_source_product_type_url_slugs_dict.get(
+            course.type.slug,
+            product_source_product_type_url_slugs_dict.get('default', DEFAULT_SLUG_PATTERN)
+        )
+    else:
+        slug_pattern = DEFAULT_SLUG_PATTERN
+
+    if not re.match(slug_pattern['slug_format'], url_slug):
+        raise ValidationError(slug_pattern['error_msg'].format(url_slug=url_slug))
+
+
+def transform_dict_keys(data):
+    """
+    Given a data dictionary, return a new dict that has its keys transformed to
+    snake case. For example, Enrollment Track becomes enrollment_track.
+    Each key is stripped of whitespaces around the edges, converted to lower case,
+    and has internal spaces converted to _. This convention removes the dependency on CSV
+    headers format(Enrollment Track vs Enrollment track) and makes code flexible to ignore
+    any case sensitivity, among other things.
+    """
+    transformed_dict = {}
+    for key, value in data.items():
+        updated_key = key.strip().lower().replace(' ', '_')
+        transformed_dict[updated_key] = value
+
+    return transformed_dict
+
+
+def clear_slug_request_cache_for_course(course_uuid):
+    """
+    Clear request cache for both draft and non-draft entries to ensure data consistency.
+    """
+    active_url_cache = RequestCache("active_url_cache")
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=True))
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=False))
+
+
+def get_product_skill_names(product_identifier, product_type):
+    """
+    Util method to get list of skill names associated with a product (course/program).
+    """
+    product_skills = get_whitelisted_serialized_skills(product_identifier, product_type=product_type)
+    return list({product_skill['name'] for product_skill in product_skills})

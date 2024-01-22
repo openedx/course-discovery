@@ -6,7 +6,6 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Q
-from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -34,7 +33,7 @@ from course_discovery.apps.course_metadata.models import (
     Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
-    create_missing_entitlement, ensure_draft_world, validate_course_number
+    create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -156,9 +155,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 programs=programs,
             )
         if pub_q and edit_mode:
-            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by(Lower('key'))
+            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by('key')
 
-        return queryset.order_by(Lower('key'))
+        return queryset.order_by('key')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -314,7 +313,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         """ Updates an existing course from incoming data. """
         # logging to help debug error around course url slugs incrementing
         logger.info('The raw course data coming from publisher is {}.'.format(data))  # lint-amnesty, pylint: disable=logging-format-interpolation
-
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
@@ -351,6 +349,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.entitlements.exclude(mode__in=entitlement_types).delete()
             course.entitlements.set(entitlements)
 
+            # If entitlement has changed, get updated course object from DB that has new value for
+            # data modified timestamp.
+            if changed:
+                course.refresh_from_db()
+
         # Save video if a new video source is provided, also allow removing the video from course
         if video_data:
             video_url = video_data.get('src')
@@ -372,18 +375,18 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             img_name, img_data = decode_image_data(org_logo_override_image)
             course.organization_logo_override.save(img_name, img_data)
 
-        if data.get('collaborators'):
-            collaborators_uuids = data.get('collaborators')
-            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuids)
-            course.collaborators.add(*collaborators)
-
-        # If price didnt change, check the other fields on the course
+        # If price didn't change, check the other fields on the course
         # (besides image and video, they are popped off above)
-        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed_fields = reviewable_data_has_changed(
+            course,
+            serializer.validated_data.items(),
+            Course.STATUS_CHANGE_EXEMPT_FIELDS
+        )
         changed = changed or bool(changed_fields)
 
         if url_slug:
-            validators.validate_slug(url_slug)
+            validate_slug_format(url_slug, course)
+
             all_course_historical_slugs_excluding_present = CourseUrlSlug.objects.filter(
                 url_slug=url_slug, partner=course.partner).exclude(course__uuid=course.uuid)
             if all_course_historical_slugs_excluding_present.exists():
@@ -393,6 +396,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Then the course itself
         course = serializer.save()
+
         if url_slug:
             course.set_active_url_slug(url_slug)
             if course.official_version and (not draft or self._is_course_run_reviewed(course)):
@@ -511,8 +515,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = self.get_object()
         if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
-
-        return super().retrieve(request, *args, **kwargs)
+            course.refresh_from_db(fields=['entitlements'])
+        # Rather than call super().retrieve, we instantiate the serializer and return its
+        # data ourselves. This is to prevent duplicate calls (and hence duplicate queries)
+        # to self.get_object. Note that we have called get_object once already(see above).
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)
 
 
 class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
@@ -521,4 +529,4 @@ class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
     lookup_value_regex = COURSE_ID_REGEX
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithRecommendationsSerializer
-    queryset = serializers.MinimalCourseSerializer.prefetch_queryset()
+    queryset = Course.objects.all()

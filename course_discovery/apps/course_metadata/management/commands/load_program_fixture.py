@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.signals import (
     check_curriculum_for_cycles, check_curriculum_program_membership_for_cycles,
+    connect_course_data_modified_timestamp_signal_handlers, disconnect_course_data_modified_timestamp_signal_handlers,
     ensure_external_key_uniqueness__course_run, ensure_external_key_uniqueness__curriculum,
     ensure_external_key_uniqueness__curriculum_course_membership
 )
@@ -67,12 +68,14 @@ def disconnect_program_signals():
 
     for signal in signals_list:
         signal['action'].disconnect(signal['signal'], sender=signal['sender'])
+    disconnect_course_data_modified_timestamp_signal_handlers()
 
     try:
         yield
     finally:
         for signal in signals_list:
             signal['action'].connect(signal['signal'], sender=signal['sender'])
+        connect_course_data_modified_timestamp_signal_handlers()
 
 
 class Command(BaseCommand):

@@ -1,6 +1,5 @@
 """ API v1 URLs. """
-from django.conf.urls import include
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from rest_framework import routers
 
 from course_discovery.apps.api.v1.views import search as search_views
@@ -10,6 +9,7 @@ from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
 from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.comments import CommentViewSet
 from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSet
+from course_discovery.apps.api.v1.views.course_review import CourseReviewViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseRecommendationViewSet, CourseViewSet
 from course_discovery.apps.api.v1.views.currency import CurrencyView
@@ -49,6 +49,7 @@ router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'course_recommendations', CourseRecommendationViewSet, basename='course_recommendations')
 router.register(r'course_editors', CourseEditorViewSet, basename='course_editor')
+router.register(r'course_review', CourseReviewViewSet, basename='course-review')
 router.register(r'course_runs', CourseRunViewSet, basename='course_run')
 router.register(r'collaborators', CollaboratorViewSet, basename='collaborator')
 router.register(r'organizations', OrganizationViewSet, basename='organization')

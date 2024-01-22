@@ -18,6 +18,8 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
+from edx_django_utils.cache import RequestCache
+from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
 from slugify import slugify
 from taggit.models import Tag
@@ -30,6 +32,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
+from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX as slug_format
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
     AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseRunType, CourseType, Curriculum,
@@ -39,22 +42,41 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
+from course_discovery.apps.course_metadata.signals import (
+    connect_course_data_modified_timestamp_related_models, disconnect_course_data_modified_timestamp_related_models
+)
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
-    SeatTypeFactory, SourceFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, CourseUrlSlugFactory, ImageFactory,
+    OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
+from course_discovery.apps.course_metadata.toggles import (
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+
+LOGGER_PATH = 'course_discovery.apps.course_metadata.models'
 
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 @ddt.ddt
 class TestCourse(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
     def test_str(self):
         course = factories.CourseFactory()
         assert str(course), f'{course.key}: {course.title}'
@@ -76,25 +98,233 @@ class TestCourse(TestCase):
         course.image = None
         assert course.image_url == course.card_image_url
 
+    def test_validate_history_created_only_on_change(self):
+        """
+        Validate that course history object would be created if the object is changed otherwise not.
+        """
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory()
+        program = factories.ProgramFactory()
+
+        verified_type = factories.SeatTypeFactory.verified()
+        seat = factories.SeatFactory(course_run=course_run, type=verified_type, price=0, sku='ABCDEF')
+
+        entitlement_mode = SeatTypeFactory.verified()
+        entitlement = factories.CourseEntitlementFactory(course=course, mode=entitlement_mode, draft=True)
+
+        assert len(course.history.all()) == 1
+        assert len(course_run.history.all()) == 1
+        assert len(program.history.all()) == 1
+        assert len(seat.history.all()) == 1
+        assert len(entitlement.history.all()) == 1
+
+        entitlement.sku = 'ABCDEF'
+        entitlement.save()
+        assert len(entitlement.history.all()) == 2
+
+        seat.price = 10
+        seat.save()
+        assert len(seat.history.all()) == 2
+
+        course.title = 'Test course title'
+        course.save()
+        assert len(course.history.all()) == 2
+
+        course_run.title = 'Test course run title'
+        course_run.save()
+        assert len(course_run.history.all()) == 2
+
+        program.title = 'Test program title'
+        program.save()
+        assert len(program.history.all()) == 2
+
+        # explicitly calling save to validate the history is not created
+        course.save()
+        assert len(course.history.all()) == 2
+
+        course_run.save()
+        assert len(course_run.history.all()) == 2
+
+        program.save()
+        assert len(program.history.all()) == 2
+
+        seat.save()
+        assert len(seat.history.all()) == 2
+
+        entitlement.save()
+        assert len(entitlement.history.all()) == 2
+
+    def test_watchers(self):
+        """
+        Verify watchers field is properly set and returns correct list of watchers emails addresses
+        """
+        course = factories.CourseFactory()
+        assert course.watchers == []
+        assert len(course.watchers) == 0
+
+        course.watchers.append('test@test.com')
+        course.save()
+        course.refresh_from_db()
+        assert course.watchers == ['test@test.com']
+
+    @ddt.data(
+        (True, True),
+        (True, False),
+        (False, False),
+    )
+    @ddt.unpack
+    def test_automate_url_restructuring_for_bootcamps_with_feature_flag_state(
+        self, is_subdirectory_slug_format_enabled, is_subdirectory_slug_format_for_bootcamp_enabled
+    ):
+        """
+        Tests automate url slug restructuring for bootcamps must work under its relevant feature flag
+        """
+        bootcamp_type = CourseTypeFactory(slug=CourseType.BOOTCAMP_2U)
+        bootcamp_course_draft = CourseFactory(draft=True, type=bootcamp_type, organization_short_code_override='')
+        draft_course_run = CourseRunFactory(draft=True, course=bootcamp_course_draft)
+        subject = SubjectFactory(name='Subject1')
+        org = OrganizationFactory(name='organization1')
+        bootcamp_course_draft.subjects.add(subject)
+        bootcamp_course_draft.authoring_organizations.add(org)
+        bootcamp_course_draft.save()
+
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+        active_url_slug = draft_course_run.course.active_url_slug
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=is_subdirectory_slug_format_enabled):
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
+                                        active=is_subdirectory_slug_format_for_bootcamp_enabled):
+                draft_course_run.status = CourseRunStatus.LegalReview
+                draft_course_run.save()
+                course = draft_course_run.course
+                official_version = draft_course_run.update_or_create_official_version()
+                course.refresh_from_db()
+
+                if is_subdirectory_slug_format_for_bootcamp_enabled:
+                    assert course.active_url_slug.startswith('boot-camps/')
+                    assert course.active_url_slug == f'boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}'
+                    assert official_version.course.active_url_slug.startswith('boot-camps/')
+                    assert (
+                        official_version.course.active_url_slug ==
+                        f'boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}'
+                    )
+                else:
+                    assert not course.active_url_slug.startswith('boot-camps/')
+                    assert course.active_url_slug == f'{active_url_slug}'
+                    assert not official_version.course.active_url_slug.startswith('boot-camps/')
+                    assert official_version.course.active_url_slug == f'{active_url_slug}'
+
+    def test_automate_url_restructuring_for_missing_active_url_slug(self):
+        """
+        Tests automate url slug restructuring generates slug for studio created courses.
+
+        Studio generated courses do not get a default slug generated using course title. Due to that, active_url_slug
+        is None for such courses.
+        """
+        source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        course_draft = CourseFactory(draft=True, type=audit_type, product_source=source)
+
+        # Delete the random slug created by Factory
+        course_draft.url_slug_history.all().delete()
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+        subject = SubjectFactory(name='Subject1')
+        org = OrganizationFactory(name='organization1')
+        course_draft.subjects.add(subject)
+        course_draft.authoring_organizations.add(org)
+        course_draft.save()
+
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+        assert draft_course_run.course.active_url_slug is None
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            draft_course_run.status = CourseRunStatus.LegalReview
+            draft_course_run.save()
+            course = draft_course_run.course
+            official_version = draft_course_run.update_or_create_official_version()
+            course.refresh_from_db()
+            assert course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
+            assert official_version.course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
+
+    @ddt.data(
+        ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),
+        # pylint: disable=line-too-long
+        ('https://www.example.com', 'learn/primary-subject/organization-title-course-title', 'https://www.example.com/learn/primary-subject/organization-title-course-title'),
+    )
+    @ddt.unpack
+    def test_marketing_url(self, marketing_site_url_root, active_url_slug, expected_url):
+        """
+        Verify marketing_url property returns the correct URL format for courses
+        """
+        partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit', is_marketable=True)
+        source = SourceFactory(slug='edx')
+        course = factories.CourseFactory(partner=partner, product_source=source, additional_metadata=None)
+        _ = CourseRunFactory(
+            status='published',
+            course=course,
+            type=verified_and_audit_type
+        )
+        course.set_active_url_slug(active_url_slug)
+        assert course.marketing_url == expected_url
+
+    @ddt.data(
+        ('https://www.example.com', 'test-slug', 'https://www.example.com/preview/course/test-slug'),
+        (
+            'https://www.example.com',
+            'learn/primary-subject/organization-title-course-title',
+            'https://www.example.com/preview/learn/primary-subject/organization-title-course-title'
+        ),
+    )
+    @ddt.unpack
+    def test_preview_url(self, marketing_site_url_root, active_url_slug, expected_url):
+        """
+        Verify preview_url property returns the correct URL format for courses
+        """
+        partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit', is_marketable=True)
+        source = SourceFactory(slug='edx')
+        course = factories.CourseFactory(partner=partner, product_source=source, additional_metadata=None)
+        _ = CourseRunFactory(
+            status='reviewed',
+            course=course,
+            type=verified_and_audit_type
+        )
+        course.set_active_url_slug(active_url_slug)
+        assert course.preview_url == expected_url
+
     def test_data_modified_timestamp_model_field_change(self):
         """
         Verify data modified timestamp changes on direct course model field changes.
         """
-        course = factories.CourseFactory()
+        course = factories.CourseFactory(draft=True)
         data_modified_timestamp = course.data_modified_timestamp
         course.short_description = 'Testing change'
         course.save()
         assert data_modified_timestamp < course.data_modified_timestamp
+
+    def test_data_modified_timestamp_model_non_draft(self):
+        """
+        Verify data modified timestamp does not change for non-draft course change.
+        """
+        course = factories.CourseFactory(draft=False)
+        data_modified_timestamp = course.data_modified_timestamp
+        course.short_description = 'Testing change'
+        course.save()
+        assert data_modified_timestamp == course.data_modified_timestamp
 
     def test_data_modified_timestamp_model_related_field_change(self):
         """
         Verify data modified timestamp changes on related field changes in Course model.
         """
         course = factories.CourseFactory(
+            draft=True,
             additional_metadata=AdditionalMetadataFactory(external_identifier='identifier_1')
         )
         data_modified_timestamp = course.data_modified_timestamp
-        course.additional_metadata.product_status = 'Archived'
+        course.additional_metadata = AdditionalMetadataFactory(external_identifier='identifier_2')
         course.save()
         assert data_modified_timestamp < course.data_modified_timestamp
 
@@ -257,8 +487,8 @@ class TestCourse(TestCase):
         assert course.additional_metadata.end_date == additional_metadata.end_date
         assert course.additional_metadata.product_status == ExternalProductStatus.Published
 
-    def test_enterprise_subscription_inclusion(self):
-        """ Verify the enterprise inclusion boolean is calculated as expected. """
+    def test_enterprise_subscription_inclusion__authoring_organizations(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on authoring orgs inclusion."""
         org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org_list = [org1, org2]
@@ -274,6 +504,182 @@ class TestCourse(TestCase):
             authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
         )
         assert course1.enterprise_subscription_inclusion is False
+
+    @ddt.data(
+        (CourseType.VERIFIED_AUDIT, True),
+        (CourseType.AUDIT, True),
+        (CourseType.PROFESSIONAL, True),
+        (CourseType.EMPTY, True),
+        ('verified', True),
+        (CourseType.CREDIT_VERIFIED_AUDIT, True),
+        (CourseType.BOOTCAMP_2U, False),
+        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+    )
+    @ddt.unpack
+    def test_enterprise_subscription_inclusion__course_type(self, course_type_slug, expected_inclusion_value):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on allowed course types."""
+        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseTypeFactory(slug=course_type_slug)
+        course = factories.CourseFactory(
+            authoring_organizations=[org1], enterprise_subscription_inclusion=None, type=course_type,
+        )
+        assert course.enterprise_subscription_inclusion is expected_inclusion_value
+
+    def test_set_active_url_slug__draft_only(self):
+        """
+        Verify the behavior of set_active_url_slug when called by a draft course.
+        """
+        course = CourseFactory(draft=True, title="Test course")
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        # Delete the random slug created by Factory
+        course.url_slug_history.all().delete()
+        with LogCapture(LOGGER_PATH) as logger:
+            course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        course.refresh_from_db()
+        assert course.active_url_slug == "new_slug"
+        assert list(course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        # Setting the same slug does not update data modified timestamp
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        course.set_active_url_slug("new_slug")
+        course.refresh_from_db()
+        assert course.active_url_slug == "new_slug"
+        assert list(course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
+
+    def test_set_active_url_slug__draft_with_official_version(self):
+        """
+        Verify the behavior of set_active_url_slug when called by a draft course that has a non-draft version.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as logger:
+            draft_course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        assert draft_course.active_url_slug == "new_slug"
+        assert non_draft_course.active_url_slug is None
+        assert list(draft_course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+    def test_set_active_url_slug__draft_with_official_version_matching_slug(self):
+        """
+        Verify that if the slug to be updated is present in non-draft history, the active slug on draft is
+        deleted and active_slug for draft is read from non-draft course slug history.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
+        CourseUrlSlugFactory(course=draft_course, is_active=True, is_active_on_draft=True, url_slug='test-course')
+        CourseUrlSlugFactory(course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1')
+        non_draft_slug_obj = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=False, is_active_on_draft=False, url_slug='new_slug'
+        )
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as logger:
+            draft_course.set_active_url_slug("new_slug")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course; The slug to be set is new_slug; Current course is a draft: True"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        non_draft_slug_obj.refresh_from_db()
+        assert draft_course.active_url_slug == 'new_slug'
+        assert non_draft_course.active_url_slug == 'slug1'
+        assert non_draft_slug_obj.is_active_on_draft
+        assert not non_draft_slug_obj.is_active
+        assert not list(draft_course.url_slug_history.all().values_list('url_slug'))
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+    def test_set_active_url_slug__official_version(self):
+        """
+        Verify the behavior of set_active_url_slug when called on a non-draft version of Course.
+        """
+        draft_course = CourseFactory(draft=True, title="Test course")
+        non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        draft_course.url_slug_history.all().delete()
+        non_draft_course.url_slug_history.all().delete()
+
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        CourseUrlSlugFactory(course=draft_course, is_active=True, url_slug='test-course')
+        non_draft_slug_obj_1 = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1'
+        )
+        non_draft_slug_obj_2 = CourseUrlSlugFactory(
+            course=non_draft_course, is_active=False, is_active_on_draft=True, url_slug='slug2'
+        )
+        with LogCapture(LOGGER_PATH) as logger:
+            non_draft_course.set_active_url_slug("slug3")
+        logger.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                "The current slug is test-course-2; The slug to be set is slug3; Current course is a draft: False"
+            )
+        )
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+        non_draft_slug_obj_1.refresh_from_db()
+        non_draft_slug_obj_2.refresh_from_db()
+        assert draft_course.active_url_slug == 'slug3'  # new slug obj sets is_active_on_draft=True
+        assert non_draft_course.active_url_slug == 'slug3'
+        # A new slug object is created for new slug
+        assert non_draft_course.url_slug_history.count() == 3
+
+        # The other slugs in history are no longer active
+        assert not non_draft_slug_obj_1.is_active_on_draft
+        assert not non_draft_slug_obj_1.is_active
+        assert not non_draft_slug_obj_2.is_active_on_draft
+        assert not non_draft_slug_obj_2.is_active
+        assert not list(draft_course.url_slug_history.all().values_list('url_slug'))
+
+        assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+
+        # Setting the same slug does not create any new objects in history
+        draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
+        non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        non_draft_course.set_active_url_slug("slug3")
+        draft_course.refresh_from_db()
+        non_draft_course.refresh_from_db()
+
+        assert non_draft_course.url_slug_history.count() == 3
+        assert draft_previous_data_modified_timestamp == draft_course.data_modified_timestamp
+        assert non_draft_previous_data_modified_timestamp == non_draft_course.data_modified_timestamp
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
@@ -478,6 +884,16 @@ class TestCourseEditor(TestCase):
 @ddt.ddt
 class CourseRunTests(OAuth2Mixin, TestCase):
     """ Tests for the `CourseRun` model. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
 
     def setUp(self):
         """
@@ -887,6 +1303,85 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                 assert run.announcement is None
                 assert mock_email.call_count == 1
 
+    @ddt.data(
+        datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+        datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=20),
+    )
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
+    def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_is_published(
+        self, when, mock_course_url_email, mock_email
+    ):
+        """
+        Test that watchers are emailed when a course is published
+        """
+        draft_course_run = factories.CourseRunFactory(
+            draft=True,
+            go_live_date=when,
+            announcement=None,
+        )
+        end = when + datetime.timedelta(days=50)
+        draft_course_run.end = end
+        draft_course_run.enrollment_end = end
+        draft_course_run.course.draft = True
+        draft_course_run.course.watchers = [
+            'test@test.com',
+        ]
+        draft_course_run.course.save()
+
+        assert draft_course_run.official_version is None
+
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.refresh_from_db()
+        official_version = CourseRun.objects.get(key=draft_course_run.key)
+
+        for run in [draft_course_run, official_version]:
+            assert run.status == CourseRunStatus.Published
+            assert run.announcement is not None
+            assert mock_course_url_email.call_count == 1
+            assert mock_email.call_count == 0
+
+    @ddt.data(
+        datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+        datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=20),
+    )
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
+    def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_run_is_scheduled(
+        self, when, mock_course_url_email, mock_email
+    ):
+        """
+        Test that watchers are emailed when a course is reviewed
+        """
+        draft_course_run = factories.CourseRunFactory(
+            draft=True,
+            go_live_date=when,
+            announcement=None,
+        )
+        end = when + datetime.timedelta(days=50) if when else None
+        if end:  # Both end and enrollment_end need to be in the future or else runs will be set to unpublished
+            draft_course_run.end = end
+            draft_course_run.enrollment_end = end
+        draft_course_run.course.draft = True
+        draft_course_run.course.watchers = [
+            'test@test.com',
+        ]
+        draft_course_run.course.save()
+
+        assert draft_course_run.official_version is None
+
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.refresh_from_db()
+        official_version = CourseRun.objects.get(key=draft_course_run.key)
+
+        for run in [draft_course_run, official_version]:
+            assert run.status == CourseRunStatus.Reviewed
+            assert run.announcement is None
+            assert mock_email.call_count == 1
+            assert mock_course_url_email.call_count == 1
+
     def test_publish_ignores_draft_input(self):
         draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=True)
         assert not draft.publish()
@@ -1020,6 +1515,22 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         factories.SeatFactory.create(course_run=course_run)
         assert course_run.is_marketable == expected
         assert course_run.could_be_marketable == expected
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if a course run has any updates since last save, the modified timestamp will be updated
+        for Course.
+        """
+        course_run = CourseRunFactory(draft=True, max_effort=9)
+        course_timestamp = course_run.course.data_modified_timestamp
+        course_run.max_effort = 10
+        course_run.update_product_data_modified_timestamp()
+        assert course_timestamp < course_run.course.data_modified_timestamp
+        course_run.save()
+
+        course_timestamp = course_run.course.data_modified_timestamp
+        course_run.update_product_data_modified_timestamp()
+        assert course_timestamp == course_run.course.data_modified_timestamp
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -1327,6 +1838,16 @@ class OrganizationTests(TestCase):
 
         assert len(Organization.user_organizations(user)) == 1
 
+    def test_data_modified_timestamp_model_field_change(self):
+        """
+        Verify data modified timestamp changes on direct organization model field changes.
+        """
+        org = factories.OrganizationFactory(name='test org')
+        data_modified_timestamp = org.data_modified_timestamp
+        org.description = 'test description'
+        org.save()
+        assert data_modified_timestamp < org.data_modified_timestamp
+
     def test_org_enterprise_subscription_inclusion_toggle_course(self):
         """Test that toggling an org's enterprise_subscription_inclusion value will turn courses in the org on"""
         org = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
@@ -1573,6 +2094,309 @@ class AbstractValueModelTests(TestCase):
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
         assert str(instance) == value
+
+
+class CertificateInfoTests(TestCase):
+    """ Tests for CertificateInfo. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_str(self):
+        heading = 'test heading'
+        blurb = '<p>test blurb<p>'
+
+        instance = factories.CertificateInfoFactory(heading='', blurb=blurb)
+        assert str(instance) == blurb
+
+        instance = factories.CertificateInfoFactory(heading=heading, blurb=blurb)
+        assert str(instance) == heading
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if CertInfo is changed since last save, the data modified timestamp for related course of
+        additional metadata will be updated.
+        """
+        cert_info = factories.CertificateInfoFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                certificate_info=cert_info
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        cert_info.heading = 'updated heading'
+        cert_info.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        cert_info.save()
+        course_timestamp = course.data_modified_timestamp
+        cert_info.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class ProductMetaTests(TestCase):
+    """ Tests for ProductMeta. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if ProductMeta is changed since last save, the data modified timestamp for related course of
+        additional metadata will be updated.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        product_meta.title = 'updated heading'
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp()
+
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
+
+        product_meta.save()
+        course_timestamp = course.data_modified_timestamp
+        product_meta.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if ProductMeta update_product_data_modified_timestamp is called with bypass_has_changed,
+        the course timestamp is updated, bypassing has_changed requirements.
+        """
+        product_meta = factories.ProductMetaFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=factories.AdditionalMetadataFactory(
+                product_meta=product_meta
+            )
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            product_meta.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
+                f"Updating timestamp for related courses."
+            )
+        )
+
+
+class ProductValueTests(TestCase):
+    """ Tests for ProductValue. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if ProductValue is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        product_value = factories.ProductValueFactory(per_lead_usa=50)
+        course = factories.CourseFactory(
+            draft=True,
+            in_year_value=product_value
+        )
+        course_timestamp = course.data_modified_timestamp
+        product_value.per_lead_usa = 100
+        product_value.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        product_value.save()
+        course_timestamp = course.data_modified_timestamp
+        product_value.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+    def test_defaults(self):
+        product_value = factories.ProductValue()
+        assert product_value.per_click_international == product_value.per_click_usa == 5
+        assert product_value.per_lead_international == product_value.per_lead_usa == 0
+
+
+class GeoLocationTests(TestCase):
+    """ Tests for GeoLocation. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if GeoLocation is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        geoloc = factories.GeoLocationFactory(location_name='loc 1')
+        course = factories.CourseFactory(
+            draft=True,
+            geolocation=geoloc
+        )
+        course_timestamp = course.data_modified_timestamp
+        geoloc.location_name = 'location 2'
+        geoloc.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        geoloc.save()
+        course_timestamp = course.data_modified_timestamp
+        geoloc.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class CourseLocationRestrictionTests(TestCase):
+    """ Tests for CourseLocationRestriction. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if CourseLocationRestriction is changed since last save, the data modified timestamp
+        for related course will be updated.
+        """
+        location_restriction = factories.CourseLocationRestrictionFactory(restriction_type='allowlist')
+        course = factories.CourseFactory(
+            draft=True,
+            location_restriction=location_restriction
+        )
+        course_timestamp = course.data_modified_timestamp
+        location_restriction.restriction_type = 'blacklist'
+        location_restriction.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+
+        location_restriction.save()
+        course_timestamp = course.data_modified_timestamp
+        location_restriction.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+
+class AdditionalMetadataTests(TestCase):
+    """ Tests for AdditionalMetadata. """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if AdditionalMetadata is changed since last save, the data modified timestamp for related course
+         will be updated.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        course_timestamp = course.data_modified_timestamp
+        additional_metadata.course_term_override = 'Programme'
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
+
+        additional_metadata.save()
+        course_timestamp = course.data_modified_timestamp
+        additional_metadata.update_product_data_modified_timestamp()
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp__bypass_has_changed(self):
+        """
+        Verify that if AdditionalMetadata update_product_data_modified_timestamp is called with bypass_has_changed,
+        the related course timestamp is updated, bypassing has_changed requirements.
+        """
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(
+            draft=True,
+            additional_metadata=additional_metadata
+        )
+        course_timestamp = course.data_modified_timestamp
+        with LogCapture(LOGGER_PATH) as log:
+            additional_metadata.update_product_data_modified_timestamp(bypass_has_changed=True)
+        course.refresh_from_db()
+        assert course_timestamp < course.data_modified_timestamp
+        log.check_present(
+            (
+                LOGGER_PATH,
+                'INFO',
+                f"AdditionalMetadata update_product_data_modified_timestamp triggered "
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+            )
+        )
 
 
 class AbstractTitleDescriptionModelTests(TestCase):
@@ -2006,6 +2830,12 @@ class ProgramTests(TestCase):
         self.program.marketing_slug = ''
         assert self.program.marketing_url is None
 
+    def test_marketing_url__with_slashes(self):
+        """ Verify the property returns marketing url as it is if marketing_slug contains a slash"""
+        self.program.marketing_slug = 'type/subject/org-title'
+        assert self.program.marketing_url == f"{self.program.partner.marketing_site_url_root}" \
+                                             f"{self.program.marketing_slug}"
+
     def test_course_runs(self):
         """
         Verify that we only fetch course runs for the program, and not other course runs for other programs.
@@ -2064,6 +2894,59 @@ class ProgramTests(TestCase):
         actual_languages = self.program.languages
         assert len(actual_languages) > 0
         assert actual_languages == expected_languages
+
+    def test_auto_generate_program_slug_if_not_provided(self):
+        """
+        Verify that program slug is autogenerated if not populated while creation
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        program = ProgramFactory(title='test-program', authoring_organizations=organizations, type=program_type)
+        assert program.marketing_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
+
+    def test_program_slug_can_be_updated_once_autogenerated(self):
+        """
+        Verify that program slug can be updated after autogenerated
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        program = ProgramFactory(title='test-program', authoring_organizations=organizations, type=program_type)
+        assert program.marketing_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
+
+        new_slug = program.marketing_slug + 'test-string'
+        program.marketing_slug = new_slug
+        program.save()
+
+        assert program.marketing_slug == new_slug
+
+    def test_program_slug_not_autogenerated_if_in_subdirectory_format(self):
+        """
+        Verify that program slug can not be autogenerated if provided in sub-directory format.
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        slug = 'category/subcategory/test-slug'
+        program = ProgramFactory(
+            title='test-program', authoring_organizations=organizations, type=program_type, marketing_slug=slug
+        )
+        assert program.marketing_slug == slug
+
+    def test_program_slug_autogenerated_if_not_in_subdirectory_format(self):
+        """
+        Verify that program slug can be autogenerated if not provided in sub-directory format.
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        slug = 'test-slug'
+        program = ProgramFactory(
+            title='test-program', authoring_organizations=organizations, type=program_type, marketing_slug=slug
+        )
+        assert program.marketing_slug != slug
+        expected_slug = f'{program.type.slug}/{program.authoring_organizations.first().slug}-{program.title}'
+        assert program.marketing_slug == expected_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
 
     def test_data_modified_timestamp_change_model_field(self):
         """
@@ -2605,6 +3488,15 @@ class ProgramTypeTests(TestCase):
 
 class CourseEntitlementTests(TestCase):
     """ Tests of the CourseEntitlement model. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
 
     def setUp(self):
         super().setUp()
@@ -2618,6 +3510,23 @@ class CourseEntitlementTests(TestCase):
         factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
         with pytest.raises(IntegrityError):
             factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
+
+    def test_update_product_data_modified_timestamp(self):
+        """
+        Verify that if draft entitlement is changed since last save, the data modified timestamp for related course
+        will be updated.
+        """
+        course = factories.CourseFactory(draft=True)
+        entitlement = factories.CourseEntitlementFactory(course=course, mode=self.mode, draft=True, price=50)
+        course_timestamp = course.data_modified_timestamp
+        entitlement.price = 100
+        entitlement.update_product_data_modified_timestamp()
+        assert course_timestamp < course.data_modified_timestamp
+
+        entitlement.save()
+        course_timestamp = course.data_modified_timestamp
+        entitlement.update_product_data_modified_timestamp()
+        assert course_timestamp == course.data_modified_timestamp
 
 
 class EndorsementTests(TestCase):

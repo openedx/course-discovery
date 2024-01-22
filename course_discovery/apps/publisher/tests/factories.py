@@ -25,7 +25,7 @@ class UserAttributeFactory(factory.django.DjangoModelFactory):
 class OrganizationUserRoleFactory(factory.django.DjangoModelFactory):
     organization = factory.SubFactory(factories.OrganizationFactory)
     user = factory.SubFactory(UserFactory)
-    role = FuzzyChoice(InternalUserRole.values.keys())
+    role = FuzzyChoice(dict(InternalUserRole.choices).keys())
 
     class Meta:
         model = OrganizationUserRole

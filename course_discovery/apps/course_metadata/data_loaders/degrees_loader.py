@@ -11,6 +11,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     DEGREE_LOADER_ERROR_LOG_SEQUENCE, DegreeCSVIngestionErrorMessages, DegreeCSVIngestionErrors
 )
+from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType, Source,
@@ -24,10 +25,10 @@ logger = logging.getLogger(__name__)
 class DegreeCSVDataLoader(AbstractDataLoader):
     """ Loads the degrees from the csv file """
 
-    DEGREE_REQUIRED_DATA_FIELDS = [
+    DEGREE_REQUIRED_FIELDS = [
         'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
         'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
-        'identifier', 'overview', 'courses',
+        'identifier', 'overview',
     ]
 
     # Define the error type and error messages for various required data models for Degree ingestion
@@ -82,7 +83,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         try:
             if args_from_env:
                 # TODO: add unit tests
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][self.product_source.slug]
                 gspread_client = GspreadClient()
                 self.reader = gspread_client.read_data(product_type_config)
             else:
@@ -119,7 +120,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
-            org = self._get_object(Organization, "key", row['organization_key'], degree_slug)
+            org_key = map_external_org_code_to_internal_org_code(row['organization_key'], self.product_source.slug)
+            org = self._get_object(Organization, "key", org_key, degree_slug)
             program_type = self._get_object(ProgramType, "slug", program_type, degree_slug)
             primary_subject_override = self._get_object(
                 Subject, "translations__name",
@@ -137,14 +139,15 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             if not (org and program_type and primary_subject_override and level_type_override and language_override):
                 continue
 
-            # get degree object from slug and external_identifier
+            # get degree object from external_identifier and product source
             degree = Degree.objects.filter(
-                marketing_slug=degree_slug, partner=self.partner,
-                additional_metadata__external_identifier=row['identifier']
+                partner=self.partner,
+                additional_metadata__external_identifier=row['identifier'],
+                product_source=self.product_source
             ).first()
 
-            logger.info("Degree {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree_slug,
+            logger.info("Degree with external identifier {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
+                row['identifier'],
                 "is" if degree else "is not",
                 "Creating new" if not degree else "Updating existing"
             ))
@@ -190,8 +193,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         data dictionary and return a comma separated string of missing data fields.
         """
         missing_fields = []
-
-        for field in self.DEGREE_REQUIRED_DATA_FIELDS:
+        degree_variants = settings.DEGREE_VARIANTS_FIELD_MAP.copy()
+        source_fields = self.DEGREE_REQUIRED_FIELDS + degree_variants.get(self.product_source.slug, [])
+        for field in source_fields:
             if not (field in data and data[field]):
                 missing_fields.append(field)
 
@@ -273,14 +277,18 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "overview": data['overview'],
             "organization_short_code_override": data.get('organization_short_code_override', ''),
             "partner": self.partner,
-            "product_source": self.product_source
-
+            "product_source": self.product_source,
+            "marketing_slug": data['slug'],
         }
+
         degree, created = Degree.objects.update_or_create(
-            marketing_slug=data['slug'],
             additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
         )
+
+        if degree.product_source and \
+                degree.product_source.ofac_restricted_program_types.filter(id=program_type.id).exists():
+            degree.mark_ofac_restricted()
 
         logger.info("Degree with slug {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             degree.marketing_slug,

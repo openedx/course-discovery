@@ -3,9 +3,10 @@ import json
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, ProgramSerializer
+from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
@@ -29,8 +30,7 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
         return [json.loads(organization) for organization in organizations] if organizations else []
 
     def get_skill_names(self, program):
-        program_skills = get_whitelisted_product_skills(program.uuid, product_type=ProductTypes.Program)
-        return list(set(program_skill.skill.name for program_skill in program_skills))
+        return get_product_skill_names(program.uuid, ProductTypes.Program)
 
     def get_skills(self, program):
         return get_whitelisted_serialized_skills(program.uuid, product_type=ProductTypes.Program)
