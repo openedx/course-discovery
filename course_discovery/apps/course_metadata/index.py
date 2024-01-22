@@ -131,7 +131,7 @@ class SpanishProductIndex(BaseProductIndex):
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys', 'product_source',
                      'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
-                    ('active_languages', 'language'), ('product_type', 'product'), 
+                    ('active_languages', 'language'), ('product_type', 'product'),
                     ('program_types', 'program_type'), ('product_weeks_to_complete', 'weeks_to_complete'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'), 'subscription_eligible',
