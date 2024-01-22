@@ -133,7 +133,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 removed_course_keys = local_course_keys - self.loaded_course_keys
 
                 if removed_course_keys:
-                    delete_expired_courses(removed_course_keys)
+                    delete_expired_courses(self.partner, removed_course_keys)
 
             else:
                 logger.error(
