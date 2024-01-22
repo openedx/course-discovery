@@ -78,6 +78,7 @@ class EnglishProductIndex(BaseProductIndex):
                      'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
+                    ('product_weeks_to_complete', 'weeks_to_complete'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'), 'subscription_eligible',
                     'subscription_prices')
@@ -87,7 +88,7 @@ class EnglishProductIndex(BaseProductIndex):
                       ('product_value_per_lead_usa', 'value_per_lead_usa'),
                       ('product_value_per_lead_international', 'value_per_lead_international'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_uuid', 'uuid'),
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
@@ -128,7 +129,8 @@ class SpanishProductIndex(BaseProductIndex):
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys', 'product_source',
                      'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
-                    ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
+                    ('active_languages', 'language'), ('product_type', 'product'), 
+                    ('program_types', 'program_type'), ('product_weeks_to_complete', 'weeks_to_complete'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'), 'subscription_eligible',
                     'subscription_prices',)
@@ -139,7 +141,7 @@ class SpanishProductIndex(BaseProductIndex):
                       ('product_value_per_lead_international', 'value_per_lead_international'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_uuid', 'uuid'),
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),

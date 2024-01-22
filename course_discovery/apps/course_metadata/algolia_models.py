@@ -59,11 +59,11 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'product_source', 'primary_description',
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
-                    'product_allowed_in', 'product_blocked_in']
+                    'product_allowed_in', 'product_blocked_in', 'product_weeks_to_complete']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
-    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
+    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
