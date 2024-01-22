@@ -76,10 +76,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
+        setattr(self, 'course_count', 0)
+        setattr(self, 'loaded_course_keys', set())
         response = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
         self._process_response(response)
+
+        if not self.course_count:
+            self.course_count = count
 
         pagerange = range(initial_page + 1, pages + 1)
 
@@ -107,6 +112,35 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
         self.delete_orphans()
+        self.delete_expired_courses()
+
+    @property
+    def is_loading_all_courses(self):
+        return not self.modified_x_min_ago
+
+    def delete_expired_courses(self):
+        if self.is_loading_all_courses:
+            logger.info(
+                '*** Maintaining course list...... ( Cached Course number={}, Loaded Course number={} )'.format(
+                    len(self.loaded_course_keys), self.course_count
+                )
+            )
+
+            from course_discovery.apps.core.utils import delete_expired_courses
+
+            if len(self.loaded_course_keys) == self.course_count:
+                local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
+                removed_course_keys = local_course_keys - self.loaded_course_keys
+
+                if removed_course_keys:
+                    delete_expired_courses(removed_course_keys)
+
+            else:
+                logger.error(
+                    '*** Integrity Error of loaded course keys ( Loaded Number({}) != Expect Number({}) )'.format(
+                        len(self.loaded_course_keys), self.course_count
+                    )
+                )
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -138,7 +172,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         results = response['results']
 
         logger.info(
-            'Retrieved {} {}...'.format(len(results), 'Course runs')
+            'Retrieved {} {}...'.format(len(results), 'Course Keys' if self.is_loading_all_courses else 'Course runs')
         )
 
         for body in results:
