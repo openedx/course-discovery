@@ -1517,6 +1517,12 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         and then need to update the boolean in the record based on conditional logic
         """
         self.update_data_modified_timestamp()
+
+        # Temporary logging to debug some data inconsistencies between draft and non-draft versions
+        # The 14 corresponds to exec-ed-2u courses.
+        if self.type_id == 14:
+            logger.info(f"Gonna be saving a course with uuid={self.uuid} draft={self.draft} timestamp={self.data_modified_timestamp}", stack_info=True)
+
         super().save(*args, **kwargs)
         self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
         kwargs['force_insert'] = False
