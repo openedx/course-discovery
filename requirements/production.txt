@@ -312,7 +312,7 @@ edx-django-utils==5.10.1
     #   taxonomy-connector
 edx-drf-extensions==9.1.2
     # via -r requirements/base.in
-edx-event-bus-kafka==5.5.0
+edx-event-bus-kafka==5.6.0
     # via -r requirements/base.in
 edx-event-bus-redis==0.3.2
     # via -r requirements/base.in
@@ -447,7 +447,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.0
     # via -r requirements/base.in
-openedx-events==9.2.0
+openedx-events==9.3.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
