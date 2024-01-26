@@ -702,7 +702,7 @@ class LimitedAggregateSearchViewSetTests(
         course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(3):
             response = self.client.get(self.path)
         assert response.status_code == 200
         response_data = response.json()
