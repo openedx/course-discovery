@@ -3386,6 +3386,27 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
                 yield canonical_course_run
 
     @property
+    def course_run_statuses(self):
+        """
+        Returns all unique course run status values inside the courses in this program.
+
+        Note that it skips hidden courses - this list is typically used for presentational purposes.
+        The code performs the filtering on Python level instead of ORM/SQL because filtering on course_runs
+        invalidates the prefetch on API level.
+        """
+        statuses = set()
+        now = datetime.datetime.now(pytz.UTC)
+        for course in self.courses.all():
+            for course_run in course.course_runs.all():
+                if course_run.hidden:
+                    continue
+                if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
+                    statuses.add('archived')
+                else:
+                    statuses.add(course_run.status)
+        return sorted(list(statuses))
+
+    @property
     def languages(self):
         return {course_run.language for course_run in self.course_runs if course_run.language is not None}
 
@@ -4120,6 +4141,28 @@ class Pathway(TimeStampedModel):
         if bad_programs:
             msg = _('These programs are for a different partner than the pathway itself: {}')
             raise ValidationError(msg.format(', '.join(bad_programs)))
+
+    @property
+    def course_run_statuses(self):
+        """
+        Returns all unique course run status values inside the programs in this pathway.
+
+        Note that it skips hidden courses - this list is typically used for presentational purposes.
+        The code performs the filtering on Python level instead of ORM/SQL because filtering on course_runs
+        invalidates the prefetch on API level.
+        """
+        statuses = set()
+        now = datetime.datetime.now(pytz.UTC)
+        for program in self.programs.all():
+            for course in program.courses.all():
+                for course_run in course.course_runs.all():
+                    if course_run.hidden:
+                        continue
+                    if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
+                        statuses.add('archived')
+                    else:
+                        statuses.add(course_run.status)
+        return sorted(list(statuses))
 
 
 class PersonSocialNetwork(TimeStampedModel):

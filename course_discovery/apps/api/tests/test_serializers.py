@@ -148,7 +148,6 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
         }
 
     def test_data(self):
-        self.maxDiff = None
         request = make_request()
         organizations = OrganizationFactory(partner=self.partner)
         course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
@@ -1166,6 +1165,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'skills': [],
             'subscription_eligible': None,
             'subscription_prices': [],
+            'course_run_statuses': ['published'],
         })
         return expected
 
@@ -1424,6 +1424,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_micromasters_path = url.sub('', degree.micromasters_url)
 
         # Tack in degree data
+        expected['course_run_statuses'] = []
         expected['curricula'] = [expected_curriculum]
         expected['degree'] = {
             'application_requirements': degree.application_requirements,
@@ -2887,8 +2888,6 @@ class CollaboratorSerializerTests(TestCase):
     serializer_class = CollaboratorSerializer
 
     def test_data(self):
-        self.maxDiff = None
-
         request = make_request()
 
         image_field = StdImageSerializerField()
@@ -2953,7 +2952,6 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
         }
 
     def test_course_with_recommendations(self):
-        self.maxDiff = None
         request = make_request()
         context = {'request': request}
         organization = OrganizationFactory(partner=self.partner)
