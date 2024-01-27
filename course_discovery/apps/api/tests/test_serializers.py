@@ -1489,7 +1489,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         self.assertIsNotNone(serializer.data['subscription_prices'])
 
 
-class PathwaySerialzerTests(TestCase):
+class PathwaySerializerTest(TestCase):
     def test_data(self):
         pathway = PathwayFactory()
         serializer = PathwaySerializer(pathway)
@@ -1504,6 +1504,7 @@ class PathwaySerialzerTests(TestCase):
             'description': pathway.description,
             'destination_url': pathway.destination_url,
             'pathway_type': pathway.pathway_type,
+            'course_run_statuses': [],
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -2672,6 +2673,7 @@ class TestProgramSearchDocumentSerializer(TestCase):
                                  credit_backing_organizations=[crediting_organization])
         serializer = self.serialize_program(program, self.request)
         expected = self.get_expected_data(program, self.request)
+        # expected['course_run_statuses'] = []
         assert serializer.data == expected
 
     def test_data_without_organizations(self):
@@ -2692,6 +2694,8 @@ class TestProgramSearchDocumentSerializer(TestCase):
         program = ProgramFactory(courses=[course_run.course])
         serializer = self.serialize_program(program, self.request)
         expected = self.get_expected_data(program, self.request)
+        if serializer.data.get('course_run_statuses'):
+            expected['course_run_statuses'] = ['published']
         assert serializer.data == expected
         if 'language' in expected:
             assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
@@ -2707,6 +2711,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
         expected = ProgramSerializerTests.get_expected_data(program, request, include_labels=False)
         expected.update({'content_type': 'program'})
         expected.update({'marketing_hook': program.marketing_hook})
+        expected.update({'course_run_statuses': []})
         return expected
 
 
