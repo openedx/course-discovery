@@ -2673,7 +2673,6 @@ class TestProgramSearchDocumentSerializer(TestCase):
                                  credit_backing_organizations=[crediting_organization])
         serializer = self.serialize_program(program, self.request)
         expected = self.get_expected_data(program, self.request)
-        # expected['course_run_statuses'] = []
         assert serializer.data == expected
 
     def test_data_without_organizations(self):
