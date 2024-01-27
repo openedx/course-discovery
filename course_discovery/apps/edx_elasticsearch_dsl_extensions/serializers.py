@@ -1,5 +1,5 @@
 import datetime
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 
 from django.core.exceptions import ImproperlyConfigured
@@ -285,7 +285,7 @@ class MultiDocumentSerializerMixin:
     several indexes are used at the same time.
     """
 
-    def to_representation(self, instance):
+    def to_representation(self, data):
         """
         If we have a serializer mapping, use that.  Otherwise, use standard serializer behavior
         Since we might be dealing with multiple indexes, some fields might
@@ -293,13 +293,16 @@ class MultiDocumentSerializerMixin:
         to the search result.
         """
         if self.Meta.serializers:
-            representation = self.multi_serializer_representation(instance)
+            representation = self.multi_serializer_representation(data)
         else:
-            representation = super().to_representation(instance)
+            representation = super().to_representation(data)
 
         return representation
 
     def get_serializer_class_by_instance(self, instance):
+        """
+        Returns a serializer class based on an instance.
+        """
         if isinstance(instance, EmptySearch):
             serializer_class = serializers.Serializer
         else:
@@ -358,3 +361,14 @@ class MultiDocumentSerializerMixin:
             representation = serializer_class(context=self._context).to_representation(instance)
 
         return representation
+
+    def group_multi_serializer_instances(self, instances):
+        """
+        Groups Multi serializer instances in a list of dicts.
+        """
+        grouped_instances = defaultdict(list)
+        for instance in instances:
+            serializer_class = self.get_serializer_class_by_instance(instance)
+            grouped_instances[serializer_class].append(instance)
+
+        return grouped_instances

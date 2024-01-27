@@ -22,29 +22,37 @@ class ModelObjectDocumentSerializerMixin:
     Model object document serializer mixin.
 
     This mixin can be added to provide db model interface for elasticsearch response.
-    There is method `get_model_object_by_instance` to fetch Model object.
+    There is method `get_model_object_by_instances` to fetch Model object.
     """
 
-    def get_model_object_by_instance(self, instance):
+    def get_model_object_by_instances(self, instances):
         """
-        Provide Model object by elasticsearch response instance.
+        Provide Model objects by elasticsearch response instances.
+        Fetches all the incoming instances at once and returns model queryset.
         """
+        if not isinstance(instances, list):
+            instances = [instances]
         document = None
-        _object = None
-        index_or_alias_name = ElasticsearchUtils.get_alias_by_index_name(instance.meta.index)
+        _objects = []
+        index_or_alias_name = ElasticsearchUtils.get_alias_by_index_name(instances[0].meta.index)
         for doc in registry.get_documents():
             if index_or_alias_name == doc._index._name:  # pylint: disable=protected-access
                 document = doc
                 break
-        hit = self._build_hit(instance)
-        es_pk = hit['_source'].get('pk')
-        if document and es_pk:
+
+        es_pks = []
+        for instance in instances:
+            es_pks.append(instance.pk)
+
+        hit = self._build_hit(instances[0])
+
+        if document and es_pks:
             try:
-                _object = document(hit).get_queryset().get(pk=es_pk)
+                _objects = document(hit).get_queryset().filter(pk__in=es_pks)
             except ObjectDoesNotExist:
                 log.error("Object could not be found in database for SearchResult '%r'.", self)
 
-        return _object
+        return _objects
 
     @staticmethod
     def _build_hit(instance):
@@ -69,5 +77,5 @@ class DocumentDSLSerializerMixin(ModelObjectDocumentSerializerMixin):
     """
 
     def to_representation(self, instance):
-        _object = self.get_model_object_by_instance(instance)
+        _object = self.get_model_object_by_instances(instance).get()
         return super().to_representation(_object)
