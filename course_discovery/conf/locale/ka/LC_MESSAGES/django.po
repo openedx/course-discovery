@@ -808,7 +808,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "მიმდინარეობს წაშლა"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -824,7 +824,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "პროგრამები"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -832,7 +832,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "მიზანი/სამიზნე"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
@@ -1182,7 +1182,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1355
 msgid "Add the course image"
-msgstr ""
+msgstr "ატვირთეთ თქვენი კურსის გამოსახულება."
 
 #: apps/course_metadata/models.py:1358 apps/course_metadata/models.py:3034
 msgid "FAQ"
@@ -1204,7 +1204,7 @@ msgstr "კურსის ნომრის ფორმატი, მაგ.:
 
 #: apps/course_metadata/models.py:1394
 msgid "Additional Information"
-msgstr ""
+msgstr "დამატებითი ინფორმაცია"
 
 #: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
@@ -1479,7 +1479,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1609,11 +1609,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3881
 msgid "Sitemap"
-msgstr ""
+msgstr "საიტის რუკა"
 
 #: apps/course_metadata/models.py:3882
 msgid "User"
-msgstr ""
+msgstr "მომხმარებელი"
 
 #: apps/course_metadata/models.py:3883
 msgid "Dollar"
@@ -1755,7 +1755,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4396
 msgid "Tag"
-msgstr ""
+msgstr "თეგი"
 
 #: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
@@ -1797,7 +1797,7 @@ msgstr "კურსის გაშვების შენახვა"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "მთავარი"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
@@ -2036,7 +2036,7 @@ msgstr ""
 
 #: apps/course_metadata/views.py:45
 msgid "The program was changed successfully."
-msgstr ""
+msgstr "პროგრამა შეიცვალა წარმატებით"
 
 #: apps/course_metadata/views.py:127
 msgid "The refresh program skills task triggered successfully."

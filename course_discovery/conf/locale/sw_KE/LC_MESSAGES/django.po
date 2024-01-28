@@ -502,15 +502,15 @@ msgstr "Heshima"
 
 #: apps/course_metadata/choices.py:46
 msgid "Credit"
-msgstr ""
+msgstr "Sifa/Deni"
 
 #: apps/course_metadata/choices.py:47
 msgid "Verified"
-msgstr ""
+msgstr "Thibitishwa"
 
 #: apps/course_metadata/choices.py:48
 msgid "Professional"
-msgstr ""
+msgstr "Mmbuji wa fanni"
 
 #: apps/course_metadata/choices.py:49
 msgid "Executive Education"
@@ -809,7 +809,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "Kufuta"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -825,7 +825,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Programu"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -833,7 +833,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "Lengo"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
@@ -1205,7 +1205,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1394
 msgid "Additional Information"
-msgstr ""
+msgstr "Taarifa za Ziada"
 
 #: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
@@ -1480,7 +1480,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "KITAMBULISHO"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1610,11 +1610,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3881
 msgid "Sitemap"
-msgstr ""
+msgstr "Ramani ya Mahali"
 
 #: apps/course_metadata/models.py:3882
 msgid "User"
-msgstr ""
+msgstr "Mtumiaji"
 
 #: apps/course_metadata/models.py:3883
 msgid "Dollar"
@@ -1756,7 +1756,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4396
 msgid "Tag"
-msgstr ""
+msgstr "'Weka alama'"
 
 #: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
@@ -1798,7 +1798,7 @@ msgstr ""
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "Nyumbani"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"

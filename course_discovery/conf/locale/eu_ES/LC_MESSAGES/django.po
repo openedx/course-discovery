@@ -491,7 +491,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
-msgstr ""
+msgstr "beste bat"
 
 #: apps/course_metadata/choices.py:45
 msgid "Honor"
@@ -1477,7 +1477,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"

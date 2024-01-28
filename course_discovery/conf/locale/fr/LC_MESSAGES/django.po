@@ -92,7 +92,7 @@ msgstr "Dictionnaire liant des identifiants de session à des valeurs booléenne
 
 #: apps/api/serializers.py:1242
 msgid "Restriction Type cannot be empty"
-msgstr ""
+msgstr "Le type de restriction ne peut pas être vide"
 
 #: apps/api/serializers.py:1685
 msgid "Dictionary mapping course IDs to boolean values"
@@ -428,7 +428,7 @@ msgstr "(enregistrer et poursuivre la modification pour créer un lien)"
 #: apps/course_metadata/admin.py:849
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
-msgstr ""
+msgstr "Avec succès %(status)s %(count)d %(items)s."
 
 #: apps/course_metadata/algolia_models.py:95
 #: apps/course_metadata/algolia_models.py:585
@@ -513,7 +513,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
-msgstr ""
+msgstr "autre"
 
 #: apps/course_metadata/choices.py:45
 msgid "Honor"
@@ -969,7 +969,7 @@ msgstr "Lorsque ce drapeau est activé, la clé d'une nouvelle session sera gén
 msgid ""
 "This field signifies if any of this org's courses are in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "Ce champ indique si l'un des cours de cette organisation figure dans le catalogue d'abonnements d'entreprise"
 
 #: apps/course_metadata/models.py:282
 msgid ""
@@ -1076,13 +1076,13 @@ msgstr ""
 msgid ""
 "The ID of the Taxi Form (by 2U) that would be rendered in place of the "
 "hubspot capture form"
-msgstr ""
+msgstr "L'ID du Formulaire Taxi (par 2U) qui serait rendu à la place du formulaire de capture hubspot"
 
 #: apps/course_metadata/models.py:872
 msgid ""
 "The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
 "hubspot capture form"
-msgstr ""
+msgstr "Le regroupement du formulaire de taxi (par 2U) qui serait rendu à la place du formulaire de capture hubspot"
 
 #: apps/course_metadata/models.py:896
 msgid "The URL of the paid landing page on external site"
@@ -1094,7 +1094,7 @@ msgstr "L'URL de la page de destination organique sur le site externe"
 
 #: apps/course_metadata/models.py:913
 msgid "The start date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "La date de début de l'offre de cours externe à des fins de marketing"
 
 #: apps/course_metadata/models.py:917
 msgid "The ends date of the external course offering for marketing purpose"
@@ -1102,11 +1102,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:921
 msgid "The suggested deadline for enrollment for marketing purpose"
-msgstr ""
+msgstr "La date limite suggérée pour l'inscription à des fins de marketing"
 
 #: apps/course_metadata/models.py:925
 msgid "The identifier for a product variant."
-msgstr ""
+msgstr "L'identifiant d'une variante de produit."
 
 #: apps/course_metadata/models.py:929
 msgid "Course override"
@@ -1142,51 +1142,51 @@ msgstr "Ajoutez l'image du collaborateur, assurez-vous que ses dimensions sont d
 
 #: apps/course_metadata/models.py:1168
 msgid "U.S. Value Per Lead"
-msgstr ""
+msgstr "Valeur américaine par prospect"
 
 #: apps/course_metadata/models.py:1169
 msgid "U.S. value per lead in U.S. dollars."
-msgstr ""
+msgstr "Valeur américaine par prospect en dollars américains."
 
 #: apps/course_metadata/models.py:1174
 msgid "International Value Per Lead"
-msgstr ""
+msgstr "Valeur internationale par prospect"
 
 #: apps/course_metadata/models.py:1175
 msgid "International value per lead in U.S. dollars."
-msgstr ""
+msgstr "Valeur internationale par prospect en dollars américains."
 
 #: apps/course_metadata/models.py:1180
 msgid "U.S. Value Per Click"
-msgstr ""
+msgstr "Valeur américaine par clic"
 
 #: apps/course_metadata/models.py:1181
 msgid "U.S. value per click in U.S. dollars."
-msgstr ""
+msgstr "Valeur américaine par clic en dollars américains."
 
 #: apps/course_metadata/models.py:1186
 msgid "International Value Per Click"
-msgstr ""
+msgstr "Valeur internationale par clic"
 
 #: apps/course_metadata/models.py:1187
 msgid "International value per click in U.S. dollars."
-msgstr ""
+msgstr "Valeur internationale par clic en dollars américains."
 
 #: apps/course_metadata/models.py:1225
 msgid "Latitude"
-msgstr ""
+msgstr "Latitude"
 
 #: apps/course_metadata/models.py:1232
 msgid "Longitude"
-msgstr ""
+msgstr "Longitude"
 
 #: apps/course_metadata/models.py:1269
 msgid "Allowlist"
-msgstr ""
+msgstr "Liste d'autorisation"
 
 #: apps/course_metadata/models.py:1270
 msgid "Blocklist"
-msgstr ""
+msgstr "Liste de blocage"
 
 #: apps/course_metadata/models.py:1317
 msgid ""
@@ -1234,7 +1234,7 @@ msgstr ""
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
-msgstr ""
+msgstr "Ce champ indique si ce cours est dans le catalogue d'abonnement entreprise"
 
 #: apps/course_metadata/models.py:1429 apps/course_metadata/models.py:3191
 msgid ""
@@ -1339,7 +1339,7 @@ msgstr "Ajoutez le texte de restriction OFAC à la section FAQ du site de Market
 msgid ""
 "This calculated field signifies if this course run is in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "Ce champ calculé indique si ce cours est dans le catalogue d'abonnements d'entreprise"
 
 #: apps/course_metadata/models.py:2498 apps/course_metadata/models.py:2511
 msgid "Current"
@@ -1452,7 +1452,7 @@ msgstr "Nombre de crédits obtenus par un apprenant en terminant avec succès le
 msgid ""
 "This calculated field signifies if all the courses in this program are "
 "included in the enterprise subscription catalog "
-msgstr ""
+msgstr "Ce champ calculé signifie si tous les cours de ce programme sont inclus dans le catalogue d'abonnement entreprise"
 
 #: apps/course_metadata/models.py:3156
 msgid ""
@@ -1491,7 +1491,7 @@ msgstr ""
 msgid ""
 "Pick a tag/label from the suggestions. To make a new tag, add a comma after "
 "the tag name."
-msgstr ""
+msgstr "Choisissez une étiquette/étiquette parmi les suggestions. Pour créer une nouvelle balise, ajoutez une virgule après le nom de la balise."
 
 #: apps/course_metadata/models.py:3231
 msgid "The last time this program was modified."
@@ -1499,7 +1499,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1747,7 +1747,7 @@ msgstr ""
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
-msgstr ""
+msgstr "Il s'attend à ce que les données soient fournies dans un format de fichier csv avec la première ligne contenant tous les en-têtes."
 
 #: apps/course_metadata/models.py:4280
 msgid "Open Courses"

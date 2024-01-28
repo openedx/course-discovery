@@ -88,7 +88,7 @@ msgstr "دورة البحث في القاموس تشغل معَرفات هوية
 
 #: apps/api/serializers.py:1242
 msgid "Restriction Type cannot be empty"
-msgstr ""
+msgstr "لا يمكن أن يكون نوع التقييد فارغًا"
 
 #: apps/api/serializers.py:1685
 msgid "Dictionary mapping course IDs to boolean values"
@@ -160,7 +160,7 @@ msgstr "نوع الكورس [{course_type}] غير موجود"
 #: apps/api/v1/views/courses.py:200
 #, python-brace-format
 msgid "Product Source [{product_source}] does not exist. "
-msgstr ""
+msgstr "مصدر المنتج [{product_source}] غير موجود."
 
 #: apps/api/v1/views/courses.py:218
 #, python-brace-format
@@ -424,7 +424,7 @@ msgstr "(حفظ والاستمرار في التحرير لإنشاء الراب
 #: apps/course_metadata/admin.py:849
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
-msgstr ""
+msgstr "تم بنجاح %(status)s %(count)d %(items)s."
 
 #: apps/course_metadata/algolia_models.py:95
 #: apps/course_metadata/algolia_models.py:585
@@ -444,7 +444,7 @@ msgstr "تمت أرشفته"
 
 #: apps/course_metadata/algolia_models.py:596
 msgid "Available by subscription"
-msgstr ""
+msgstr "متاح عن طريق الاشتراك"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:30
 msgid "Unpublished"
@@ -493,23 +493,23 @@ msgstr "محذوف"
 
 #: apps/course_metadata/choices.py:37
 msgid "mooc"
-msgstr ""
+msgstr "mooc"
 
 #: apps/course_metadata/choices.py:38
 msgid "spoc"
-msgstr ""
+msgstr "spoc"
 
 #: apps/course_metadata/choices.py:39
 msgid "test"
-msgstr ""
+msgstr "امتحان"
 
 #: apps/course_metadata/choices.py:40
 msgid "demo"
-msgstr ""
+msgstr "تجريبي"
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
-msgstr ""
+msgstr "أخرى"
 
 #: apps/course_metadata/choices.py:45
 msgid "Honor"
@@ -529,23 +529,23 @@ msgstr "مهنيّ"
 
 #: apps/course_metadata/choices.py:49
 msgid "Executive Education"
-msgstr ""
+msgstr "تعليم تنفيذي"
 
 #: apps/course_metadata/choices.py:50
 msgid "Paid Executive Education"
-msgstr ""
+msgstr "التعليم التنفيذي المدفوع"
 
 #: apps/course_metadata/choices.py:51
 msgid "Unpaid Executive Education"
-msgstr ""
+msgstr "تعليم تنفيذي غير مدفوع الأجر"
 
 #: apps/course_metadata/choices.py:52
 msgid "Paid Bootcamp"
-msgstr ""
+msgstr "المعسكر التدريبي المدفوعة"
 
 #: apps/course_metadata/choices.py:53
 msgid "Unpaid Bootcamp"
-msgstr ""
+msgstr "برنامج Bootcamp غير مدفوع الأجر"
 
 #: apps/course_metadata/choices.py:57
 msgid "Platform"
@@ -557,27 +557,27 @@ msgstr "المؤسسة"
 
 #: apps/course_metadata/choices.py:62
 msgid "Short"
-msgstr ""
+msgstr "قصير"
 
 #: apps/course_metadata/choices.py:63
 msgid "Medium"
-msgstr ""
+msgstr "واسطة"
 
 #: apps/course_metadata/choices.py:64
 msgid "Long"
-msgstr ""
+msgstr "طويل"
 
 #: apps/course_metadata/choices.py:79
 msgid "Short Course"
-msgstr ""
+msgstr "دورات قصيرة"
 
 #: apps/course_metadata/choices.py:80
 msgid "Sprint"
-msgstr ""
+msgstr "سبرينت"
 
 #: apps/course_metadata/choices.py:81
 msgid "Course Stack"
-msgstr ""
+msgstr "دورة المكدس"
 
 #: apps/course_metadata/data_loaders/course_type.py:27
 #, python-brace-format
@@ -643,7 +643,7 @@ msgstr "الفريق القانوني"
 
 #: apps/course_metadata/emails.py:187
 msgid "Project Coordinator team"
-msgstr ""
+msgstr "فريق منسق المشروع"
 
 #: apps/course_metadata/emails.py:211
 msgid "course team"
@@ -657,7 +657,7 @@ msgstr "تم طلب مراجعة قانونية: {title}"
 #: apps/course_metadata/emails.py:233
 #, python-brace-format
 msgid "Course URL for {title}"
-msgstr ""
+msgstr "عنوان URL للدورة التدريبية لـ <span class='notranslate'>{title}</span>"
 
 #: apps/course_metadata/emails.py:272
 #, python-brace-format
@@ -689,7 +689,7 @@ msgstr "تمت إضافة تعليق: {title}"
 msgid ""
 "Enter a valid “slug” consisting of letters, numbers, slashes, underscores or"
 " hyphens."
-msgstr ""
+msgstr "أدخل &quot;slug&quot; صالحًا يتكون من أحرف أو أرقام أو شرطات مائلة أو شرطات سفلية أو واصلات."
 
 #: apps/course_metadata/forms.py:66
 msgid "Programs can only be activated if they have a banner image."
@@ -936,13 +936,13 @@ msgstr "عند الملء، سيقوم هذا الحقل بالكتابة فوق
 
 #: apps/course_metadata/models.py:241
 msgid "Spanish Description"
-msgstr ""
+msgstr "وصف إسباني"
 
 #: apps/course_metadata/models.py:242
 msgid ""
 "For seo, this field allows for alternate spanish description to be manually "
 "inputted"
-msgstr ""
+msgstr "بالنسبة إلى SEO ، يسمح هذا الحقل بإدخال وصف إسباني بديل يدويًا"
 
 #: apps/course_metadata/models.py:267 apps/course_metadata/models.py:1386
 #: apps/course_metadata/models.py:2131
@@ -965,18 +965,18 @@ msgstr "عند تمكين هذه العلامة، سيتم إنشاء مفتاح
 msgid ""
 "This field signifies if any of this org's courses are in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "يشير هذا الحقل إلى ما إذا كانت أي من الدورات التدريبية الخاصة بهذه المؤسسة موجودة في كتالوج اشتراك المؤسسة"
 
 #: apps/course_metadata/models.py:282
 msgid ""
 "The 6 character-hex-value of the orgnization theme color,\n"
 "            all related course under same organization will use this color as theme color.\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
-msgstr ""
+msgstr "القيمة الستة عشرية المكونة من 6 أحرف للون سمة التنظيم ، ستستخدم جميع الدورات التدريبية ذات الصلة في نفس المؤسسة هذا اللون كلون سمة. (على سبيل المثال ، &quot;# ff0000&quot; التي تساوي اللون الأحمر) لا حاجة لتقديم `#`"
 
 #: apps/course_metadata/models.py:298
 msgid "The timestamp of the last time the organization data was modified."
-msgstr ""
+msgstr "الطابع الزمني لآخر مرة تم فيها تعديل Organization data ."
 
 #: apps/course_metadata/models.py:314
 msgid ""
@@ -986,7 +986,7 @@ msgstr "يرجى عدم استخدام أي مسافات أو أحرف الحا�
 
 #: apps/course_metadata/models.py:385
 msgid "Corresponding organization code in an external product source"
-msgstr ""
+msgstr "رمز المنظمة المقابل في مصدر منتج خارجي"
 
 #: apps/course_metadata/models.py:442
 msgid "LevelType model translations"
@@ -1012,15 +1012,15 @@ msgstr "اترك هذا الحقل فارغاً حتى يتم توليد الق�
 
 #: apps/course_metadata/models.py:525
 msgid "Name of the external source."
-msgstr ""
+msgstr "اسم المصدر الخارجي."
 
 #: apps/course_metadata/models.py:530
 msgid "Description of the external source."
-msgstr ""
+msgstr "وصف المصدر الخارجي."
 
 #: apps/course_metadata/models.py:535
 msgid "Programs of these types will be OFAC restricted"
-msgstr ""
+msgstr "سيتم تقييد برامج من هذه الأنواع من مكتب مراقبة الأصول الأجنبية"
 
 #: apps/course_metadata/models.py:549
 msgid "ProgramType model translations"
@@ -1066,62 +1066,62 @@ msgstr "ترجمات موضوع النموذج"
 
 #: apps/course_metadata/models.py:836
 msgid "SEO Meta tags for Products"
-msgstr ""
+msgstr "العلامات الوصفية لكبار المسئولين الاقتصاديين للمنتجات"
 
 #: apps/course_metadata/models.py:866
 msgid ""
 "The ID of the Taxi Form (by 2U) that would be rendered in place of the "
 "hubspot capture form"
-msgstr ""
+msgstr "معرّف نموذج سيارة الأجرة (بواسطة 2U) الذي سيتم تقديمه بدلاً من نموذج التقاط نقطة الوصل"
 
 #: apps/course_metadata/models.py:872
 msgid ""
 "The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
 "hubspot capture form"
-msgstr ""
+msgstr "تجميع نموذج سيارة الأجرة (بواسطة 2U) الذي سيتم تقديمه بدلاً من نموذج التقاط نقطة الوصل"
 
 #: apps/course_metadata/models.py:896
 msgid "The URL of the paid landing page on external site"
-msgstr ""
+msgstr "عنوان URL للصفحة المقصودة المدفوعة على موقع خارجي"
 
 #: apps/course_metadata/models.py:902
 msgid "The URL of the organic landing page on external site"
-msgstr ""
+msgstr "عنوان URL للصفحة المقصودة العضوية على موقع خارجي"
 
 #: apps/course_metadata/models.py:913
 msgid "The start date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "تاريخ بدء عرض الدورة الخارجية لغرض التسويق"
 
 #: apps/course_metadata/models.py:917
 msgid "The ends date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "تاريخ انتهاء عرض الدورة الخارجية لغرض التسويق"
 
 #: apps/course_metadata/models.py:921
 msgid "The suggested deadline for enrollment for marketing purpose"
-msgstr ""
+msgstr "الموعد النهائي المقترح للتسجيل لغرض التسويق"
 
 #: apps/course_metadata/models.py:925
 msgid "The identifier for a product variant."
-msgstr ""
+msgstr "معرّف متغير المنتج."
 
 #: apps/course_metadata/models.py:929
 msgid "Course override"
-msgstr ""
+msgstr "تجاوز الدورة"
 
 #: apps/course_metadata/models.py:930
 msgid "This field allows for override the default course term"
-msgstr ""
+msgstr "يسمح هذا الحقل بتجاوز مصطلح الدورة التدريبية الافتراضي"
 
 #: apps/course_metadata/models.py:948
 msgid ""
 "This field contain external course marketing type specific to product lines"
-msgstr ""
+msgstr "يحتوي هذا الحقل على نوع تسويق مقرر دراسي خارجي خاص بخطوط الإنتاج"
 
 #: apps/course_metadata/models.py:957
 msgid ""
 "Determines weather the course should be displayed on the owning "
 "organization's page"
-msgstr ""
+msgstr "يحدد حالة الطقس الذي يجب عرض الدورة به على صفحة المؤسسة المالكة"
 
 #: apps/course_metadata/models.py:1025
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1138,51 +1138,51 @@ msgstr "أضف صورة المتعاون، يرجى التأكد من أن أب�
 
 #: apps/course_metadata/models.py:1168
 msgid "U.S. Value Per Lead"
-msgstr ""
+msgstr "القيمة الأمريكية لكل عميل محتمل"
 
 #: apps/course_metadata/models.py:1169
 msgid "U.S. value per lead in U.S. dollars."
-msgstr ""
+msgstr "القيمة الأمريكية لكل رصاصة بالدولار الأمريكي."
 
 #: apps/course_metadata/models.py:1174
 msgid "International Value Per Lead"
-msgstr ""
+msgstr "القيمة الدولية لكل عميل محتمل"
 
 #: apps/course_metadata/models.py:1175
 msgid "International value per lead in U.S. dollars."
-msgstr ""
+msgstr "القيمة الدولية لكل الرصاص بالدولار الأمريكي."
 
 #: apps/course_metadata/models.py:1180
 msgid "U.S. Value Per Click"
-msgstr ""
+msgstr "القيمة الأمريكية لكل نقرة"
 
 #: apps/course_metadata/models.py:1181
 msgid "U.S. value per click in U.S. dollars."
-msgstr ""
+msgstr "القيمة الأمريكية لكل نقرة بالدولار الأمريكي."
 
 #: apps/course_metadata/models.py:1186
 msgid "International Value Per Click"
-msgstr ""
+msgstr "القيمة الدولية لكل نقرة"
 
 #: apps/course_metadata/models.py:1187
 msgid "International value per click in U.S. dollars."
-msgstr ""
+msgstr "القيمة الدولية للنقرة بالدولار الأمريكي."
 
 #: apps/course_metadata/models.py:1225
 msgid "Latitude"
-msgstr ""
+msgstr "خط العرض"
 
 #: apps/course_metadata/models.py:1232
 msgid "Longitude"
-msgstr ""
+msgstr "خط الطول"
 
 #: apps/course_metadata/models.py:1269
 msgid "Allowlist"
-msgstr ""
+msgstr "Allowlist"
 
 #: apps/course_metadata/models.py:1270
 msgid "Blocklist"
-msgstr ""
+msgstr "قائمة الحظر"
 
 #: apps/course_metadata/models.py:1317
 msgid ""
@@ -1194,7 +1194,7 @@ msgstr "عند إعادة تشغيل هذا المساق، سيستخدمون ه
 msgid ""
 "The actual duration of this course as experienced by learners who complete "
 "it."
-msgstr ""
+msgstr "المدة الفعلية لهذه الدورة كما يختبرها المتعلمون الذين أكملوها."
 
 #: apps/course_metadata/models.py:1355
 msgid "Add the course image"
@@ -1224,41 +1224,41 @@ msgstr "معلومات إضافية"
 
 #: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
-msgstr ""
+msgstr "آخر مرة تم فيها تعديل هذه الدورة في قاعدة البيانات."
 
 #: apps/course_metadata/models.py:1421
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
-msgstr ""
+msgstr "يشير هذا الحقل إلى ما إذا كانت هذه الدورة التدريبية موجودة في كتالوج اشتراك المؤسسة"
 
 #: apps/course_metadata/models.py:1429 apps/course_metadata/models.py:3191
 msgid ""
 "If checked, this item will not be indexed in Algolia and will not show up in"
 " search results."
-msgstr ""
+msgstr "إذا تم تحديده ، فلن تتم فهرسة هذا العنصر في Algolia ولن يظهر في نتائج البحث."
 
 #: apps/course_metadata/models.py:1437 apps/course_metadata/models.py:3199
 msgid "If checked, the About Page will have a meta tag with noindex value"
-msgstr ""
+msgstr "إذا تم تحديده ، فستحتوي &quot;حول الصفحة&quot; على علامة وصفية بقيمة noindex"
 
 #: apps/course_metadata/models.py:1442
 msgid "Watchers"
-msgstr ""
+msgstr "مراقبون"
 
 #: apps/course_metadata/models.py:1444
 msgid ""
 "The list of email addresses that will be notified if any of the course runs "
 "is published or scheduled."
-msgstr ""
+msgstr "قائمة عناوين البريد الإلكتروني التي سيتم إعلامك بها في حالة نشر أي دورة من الدورات التدريبية أو جدولتها."
 
 #: apps/course_metadata/models.py:1661
 msgid "Future"
-msgstr ""
+msgstr "المستقبل"
 
 #: apps/course_metadata/models.py:1663
 msgid "Past"
-msgstr ""
+msgstr "الماضي"
 
 #: apps/course_metadata/models.py:2047 apps/course_metadata/models.py:3045
 msgid "Blocked"
@@ -1335,7 +1335,7 @@ msgstr "أضف نص تقييد OFAC إلى قسم الأسئلة المتداو�
 msgid ""
 "This calculated field signifies if this course run is in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "يشير هذا الحقل المحسوب إلى ما إذا كان تشغيل هذه الدورة التدريبية موجودًا في كتالوج اشتراك المؤسسة"
 
 #: apps/course_metadata/models.py:2498 apps/course_metadata/models.py:2511
 msgid "Current"
@@ -1353,19 +1353,19 @@ msgstr "لا يتم دعم تبديل أنواع المقاعد بعد معاي�
 
 #: apps/course_metadata/models.py:2844
 msgid "Change careers"
-msgstr ""
+msgstr "تغيير المهن"
 
 #: apps/course_metadata/models.py:2845
 msgid "Job advancement"
-msgstr ""
+msgstr "التقدم الوظيفي"
 
 #: apps/course_metadata/models.py:2846
 msgid "Learn valuable skills"
-msgstr ""
+msgstr "تعلم مهارات قيمة"
 
 #: apps/course_metadata/models.py:2847
 msgid "Learn for fun"
-msgstr ""
+msgstr "تعلم من أجل المتعة"
 
 #: apps/course_metadata/models.py:3035
 msgid "FAQs"
@@ -1448,54 +1448,54 @@ msgstr "عدد الوحدات التي حصل عليها المتعلم بسبب
 msgid ""
 "This calculated field signifies if all the courses in this program are "
 "included in the enterprise subscription catalog "
-msgstr ""
+msgstr "يشير هذا الحقل المحسوب إلى ما إذا كانت جميع الدورات التدريبية في هذا البرنامج مدرجة في كتالوج اشتراك المؤسسة"
 
 #: apps/course_metadata/models.py:3156
 msgid ""
 "A field to override Organization short code alias specific for this program."
-msgstr ""
+msgstr "حقل لتجاوز الاسم المستعار للرمز المختصر الخاص بالمؤسسة والمخصص لهذا البرنامج."
 
 #: apps/course_metadata/models.py:3163
 msgid "A field to override Organization logo specific for this program."
-msgstr ""
+msgstr "حقل لتجاوز شعار المنظمة الخاص بهذا البرنامج."
 
 #: apps/course_metadata/models.py:3167
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
-msgstr ""
+msgstr "مجال الموضوع الأساسي المحدد لهذا البرنامج. مجال مفيد في حالة عدم وجود دورات مرتبطة بهذا البرنامج."
 
 #: apps/course_metadata/models.py:3172
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "نوع المستوى المحدد لهذا البرنامج. مجال مفيد في حالة عدم وجود دورات مرتبطة بهذا البرنامج."
 
 #: apps/course_metadata/models.py:3177
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "رمز اللغة المحدد لهذا البرنامج. مجال مفيد في حالة عدم وجود دورات مرتبطة بهذا البرنامج."
 
 #: apps/course_metadata/models.py:3211
 msgid ""
 "Useful field to overwrite the duration of a program. It can be a text "
 "describing a period of time, Ex: 6-9 months."
-msgstr ""
+msgstr "حقل مفيد للكتابة فوق مدة البرنامج. يمكن أن يكون نصًا يصف فترة زمنية ، على سبيل المثال: 6-9 أشهر."
 
 #: apps/course_metadata/models.py:3220
 msgid ""
 "Pick a tag/label from the suggestions. To make a new tag, add a comma after "
 "the tag name."
-msgstr ""
+msgstr "اختر علامة / تصنيف من الاقتراحات. لإنشاء علامة جديدة ، أضف فاصلة بعد اسم العلامة."
 
 #: apps/course_metadata/models.py:3231
 msgid "The last time this program was modified."
-msgstr ""
+msgstr "آخر مرة تم فيها تعديل هذا البرنامج."
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "الرقم التعريفي"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1589,15 +1589,15 @@ msgstr "عدد المساقات لبطاقة البحث (على سبيل الم�
 msgid ""
 "Designates whether the degree should be displayed on the owning "
 "organization's page"
-msgstr ""
+msgstr "يحدد ما إذا كان يجب عرض الدرجة على صفحة المؤسسة المالكة"
 
 #: apps/course_metadata/models.py:3835
 msgid "The redirect URL of the degree on external site"
-msgstr ""
+msgstr "عنوان URL لإعادة التوجيه للدرجة على موقع خارجي"
 
 #: apps/course_metadata/models.py:3840
 msgid "The URL of the landing page on external site"
-msgstr ""
+msgstr "عنوان URL للصفحة المقصودة على موقع خارجي"
 
 #: apps/course_metadata/models.py:3875
 msgid "Bell"
@@ -1734,7 +1734,7 @@ msgstr "لا يتطابق الشريك {partner_key} وشريك المساق {co
 
 #: apps/course_metadata/models.py:4198
 msgid "It expects the data will be provided in a csv file format "
-msgstr ""
+msgstr "وتتوقع أن يتم توفير البيانات بتنسيق ملف csv"
 
 #: apps/course_metadata/models.py:4210 apps/course_metadata/models.py:4223
 #: apps/course_metadata/models.py:4236 apps/course_metadata/models.py:4256
@@ -1743,19 +1743,19 @@ msgstr ""
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
-msgstr ""
+msgstr "وتتوقع أن يتم توفير البيانات بتنسيق ملف csv مع احتواء الصف الأول على جميع الرؤوس."
 
 #: apps/course_metadata/models.py:4280
 msgid "Open Courses"
-msgstr ""
+msgstr "الدورات المفتوحة"
 
 #: apps/course_metadata/models.py:4281
 msgid "2U Executive Education Courses"
-msgstr ""
+msgstr "2U دورات التعليم التنفيذي"
 
 #: apps/course_metadata/models.py:4282
 msgid "Bootcamps"
-msgstr ""
+msgstr "المعسكرات التدريبية"
 
 #: apps/course_metadata/models.py:4293 apps/course_metadata/models.py:4397
 msgid "Course UUIDs"
@@ -1813,21 +1813,21 @@ msgstr "حفظ تشغيل الدورة"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "الصفحة الرئيسية"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
-msgstr ""
+msgstr "مهارات الدورة"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
 msgid "Refresh Course Skills"
-msgstr ""
+msgstr "تحديث مهارات الدورة"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:32
 msgid "Refresh Program Skills"
-msgstr ""
+msgstr "مهارات برنامج التحديث"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
@@ -1884,7 +1884,7 @@ msgstr "{link_start}{preview_url}{link_middle}عرض صفحة النبذة هذ�
 #, python-brace-format
 msgid ""
 "{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}"
-msgstr ""
+msgstr "{link_start}{contact_us_email}{link_middle}{contact_us_email} {link_end}"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:11
 #, python-format
@@ -1897,7 +1897,7 @@ msgstr "عرص صفحة التعريف هذه.%(preview_url)s"
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, please contact your Project Coordinator(s):"
-msgstr ""
+msgstr "ملاحظة: عنوان البريد الإلكتروني هذا غير قادر على تلقي الردود. للأسئلة أو التعليقات، يرجى الاتصال بمنسق (منسقي) المشروع الخاص بك:"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:14
 #, python-brace-format
@@ -1919,7 +1919,7 @@ msgstr "هذا وقت جيد لـ {link_start}{studio_url}{link_middle}مراج�
 msgid ""
 "Visit the {link_start}{restricted_admin_url}{link_middle}restricted course "
 "admin page{link_end} to set embargo rules for this course, as needed."
-msgstr ""
+msgstr "قم بزيارة {link_start}{redicted_admin_url}{link_mالأوسط}صفحة مسؤول المساق المقيدة{link_end} لتعيين قواعد الحظر لهذا المساق حسب الحاجة."
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:6
 #, python-format
@@ -1997,7 +1997,7 @@ msgid ""
 "\n"
 "        Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
 "    "
-msgstr ""
+msgstr "تمت مراجعة الدورة التدريبية &#39; %(course_name)s</span> &#39; بنجاح بواسطة edX وتم نشرها الآن على <span class='notranslate'>%(course_publish_date)s</span> . لمشاهدة الدورة الحية ، انتقل هنا: <a href=\"<span class='notranslate'>%(course_marketing_url)s\"><span class='notranslate'>%(course_marketing_url)s</span></a>"
 
 #: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html:12
 #, python-format
@@ -2006,14 +2006,14 @@ msgid ""
 "        Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
 "        To see a preview of the Course About Page, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
 "    "
-msgstr ""
+msgstr "تمت مراجعة الدورة التدريبية &quot; %(course_name)s</span> &quot; بنجاح بواسطة edX وهي الآن جاهزة للنشر. سيتم نشر الدورة على <span class='notranslate'>%(course_publish_date)s</span> . لمشاهدة معاينة للصفحة حول الدورة التدريبية ، انتقل هنا: <a href=\"<span class='notranslate'>%(course_marketing_url)s\"><span class='notranslate'>%(course_marketing_url)s</span></a>"
 
 #: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt:4
 #, python-format
 msgid ""
 "\n"
 "    Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: %(course_marketing_url)s\n"
-msgstr ""
+msgstr "تمت مراجعة الدورة التدريبية &#39; <span class='notranslate'>%(course_name)s</span> &#39; بنجاح بواسطة edX وتم نشرها الآن على <span class='notranslate'>%(course_publish_date)s</span> . لمشاهدة الدورة الحية ، انتقل هنا: <span class='notranslate'>%(course_marketing_url)s</span>"
 
 #: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt:8
 #, python-format
@@ -2021,7 +2021,7 @@ msgid ""
 "\n"
 "   Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
 "    To see a preview of the Course About Page, go here: %(course_preview_url)s\n"
-msgstr ""
+msgstr "تمت مراجعة الدورة التدريبية &quot; <span class='notranslate'>%(course_name)s</span> &quot; بنجاح بواسطة edX وهي الآن جاهزة للنشر. سيتم نشر الدورة على <span class='notranslate'>%(course_publish_date)s</span> . لمشاهدة معاينة للصفحة حول الدورة التدريبية ، انتقل هنا: <span class='notranslate'>%(course_preview_url)s</span>"
 
 #: apps/course_metadata/utils.py:374
 msgid "Special characters not allowed in Course Number."
@@ -2056,15 +2056,15 @@ msgstr "لقد تم تغيير البرنامج بنجاح."
 
 #: apps/course_metadata/views.py:127
 msgid "The refresh program skills task triggered successfully."
-msgstr ""
+msgstr "تم تشغيل مهمة مهارات برنامج التحديث بنجاح."
 
 #: apps/course_metadata/views.py:206
 msgid "The refresh course skills task triggered successfully."
-msgstr ""
+msgstr "تم تشغيل مهمة تحديث مهارات دورة بنجاح."
 
 #: apps/course_metadata/views.py:306
 msgid "The course skills were updated successfully."
-msgstr ""
+msgstr "تم تحديث مهارات الدورة بنجاح."
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py:17
 msgid ""
@@ -2082,55 +2082,55 @@ msgstr "ترجمات نموذج سمة اللغة"
 
 #: apps/learner_pathway/choices.py:7
 msgid "Inactive"
-msgstr ""
+msgstr "غير نشط"
 
 #: apps/learner_pathway/models.py:85
 msgid "Title of the learner pathway."
-msgstr ""
+msgstr "عنوان مسار المتعلم."
 
 #: apps/learner_pathway/models.py:88
 msgid "Course/Program associated pathways also appear in search results"
-msgstr ""
+msgstr "تظهر أيضًا المسارات المرتبطة بالدورة التدريبية / البرنامج في نتائج البحث"
 
 #: apps/learner_pathway/models.py:91
 msgid "The active/inactive status of this Pathway."
-msgstr ""
+msgstr "الحالة النشطة / غير النشطة لهذا المسار."
 
 #: apps/learner_pathway/models.py:119
 msgid "Learner Pathway"
-msgstr ""
+msgstr "مسار المتعلم"
 
 #: apps/learner_pathway/models.py:120
 msgid "Learner Pathways"
-msgstr ""
+msgstr "مسارات المتعلم"
 
 #: apps/learner_pathway/models.py:166
 msgid "Minimum number of nodes to complete this step of the pathway"
-msgstr ""
+msgstr "الحد الأدنى من عدد العقد لإكمال هذه الخطوة من المسار"
 
 #: apps/learner_pathway/models.py:170
 msgid "Learner Pathway Step"
-msgstr ""
+msgstr "خطوة مسار المتعلم"
 
 #: apps/learner_pathway/models.py:171
 msgid "Learner Pathway Steps"
-msgstr ""
+msgstr "خطوات مسار المتعلم"
 
 #: apps/learner_pathway/models.py:238
 msgid "Learner Pathway Course"
-msgstr ""
+msgstr "دورة مسار المتعلم"
 
 #: apps/learner_pathway/models.py:239
 msgid "Learner Pathway Courses"
-msgstr ""
+msgstr "دورات مسار المتعلم"
 
 #: apps/learner_pathway/models.py:276
 msgid "Learner Pathway Program"
-msgstr ""
+msgstr "برنامج مسار المتعلم"
 
 #: apps/learner_pathway/models.py:277
 msgid "Learner Pathway Programs"
-msgstr ""
+msgstr "برامج مسار المتعلم"
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
@@ -2138,40 +2138,40 @@ msgstr "دور المؤسسة"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
 msgid "Update the course recommendations based on skills."
-msgstr ""
+msgstr "قم بتحديث توصيات الدورة بناءً على المهارات."
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:41
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
-msgstr ""
+msgstr "استخدم الوسائط من نموذج UpdateCourseRecommendationsConfig بدلاً من سطر الأوامر."
 
 #: apps/taxonomy_support/models.py:24
 msgid "The original course, whose recommendation is stored here."
-msgstr ""
+msgstr "الدورة التدريبية الأصلية ، التي يتم تخزين توصيتها هنا."
 
 #: apps/taxonomy_support/models.py:29
 msgid ""
 "This is the course recommended after learner completes the original course."
-msgstr ""
+msgstr "هذه هي الدورة التي يوصى بها بعد أن يكمل المتعلم الدورة الأصلية."
 
 #: apps/taxonomy_support/models.py:32
 msgid "Ratio of number of common skills and total skill count."
-msgstr ""
+msgstr "نسبة عدد المهارات المشتركة وإجمالي عدد المهارات."
 
 #: apps/taxonomy_support/models.py:35
 msgid ""
 "Count of common skills between the original course and recommended course."
-msgstr ""
+msgstr "عدد المهارات المشتركة بين الدورة الأصلية والدورة الموصى بها."
 
 #: apps/taxonomy_support/models.py:38
 msgid "Ratio of number of common subjects and total subject count."
-msgstr ""
+msgstr "نسبة عدد الموضوعات المشتركة وإجمالي عدد المواد."
 
 #: apps/taxonomy_support/models.py:41
 msgid ""
 "Count of common subjects between the original course and recommended course."
-msgstr ""
+msgstr "عدد المواد المشتركة بين المقرر الأصلي والدورة الموصى بها."
 
 #: apps/taxonomy_support/models.py:46
 msgid "Course Recommendation"
@@ -2192,7 +2192,7 @@ msgstr "يضيف توصيات للدورات التدريبية التي تم إ
 
 #: apps/taxonomy_support/providers.py:162
 msgid "No partner object found!"
-msgstr ""
+msgstr "لم يتم العثور على كائن شريك!"
 
 #: urls.py:32
 msgid "Discovery Service Administration"

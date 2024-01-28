@@ -45,7 +45,7 @@ msgstr "Nama pengguna dengan akses untuk melihat katalog ini"
 
 #: apps/api/serializers.py:976
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "Tanggal mulai tidak bisa melewati tanggal berakhir"
 
 #: apps/api/serializers.py:981
 msgid "Term cannot be changed"
@@ -57,7 +57,7 @@ msgstr "Bahasa yang terdaftar untuk kursus ini"
 
 #: apps/api/serializers.py:1090
 msgid "Course cannot be changed for an existing course run"
-msgstr ""
+msgstr "Kursus tidak dapat diubah untuk kursus berjalan"
 
 #: apps/api/serializers.py:1095
 msgid "Minimum effort cannot be greater than Maximum effort"
@@ -73,7 +73,7 @@ msgstr "Kamus pemetaan kursus mengubah ID menjadi nilai boolean"
 
 #: apps/api/serializers.py:1242
 msgid "Restriction Type cannot be empty"
-msgstr ""
+msgstr "Jenis Pembatasan tidak boleh kosong"
 
 #: apps/api/serializers.py:1685
 msgid "Dictionary mapping course IDs to boolean values"
@@ -106,15 +106,15 @@ msgstr ""
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "Tidak ada hasil untuk :[{name}]"
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:204
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Data yang dikirim tidak sesuai"
 
 #: apps/api/v1/views/course_runs.py:46
 msgid "Failed to set course run data: {}"
-msgstr ""
+msgstr "Gagal untuk mengatur data kursus berjalan: {}"
 
 #: apps/api/v1/views/course_runs.py:313
 msgid "Can only update status, ofac restrictions, and ofac comment"
@@ -122,25 +122,25 @@ msgstr ""
 
 #: apps/api/v1/views/course_runs.py:352
 msgid "Course run is in review. Editing disabled."
-msgstr ""
+msgstr "Kursus berjalan dalam review, Perubahan tidak diizinkan"
 
 #: apps/api/v1/views/course_runs.py:359
 msgid "Invalid parameter"
-msgstr ""
+msgstr "Parameter tidak sesuai"
 
 #: apps/api/v1/views/courses.py:60
 msgid "Failed to set data: {}"
-msgstr ""
+msgstr "Pengaturan data gagal: {}"
 
 #: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
-msgstr ""
+msgstr "Organisasi [{org}] tidak ditemukan"
 
 #: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
-msgstr ""
+msgstr "Jenis Kursus [{course_type}] tidak ditemukan."
 
 #: apps/api/v1/views/courses.py:200
 #, python-brace-format
@@ -150,14 +150,14 @@ msgstr ""
 #: apps/api/v1/views/courses.py:218
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
-msgstr ""
+msgstr "Kursus dengan key [{key}] sudah ada"
 
 #: apps/api/v1/views/courses.py:226
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
-msgstr ""
+msgstr "Gagal melakukan Pembuatan Kursus. URL slug '{[url_slug}]' sudah digunakan. Mohon ubah bagian ini dan coba lagi"
 
 #: apps/api/v1/views/courses.py:285
 msgid ""
@@ -170,7 +170,7 @@ msgstr ""
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
 "in use. Please update this field and try again."
-msgstr ""
+msgstr "Gagal melakukan perubahan kursus. URL slug '{[url_slug}]' sudah digunakan. Mohon ubah bagian ini dan coba lagi"
 
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
@@ -190,7 +190,7 @@ msgstr ""
 
 #: apps/catalogs/models.py:25
 msgid "Include archived courses"
-msgstr ""
+msgstr "Termasuk kursus yang diarsipkan"
 
 #: apps/core/admin.py:17
 msgid "Personal info"
@@ -224,12 +224,12 @@ msgstr "Konfigurasikan URL situs marketing yang akan digunakan untuk memanggil d
 
 #: apps/core/admin.py:58
 msgid "Analytics Configuration"
-msgstr ""
+msgstr "Konfigurasi Analitik"
 
 #: apps/core/admin.py:59
 msgid ""
 "Configure the analytics API that will be used to retrieve enrollment data"
-msgstr ""
+msgstr "Konfigurasi analitik API untuk memanggil data pendaftaran"
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
@@ -309,7 +309,7 @@ msgstr "URL Studio"
 
 #: apps/core/models.py:75
 msgid "Publisher URL"
-msgstr ""
+msgstr "URL Publisher"
 
 #: apps/core/models.py:76
 msgid ""
@@ -349,7 +349,7 @@ msgstr "Mitra"
 
 #: apps/core/models.py:130
 msgid "Salesforce Username"
-msgstr ""
+msgstr "Nama Pengguna Salesforce"
 
 #: apps/core/models.py:134
 msgid "Salesforce Password"
@@ -494,7 +494,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
-msgstr ""
+msgstr "lainnya"
 
 #: apps/course_metadata/choices.py:45
 msgid "Honor"
@@ -542,19 +542,19 @@ msgstr "Organisasi"
 
 #: apps/course_metadata/choices.py:62
 msgid "Short"
-msgstr ""
+msgstr "Pendek"
 
 #: apps/course_metadata/choices.py:63
 msgid "Medium"
-msgstr ""
+msgstr "Sedang"
 
 #: apps/course_metadata/choices.py:64
 msgid "Long"
-msgstr ""
+msgstr "Panjang"
 
 #: apps/course_metadata/choices.py:79
 msgid "Short Course"
-msgstr ""
+msgstr "Kursus Singkat"
 
 #: apps/course_metadata/choices.py:80
 msgid "Sprint"
@@ -809,7 +809,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "Menghapus"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -825,7 +825,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Program"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -833,7 +833,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "Target"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
@@ -971,7 +971,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:385
 msgid "Corresponding organization code in an external product source"
-msgstr ""
+msgstr "Kode organisasi yang sesuai di sumber produk eksternal"
 
 #: apps/course_metadata/models.py:442
 msgid "LevelType model translations"
@@ -997,15 +997,15 @@ msgstr "Kosongkan kolom ini untuk mendapatkan nilai secara otomatis."
 
 #: apps/course_metadata/models.py:525
 msgid "Name of the external source."
-msgstr ""
+msgstr "Nama sumber eksternal."
 
 #: apps/course_metadata/models.py:530
 msgid "Description of the external source."
-msgstr ""
+msgstr "Deskripsi sumber eksternal."
 
 #: apps/course_metadata/models.py:535
 msgid "Programs of these types will be OFAC restricted"
-msgstr ""
+msgstr "Program jenis ini akan dibatasi OFAC"
 
 #: apps/course_metadata/models.py:549
 msgid "ProgramType model translations"
@@ -1079,7 +1079,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:917
 msgid "The ends date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "Tanggal berakhirnya penawaran kursus eksternal untuk tujuan pemasaran"
 
 #: apps/course_metadata/models.py:921
 msgid "The suggested deadline for enrollment for marketing purpose"
@@ -1091,7 +1091,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:929
 msgid "Course override"
-msgstr ""
+msgstr "Timpa kursus"
 
 #: apps/course_metadata/models.py:930
 msgid "This field allows for override the default course term"
@@ -1155,11 +1155,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1225
 msgid "Latitude"
-msgstr ""
+msgstr "Garis Lintang"
 
 #: apps/course_metadata/models.py:1232
 msgid "Longitude"
-msgstr ""
+msgstr "Garis bujur"
 
 #: apps/course_metadata/models.py:1269
 msgid "Allowlist"
@@ -1179,7 +1179,7 @@ msgstr ""
 msgid ""
 "The actual duration of this course as experienced by learners who complete "
 "it."
-msgstr ""
+msgstr "Durasi sebenarnya dari kursus ini seperti yang dialami oleh pelajar yang menyelesaikannya."
 
 #: apps/course_metadata/models.py:1355
 msgid "Add the course image"
@@ -1201,15 +1201,15 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1380
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
-msgstr ""
+msgstr "Format nomor kursus misalnya CS002x, BIO1.1x, BIO1.2x"
 
 #: apps/course_metadata/models.py:1394
 msgid "Additional Information"
-msgstr ""
+msgstr "Informasi Tambahan"
 
 #: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
-msgstr ""
+msgstr "Terakhir kali kursus ini diubah dalam database."
 
 #: apps/course_metadata/models.py:1421
 msgid ""
@@ -1476,11 +1476,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3231
 msgid "The last time this program was modified."
-msgstr ""
+msgstr "Terakhir kali program ini dimodifikasi."
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1590,7 +1590,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3876
 msgid "Certificate"
-msgstr ""
+msgstr "Sertifikat"
 
 #: apps/course_metadata/models.py:3877
 msgid "Checkmark"
@@ -1598,7 +1598,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3878
 msgid "Clock"
-msgstr ""
+msgstr "Jam"
 
 #: apps/course_metadata/models.py:3879
 msgid "Desktop"
@@ -1610,11 +1610,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3881
 msgid "Sitemap"
-msgstr ""
+msgstr "Sitemap"
 
 #: apps/course_metadata/models.py:3882
 msgid "User"
-msgstr ""
+msgstr "Pengguna"
 
 #: apps/course_metadata/models.py:3883
 msgid "Dollar"
@@ -1719,7 +1719,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4198
 msgid "It expects the data will be provided in a csv file format "
-msgstr ""
+msgstr "Diharapkan data akan disediakan dalam format berkas csv"
 
 #: apps/course_metadata/models.py:4210 apps/course_metadata/models.py:4223
 #: apps/course_metadata/models.py:4236 apps/course_metadata/models.py:4256
@@ -1756,7 +1756,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4396
 msgid "Tag"
-msgstr ""
+msgstr "Label"
 
 #: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
@@ -1798,7 +1798,7 @@ msgstr ""
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "Beranda"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
@@ -2119,7 +2119,7 @@ msgstr ""
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
-msgstr ""
+msgstr "Peran Organisasi"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
 msgid "Update the course recommendations based on skills."
@@ -2177,7 +2177,7 @@ msgstr ""
 
 #: apps/taxonomy_support/providers.py:162
 msgid "No partner object found!"
-msgstr ""
+msgstr "Tidak ada objek mitra yang ditemukan!"
 
 #: urls.py:32
 msgid "Discovery Service Administration"
