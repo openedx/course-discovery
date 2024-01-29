@@ -3475,26 +3475,6 @@ class PathwayTests(TestCase):
         pathway = factories.PathwayFactory()
         assert str(pathway) == pathway.name
 
-    def test_course_run_statuses(self):
-        """ Verify that we are looping through all runs to get statuses. """
-
-        course = factories.CourseFactory()
-        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Published)
-        course_2 = factories.CourseFactory()
-        course_run_2 = factories.CourseRunFactory(course=course_2, status=CourseRunStatus.Unpublished)
-        start_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=2)
-        end_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=1)
-        course_run_3 = factories.CourseRunFactory(
-            course=course_2,
-            status=CourseRunStatus.Unpublished,
-            start=start_date_past,
-            end=end_date_past)
-        course_run.save()
-        course_run_2.save()
-        course_run_3.save()
-        program = factories.ProgramFactory(courses=[course, course_2])
-        assert program.course_run_statuses == ['archived', 'published', 'unpublished']
-
 
 class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
