@@ -1255,4 +1255,4 @@ def get_course_run_statuses(statuses, course_runs):
             statuses.add('archived')
         else:
             statuses.add(course_run.status)
-    return sorted(list(statuses))
+    return statuses
