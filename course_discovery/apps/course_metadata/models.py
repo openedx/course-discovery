@@ -60,8 +60,8 @@ from course_discovery.apps.course_metadata.toggles import (
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
-    get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run,
-    set_official_state, subtract_deadline_delta
+    get_course_run_statuses, get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run,
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -1705,15 +1705,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         invalidates the prefetch on API level.
         """
         statuses = set()
-        now = datetime.datetime.now(pytz.UTC)
-        for course_run in self.course_runs.all():
-            if course_run.hidden:
-                continue
-            if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
-                statuses.add('archived')
-            else:
-                statuses.add(course_run.status)
-        return sorted(list(statuses))
+        return get_course_run_statuses(statuses, self.course_runs.all())
 
     def unpublish_inactive_runs(self, published_runs=None):
         """
@@ -3395,15 +3387,8 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         invalidates the prefetch on API level.
         """
         statuses = set()
-        now = datetime.datetime.now(pytz.UTC)
         for course in self.courses.all():
-            for course_run in course.course_runs.all():
-                if course_run.hidden:
-                    continue
-                if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
-                    statuses.add('archived')
-                else:
-                    statuses.add(course_run.status)
+            get_course_run_statuses(statuses, course.course_runs.all())
         return sorted(list(statuses))
 
     @property
@@ -4152,16 +4137,9 @@ class Pathway(TimeStampedModel):
         invalidates the prefetch on API level.
         """
         statuses = set()
-        now = datetime.datetime.now(pytz.UTC)
         for program in self.programs.all():
             for course in program.courses.all():
-                for course_run in course.course_runs.all():
-                    if course_run.hidden:
-                        continue
-                    if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
-                        statuses.add('archived')
-                    else:
-                        statuses.add(course_run.status)
+                get_course_run_statuses(statuses, course.course_runs.all())
         return sorted(list(statuses))
 
 

@@ -9,6 +9,7 @@ from urllib.parse import urljoin, urlparse
 
 import html2text
 import markdown
+import pytz
 import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
@@ -27,6 +28,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import (
     DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
     SUBDIRECTORY_SLUG_FORMAT_REGEX
@@ -1239,3 +1241,18 @@ def get_product_skill_names(product_identifier, product_type):
     """
     product_skills = get_whitelisted_serialized_skills(product_identifier, product_type=product_type)
     return list({product_skill['name'] for product_skill in product_skills})
+
+
+def get_course_run_statuses(statuses, course_runs):
+    """
+    Util method to get course run statuses based on the course_runs
+    """
+    now = datetime.datetime.now(pytz.UTC)
+    for course_run in course_runs:
+        if course_run.hidden:
+            continue
+        if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
+            statuses.add('archived')
+        else:
+            statuses.add(course_run.status)
+    return sorted(list(statuses))
