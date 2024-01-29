@@ -38,6 +38,7 @@ MOCK_PRODUCTS_DATA = [
                 "finalPrice": "1998",
                 "startDate": "2022-03-06",
                 "regCloseDate": "2022-02-06",
+                "finalRegCloseDate": "2022-02-15",
         },
         "curriculum": {
             "heading": "Course curriculum",
