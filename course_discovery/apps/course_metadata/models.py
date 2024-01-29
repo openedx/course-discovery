@@ -1705,7 +1705,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         invalidates the prefetch on API level.
         """
         statuses = set()
-        return get_course_run_statuses(statuses, self.course_runs.all())
+        return sorted(list(get_course_run_statuses(statuses, self.course_runs.all())))
 
     def unpublish_inactive_runs(self, published_runs=None):
         """
