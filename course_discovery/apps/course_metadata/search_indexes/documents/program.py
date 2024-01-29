@@ -75,6 +75,7 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     is_2u_degree_program = fields.BooleanField()
     excluded_from_seo = fields.BooleanField()
     excluded_from_search = fields.BooleanField()
+    course_run_statuses = fields.KeywordField(multi=True)
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)

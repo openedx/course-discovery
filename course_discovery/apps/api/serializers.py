@@ -2197,6 +2197,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     product_source = SourceSerializer(required=False, read_only=True)
+    course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2258,7 +2259,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
-            'product_source', 'excluded_from_search', 'excluded_from_seo'
+            'product_source', 'excluded_from_search', 'excluded_from_seo', 'course_run_statuses',
         )
         read_only_fields = ('enterprise_subscription_inclusion', 'product_source',)
 
@@ -2273,6 +2274,7 @@ class PathwaySerializer(BaseModelSerializer):
     description = serializers.CharField()
     destination_url = serializers.CharField()
     pathway_type = serializers.CharField()
+    course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
     def prefetch_queryset(cls, partner):
@@ -2294,6 +2296,7 @@ class PathwaySerializer(BaseModelSerializer):
             'description',
             'destination_url',
             'pathway_type',
+            'course_run_statuses',
         )
 
 

@@ -1,4 +1,6 @@
+from django.db import models
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
+from rest_framework.serializers import ListSerializer
 
 from course_discovery.apps.api.serializers import COMMON_IGNORED_FIELDS
 from course_discovery.apps.course_metadata.search_indexes import documents
@@ -74,7 +76,41 @@ class LimitedAggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSer
         }
 
 
-class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer):
+class AggregateSearchListSerializer(MultiDocumentSerializerMixin, ListSerializer):
+    """
+    Custom List Serializer for AggregateSearch to fetch all instances at once.
+    """
+    def to_representation(self, data):
+        """
+        Custom representation for all the grouped multi-serializer instances.
+        This will invoke the respective custom list serializers for all the documents.
+        """
+        iterable = data.all() if isinstance(data, models.Manager) else data
+        grouped_instances = self.group_multi_serializer_instances(iterable)
+
+        representations = []
+
+        for serializer_class, instances_for_serializer in grouped_instances.items():
+            representations += serializer_class(
+                context=self._context, many=True
+            ).to_representation(instances_for_serializer)
+
+        return representations
+
+    class Meta:
+        """
+        Meta options.
+        """
+        serializers = {
+            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
+            documents.CourseDocument: CourseSearchDocumentSerializer,
+            documents.ProgramDocument: ProgramSearchDocumentSerializer,
+            documents.LearnerPathwayDocument: LearnerPathwaySearchDocumentSerializer,
+            documents.PersonDocument: PersonSearchDocumentSerializer,
+        }
+
+
+class AggregateSearchSerializer(DocumentSerializer):
     """
     Serializer for aggregated elasticsearch documents.
     """
@@ -83,13 +119,6 @@ class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer
         """
         Meta options.
         """
-
+        list_serializer_class = AggregateSearchListSerializer
         document = DummyDocument
         ignore_fields = COMMON_IGNORED_FIELDS
-        serializers = {
-            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
-            documents.CourseDocument: CourseSearchDocumentSerializer,
-            documents.ProgramDocument: ProgramSearchDocumentSerializer,
-            documents.LearnerPathwayDocument: LearnerPathwaySearchDocumentSerializer,
-            documents.PersonDocument: PersonSearchDocumentSerializer,
-        }
