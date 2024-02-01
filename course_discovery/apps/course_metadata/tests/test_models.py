@@ -1057,6 +1057,24 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         assert course_run.availability == expected_availability
 
+    def test_course_run_statuses(self):
+        """ Verify that we are looping through all runs to get statuses. """
+
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Published)
+        course_run_2 = factories.CourseRunFactory(course=course, status=CourseRunStatus.Unpublished)
+        start_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=2)
+        end_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=1)
+        course_run_3 = factories.CourseRunFactory(
+            course=course,
+            status=CourseRunStatus.Unpublished,
+            start=start_date_past,
+            end=end_date_past)
+        course_run.save()
+        course_run_2.save()
+        course_run_3.save()
+        assert course.course_run_statuses == ['archived', 'published', 'unpublished']
+
     def test_marketing_url(self):
         """ Verify the property constructs a marketing URL based on the marketing slug. """
         expected = '{root}/course/{slug}'.format(root=self.partner.marketing_site_url_root.strip('/'),
@@ -2795,6 +2813,26 @@ class ProgramTests(TestCase):
             seat_type=SeatTypeFactory.credit(),
             program_type=program_type,
         )
+
+    def test_course_run_statuses(self):
+        """ Verify that we are looping through all runs to get statuses. """
+
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Published)
+        course_2 = factories.CourseFactory()
+        course_run_2 = factories.CourseRunFactory(course=course_2, status=CourseRunStatus.Unpublished)
+        start_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=2)
+        end_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=1)
+        course_run_3 = factories.CourseRunFactory(
+            course=course_2,
+            status=CourseRunStatus.Unpublished,
+            start=start_date_past,
+            end=end_date_past)
+        course_run.save()
+        course_run_2.save()
+        course_run_3.save()
+        program = factories.ProgramFactory(courses=[course, course_2])
+        assert program.course_run_statuses == ['archived', 'published', 'unpublished']
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""

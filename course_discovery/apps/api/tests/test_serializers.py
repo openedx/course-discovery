@@ -148,7 +148,6 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
         }
 
     def test_data(self):
-        self.maxDiff = None
         request = make_request()
         organizations = OrganizationFactory(partner=self.partner)
         course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
@@ -1166,6 +1165,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'skills': [],
             'subscription_eligible': None,
             'subscription_prices': [],
+            'course_run_statuses': ['published'],
         })
         return expected
 
@@ -1424,6 +1424,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_micromasters_path = url.sub('', degree.micromasters_url)
 
         # Tack in degree data
+        expected['course_run_statuses'] = []
         expected['curricula'] = [expected_curriculum]
         expected['degree'] = {
             'application_requirements': degree.application_requirements,
@@ -1488,7 +1489,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         self.assertIsNotNone(serializer.data['subscription_prices'])
 
 
-class PathwaySerialzerTests(TestCase):
+class PathwaySerializerTest(TestCase):
     def test_data(self):
         pathway = PathwayFactory()
         serializer = PathwaySerializer(pathway)
@@ -1503,6 +1504,7 @@ class PathwaySerialzerTests(TestCase):
             'description': pathway.description,
             'destination_url': pathway.destination_url,
             'pathway_type': pathway.pathway_type,
+            'course_run_statuses': [],
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -2691,6 +2693,8 @@ class TestProgramSearchDocumentSerializer(TestCase):
         program = ProgramFactory(courses=[course_run.course])
         serializer = self.serialize_program(program, self.request)
         expected = self.get_expected_data(program, self.request)
+        if serializer.data.get('course_run_statuses'):
+            expected['course_run_statuses'] = ['published']
         assert serializer.data == expected
         if 'language' in expected:
             assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
@@ -2706,6 +2710,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
         expected = ProgramSerializerTests.get_expected_data(program, request, include_labels=False)
         expected.update({'content_type': 'program'})
         expected.update({'marketing_hook': program.marketing_hook})
+        expected.update({'course_run_statuses': []})
         return expected
 
 
@@ -2887,8 +2892,6 @@ class CollaboratorSerializerTests(TestCase):
     serializer_class = CollaboratorSerializer
 
     def test_data(self):
-        self.maxDiff = None
-
         request = make_request()
 
         image_field = StdImageSerializerField()
@@ -2953,7 +2956,6 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
         }
 
     def test_course_with_recommendations(self):
-        self.maxDiff = None
         request = make_request()
         context = {'request': request}
         organization = OrganizationFactory(partner=self.partner)
