@@ -179,8 +179,9 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Short Description'] == 'A short description for CSV course'
                 assert data_row['Long Description'] == 'Very short description\n' \
                                                        'This is supposed to be a long description'
-                assert data_row['End Time'] == '23:59:59'
+                assert data_row['End Time'] == '00:00:00'
                 assert data_row['Reg Close Date'] == '01/25/2050'
+                assert data_row['Reg Close Time'] == '00:00:00'
                 assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
                 assert data_row['Course Run Enrollment Track'] == 'Unpaid Executive Education'
                 assert data_row['Length'] == '10'
@@ -346,9 +347,10 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['External Identifier'] == '12345678'
         assert data_row['Start Time'] == '00:00:00'
         assert data_row['Start Date'] == '2022-03-06'
-        assert data_row['End Time'] == '23:59:59'
+        assert data_row['End Time'] == '00:00:00'
         assert data_row['End Date'] == '2022-05-06'
         assert data_row['Reg Close Date'] == '2022-02-15'
+        assert data_row['Reg Close Time'] == '00:00:00'
         assert data_row['Verified Price'] == '1998'
         assert data_row['Short Description'] == 'A short description for CSV course'
         assert data_row['Long Description'] == 'Very short description\n' \
