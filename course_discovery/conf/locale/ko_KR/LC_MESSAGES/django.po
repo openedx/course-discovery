@@ -4,21 +4,23 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Translators:
 # 김수연 <amelia9981@ajou.ac.kr>, 2020
 # Jay Oh <theanswer.jay@gmail.com>, 2020
 # gscavanger0209 <gscavanger@gmail.com>, 2016
 # 김수연 <amelia9981@ajou.ac.kr>, 2020
 # Lee Soul <a0103932@naver.com>, 2018
+# 김문만 <moonman0429@ajou.ac.kr>, 2022
 # Wonjae Choi <juniorleo651@gmail.com>, 2021
 # WooJin Kim, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-20 20:35+0000\n"
+"POT-Creation-Date: 2023-10-15 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: WooJin Kim, 2021\n"
-"Language-Team: Korean (Korea) (http://www.transifex.com/open-edx/edx-platform/language/ko_KR/)\n"
+"Last-Translator: 김문만 <moonman0429@ajou.ac.kr>, 2022\n"
+"Language-Team: Korean (Korea) (http://app.transifex.com/open-edx/edx-platform/language/ko_KR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,470 +30,541 @@ msgstr ""
 #: apps/api/filters.py:47
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr ""
+msgstr "사용자 이름이 [{username}]인 사용자는 존재하지 않습니다."
 
 #: apps/api/filters.py:50
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr ""
+msgstr "오직 스탭들만 사용자이름으로 정리하도록 허용됩니다. 사용자 이름 매개변수를 삭제"
 
-#: apps/api/serializers.py:705
+#: apps/api/serializers.py:813
 msgid "Number of courses contained in this catalog"
-msgstr ""
+msgstr "해당 카탈로그에 들어있는 강좌 수"
 
-#: apps/api/serializers.py:708
+#: apps/api/serializers.py:816
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr ""
-
-#: apps/api/serializers.py:867
-msgid "Start date cannot be after the End date"
-msgstr ""
-
-#: apps/api/serializers.py:872
-msgid "Term cannot be changed"
-msgstr ""
-
-#: apps/api/serializers.py:884
-msgid "Language in which the course is administered"
-msgstr ""
-
-#: apps/api/serializers.py:971
-msgid "Course cannot be changed for an existing course run"
-msgstr ""
+msgstr "해당 카탈로그를 보기 위해 정확한 접근성을 가진 사용자의 사용자이름들"
 
 #: apps/api/serializers.py:976
+msgid "Start date cannot be after the End date"
+msgstr "시작 날짜는 종료날짜보다 늦을 수 없습니다."
+
+#: apps/api/serializers.py:981
+msgid "Term cannot be changed"
+msgstr "용어는 바뀔 수 없습니다."
+
+#: apps/api/serializers.py:993
+msgid "Language in which the course is administered"
+msgstr "강좌에서 관리되는 언어"
+
+#: apps/api/serializers.py:1090
+msgid "Course cannot be changed for an existing course run"
+msgstr "강좌는 이미 존재하는 강좌로 바뀔 수 없습니다."
+
+#: apps/api/serializers.py:1095
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "최소한의 효과는 효과의 최대치보다 더 클 수 없습니다."
 
-#: apps/api/serializers.py:978
+#: apps/api/serializers.py:1097
 msgid "Minimum effort and Maximum effort cannot be the same"
-msgstr ""
+msgstr "최소한의 효과와 효과의 최대치는 같을 수 없습니다."
 
-#: apps/api/serializers.py:1020
+#: apps/api/serializers.py:1143
 msgid "Dictionary mapping course run IDs to boolean values"
+msgstr "강의 실행 ID를 불린 값으로 방향이 있는 연결"
+
+#: apps/api/serializers.py:1242
+msgid "Restriction Type cannot be empty"
 msgstr ""
 
-#: apps/api/serializers.py:1386
+#: apps/api/serializers.py:1685
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "강의 실행 ID를 불린 값으로 방향이 있는 연결"
 
-#: apps/api/serializers.py:1776
+#: apps/api/serializers.py:2155
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "이 프로그램에서 강의 실행에 제공되는 언어"
 
-#: apps/api/serializers.py:1780
+#: apps/api/serializers.py:2159
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "이 프로그램에서 강의 실행에 자막으로 가능한 언어"
 
-#: apps/api/utils.py:245
+#: apps/api/utils.py:313
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "에러가 스튜디오에서 [{key}]에 대한 강좌 실행 이미지를 설정하는 동안 발생하였습니다. 다른 모든 분야는 스튜디오에서 성공적으로 저장되었습니다."
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "editable =1 과 매개변수 q는 지정하는 것은 지원되지 않습니다."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "당신은 course_uuid를 당신의 query 매개변수로 포함시켜야 합니다."
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:194
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "[{name}] 값이 없습니다."
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:201
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:204
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "잘못된 정보가 보내졌습니다."
 
-#: apps/api/v1/views/course_runs.py:45
+#: apps/api/v1/views/course_runs.py:46
 msgid "Failed to set course run data: {}"
-msgstr ""
+msgstr "강좌 실행 데이터를 설정에 실패함: {}\n "
 
-#: apps/api/v1/views/course_runs.py:312
+#: apps/api/v1/views/course_runs.py:313
 msgid "Can only update status, ofac restrictions, and ofac comment"
-msgstr ""
+msgstr "상태, ofac 제한 그리고 ofac 주석만 업데이트 가능합니다."
 
-#: apps/api/v1/views/course_runs.py:351
+#: apps/api/v1/views/course_runs.py:352
 msgid "Course run is in review. Editing disabled."
-msgstr ""
+msgstr "강좌 실행은 검토중에 있습니다. 수정은 불가능합니다."
 
-#: apps/api/v1/views/course_runs.py:358
+#: apps/api/v1/views/course_runs.py:359
 msgid "Invalid parameter"
-msgstr ""
+msgstr "유효하지 않은 매개 변수"
 
-#: apps/api/v1/views/courses.py:62
+#: apps/api/v1/views/courses.py:60
 msgid "Failed to set data: {}"
-msgstr ""
+msgstr "데이터 설정에 실패했습니다: {}"
 
-#: apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
-msgstr ""
+msgstr "단체 [{org}]는 존재하지 않습니다."
 
-#: apps/api/v1/views/courses.py:198
+#: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
+msgstr "강좌 타입 [{course_type}]이 존재하지 않습니다."
+
+#: apps/api/v1/views/courses.py:200
+#, python-brace-format
+msgid "Product Source [{product_source}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:214
+#: apps/api/v1/views/courses.py:218
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
-msgstr ""
+msgstr "[{key}] 를 가진 강좌가 이미 존재합니다."
 
-#: apps/api/v1/views/courses.py:220
+#: apps/api/v1/views/courses.py:226
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
-msgstr ""
+msgstr "강의 생성이 실패했습니다. 강의 URL 마지막부분 '[{url_slug}]'은 이미 사용중입니다. 이 부분을 업데이트 하고 다시 시도해 주세요. "
 
-#: apps/api/v1/views/courses.py:278
+#: apps/api/v1/views/courses.py:285
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
-msgstr ""
+msgstr "검토 후 자격 유형 전환은 지원되지 않는다. 필요한 경우 프로젝트 코디네이터에게 연락하여 추가 도움을 요청하십시오."
 
-#: apps/api/v1/views/courses.py:379
+#: apps/api/v1/views/courses.py:395
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
 "in use. Please update this field and try again."
-msgstr ""
+msgstr "강좌 수정이 성공적으로 되지 않았습니다. 강좌 URL의 마지막부분 [{url_slug}]은 이미 사용되었습니다. 이 분야를 업데이트를 하고 다시 시도해주세요."
 
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
-msgstr ""
+msgstr "API 문서에 접근할 권한이 없습니다."
 
 #: apps/catalogs/models.py:17
 msgid "Catalog name"
-msgstr ""
+msgstr "카탈로그 이름"
 
 #: apps/catalogs/models.py:18
 msgid "Query to retrieve Course Run catalog contents"
-msgstr ""
+msgstr "강좌 실행 카탈로그 내용을 검색하기 위한 쿼리"
 
 #: apps/catalogs/models.py:22
 msgid "Query to retrieve Program catalog contents"
-msgstr ""
+msgstr "프로그램 카탈로그 내용들을 검색하기 위한 쿼리"
 
 #: apps/catalogs/models.py:25
 msgid "Include archived courses"
-msgstr ""
+msgstr "성취한 강좌들 포함"
 
 #: apps/core/admin.py:17
 msgid "Personal info"
-msgstr ""
+msgstr "개인 정보"
 
 #: apps/core/admin.py:18
 msgid "Permissions"
-msgstr ""
+msgstr "허용"
 
 #: apps/core/admin.py:19
 msgid "Important dates"
-msgstr ""
+msgstr "중요한 날짜"
 
 #: apps/core/admin.py:45
 msgid "API Configuration"
-msgstr ""
+msgstr "API 설정"
 
 #: apps/core/admin.py:46
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr ""
+msgstr "정보를 검색하기 위해 사용될 API들을 설정"
 
 #: apps/core/admin.py:53
 msgid "Marketing Site Configuration"
-msgstr ""
+msgstr "마케팅 사이트 설정"
 
 #: apps/core/admin.py:54
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr ""
+msgstr "정보를 검색하기 위해 사용되는 마케팅 사이트 URL 설정하고 URL 생성하기"
 
 #: apps/core/admin.py:58
 msgid "Analytics Configuration"
-msgstr ""
+msgstr "분석 설정"
 
 #: apps/core/admin.py:59
 msgid ""
 "Configure the analytics API that will be used to retrieve enrollment data"
-msgstr ""
+msgstr "등록 정보를 검색하는데 사용되는 분석 API 설정"
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py:23
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr ""
+msgstr "기간은 {period_choices} 중 하나여야 합니다."
 
 #: apps/core/forms.py:26
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr ""
-
-#: apps/core/models.py:16
-msgid "Full Name"
-msgstr ""
+msgstr "'평가'는 '100/hour'와 같은 DRF에 의해 정의된 형식이어야 합니다."
 
 #: apps/core/models.py:17
-msgid "Referral Tracking ID"
-msgstr ""
+msgid "Full Name"
+msgstr "실명"
 
-#: apps/core/models.py:33
+#: apps/core/models.py:18
+msgid "Referral Tracking ID"
+msgstr "ID 조회 추적"
+
+#: apps/core/models.py:34
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr ""
-
-#: apps/core/models.py:53
-msgid "Short Code"
-msgstr ""
+msgstr "이 사용자를 다음으로 제한하기 위한 요청 비율. Django Rest Framework에 의해 형식이 구체화되었습니다. (http://www.django-rest-framework.org/api-guide/throttling/  에서 자세히 보기 )"
 
 #: apps/core/models.py:54
+msgid "Short Code"
+msgstr "짧은 코드"
+
+#: apps/core/models.py:55
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr ""
+msgstr "이 파트너를 식별하기 위한 간편한 코드/슬레그 (예시. 관리 명령을 위해서)"
 
-#: apps/core/models.py:55
+#: apps/core/models.py:56
 msgid "Courses API URL"
-msgstr ""
-
-#: apps/core/models.py:58
-msgid "Course Mode API URL"
-msgstr ""
+msgstr "강좌 API URL"
 
 #: apps/core/models.py:59
-msgid "E-Commerce API URL"
-msgstr ""
+msgid "Course Mode API URL"
+msgstr "강좌 모드 API URL"
 
-#: apps/core/models.py:61
-msgid "Organizations API URL"
-msgstr ""
+#: apps/core/models.py:60
+msgid "E-Commerce API URL"
+msgstr "전자 상거래 API URL"
 
 #: apps/core/models.py:62
+msgid "Organizations API URL"
+msgstr "단체 API URL"
+
+#: apps/core/models.py:63
 msgid "Programs API URL"
-msgstr ""
+msgstr "프로그램들 API URL"
 
-#: apps/core/models.py:64
+#: apps/core/models.py:65
 msgid "Marketing Site API URL"
-msgstr ""
+msgstr "마케팅 웹사이트 API URL"
 
-#: apps/core/models.py:66
+#: apps/core/models.py:67
 msgid "Marketing Site URL"
-msgstr ""
+msgstr "마케팅 사이트 URL"
 
-#: apps/core/models.py:68
+#: apps/core/models.py:69
 msgid "Marketing Site API Username"
-msgstr ""
+msgstr "마케팅 사이트 API 사용자 이름"
 
-#: apps/core/models.py:70
+#: apps/core/models.py:71
 msgid "Marketing Site API Password"
-msgstr ""
+msgstr "마케팅 사이트 API 비밀번호"
 
-#: apps/core/models.py:72
+#: apps/core/models.py:73
 msgid "Studio URL"
-msgstr ""
-
-#: apps/core/models.py:74
-msgid "Publisher URL"
-msgstr ""
+msgstr "스튜디오 URL"
 
 #: apps/core/models.py:75
+msgid "Publisher URL"
+msgstr "출판자 URL"
+
+#: apps/core/models.py:76
 msgid ""
 "The base URL of your publisher service, if used. Example: "
 "https://publisher.example.com/"
-msgstr ""
+msgstr "만약 사용된 경우, 게시자 서비스의 기본. 예제: https://publisher.example.com/"
 
-#: apps/core/models.py:78
+#: apps/core/models.py:79
 msgid "LMS URL"
-msgstr ""
-
-#: apps/core/models.py:80
-msgid "LMS Admin URL"
-msgstr ""
+msgstr "LMS URL"
 
 #: apps/core/models.py:81
+msgid "LMS Admin URL"
+msgstr "LMS 허용 URL"
+
+#: apps/core/models.py:82
 msgid ""
 "The public URL of your LMS Django admin. Example: https://lms-"
 "internal.example.com/admin"
-msgstr ""
-
-#: apps/core/models.py:83
-msgid "Analytics API URL"
-msgstr ""
+msgstr "LMS Django 관리자의 공개 URL. 예제: https://lms-internal.example.com/admin"
 
 #: apps/core/models.py:84
+msgid "Analytics API URL"
+msgstr "분석 API URL"
+
+#: apps/core/models.py:85
 msgid "Analytics Access Token"
-msgstr ""
+msgstr "분석 접근 토큰"
 
-#: apps/core/models.py:92
+#: apps/core/models.py:94
 msgid "Partner"
-msgstr ""
+msgstr "파트너"
 
-#: apps/core/models.py:93
+#: apps/core/models.py:95
 msgid "Partners"
-msgstr ""
+msgstr "파트너들"
 
-#: apps/core/models.py:119
+#: apps/core/models.py:130
 msgid "Salesforce Username"
-msgstr ""
-
-#: apps/core/models.py:123
-msgid "Salesforce Password"
-msgstr ""
-
-#: apps/core/models.py:128
-msgid "Salesforce Organization Id"
-msgstr ""
+msgstr "판매인력 사용자 이름"
 
 #: apps/core/models.py:134
+msgid "Salesforce Password"
+msgstr "판매 인력 비밀 번호"
+
+#: apps/core/models.py:139
+msgid "Salesforce Organization Id"
+msgstr "판매 인력 단체 Id"
+
+#: apps/core/models.py:145
 msgid "Salesforce Security Token"
-msgstr ""
+msgstr "판매 인력 보안 토큰"
 
-#: apps/core/models.py:138
+#: apps/core/models.py:149
 msgid "Is a Salesforce Sandbox?"
-msgstr ""
+msgstr "판매 인력이 Sandbox인가요?"
 
-#: apps/core/models.py:144
+#: apps/core/models.py:155
 msgid "Case Record Type Id"
-msgstr ""
+msgstr "사례 기록 타입 Id"
 
-#: apps/course_metadata/admin.py:29
+#: apps/course_metadata/admin.py:35
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr ""
-
-#: apps/course_metadata/admin.py:49
-msgid "eligible for one-click purchase"
-msgstr ""
-
-#: apps/course_metadata/admin.py:54
-msgid "Yes"
-msgstr ""
+msgstr "마케팅 사이트에 {model}을 공개하는데 오류가 발생했습니다. 다시 시도해 주세요. 오류가 지속된다면, 기술팀에 문의해 주세요."
 
 #: apps/course_metadata/admin.py:55
+msgid "eligible for one-click purchase"
+msgstr "원-클릭 구매 자격이 있음"
+
+#: apps/course_metadata/admin.py:60
+msgid "Yes"
+msgstr "예"
+
+#: apps/course_metadata/admin.py:61
 msgid "No"
-msgstr ""
+msgstr "아니요"
 
-#: apps/course_metadata/admin.py:306 apps/course_metadata/admin.py:566
+#: apps/course_metadata/admin.py:422 apps/course_metadata/admin.py:707
 msgid "Included course runs"
-msgstr ""
+msgstr "강의 실행 포함됨"
 
-#: apps/course_metadata/admin.py:574
-msgid "Edit course run exclusions"
-msgstr ""
-
-#: apps/course_metadata/admin.py:576
-msgid "(save and continue editing to create a link)"
-msgstr ""
-
-#: apps/course_metadata/admin.py:578
+#: apps/course_metadata/admin.py:713
 msgid "Edit link"
+msgstr "링크 수정하기"
+
+#: apps/course_metadata/admin.py:721
+msgid "Edit course run exclusions"
+msgstr "강의 실행 제외 수정하기"
+
+#: apps/course_metadata/admin.py:723
+msgid "(save and continue editing to create a link)"
+msgstr "(링크를 생성을 위해 수정을 계속하고 저장)"
+
+#: apps/course_metadata/admin.py:849
+#, python-format
+msgid "Successfully %(status)s %(count)d %(items)s."
 msgstr ""
 
-#: apps/course_metadata/algolia_models.py:74
-#: apps/course_metadata/algolia_models.py:334
+#: apps/course_metadata/algolia_models.py:95
+#: apps/course_metadata/algolia_models.py:585
 msgid "Available now"
-msgstr ""
+msgstr "지금 이용가능 함"
 
-#: apps/course_metadata/algolia_models.py:76
-#: apps/course_metadata/models.py:1744
+#: apps/course_metadata/algolia_models.py:97
+#: apps/course_metadata/models.py:2502
 msgid "Upcoming"
-msgstr ""
+msgstr "곧 생성됩니다"
 
-#: apps/course_metadata/algolia_models.py:78
-#: apps/course_metadata/models.py:1738
+#: apps/course_metadata/algolia_models.py:99
+#: apps/course_metadata/choices.py:71 apps/course_metadata/models.py:2496
+#: apps/course_metadata/models.py:2512
 msgid "Archived"
+msgstr "저장된"
+
+#: apps/course_metadata/algolia_models.py:596
+msgid "Available by subscription"
 msgstr ""
 
-#: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
+#: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:30
 msgid "Unpublished"
-msgstr ""
+msgstr "게시되지 않음"
 
 #: apps/course_metadata/choices.py:7
 msgid "Awaiting Review from Legal"
-msgstr ""
+msgstr "법률로 부터 검토 대기중"
 
 #: apps/course_metadata/choices.py:8
 msgid "Awaiting Internal Review"
-msgstr ""
+msgstr "내부 검토 대기중"
 
 #: apps/course_metadata/choices.py:9
 msgid "Reviewed"
-msgstr ""
+msgstr "검토됨"
 
-#: apps/course_metadata/choices.py:10
+#: apps/course_metadata/choices.py:10 apps/course_metadata/choices.py:72
 msgid "Published"
-msgstr ""
+msgstr "출판됨"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
-#: apps/course_metadata/choices.py:25
+#: apps/course_metadata/choices.py:24
 msgid "Instructor-paced"
-msgstr ""
+msgstr "강의자-속도로 진행"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
-#: apps/course_metadata/choices.py:27
+#: apps/course_metadata/choices.py:26
 msgid "Self-paced"
-msgstr ""
+msgstr "개인-속도로 진행"
 
-#: apps/course_metadata/choices.py:32 apps/learner_pathway/choices.py:6
+#: apps/course_metadata/choices.py:31 apps/learner_pathway/choices.py:6
 msgid "Active"
-msgstr ""
+msgstr "활성화"
+
+#: apps/course_metadata/choices.py:32
+msgid "Retired"
+msgstr "멈춤"
 
 #: apps/course_metadata/choices.py:33
-msgid "Retired"
+msgid "Deleted"
+msgstr "삭제됨"
+
+#: apps/course_metadata/choices.py:37
+msgid "mooc"
 msgstr ""
 
-#: apps/course_metadata/choices.py:34
-msgid "Deleted"
+#: apps/course_metadata/choices.py:38
+msgid "spoc"
 msgstr ""
+
+#: apps/course_metadata/choices.py:39
+msgid "test"
+msgstr ""
+
+#: apps/course_metadata/choices.py:40
+msgid "demo"
+msgstr ""
+
+#: apps/course_metadata/choices.py:41
+msgid "other"
+msgstr "그 밖의 다른 것"
+
+#: apps/course_metadata/choices.py:45
+msgid "Honor"
+msgstr "명예"
 
 #: apps/course_metadata/choices.py:46
-msgid "Honor"
-msgstr ""
+msgid "Credit"
+msgstr "학점"
 
 #: apps/course_metadata/choices.py:47
-msgid "Credit"
-msgstr ""
+msgid "Verified"
+msgstr "인증"
 
 #: apps/course_metadata/choices.py:48
-msgid "Verified"
-msgstr ""
+msgid "Professional"
+msgstr "전문과정"
 
 #: apps/course_metadata/choices.py:49
-msgid "Professional"
-msgstr ""
+msgid "Executive Education"
+msgstr "경영인을 위한 교육"
 
 #: apps/course_metadata/choices.py:50
-msgid "Executive Education"
-msgstr ""
+msgid "Paid Executive Education"
+msgstr "유급 임원 교육"
 
 #: apps/course_metadata/choices.py:51
-msgid "Paid Executive Education"
-msgstr ""
+msgid "Unpaid Executive Education"
+msgstr "무급 임원 교육"
 
 #: apps/course_metadata/choices.py:52
-msgid "Unpaid Executive Education"
-msgstr ""
+msgid "Paid Bootcamp"
+msgstr "유료 부트캠프"
 
-#: apps/course_metadata/choices.py:56
-msgid "Platform"
-msgstr ""
+#: apps/course_metadata/choices.py:53
+msgid "Unpaid Bootcamp"
+msgstr "무보수 부트캠프"
 
 #: apps/course_metadata/choices.py:57
+msgid "Platform"
+msgstr "플랫폼"
+
+#: apps/course_metadata/choices.py:58
 msgid "Organization"
+msgstr "단체"
+
+#: apps/course_metadata/choices.py:62
+msgid "Short"
+msgstr ""
+
+#: apps/course_metadata/choices.py:63
+msgid "Medium"
+msgstr ""
+
+#: apps/course_metadata/choices.py:64
+msgid "Long"
+msgstr ""
+
+#: apps/course_metadata/choices.py:79
+msgid "Short Course"
+msgstr ""
+
+#: apps/course_metadata/choices.py:80
+msgid "Sprint"
+msgstr ""
+
+#: apps/course_metadata/choices.py:81
+msgid "Course Stack"
 msgstr ""
 
 #: apps/course_metadata/data_loaders/course_type.py:27
@@ -499,936 +572,1249 @@ msgstr ""
 msgid ""
 "Existing course type {type} for {key} ({id}) doesn't match its own "
 "entitlements."
-msgstr ""
+msgstr "{key} ({id})에 대한 존재하는 강의 타입 {type}이 자체의 자격이 일치하지 않음"
 
 #: apps/course_metadata/data_loaders/course_type.py:61
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match course type "
 "{type}.Skipping type."
-msgstr ""
+msgstr "존재하는 {key} ({id})에 대한 운영 타입 {run_type}이 강의 타입 {type}과 일치하지 않습니다. 타입 건너뛰기"
 
 #: apps/course_metadata/data_loaders/course_type.py:75
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
-msgstr ""
+msgstr "존재하는 {key} ({id})에 대한 운영 타입 {run_type}이 실제와 일치하지 않습니다. "
 
 #: apps/course_metadata/data_loaders/course_type.py:91
 #, python-brace-format
 msgid "Course {key} ({id}) matched type {type}"
-msgstr ""
+msgstr "강의 {key} ({id})가 타입 {type}과 일치함"
 
 #: apps/course_metadata/data_loaders/course_type.py:101
 #, python-brace-format
 msgid "Could not convert course {key} ({id}) to type {type}"
-msgstr ""
+msgstr "강의 {key} ({id})를 타입 {type}로 전환할 수 없습니다."
 
-#: apps/course_metadata/emails.py:33
+#: apps/course_metadata/emails.py:36
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no "
 "organization is defined for course {course}"
-msgstr ""
+msgstr "강의 {course}에 대해 정의된 단체이 없기 때문에 템플릿 {template}에 대한 알림 이메일을 보내지 않고 있습니다."
 
-#: apps/course_metadata/emails.py:38
+#: apps/course_metadata/emails.py:41
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no project "
 "coordinator is defined for organization {org}"
-msgstr ""
+msgstr "단체 {org}에 대해 정의된 프로젝트 관리자가 없기 때문에 템플릿 {template}에 대한 알림 이메일을 보내지 않고 있습니다."
 
-#: apps/course_metadata/emails.py:91
+#: apps/course_metadata/emails.py:95
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no publisher "
 "URL is defined for partner {partner}"
-msgstr ""
+msgstr "파트너 {partner}에 대해 정의된 공개 URL이 없기 때문에 템플릿 {template}에 대한 알림 이메일을 보내지 않고 있습니다."
 
-#: apps/course_metadata/emails.py:99
+#: apps/course_metadata/emails.py:103
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no studio URL"
 " is defined for partner {partner}"
-msgstr ""
+msgstr "파트너 {partner}에 대해 정의된 스튜디오 URL이 없기 때문에 템플릿 {template}에 대한 알림 이메일을 보내지 않고 있습니다."
 
-#: apps/course_metadata/emails.py:165
+#: apps/course_metadata/emails.py:169
 msgid "legal team"
+msgstr "법률 팀"
+
+#: apps/course_metadata/emails.py:187
+msgid "Project Coordinator team"
 msgstr ""
 
-#: apps/course_metadata/emails.py:201
+#: apps/course_metadata/emails.py:211
 msgid "course team"
-msgstr ""
+msgstr "강의 팀"
 
-#: apps/course_metadata/emails.py:210
+#: apps/course_metadata/emails.py:220
 #, python-brace-format
 msgid "Legal review requested: {title}"
+msgstr "법률 검토 요청됨: {title}"
+
+#: apps/course_metadata/emails.py:233
+#, python-brace-format
+msgid "Course URL for {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:223
+#: apps/course_metadata/emails.py:272
 #, python-brace-format
 msgid "Review requested: {key} - {title}"
-msgstr ""
+msgstr "요청된 검토: {key} - {title}"
 
-#: apps/course_metadata/emails.py:235
+#: apps/course_metadata/emails.py:284
 #, python-brace-format
 msgid "Review complete: {title}"
-msgstr ""
+msgstr "검토 완료: {title}"
 
-#: apps/course_metadata/emails.py:251
+#: apps/course_metadata/emails.py:300
 #, python-brace-format
 msgid "Published: {title}"
-msgstr ""
+msgstr "공개: {title}"
 
-#: apps/course_metadata/emails.py:255
+#: apps/course_metadata/emails.py:304
 #, python-brace-format
 msgid "Published: {key} - {title}"
-msgstr ""
+msgstr "공개: {key} - {title}"
 
-#: apps/course_metadata/emails.py:270
+#: apps/course_metadata/emails.py:319
 #, python-brace-format
 msgid "Comment added: {title}"
+msgstr "댓글 추가: {title}"
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: apps/course_metadata/fields.py:33
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, slashes, underscores or"
+" hyphens."
 msgstr ""
 
-#: apps/course_metadata/forms.py:59
+#: apps/course_metadata/forms.py:66
 msgid "Programs can only be activated if they have a banner image."
-msgstr ""
+msgstr "대표 이미지가 있을 때, 프로그램들은 오직 활성화됩니다."
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:15
 msgid "Tag to add to courses"
-msgstr ""
+msgstr "강의에 추가 위한 태그"
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:16
 msgid "UUIDs of courses to tag"
-msgstr ""
+msgstr "태그 위한 강의 UUID"
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:18
 msgid ""
 "Use arguments from the TagCourseUUIDsConfig model instead of the command "
 "line."
-msgstr ""
+msgstr "커맨드 라인 대신 TagCourseUUIDsConfig 모델에서 인수를 사용하세요."
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:27
 msgid "Missing required arguments"
-msgstr ""
+msgstr "필수적인 인수가 빠져있음"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:10
 msgid "Backpopulate new-style CourseType and CourseRunType where possible."
-msgstr ""
+msgstr "새로운-스타일의 강의타입과 강의운영타입을 가능한 곳으로 이동시키기"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
-msgstr ""
+msgstr "코드"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
 msgid "Short code for a partner."
-msgstr ""
+msgstr "파트너를 위한 짧은 코드"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:20
-#: apps/course_metadata/models.py:176 apps/course_metadata/models.py:359
-#: apps/course_metadata/models.py:476 apps/course_metadata/models.py:507
-#: apps/course_metadata/models.py:531 apps/course_metadata/models.py:570
-#: apps/course_metadata/models.py:658 apps/course_metadata/models.py:796
-#: apps/course_metadata/models.py:811 apps/course_metadata/models.py:1331
-#: apps/course_metadata/models.py:2164 apps/course_metadata/models.py:2835
-#: apps/course_metadata/models.py:2927 apps/learner_pathway/models.py:32
-#: apps/learner_pathway/models.py:81 apps/learner_pathway/models.py:146
+#: apps/course_metadata/models.py:230 apps/course_metadata/models.py:485
+#: apps/course_metadata/models.py:633 apps/course_metadata/models.py:666
+#: apps/course_metadata/models.py:696 apps/course_metadata/models.py:735
+#: apps/course_metadata/models.py:1006 apps/course_metadata/models.py:1147
+#: apps/course_metadata/models.py:1309 apps/course_metadata/models.py:2054
+#: apps/course_metadata/models.py:3048 apps/course_metadata/models.py:3963
+#: apps/course_metadata/models.py:4055 apps/learner_pathway/models.py:35
+#: apps/learner_pathway/models.py:84 apps/learner_pathway/models.py:159
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:22
 msgid "Course to backpopulate."
-msgstr ""
+msgstr "뒤로 이동시킬 강좌"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
-msgstr ""
+msgstr "키"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
-msgstr ""
+msgstr "뒤로 이동시킬 단체"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:35
 msgid ""
 "CourseType/CourseRunType mismatches to allow. Specify like course-type-"
 "slug:run-type-slug."
-msgstr ""
+msgstr "강의타입/강의운영타입 불일치를 허용. 강의-타입-슬레그:운영-타입-슬레그 로 명시해주세요."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:41
 #: apps/course_metadata/management/commands/delete_person_dups.py:38
 msgid "Actually commit the changes to the database."
-msgstr ""
+msgstr "데이터베이스에 대한 변경사항 커밋"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:46
 msgid ""
 "Use arguments from the BackpopulateCourseTypeConfig model instead of the "
 "command line."
-msgstr ""
+msgstr "커맨드 라인 대신 BackpopulateCourseTyoeConfig 모델에서 인수를 사용하세요."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:64
 msgid "You must specify --partner"
-msgstr ""
+msgstr "--파트너를 명시해야합니다."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:71
 #, python-brace-format
 msgid "Supplied Course Run Type slug [{rt_slug}] does not exist."
-msgstr ""
+msgstr "제공된 강좌 운영 타입 파트[{rt_slug}]가 존재하지 않습니다."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:78
 #, python-brace-format
 msgid "Supplied Course Type slug [{ct_slug}] does not exist."
-msgstr ""
+msgstr "제공된 강좌 타입 파트[{ct_slug}]가 존재하지 않습니다."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:89
 msgid "No courses found. Did you specify an argument?"
-msgstr ""
+msgstr "어떤 강의도 발견되지 않았습니다. 인자를 명시했나요?"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:101
 #, python-brace-format
 msgid ""
 "Could not backpopulate a course type for the following courses: "
 "{course_keys}"
-msgstr ""
+msgstr "다음 강의에 대한 강의 타입을 뒤로 이동시킬수 없습니다: {course_keys}"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
 msgid "Delete duplicate persons in course_metadata."
-msgstr ""
+msgstr "course_metadata에서 중복된 사람들 지우기"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:26
 msgid "PERSON"
-msgstr ""
+msgstr "개인"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:28
 msgid "People to delete, in UUID:TARGET_UUID form."
-msgstr ""
+msgstr "UUID에서 삭제할 사람들: TARGET_UUID 형식"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:32
 msgid "PARTNER"
-msgstr ""
+msgstr "파트너"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:43
 msgid ""
 "Use arguments from the DeletePersonDupsConfig model instead of the command "
 "line."
-msgstr ""
+msgstr "커맨드 라인 대신 DeletePersonDupsConfig 모델에서 인수를 사용하세요."
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:60
 msgid "Malformed argument \"{}\", should be in form of UUID:TARGET_UUID"
-msgstr ""
+msgstr "잘못 형성된 인수 \"{}\" 는 UUID 형태로 되어야합니다: TARGET_UUID"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:62
 msgid "Malformed argument \"{}\", UUIDs cannot be equal"
-msgstr ""
+msgstr "잘못 형성된 인수 \"{}\" 는 UUID들은 동일할 수 없습니다."
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "삭제중"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
-msgstr ""
+msgstr "삭제하고 싶습니다."
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:86
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:87
 msgid "Endorsements"
-msgstr ""
+msgstr "보증"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "프로그램"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
-msgstr ""
+msgstr "강의 운영"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "Target"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
-msgstr ""
+msgstr "--파트너-코드를 명시해야합니다."
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:132
 msgid "You must specify at least one person"
-msgstr ""
+msgstr "적어도 한 사람이 명시되어야 합니다."
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
 msgid "Publishing course run {key}"
-msgstr ""
+msgstr "강의 운영 {key} 공개"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:28
 #, python-brace-format
 msgid "Failed to publish {key}"
-msgstr ""
+msgstr "{key} 공개에 실패"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:31
 #, python-brace-format
 msgid "Successfully published {key}"
-msgstr ""
+msgstr "성공적으로 {key} 공개"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:34
 msgid "One or more course runs failed to publish."
-msgstr ""
+msgstr "하나 이상의 강좌 운영을 공개하는데 실패"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:22
 msgid "Remove all redirects to all courses"
-msgstr ""
+msgstr "모든 강의들에 대한 모든 리디렉 제거"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:23
 msgid "Redirects to remove"
-msgstr ""
+msgstr "삭제하려면 리디렉하세요."
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:25
 msgid ""
 "Use arguments from the RemoveRedirectsConfig model instead of the command "
 "line."
-msgstr ""
+msgstr "커맨드 라인 대신 RemoveRedirectsConfig 모델에서 인수를 사용하세요."
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:32
 msgid "Invalid arguments"
-msgstr ""
+msgstr "유효하지 않은 인자"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
 msgid "Cannot remove active url_slug {url_slug}"
-msgstr ""
+msgstr "활성화된 url_slug {url_slug}를 제거할 수 없습니다."
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:60
 #, python-brace-format
 msgid "Path /course/{url_slug} not in use, nothing to delete"
-msgstr ""
+msgstr "경로 /강좌/{url_slug} 는 사용하지 않습니다, 지울 것이 없습니다."
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:65
 #, python-brace-format
 msgid "Path {url_path} not in use, nothing to delete"
-msgstr ""
+msgstr "경로 {url_path} 는 사용하지 않습니다, 지울 것이 없습니다."
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py:42
 msgid "One or more courses failed to unpublish."
-msgstr ""
+msgstr "하나 이상의 강의를 삭제하는데 실패"
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py:48
 #, python-brace-format
 msgid "Successfully unpublished runs in course {key}"
-msgstr ""
+msgstr "강의 {key}에서 성공적으로 이미 게시된 강의 계획들이 취소되었습니다. "
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py:51
 #, python-brace-format
 msgid "Failed to unpublish runs in course {key}"
-msgstr ""
+msgstr "강의 {key}에서 이미 게시된 강의 계획들에 실패했습니다."
 
-#: apps/course_metadata/models.py:177
+#: apps/course_metadata/models.py:231
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "공백이나 마침표, 밑줄, 하이픈 - 을 제외한 특수 문자를 사용하지 말아주세요. 이 키는 강의의 강의 키로 사용됩니다."
 
-#: apps/course_metadata/models.py:182
+#: apps/course_metadata/models.py:236
 msgid "If populated, this field will overwrite name in platform."
-msgstr ""
+msgstr "채워진 경우, 이 필드는 플랫폼에 이름을 덮어씁니다."
 
-#: apps/course_metadata/models.py:187
+#: apps/course_metadata/models.py:241
 msgid "Spanish Description"
-msgstr ""
+msgstr "스페인어 서술"
 
-#: apps/course_metadata/models.py:188
+#: apps/course_metadata/models.py:242
 msgid ""
 "For seo, this field allows for alternate spanish description to be manually "
 "inputted"
-msgstr ""
+msgstr "seo를 위해서, 이 분야는 스페인어 설명이 수작업으로 변경이 될 수 있게 허용되었습니다."
 
-#: apps/course_metadata/models.py:213 apps/course_metadata/models.py:883
-#: apps/course_metadata/models.py:1408
+#: apps/course_metadata/models.py:267 apps/course_metadata/models.py:1386
+#: apps/course_metadata/models.py:2131
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
-msgstr ""
+msgstr "제안에서 태그를 선택해 주세요. 새 태그를 만들려면, 태그 이름 뒤에 쉼표를 추가합니다."
 
-#: apps/course_metadata/models.py:217
+#: apps/course_metadata/models.py:271
 msgid "Automatically generate course run keys"
-msgstr ""
+msgstr "강좌 운영 키를 자동으로 생성했습니다."
 
-#: apps/course_metadata/models.py:219
+#: apps/course_metadata/models.py:273
 msgid ""
 "When this flag is enabled, the key of a new course run will be auto "
 "generated.  When this flag is disabled, the key can be manually set."
+msgstr "이 부분이 활성화 되면, 새로운 강좌 운영 키는 자동 생성됩니다. 이 부분이 비활성화 되면, 키는 수동적으로 설정될 수 있습니다."
+
+#: apps/course_metadata/models.py:279
+msgid ""
+"This field signifies if any of this org's courses are in the enterprise "
+"subscription catalog"
 msgstr ""
 
-#: apps/course_metadata/models.py:229
+#: apps/course_metadata/models.py:282
+msgid ""
+"The 6 character-hex-value of the orgnization theme color,\n"
+"            all related course under same organization will use this color as theme color.\n"
+"            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
+msgstr ""
+
+#: apps/course_metadata/models.py:298
+msgid "The timestamp of the last time the organization data was modified."
+msgstr ""
+
+#: apps/course_metadata/models.py:314
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
+msgstr "공백이나 마침표, 밑줄, 하이픈- 을 제외한 특수 문자를 키 영역에 사용하지 말아주세요."
+
+#: apps/course_metadata/models.py:385
+msgid "Corresponding organization code in an external product source"
 msgstr ""
 
-#: apps/course_metadata/models.py:320
+#: apps/course_metadata/models.py:442
 msgid "LevelType model translations"
-msgstr ""
+msgstr "LevelType 모델 번역"
 
-#: apps/course_metadata/models.py:341
+#: apps/course_metadata/models.py:467
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
 "program."
-msgstr ""
+msgstr "이 타입의 프로그램을 완료를 위한 자격이 있는 자리 유형. 관련 강의를 완료하지만 다른 자리 유형에 등록된 학습자는 프로그램 완료 시점까지 강의 완료로 포함되지 않습니다."
 
-#: apps/course_metadata/models.py:355
+#: apps/course_metadata/models.py:481
 msgid "Please provide an image file with transparent background"
-msgstr ""
+msgstr "투명한 배경을 가진 사진 파일로 업로드해 주세요."
 
-#: apps/course_metadata/models.py:358 apps/course_metadata/models.py:535
-#: apps/course_metadata/models.py:573 apps/course_metadata/models.py:823
+#: apps/course_metadata/models.py:484 apps/course_metadata/models.py:528
+#: apps/course_metadata/models.py:700 apps/course_metadata/models.py:738
+#: apps/course_metadata/models.py:1321
 msgid "Leave this field blank to have the value generated automatically."
+msgstr "값을 자동으로 생성하기 위해서 이 부분은 비워주세요."
+
+#: apps/course_metadata/models.py:525
+msgid "Name of the external source."
 msgstr ""
 
-#: apps/course_metadata/models.py:396
+#: apps/course_metadata/models.py:530
+msgid "Description of the external source."
+msgstr ""
+
+#: apps/course_metadata/models.py:535
+msgid "Programs of these types will be OFAC restricted"
+msgstr ""
+
+#: apps/course_metadata/models.py:549
 msgid "ProgramType model translations"
-msgstr ""
+msgstr "ProgramType 모델 번역"
 
-#: apps/course_metadata/models.py:410
+#: apps/course_metadata/models.py:563
 msgid "This mode requires ID verification."
-msgstr ""
+msgstr "이 모드는 ID 검증을 요구합니다."
 
-#: apps/course_metadata/models.py:413
+#: apps/course_metadata/models.py:566
 msgid "Completion can grant credit toward an organization’s degree."
-msgstr ""
+msgstr "완료는 조직의 학위에서 학점을 승인할 수 있습니다."
 
-#: apps/course_metadata/models.py:417
+#: apps/course_metadata/models.py:570
 msgid ""
 "Certificate type granted if this mode is eligible for a certificate, or "
 "blank if not."
-msgstr ""
+msgstr "이수증에 자격이 있거나 비어있다면 이수증 타입이 승인됩니다."
 
-#: apps/course_metadata/models.py:421
+#: apps/course_metadata/models.py:574
 msgid ""
 "Who gets paid for the course? Platform is the site owner, Organization is "
 "the school."
-msgstr ""
+msgstr "누가 이 강의에 대해 돈을 받나요? 플랫폼은 사이트의 주인이고 단체는 학교입니다."
 
-#: apps/course_metadata/models.py:512
+#: apps/course_metadata/models.py:671
 msgid "Sets the order for displaying Course Run Types."
-msgstr ""
+msgstr "강의 진행 타입에 따라 표시 되는 순서를 설정해 주세요."
 
-#: apps/course_metadata/models.py:515
+#: apps/course_metadata/models.py:674
 msgid ""
 "Leave this blank to allow all orgs. Otherwise, specifies which orgs can see "
 "this course type in Publisher."
-msgstr ""
+msgstr "모든 단체를 허용하려면 이 값을 공백으로 두세요. 그렇지 않으면, 게시자에서 단체가 이 강의 유형을 볼 수 있는 것을 지정합니다."
 
-#: apps/course_metadata/models.py:565
+#: apps/course_metadata/models.py:730
 msgid "Subject model translations"
-msgstr ""
+msgstr "주제 모델 번역"
 
-#: apps/course_metadata/models.py:604
+#: apps/course_metadata/models.py:777
 msgid "Topic model translations"
+msgstr "주제 모델 번역"
+
+#: apps/course_metadata/models.py:836
+msgid "SEO Meta tags for Products"
 msgstr ""
 
-#: apps/course_metadata/models.py:677
+#: apps/course_metadata/models.py:866
+msgid ""
+"The ID of the Taxi Form (by 2U) that would be rendered in place of the "
+"hubspot capture form"
+msgstr ""
+
+#: apps/course_metadata/models.py:872
+msgid ""
+"The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
+"hubspot capture form"
+msgstr ""
+
+#: apps/course_metadata/models.py:896
+msgid "The URL of the paid landing page on external site"
+msgstr "외부 사이트의 유료 방문 페이지 URL"
+
+#: apps/course_metadata/models.py:902
+msgid "The URL of the organic landing page on external site"
+msgstr "외부 사이트의 자연 방문 페이지 URL"
+
+#: apps/course_metadata/models.py:913
+msgid "The start date of the external course offering for marketing purpose"
+msgstr ""
+
+#: apps/course_metadata/models.py:917
+msgid "The ends date of the external course offering for marketing purpose"
+msgstr ""
+
+#: apps/course_metadata/models.py:921
+msgid "The suggested deadline for enrollment for marketing purpose"
+msgstr ""
+
+#: apps/course_metadata/models.py:925
+msgid "The identifier for a product variant."
+msgstr ""
+
+#: apps/course_metadata/models.py:929
+msgid "Course override"
+msgstr ""
+
+#: apps/course_metadata/models.py:930
+msgid "This field allows for override the default course term"
+msgstr ""
+
+#: apps/course_metadata/models.py:948
+msgid ""
+"This field contain external course marketing type specific to product lines"
+msgstr ""
+
+#: apps/course_metadata/models.py:957
+msgid ""
+"Determines weather the course should be displayed on the owning "
+"organization's page"
+msgstr ""
+
+#: apps/course_metadata/models.py:1025
 msgid "A list of major works by this person. Must be valid HTML."
-msgstr ""
+msgstr "이 사람이 하는 대부분의 작업의 목록. 유효한 HTML이어야 합니다."
 
-#: apps/course_metadata/models.py:685
+#: apps/course_metadata/models.py:1033
 msgid "People"
-msgstr ""
+msgstr "사람들"
 
-#: apps/course_metadata/models.py:793
+#: apps/course_metadata/models.py:1144
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
+msgstr "협력하는 사람들의 이미지를 추가하고, 사진의 크기가 200x100픽셀로 해주세요."
+
+#: apps/course_metadata/models.py:1168
+msgid "U.S. Value Per Lead"
 msgstr ""
 
-#: apps/course_metadata/models.py:819
+#: apps/course_metadata/models.py:1169
+msgid "U.S. value per lead in U.S. dollars."
+msgstr ""
+
+#: apps/course_metadata/models.py:1174
+msgid "International Value Per Lead"
+msgstr ""
+
+#: apps/course_metadata/models.py:1175
+msgid "International value per lead in U.S. dollars."
+msgstr ""
+
+#: apps/course_metadata/models.py:1180
+msgid "U.S. Value Per Click"
+msgstr ""
+
+#: apps/course_metadata/models.py:1181
+msgid "U.S. value per click in U.S. dollars."
+msgstr ""
+
+#: apps/course_metadata/models.py:1186
+msgid "International Value Per Click"
+msgstr ""
+
+#: apps/course_metadata/models.py:1187
+msgid "International value per click in U.S. dollars."
+msgstr ""
+
+#: apps/course_metadata/models.py:1225
+msgid "Latitude"
+msgstr ""
+
+#: apps/course_metadata/models.py:1232
+msgid "Longitude"
+msgstr ""
+
+#: apps/course_metadata/models.py:1269
+msgid "Allowlist"
+msgstr ""
+
+#: apps/course_metadata/models.py:1270
+msgid "Blocklist"
+msgstr ""
+
+#: apps/course_metadata/models.py:1317
 msgid ""
 "When making reruns for this course, they will use this key instead of the "
 "course key."
+msgstr "이 강의를 재실행하고 싶을때, 강의 키 대신에 이 키를 사용하세요."
+
+#: apps/course_metadata/models.py:1334
+msgid ""
+"The actual duration of this course as experienced by learners who complete "
+"it."
 msgstr ""
 
-#: apps/course_metadata/models.py:853
+#: apps/course_metadata/models.py:1355
 msgid "Add the course image"
-msgstr ""
+msgstr "강좌 대표 이미지 업로드"
 
-#: apps/course_metadata/models.py:856 apps/course_metadata/models.py:2155
+#: apps/course_metadata/models.py:1358 apps/course_metadata/models.py:3034
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
-#: apps/course_metadata/models.py:859
+#: apps/course_metadata/models.py:1361
 msgid "Total number of learners who have enrolled in this course"
-msgstr ""
+msgstr "이 강의에 등록한 전체 학습자 수"
 
-#: apps/course_metadata/models.py:863
+#: apps/course_metadata/models.py:1366
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
-msgstr ""
+msgstr "지난 6개월 동안 이 강의에  등록한 전체 학습자 수"
 
-#: apps/course_metadata/models.py:877
+#: apps/course_metadata/models.py:1380
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
-msgstr ""
+msgstr "강의 번호 형식 예시 CS002x, BIO1.1x, BIO1.2x"
 
-#: apps/course_metadata/models.py:891
+#: apps/course_metadata/models.py:1394
 msgid "Additional Information"
+msgstr "추가 정보"
+
+#: apps/course_metadata/models.py:1416
+msgid "The last time this course was modified in the database."
 msgstr ""
 
-#: apps/course_metadata/models.py:1005
+#: apps/course_metadata/models.py:1421
+msgid ""
+"This field signifies if this course is in the enterprise subscription "
+"catalog"
+msgstr ""
+
+#: apps/course_metadata/models.py:1429 apps/course_metadata/models.py:3191
+msgid ""
+"If checked, this item will not be indexed in Algolia and will not show up in"
+" search results."
+msgstr ""
+
+#: apps/course_metadata/models.py:1437 apps/course_metadata/models.py:3199
+msgid "If checked, the About Page will have a meta tag with noindex value"
+msgstr ""
+
+#: apps/course_metadata/models.py:1442
+msgid "Watchers"
+msgstr ""
+
+#: apps/course_metadata/models.py:1444
+msgid ""
+"The list of email addresses that will be notified if any of the course runs "
+"is published or scheduled."
+msgstr ""
+
+#: apps/course_metadata/models.py:1661
 msgid "Future"
-msgstr ""
+msgstr "미래"
 
-#: apps/course_metadata/models.py:1007
+#: apps/course_metadata/models.py:1663
 msgid "Past"
-msgstr ""
+msgstr "과거"
 
-#: apps/course_metadata/models.py:1327
+#: apps/course_metadata/models.py:2047 apps/course_metadata/models.py:3045
 msgid "Blocked"
-msgstr ""
+msgstr "제한 되어 있음"
 
-#: apps/course_metadata/models.py:1328
+#: apps/course_metadata/models.py:2048 apps/course_metadata/models.py:3046
 msgid "Unrestricted"
-msgstr ""
+msgstr "제한 되지 않음"
 
-#: apps/course_metadata/models.py:1341
+#: apps/course_metadata/models.py:2064
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
-msgstr ""
+msgstr "강의 진행에 대한 제목입니다. 이 값은 기본적으로 상위 강의 제목으로 비워둡니다."
 
-#: apps/course_metadata/models.py:1350
+#: apps/course_metadata/models.py:2073
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
-msgstr ""
+msgstr "이 강의 진행에 대한 간단한 설명입니다. 이 값을 공백으로 두면 기본적으로 상위 과정의 짧은_설명 속성이 지정됩니다."
 
-#: apps/course_metadata/models.py:1354
+#: apps/course_metadata/models.py:2077
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
-msgstr ""
+msgstr "강의 진행에 대한 전체 설명입니다. 이 값을 공백으로 두면 기본적으로 상위 과정의 전체_설명 속성이 지정됩니다."
 
-#: apps/course_metadata/models.py:1359
+#: apps/course_metadata/models.py:2082
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
-msgstr ""
+msgstr "강의 수행을 완료하는 데 필요한 주당 최소 시간"
 
-#: apps/course_metadata/models.py:1362
+#: apps/course_metadata/models.py:2085
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
-msgstr ""
+msgstr "강의 수행을 완료하는 데 필요한 주당 최대 시간"
 
-#: apps/course_metadata/models.py:1365
+#: apps/course_metadata/models.py:2088
 msgid "Estimated number of weeks needed to complete this course run."
-msgstr ""
+msgstr "강의 수행을 완료하는 데 필요한 주차 수"
 
-#: apps/course_metadata/models.py:1372
+#: apps/course_metadata/models.py:2095
 msgid "Total number of learners who have enrolled in this course run"
-msgstr ""
+msgstr "이 강의 수행에 등록한 전체 학습자 수"
 
-#: apps/course_metadata/models.py:1376
+#: apps/course_metadata/models.py:2099
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
-msgstr ""
+msgstr "지난 6개월 동안 이 강의 수행에 등록한 전체 학습자 수"
 
-#: apps/course_metadata/models.py:1389
+#: apps/course_metadata/models.py:2112
 msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
 "this value will be overwritten by the \"Course Visibility In Catalog\" field"
 " in Studio via Refresh Course Metadata."
-msgstr ""
+msgstr "이 실행을 API 응답에서 숨길지 여부입니다. 여기서 편집하지 마십시오 - 이 값은 강의 메타데이터 새로 고침을 통해 스튜디오의 \"목록에서 강의 보기\" 필드에 의해 덮어쓰기됩니다."
 
-#: apps/course_metadata/models.py:1395
+#: apps/course_metadata/models.py:2118
 msgid "Indicates whether the course relation has been manually overridden."
-msgstr ""
+msgstr "강의 관계를 수동으로 재정의했는지 여부를 나타냅니다."
 
-#: apps/course_metadata/models.py:1402
+#: apps/course_metadata/models.py:2125
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr ""
+msgstr "이 강의에 대한 '배울 내용' 설명입니다. 이 값을 공백으로 두면 기본적으로 상위 강의의 결과 속성이 지정됩니다."
 
-#: apps/course_metadata/models.py:1415
+#: apps/course_metadata/models.py:2138 apps/course_metadata/models.py:3227
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
+msgstr "마케팅 사이트의 FAQ 부분에 OFAC 제한 문구를 추가해주세요."
+
+#: apps/course_metadata/models.py:2158
+msgid ""
+"This calculated field signifies if this course run is in the enterprise "
+"subscription catalog"
 msgstr ""
 
-#: apps/course_metadata/models.py:1740
+#: apps/course_metadata/models.py:2498 apps/course_metadata/models.py:2511
 msgid "Current"
-msgstr ""
+msgstr "현재"
 
-#: apps/course_metadata/models.py:1742
+#: apps/course_metadata/models.py:2500
 msgid "Starting Soon"
-msgstr ""
+msgstr "곧 시작합니다."
 
-#: apps/course_metadata/models.py:1782
+#: apps/course_metadata/models.py:2550
 msgid ""
 "Switching seat types after being reviewed is not supported. Please reach out"
 " to your project coordinator for additional help if necessary."
+msgstr "검토 후 자리 유형을 전환할 수 없습니다. 필요한 경우 프로젝트 관리자에게 연락하여 추가 도움을 요청하세요."
+
+#: apps/course_metadata/models.py:2844
+msgid "Change careers"
 msgstr ""
 
-#: apps/course_metadata/models.py:2156
+#: apps/course_metadata/models.py:2845
+msgid "Job advancement"
+msgstr ""
+
+#: apps/course_metadata/models.py:2846
+msgid "Learn valuable skills"
+msgstr ""
+
+#: apps/course_metadata/models.py:2847
+msgid "Learn for fun"
+msgstr ""
+
+#: apps/course_metadata/models.py:3035
 msgid "FAQs"
-msgstr ""
+msgstr "FAQ"
 
-#: apps/course_metadata/models.py:2166
+#: apps/course_metadata/models.py:3050
 msgid "The user-facing display title for this Program."
-msgstr ""
+msgstr "이 프로그램의 사용자가 보는 제목입니다."
 
-#: apps/course_metadata/models.py:2168
+#: apps/course_metadata/models.py:3052
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "프로그램에 대한 소개를 나타내는 부제."
 
-#: apps/course_metadata/models.py:2170
+#: apps/course_metadata/models.py:3054
 msgid "A brief hook for the marketing website"
-msgstr ""
+msgstr "마케팅 웹사이트를 위한 간단한 관심 끄는 포인트"
 
-#: apps/course_metadata/models.py:2173
+#: apps/course_metadata/models.py:3057
 msgid "The lifecycle status of this Program."
-msgstr ""
+msgstr "프로그램의 주기 상태."
 
-#: apps/course_metadata/models.py:2177
+#: apps/course_metadata/models.py:3061
 msgid "Slug used to generate links to the marketing site"
-msgstr ""
+msgstr "마케팅 사이트 링크 생성을 위해 사용되는 slug"
 
-#: apps/course_metadata/models.py:2183
+#: apps/course_metadata/models.py:3067
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
-msgstr ""
+msgstr "이 체크박스를 선택하지 않으면 위의 강의 체크박스에서와 같이 강의들이 정렬됩니다."
 
-#: apps/course_metadata/models.py:2197
+#: apps/course_metadata/models.py:3082
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
-msgstr ""
+msgstr "이제 이 필드는 더 이상 사용되지 않습니다(ECOM-6021). 이 프로그램에 속하는 강의 수행을 완료하는 데 필요한 예상 주 수입니다."
 
-#: apps/course_metadata/models.py:2223
+#: apps/course_metadata/models.py:3108
 msgid "DEPRECATED: Use the card image field"
-msgstr ""
+msgstr "사용되지 않음: 카드 이미지 필드 사용"
 
-#: apps/course_metadata/models.py:2230
+#: apps/course_metadata/models.py:3115
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
-msgstr ""
+msgstr "이 필드는 API 클라이언트에서 프로그램 페이지에 강사를 표시하는 순서를 결정하는 데 사용할 수 있습니다. 이 목록에 있는 강사는 이 프로그램과 관련된 모든 다른 강의을 실행하기 전에 나타나야 합니다."
 
-#: apps/course_metadata/models.py:2241
+#: apps/course_metadata/models.py:3126
 msgid "The description of credit redemption for courses in program"
-msgstr ""
+msgstr "프로그램 강의에 대한 학점 상환에 대한 설명"
 
-#: apps/course_metadata/models.py:2246
+#: apps/course_metadata/models.py:3131
 msgid "Allow courses in this program to be purchased in a single transaction"
-msgstr ""
+msgstr "이 프로그램의 강의들을 한번의 거래로 구입할 수 있도록 허용합니다."
 
-#: apps/course_metadata/models.py:2250
+#: apps/course_metadata/models.py:3135
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
-msgstr ""
+msgstr "마케팅 랜딩 사이트와 검색 페이지에서 프로그램 숨기기. 이 프로그램은 세부페이지를 가지고 있을 지도 모릅니다."
 
-#: apps/course_metadata/models.py:2253
+#: apps/course_metadata/models.py:3138
 msgid "Total number of learners who have enrolled in courses this program"
-msgstr ""
+msgstr "이 프로그램에 등록한 전체 학습자 수 "
 
-#: apps/course_metadata/models.py:2258
+#: apps/course_metadata/models.py:3143
 msgid ""
 "Total number of learners who have enrolled in courses in this program in the"
 " last 6 months"
-msgstr ""
+msgstr "지난 6개월 동안 이 프로그램에 등록한 전체 학습자 수"
 
-#: apps/course_metadata/models.py:2263
+#: apps/course_metadata/models.py:3148
 msgid ""
 "Number of credits a learner will earn upon successful completion of the "
 "program"
+msgstr "프로그램을 성공적으로 완료했을 때 학습자가 받게 될 학점의 수"
+
+#: apps/course_metadata/models.py:3152
+msgid ""
+"This calculated field signifies if all the courses in this program are "
+"included in the enterprise subscription catalog "
 msgstr ""
 
-#: apps/course_metadata/models.py:2589
+#: apps/course_metadata/models.py:3156
+msgid ""
+"A field to override Organization short code alias specific for this program."
+msgstr "이 프로그램에 특정한 조직 단축 코드 별칭을 재정의하는 필드입니다."
+
+#: apps/course_metadata/models.py:3163
+msgid "A field to override Organization logo specific for this program."
+msgstr "이 프로그램에 특정한 조직 로고를 재정의하는 필드입니다."
+
+#: apps/course_metadata/models.py:3167
+msgid ""
+"Primary subject field specific for this program. Useful field in case there "
+"are no courses associated with this program."
+msgstr "이 프로그램에 특정한 기본 주제 필드입니다. 이 프로그램과 연결된 강좌가 없는 경우에 유용한 필드입니다."
+
+#: apps/course_metadata/models.py:3172
+msgid ""
+"Level type specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr "이 프로그램에 특정한 레벨 유형입니다. 이 프로그램과 연결된 강좌가 없는 경우에 유용한 필드입니다."
+
+#: apps/course_metadata/models.py:3177
+msgid ""
+"Language code specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr "이 프로그램에 특정한 언어 코드입니다. 이 프로그램과 연결된 강좌가 없는 경우에 유용한 필드입니다."
+
+#: apps/course_metadata/models.py:3211
+msgid ""
+"Useful field to overwrite the duration of a program. It can be a text "
+"describing a period of time, Ex: 6-9 months."
+msgstr ""
+
+#: apps/course_metadata/models.py:3220
+msgid ""
+"Pick a tag/label from the suggestions. To make a new tag, add a comma after "
+"the tag name."
+msgstr ""
+
+#: apps/course_metadata/models.py:3231
+msgid "The last time this program was modified."
+msgstr ""
+
+#: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
+msgid "ID"
+msgstr "아이디"
+
+#: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
-msgstr ""
+msgstr "실제 등급"
 
-#: apps/course_metadata/models.py:2590
+#: apps/course_metadata/models.py:3682
 msgid "What does the rank number mean"
-msgstr ""
+msgstr "등급이 의미하는 것이 무엇인가요"
 
-#: apps/course_metadata/models.py:2591
+#: apps/course_metadata/models.py:3683
 msgid "From where the rank is obtained"
-msgstr ""
+msgstr "어디서 등급이 매겨지나요"
 
-#: apps/course_metadata/models.py:2603
+#: apps/course_metadata/models.py:3699
 msgid "Callback URL to partner application flow"
-msgstr ""
+msgstr "파트너 신청에 대한 회신 URL "
 
-#: apps/course_metadata/models.py:2606
+#: apps/course_metadata/models.py:3702
 msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
-msgstr ""
+msgstr "전반적인 프로그램 순위 (예시 \"미국에서 #1\")"
 
-#: apps/course_metadata/models.py:2611
+#: apps/course_metadata/models.py:3707
 msgid ""
 "The 6 character hex value of the color to make the banner borders\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
-msgstr ""
+msgstr "배너 경계를 만들기 위해 6자리의 16진수로 표현한 색\n(예시. 빨간색은 \"#ff0000\") '#'은 붙일 필요가 없습니다."
 
-#: apps/course_metadata/models.py:2620
+#: apps/course_metadata/models.py:3716
 msgid "Provide a campus image for the header of the degree"
-msgstr ""
+msgstr "대학교 사진을 학위 표제에 제공해 주세요."
 
-#: apps/course_metadata/models.py:2626
+#: apps/course_metadata/models.py:3722
 msgid "Provide a background image for the title section of the degree"
-msgstr ""
+msgstr "학위 제목 부분의 배경 색을 제공해 주세요."
 
-#: apps/course_metadata/models.py:2631
+#: apps/course_metadata/models.py:3727
 msgid "The fine print that displays at the Tuition section's bottom"
-msgstr ""
+msgstr "등록금 섹션의 맨 아래에 표시되는 세부 인쇄"
 
-#: apps/course_metadata/models.py:2636
+#: apps/course_metadata/models.py:3732
 msgid "The fine print that displays at the Deadline section's bottom"
-msgstr ""
+msgstr "마감일 섹션의 맨 아래에 표시되는 세부 인쇄"
 
-#: apps/course_metadata/models.py:2643
+#: apps/course_metadata/models.py:3739
 msgid "The sailthru email list name to capture leads"
-msgstr ""
+msgstr "리드를 캡처할 sailthru 이메일 목록 이름"
 
-#: apps/course_metadata/models.py:2657
+#: apps/course_metadata/models.py:3753
 msgid "Please provide an image file for the lead capture banner."
-msgstr ""
+msgstr "주요 캡처 배너의 이미지 파일을 제공하세요."
 
-#: apps/course_metadata/models.py:2660
+#: apps/course_metadata/models.py:3756
 msgid "The Hubspot form ID for the lead capture form"
-msgstr ""
+msgstr "Hubsport은 주요 캡처 형식을 위한 ID를 생성합니다. "
 
-#: apps/course_metadata/models.py:2667
+#: apps/course_metadata/models.py:3762
 msgid "URL to micromasters landing page"
-msgstr ""
+msgstr "예비 대학원 랜딩 페이지 URL"
 
-#: apps/course_metadata/models.py:2673
+#: apps/course_metadata/models.py:3768
 msgid "Micromasters verbose title"
-msgstr ""
+msgstr "예비 대학원의 장황한 제목"
 
-#: apps/course_metadata/models.py:2679
+#: apps/course_metadata/models.py:3774
 msgid "Micromasters descriptive paragraph"
-msgstr ""
+msgstr "예비 대학원 설명 문단"
 
-#: apps/course_metadata/models.py:2692
+#: apps/course_metadata/models.py:3787
 msgid "Customized background image for the MicroMasters section."
-msgstr ""
+msgstr "예비 대학원 섹션을 위한 개인화한 배경 이미지 "
 
-#: apps/course_metadata/models.py:2696
+#: apps/course_metadata/models.py:3791
 msgid ""
 "Override org name if micromasters program comes from different organization "
 "than Masters program"
-msgstr ""
+msgstr "예비대학원 프로그램이 대학원 프로그램 단체와 다르다면 단체 이름을 덮어씁니다."
 
-#: apps/course_metadata/models.py:2703
+#: apps/course_metadata/models.py:3798
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
-msgstr ""
+msgstr "검색 카드를 위한 순위 표시 (예시. \"미국에서 #1\""
 
-#: apps/course_metadata/models.py:2709
+#: apps/course_metadata/models.py:3804
 msgid "Cost display for search card (e.g. \"$9,999\""
-msgstr ""
+msgstr "검색 카드를 위한 가격 표시 (예시. \"#9,999\""
 
-#: apps/course_metadata/models.py:2715
+#: apps/course_metadata/models.py:3810
 msgid "Number of courses for search card (e.g. \"11 Courses\""
+msgstr "검색 카드를 위한 강의 수 (예시. \"11개의 강의\""
+
+#: apps/course_metadata/models.py:3818
+msgid ""
+"Designates whether the degree should be displayed on the owning "
+"organization's page"
 msgstr ""
 
-#: apps/course_metadata/models.py:2747
+#: apps/course_metadata/models.py:3835
+msgid "The redirect URL of the degree on external site"
+msgstr "외부 사이트의 학위 리디렉션 URL"
+
+#: apps/course_metadata/models.py:3840
+msgid "The URL of the landing page on external site"
+msgstr "외부 사이트의 방문 페이지 URL"
+
+#: apps/course_metadata/models.py:3875
 msgid "Bell"
-msgstr ""
+msgstr "알람"
 
-#: apps/course_metadata/models.py:2748
+#: apps/course_metadata/models.py:3876
 msgid "Certificate"
-msgstr ""
+msgstr "이수증 발급"
 
-#: apps/course_metadata/models.py:2749
+#: apps/course_metadata/models.py:3877
 msgid "Checkmark"
-msgstr ""
+msgstr "확인표시"
 
-#: apps/course_metadata/models.py:2750
+#: apps/course_metadata/models.py:3878
 msgid "Clock"
-msgstr ""
+msgstr "시계"
 
-#: apps/course_metadata/models.py:2751
+#: apps/course_metadata/models.py:3879
 msgid "Desktop"
-msgstr ""
+msgstr "데스크톱"
 
-#: apps/course_metadata/models.py:2752
+#: apps/course_metadata/models.py:3880
 msgid "Info"
-msgstr ""
+msgstr "정보"
 
-#: apps/course_metadata/models.py:2753
+#: apps/course_metadata/models.py:3881
 msgid "Sitemap"
-msgstr ""
+msgstr "사이트맵"
 
-#: apps/course_metadata/models.py:2754
+#: apps/course_metadata/models.py:3882
 msgid "User"
-msgstr ""
+msgstr "이용자"
 
-#: apps/course_metadata/models.py:2755
+#: apps/course_metadata/models.py:3883
 msgid "Dollar"
-msgstr ""
+msgstr "달러"
 
-#: apps/course_metadata/models.py:2756
+#: apps/course_metadata/models.py:3884
 msgid "Book"
-msgstr ""
+msgstr "교재"
 
-#: apps/course_metadata/models.py:2757
+#: apps/course_metadata/models.py:3885
 msgid "Mortar Board"
-msgstr ""
+msgstr "학사모"
 
-#: apps/course_metadata/models.py:2758
+#: apps/course_metadata/models.py:3886
 msgid "Star"
-msgstr ""
+msgstr "별"
 
-#: apps/course_metadata/models.py:2759
+#: apps/course_metadata/models.py:3887
 msgid "Trophy"
-msgstr ""
+msgstr "트로피"
 
-#: apps/course_metadata/models.py:2763
+#: apps/course_metadata/models.py:3891
 msgid "Icon FA class"
-msgstr ""
+msgstr "아이콘 FA 클래스"
 
-#: apps/course_metadata/models.py:2764
+#: apps/course_metadata/models.py:3892
 msgid "Paired text"
-msgstr ""
+msgstr "관련된 글자"
 
-#: apps/course_metadata/models.py:2783
+#: apps/course_metadata/models.py:3911
 msgid "Deadline applies for this semester (e.g. Spring 2019"
-msgstr ""
+msgstr "이 학기에 대한 마감일 적용 ( 예시. 2019 봄학기"
 
-#: apps/course_metadata/models.py:2787
+#: apps/course_metadata/models.py:3915
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
-msgstr ""
+msgstr "마감일 설명 (예시. 수시입학 마감일)"
 
-#: apps/course_metadata/models.py:2791
+#: apps/course_metadata/models.py:3919
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
-msgstr ""
+msgstr "마감일이 지난 날짜 (예시. 2019년 1월 1일)"
 
-#: apps/course_metadata/models.py:2795
+#: apps/course_metadata/models.py:3923
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
-msgstr ""
+msgstr "마감일이 지난 시간 (예시. 미동부 표준시로 오후 11:59)"
 
-#: apps/course_metadata/models.py:2816
+#: apps/course_metadata/models.py:3944
 msgid "Describes what the cost is for (e.g. Tuition)"
-msgstr ""
+msgstr "금액이 무엇에 관한 것인지 묘사해 주세요(예시. 수업료)"
 
-#: apps/course_metadata/models.py:2820
+#: apps/course_metadata/models.py:3948
 msgid "String-based field stating how much the cost is (e.g. $1000)."
-msgstr ""
+msgstr "비용이 얼마인지 나타내는 문자-기반 필드 (예시. $1000)"
 
-#: apps/course_metadata/models.py:2848
+#: apps/course_metadata/models.py:3976
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must be\n"
 "            valid HTML."
-msgstr ""
+msgstr "학위 코스웨어에 대한 개괄적인 개요입니다. \"간단한\"\n설명은 \"마케팅_설명\"의 처음 750자이고 반드시\n유효한 HTML이어야합니다."
 
-#: apps/course_metadata/models.py:2856
+#: apps/course_metadata/models.py:3984
 msgid "A high-level overview of the degree's courseware."
-msgstr ""
+msgstr "학위 코스웨어에 대한 개괄적인 개요입니다."
 
-#: apps/course_metadata/models.py:2932
+#: apps/course_metadata/models.py:4060
 msgid "Organization name"
-msgstr ""
+msgstr "조직 명칭"
 
-#: apps/course_metadata/models.py:2954
+#: apps/course_metadata/models.py:4082
 msgid "These programs are for a different partner than the pathway itself: {}"
-msgstr ""
+msgstr "이러한 프로그램은 경로 자체와 다른 파트너를 위한 것입니다: {}"
 
-#: apps/course_metadata/models.py:2966
+#: apps/course_metadata/models.py:4094
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
-#: apps/course_metadata/models.py:2967
+#: apps/course_metadata/models.py:4095
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
-#: apps/course_metadata/models.py:2968
+#: apps/course_metadata/models.py:4096
 msgid "Blog"
-msgstr ""
+msgstr "블로그"
 
-#: apps/course_metadata/models.py:2969
+#: apps/course_metadata/models.py:4097
 msgid "Others"
-msgstr ""
+msgstr "기타"
 
-#: apps/course_metadata/models.py:3021
+#: apps/course_metadata/models.py:4157
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url slug {url_slug}"
-msgstr ""
+msgstr "url 슬레그 {url_slug}를 저장을 시도할 때, 파트너 {partner_key}와 강의 파트너 {course_partner_key}가 일치 하지 않습니다."
 
-#: apps/course_metadata/models.py:3041
+#: apps/course_metadata/models.py:4177
 #, python-brace-format
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url redirect {url_path}"
+msgstr "url 변경 {url_path} 저장을 시도할 때, 파트너 {partner_key}와 강의 파트너 {course_partner_key}가 일치 하지 않습니다."
+
+#: apps/course_metadata/models.py:4198
+msgid "It expects the data will be provided in a csv file format "
 msgstr ""
 
-#: apps/course_metadata/models.py:3099
-msgid "Course Run IDs"
+#: apps/course_metadata/models.py:4210 apps/course_metadata/models.py:4223
+#: apps/course_metadata/models.py:4236 apps/course_metadata/models.py:4256
+#: apps/course_metadata/models.py:4269 apps/course_metadata/models.py:4288
+#: apps/course_metadata/models.py:4308 apps/course_metadata/models.py:4323
+msgid ""
+"It expects the data will be provided in a csv file format with first row "
+"containing all the headers."
 msgstr ""
 
-#: apps/course_metadata/models.py:3115
-msgid "Profile Image UUIDs"
+#: apps/course_metadata/models.py:4280
+msgid "Open Courses"
 msgstr ""
 
-#: apps/course_metadata/models.py:3122
-msgid "Tag"
+#: apps/course_metadata/models.py:4281
+msgid "2U Executive Education Courses"
 msgstr ""
 
-#: apps/course_metadata/models.py:3123
+#: apps/course_metadata/models.py:4282
+msgid "Bootcamps"
+msgstr ""
+
+#: apps/course_metadata/models.py:4293 apps/course_metadata/models.py:4397
 msgid "Course UUIDs"
-msgstr ""
+msgstr "강좌 범용 유일 식별자"
 
-#: apps/course_metadata/models.py:3138
+#: apps/course_metadata/models.py:4373
+msgid "Course Run IDs"
+msgstr "강좌 운영 아이디:"
+
+#: apps/course_metadata/models.py:4389
+msgid "Profile Image UUIDs"
+msgstr "프로필 이미지 UUID"
+
+#: apps/course_metadata/models.py:4396
+msgid "Tag"
+msgstr "태그"
+
+#: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
-msgstr ""
+msgstr "모든 리디렉션 제거"
 
-#: apps/course_metadata/models.py:3139
+#: apps/course_metadata/models.py:4413
 msgid "Url Paths"
-msgstr ""
+msgstr "Url 경로"
 
-#: apps/course_metadata/models.py:3147
+#: apps/course_metadata/models.py:4421
 msgid "Add redirects from all published course url slugs"
-msgstr ""
+msgstr "공개된 강의 url 슬레그에서 리디렉션 추가"
 
-#: apps/course_metadata/models.py:3148
+#: apps/course_metadata/models.py:4422 apps/taxonomy_support/models.py:55
 msgid "Course uuids"
-msgstr ""
+msgstr "강의 범용 유일 식별자"
 
 #: apps/course_metadata/salesforce.py:78
 msgid "Attempted to query Salesforce with no client for partner={}"
-msgstr ""
+msgstr "파트너에 대한 고객이 없는 Salesforce를 쿼리하려고 시도했습니다.={}"
 
 #: apps/course_metadata/salesforce.py:237
 msgid "Unable to associate a case for comments for {}"
-msgstr ""
+msgstr "{} 에 대한 설명 사례를 연결할 수 없습니다."
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:27
 msgid "Back to Program"
-msgstr ""
+msgstr "프로그램으로 돌아가기"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:29
 msgid "Save Course Run"
-msgstr ""
+msgstr "강좌 운영 저장"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:11
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "홈"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
-msgstr ""
+msgstr "과목 기술"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
 msgid "Refresh Course Skills"
+msgstr "과목 기술 새로고침"
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:22
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:32
+msgid "Refresh Program Skills"
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
@@ -1436,24 +1822,24 @@ msgstr ""
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s on %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s가 %(date)s %(time)s 에 %(course_name)s 에 관한 다음 코멘트를 남겼습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:19
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:9
 msgid "View comment in Publisher"
-msgstr ""
+msgstr "공개자에게 코멘트 보이기"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:21
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:11
 msgid "The edX team"
-msgstr ""
+msgstr "edX 팀"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:3
 #, python-format
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s가 %(date)s %(time)s에 %(course_name)s에 관한 다음 코멘트를 남겼습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:9
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:3
@@ -1465,7 +1851,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:3
 #, python-format
 msgid "Dear %(recipient_name)s,"
-msgstr ""
+msgstr "%(recipient_name)s 께,"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:17
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:7
@@ -1473,33 +1859,32 @@ msgstr ""
 msgid ""
 "The About page for the %(course_run_number)s course run of %(course_name)s "
 "has been published. No further action is necessary."
-msgstr ""
+msgstr "%(course_name)s의 %(course_run_number)s 강의 운영 에 대한 소개 페이지는 공개되었습니다. 더 이상의 조치는 필요하지 않습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:24
 #, python-brace-format
 msgid "{link_start}{preview_url}{link_middle}View this About page.{link_end}"
-msgstr ""
+msgstr "{link_start}{preview_url}{link_middle}이 소개 페이지 보기.{link_end}"
 
-#: apps/course_metadata/templates/course_metadata/email/go_live.html:31
-#: apps/course_metadata/templates/course_metadata/email/reviewed.html:36
+#: apps/course_metadata/templates/course_metadata/email/go_live.html:33
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html:23
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html:38
 #, python-brace-format
 msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}your "
-"Project Coordinator{link_end}."
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}"
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:11
 #, python-format
 msgid "View this About page. %(preview_url)s"
-msgstr ""
+msgstr "이 소개 페이지 보기. %(preview_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:15
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:15
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:25
-#, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
-"comments, please contact your Project Coordinator at %(contact_us_email)s."
+"comments, please contact your Project Coordinator(s):"
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:14
@@ -1508,41 +1893,41 @@ msgid ""
 "{org_name} has submitted {course_key} for review. "
 "{link_start}{course_page_url}{link_middle}View this course run in "
 "Publisher{link_end} to review the changes and mark it as reviewed."
-msgstr ""
+msgstr "{org_name}은 검토를 위해 {course_key}를 제출했습니다.  변화를 검토하고 검토했음을 표시하기 위해, {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end} "
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:20
 #, python-brace-format
 msgid ""
 "This is a good time to {link_start}{studio_url}{link_middle}review this "
 "course run in Studio{link_end}."
-msgstr ""
+msgstr "{link_start}{studio_url}{link_middle}이 강의 운영 스튜디오에서 복습하기{link_end} 좋은 시기 입니다."
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:27
 #, python-brace-format
 msgid ""
 "Visit the {link_start}{restricted_admin_url}{link_middle}restricted course "
 "admin page{link_end} to set embargo rules for this course, as needed."
-msgstr ""
+msgstr "필요에 따라 본 강의에 대한 금지 규칙을 설정하기 위해 {link_start}{restricted_admin_url}{link_middle}restricted course admin page{link_end} 를 방문하세요."
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:6
 #, python-format
 msgid "%(org_name)s has submitted %(course_key)s for review."
-msgstr ""
+msgstr "%(org_name)s 가 %(course_key)s를 검토를 위해 제출했습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:10
 #, python-format
 msgid "Publisher page: %(course_page_url)s"
-msgstr ""
+msgstr "공개자 페이지: %(course_page_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:14
 #, python-format
 msgid "Studio page: %(studio_url)s"
-msgstr ""
+msgstr "스튜디오 페이지: %(studio_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt:19
 #, python-format
 msgid "Restricted Course admin: %(restricted_admin_url)s"
-msgstr ""
+msgstr "제한된 강의 관리자: %(restricted_admin_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:15
 #, python-brace-format
@@ -1550,31 +1935,16 @@ msgid ""
 "{org_name} has submitted {course_name} for review. "
 "{link_start}{course_page_url}{link_middle}View this course run in "
 "Publisher{link_end} to determine OFAC status."
-msgstr ""
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.html:21
-#, python-brace-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact {link_start}{contact_us_email}{link_middle}the "
-"Project Coordinator{link_end}."
-msgstr ""
+msgstr "{org_name}은 검토를 위해 {course_name}을 제출했습니다. OFAC상태를 확인하기 위해, {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end}"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:6
 #, python-format
 msgid "%(org_name)s has submitted %(course_name)s for review."
-msgstr ""
+msgstr "%(org_name)s 가 %(course_name)s를 검토 위해 제출했습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:11
 msgid "View this course run in Publisher above to determine OFAC status."
-msgstr ""
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:15
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact the Project Coordinator at %(contact_us_email)s."
-msgstr ""
+msgstr "OFAC상태를 확인하기 위해 위의 게시자에서 강의 진행 보기"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:15
 #, python-brace-format
@@ -1582,7 +1952,7 @@ msgid ""
 "The {link_start}{course_page_url}{link_middle}{course_run_number} course "
 "run{link_end} of {course_name} has been reviewed and approved by "
 "{platform_name}."
-msgstr ""
+msgstr "이 {course_name}의 {link_start}{course_page_url}{link_middle}{course_run_number} course run{link_end}이 {platform_name}에 의해 검토되고 승인되었습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:22
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:12
@@ -1590,134 +1960,228 @@ msgstr ""
 msgid ""
 "The course run about page will be published on %(go_live_date)s, pending no "
 "further edits."
-msgstr ""
+msgstr "더 이상의 편집이 없다면, 강좌 운영 소개 페이지는 %(go_live_date)s에 공개될 예정입니다."
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:28
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:16
 msgid "The course run about page is now published."
-msgstr ""
+msgstr "강좌 운영 소개 페이지는 공개 되었습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:6
 #, python-format
 msgid ""
 "The %(course_run_number)s course run of %(course_name)s has been reviewed "
 "and approved by %(platform_name)s."
-msgstr ""
+msgstr "%(course_name)s의 %(course_run_number)s강의 운영은 %(platform_name)s에 의해 검토되고 승인되었습니다."
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:21
 #, python-format
 msgid "View the course run in Publisher: %(course_page_url)s"
+msgstr "강좌 운영을 공개자페이지에서 보기: %(course_page_url)s"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html:8
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
 msgstr ""
 
-#: apps/course_metadata/utils.py:376
-msgid "Special characters not allowed in Course Number."
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html:12
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"        To see a preview of the Course About Page, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
 msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt:4
+#, python-format
+msgid ""
+"\n"
+"    Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: %(course_marketing_url)s\n"
+msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt:8
+#, python-format
+msgid ""
+"\n"
+"   Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"    To see a preview of the Course About Page, go here: %(course_preview_url)s\n"
+msgstr ""
+
+#: apps/course_metadata/utils.py:374
+msgid "Special characters not allowed in Course Number."
+msgstr "강좌 번호에는 특수문자를 사용할 수 없습니다."
 
 #: apps/course_metadata/validators.py:30
 #, python-brace-format
 msgid "Invalid HTML received: {0}"
-msgstr ""
+msgstr "유효하지 않은 HTML을 받았습니다: {0}"
 
 #: apps/course_metadata/validators.py:31
 msgid "Invalid HTML received"
-msgstr ""
+msgstr "유효하지 않은 HTML을 받았습니다."
 
 #: apps/course_metadata/validators.py:35 apps/course_metadata/validators.py:46
 #, python-brace-format
 msgid "{0} tag is not allowed"
-msgstr ""
+msgstr "{0}태그는 허용되지 않습니다."
 
 #: apps/course_metadata/validators.py:42
 #, python-brace-format
 msgid "{0} attribute is not allowed on the {1} tag"
-msgstr ""
+msgstr "{1}태그에 {0}속성이 허용되지 않습니다."
 
-#: apps/course_metadata/views.py:35
+#: apps/course_metadata/views.py:38
 msgid "Update excluded course runs"
-msgstr ""
+msgstr "배제된 강좌 운영 업데이트"
 
-#: apps/course_metadata/views.py:42
+#: apps/course_metadata/views.py:45
 msgid "The program was changed successfully."
+msgstr "프로그램은 성공적으로 수정되었습니다."
+
+#: apps/course_metadata/views.py:127
+msgid "The refresh program skills task triggered successfully."
 msgstr ""
 
-#: apps/course_metadata/views.py:123
+#: apps/course_metadata/views.py:206
 msgid "The refresh course skills task triggered successfully."
-msgstr ""
+msgstr "과목기술 새로고침 과제는 성공적으로 작동했습니다."
 
-#: apps/course_metadata/views.py:223
+#: apps/course_metadata/views.py:306
 msgid "The course skills were updated successfully."
-msgstr ""
+msgstr "강의 기술들은 성공적으로 업데이트 되었습니다."
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py:17
 msgid ""
 "Request could not be completed due to an incorrect ElasticSearch query "
 "parameters"
-msgstr ""
+msgstr "정확하지 않은 엘라스틱 서치 요청 매개변수로 요청을 수행할 수 없습니다."
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
-msgstr ""
+msgstr "번역을 위한 이름"
 
 #: apps/ietf_language_tags/models.py:38
 msgid "LanguageTag model translations"
-msgstr ""
+msgstr "언어 태그 모델 번역"
 
 #: apps/learner_pathway/choices.py:7
 msgid "Inactive"
-msgstr ""
-
-#: apps/learner_pathway/models.py:82
-msgid "Title of the learner pathway."
-msgstr ""
+msgstr "비활성"
 
 #: apps/learner_pathway/models.py:85
-msgid "Course/Program associated pathways also appear in search results"
-msgstr ""
+msgid "Title of the learner pathway."
+msgstr "학습자 경로의 제목입니다."
 
 #: apps/learner_pathway/models.py:88
+msgid "Course/Program associated pathways also appear in search results"
+msgstr "강좌/프로그램 관련 경로는 검색 결과에도 나타납니다"
+
+#: apps/learner_pathway/models.py:91
 msgid "The active/inactive status of this Pathway."
-msgstr ""
+msgstr "이 경로의 활성/비활성 상태입니다."
 
-#: apps/learner_pathway/models.py:106
+#: apps/learner_pathway/models.py:119
 msgid "Learner Pathway"
-msgstr ""
+msgstr "학습자 경로"
 
-#: apps/learner_pathway/models.py:107
+#: apps/learner_pathway/models.py:120
 msgid "Learner Pathways"
-msgstr ""
+msgstr "학습자 경로"
 
-#: apps/learner_pathway/models.py:153
+#: apps/learner_pathway/models.py:166
 msgid "Minimum number of nodes to complete this step of the pathway"
-msgstr ""
+msgstr "경로의 이 단계를 완료하기 위한 최소 노드 수"
 
-#: apps/learner_pathway/models.py:157
+#: apps/learner_pathway/models.py:170
 msgid "Learner Pathway Step"
-msgstr ""
+msgstr "학습자 경로 단계"
 
-#: apps/learner_pathway/models.py:158
+#: apps/learner_pathway/models.py:171
 msgid "Learner Pathway Steps"
-msgstr ""
+msgstr "학습자 경로 단계"
 
-#: apps/learner_pathway/models.py:208
+#: apps/learner_pathway/models.py:238
 msgid "Learner Pathway Course"
-msgstr ""
+msgstr "학습자 경로 강좌"
 
-#: apps/learner_pathway/models.py:209
+#: apps/learner_pathway/models.py:239
 msgid "Learner Pathway Courses"
-msgstr ""
+msgstr "학습자 경로 강좌"
 
-#: apps/learner_pathway/models.py:246
+#: apps/learner_pathway/models.py:276
 msgid "Learner Pathway Program"
-msgstr ""
+msgstr "학습자 경로 프로그램"
 
-#: apps/learner_pathway/models.py:247
+#: apps/learner_pathway/models.py:277
 msgid "Learner Pathway Programs"
-msgstr ""
+msgstr "학습자 경로 프로그램"
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
+msgstr "기관 역할"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
+msgid "Update the course recommendations based on skills."
+msgstr "기술을 기반으로 강좌 추천을 업데이트합니다."
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:41
+msgid ""
+"Use arguments from the UpdateCourseRecommendationsConfig model instead of "
+"the command line."
+msgstr "명령줄 대신 UpdateCourseRecommendationsConfig 모델의 인수를 사용합니다."
+
+#: apps/taxonomy_support/models.py:24
+msgid "The original course, whose recommendation is stored here."
+msgstr "추천이 저장된 원본 강좌."
+
+#: apps/taxonomy_support/models.py:29
+msgid ""
+"This is the course recommended after learner completes the original course."
+msgstr "학습자가 본 강좌를 이수한 후 추천하는 강좌입니다."
+
+#: apps/taxonomy_support/models.py:32
+msgid "Ratio of number of common skills and total skill count."
+msgstr "공통 스킬 개수와 총 스킬 개수의 비율입니다."
+
+#: apps/taxonomy_support/models.py:35
+msgid ""
+"Count of common skills between the original course and recommended course."
+msgstr "원래 강좌와 추천 강좌 사이의 공통 기술 수."
+
+#: apps/taxonomy_support/models.py:38
+msgid "Ratio of number of common subjects and total subject count."
+msgstr "공통 과목 수와 총 과목 수의 비율."
+
+#: apps/taxonomy_support/models.py:41
+msgid ""
+"Count of common subjects between the original course and recommended course."
+msgstr "원래 강좌와 추천 강좌 사이의 공통 과목 수."
+
+#: apps/taxonomy_support/models.py:46
+msgid "Course Recommendation"
+msgstr "강좌 추천"
+
+#: apps/taxonomy_support/models.py:47
+msgid "Course Recommendations"
+msgstr "강좌 추천"
+
+#: apps/taxonomy_support/models.py:54
+msgid "Adds recommendations for all published courses"
+msgstr "게시된 모든 강좌에 대한 권장 사항 추가"
+
+#: apps/taxonomy_support/models.py:58
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr "지난 수 일 동안 생성되거나 수정된 코스에 대한 추천을 추가합니다."
+
+#: apps/taxonomy_support/providers.py:162
+msgid "No partner object found!"
 msgstr ""
 
 #: urls.py:32
 msgid "Discovery Service Administration"
-msgstr ""
+msgstr "검색 서비스 관리"

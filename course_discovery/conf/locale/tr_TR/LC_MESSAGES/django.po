@@ -497,7 +497,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:41
 msgid "other"
-msgstr ""
+msgstr "diğer"
 
 #: apps/course_metadata/choices.py:45
 msgid "Honor"

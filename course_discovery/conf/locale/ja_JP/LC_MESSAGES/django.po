@@ -317,7 +317,7 @@ msgstr ""
 
 #: apps/core/models.py:79
 msgid "LMS URL"
-msgstr ""
+msgstr "LMS の URL"
 
 #: apps/core/models.py:81
 msgid "LMS Admin URL"
@@ -807,7 +807,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "削除中"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -823,7 +823,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "プログラム"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -831,7 +831,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "ターゲット"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
@@ -911,7 +911,7 @@ msgstr ""
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "ピリオド、アンダースコア、ハイフンなどの特殊記号やスペースは使用しないでください。このキーは講座の講座キーとして使用されることになります。"
 
 #: apps/course_metadata/models.py:236
 msgid "If populated, this field will overwrite name in platform."
@@ -965,7 +965,7 @@ msgstr ""
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
-msgstr ""
+msgstr "ピリオド、アンダースコア、ハイフンなどの特殊記号やスペースはキーフィールドで使わないでください。"
 
 #: apps/course_metadata/models.py:385
 msgid "Corresponding organization code in an external product source"
@@ -1041,11 +1041,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:730
 msgid "Subject model translations"
-msgstr ""
+msgstr "サブジェクトモデルの変換"
 
 #: apps/course_metadata/models.py:777
 msgid "Topic model translations"
-msgstr ""
+msgstr "トピックモデルの変換"
 
 #: apps/course_metadata/models.py:836
 msgid "SEO Meta tags for Products"
@@ -1181,7 +1181,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1355
 msgid "Add the course image"
-msgstr ""
+msgstr "講座の画像を追加"
 
 #: apps/course_metadata/models.py:1358 apps/course_metadata/models.py:3034
 msgid "FAQ"
@@ -1203,7 +1203,7 @@ msgstr "講座番号フォーマット　例. CS002x, BIO1.1x, BIO1.2x"
 
 #: apps/course_metadata/models.py:1394
 msgid "Additional Information"
-msgstr ""
+msgstr "追加情報"
 
 #: apps/course_metadata/models.py:1416
 msgid "The last time this course was modified in the database."
@@ -1308,7 +1308,7 @@ msgstr "course relationが手動で上書きされたかどうかを示してい
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr ""
+msgstr " 'これから何を学ぶ’ はこの講座の紀要を定義するものです。先行している講座の成果を規定値として扱う場合は、この値を空白にします。"
 
 #: apps/course_metadata/models.py:2138 apps/course_metadata/models.py:3227
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
@@ -1395,7 +1395,7 @@ msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
-msgstr ""
+msgstr "この項目は教育課程の画面に表示される講師の順番を判断するために使用することができます。この一覧に表示される講師はこの講座の開始に関連しているその他の人たちよりも前に表示されます。"
 
 #: apps/course_metadata/models.py:3126
 msgid "The description of credit redemption for courses in program"
@@ -1478,7 +1478,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3645 apps/course_metadata/models.py:3662
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: apps/course_metadata/models.py:3681
 msgid "The actual rank number"
@@ -1596,7 +1596,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3878
 msgid "Clock"
-msgstr ""
+msgstr "時計"
 
 #: apps/course_metadata/models.py:3879
 msgid "Desktop"
@@ -1608,11 +1608,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3881
 msgid "Sitemap"
-msgstr ""
+msgstr "サイトマップ"
 
 #: apps/course_metadata/models.py:3882
 msgid "User"
-msgstr ""
+msgstr "ユーザー"
 
 #: apps/course_metadata/models.py:3883
 msgid "Dollar"
@@ -1754,7 +1754,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:4396
 msgid "Tag"
-msgstr ""
+msgstr "タグ"
 
 #: apps/course_metadata/models.py:4412
 msgid "Remove All Redirects"
@@ -1796,7 +1796,7 @@ msgstr "course runを保存"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 #: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "ホーム"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
@@ -1817,7 +1817,7 @@ msgstr ""
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s on %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s さんが%(date)sの%(time)sに%(course_name)sでフォローのコメントを作成しました"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:19
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:9
@@ -2179,4 +2179,4 @@ msgstr ""
 
 #: urls.py:32
 msgid "Discovery Service Administration"
-msgstr ""
+msgstr "サービス開示の管理"
