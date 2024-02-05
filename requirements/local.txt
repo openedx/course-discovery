@@ -6,7 +6,7 @@
 #
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.2
+aiohttp==3.9.3
     # via openai
 aiosignal==1.3.1
     # via aiohttp
@@ -30,7 +30,7 @@ asgiref==3.7.2
     #   django-countries
 asn1crypto==1.5.1
     # via snowflake-connector-python
-astroid==3.0.2
+astroid==3.0.3
     # via
     #   pylint
     #   pylint-celery
@@ -75,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.29
+boto3==1.34.34
     # via django-ses
-botocore==1.34.29
+botocore==1.34.34
     # via
     #   boto3
     #   s3transfer
@@ -97,7 +97,7 @@ celery==5.3.6
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   elasticsearch
     #   requests
@@ -137,7 +137,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-code-annotations==1.5.0
+code-annotations==1.6.0
     # via
     #   edx-lint
     #   edx-toggles
@@ -389,7 +389,7 @@ edx-django-utils==5.10.1
     #   edx-toggles
     #   getsmarter-api-clients
     #   taxonomy-connector
-edx-drf-extensions==10.0.0
+edx-drf-extensions==10.1.0
     # via -r requirements/base.in
 edx-event-bus-kafka==5.6.0
     # via -r requirements/base.in
@@ -410,7 +410,7 @@ edx-rest-api-client==5.6.1
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-toggles==5.1.0
+edx-toggles==5.1.1
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -438,7 +438,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==22.5.1
+faker==22.6.0
     # via factory-boy
 fastavro==1.9.3
     # via openedx-events
@@ -457,9 +457,9 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 glom==22.1.0
     # via semgrep
-google-api-core==2.15.0
+google-api-core==2.16.2
     # via google-api-python-client
-google-api-python-client==2.115.0
+google-api-python-client==2.116.0
     # via -r requirements/base.in
 google-auth==2.27.0
     # via
@@ -538,7 +538,7 @@ lxml==5.1.0
     #   zeep
 markdown==3.5.2
     # via -r requirements/base.in
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via jinja2
 mccabe==0.7.0
     # via pylint
@@ -546,11 +546,11 @@ mock==5.1.0
     # via -r requirements/test.in
 more-itertools==10.2.0
     # via simple-salesforce
-multidict==6.0.4
+multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-mysqlclient==2.2.1
+mysqlclient==2.2.3
     # via -r requirements/test.in
 newrelic==9.6.0
     # via edx-django-utils
@@ -565,7 +565,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.0
     # via -r requirements/base.in
-openedx-events==9.3.0
+openedx-events==9.4.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -586,7 +586,7 @@ packaging==21.3
     #   tox
 paramiko==3.4.0
     # via docker
-path==16.9.0
+path==16.10.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
@@ -686,7 +686,7 @@ pyrsistent==0.20.0
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==7.4.4
+pytest==8.0.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -696,11 +696,11 @@ pytest==7.4.4
     #   pytest-xdist
 pytest-cov==4.1.0
     # via -r requirements/test.in
-pytest-django==4.7.0
+pytest-django==4.8.0
     # via -r requirements/test.in
 pytest-responses==0.5.1
     # via -r requirements/test.in
-pytest-split==0.8.1
+pytest-split==0.8.2
     # via -r requirements/local.in
 pytest-xdist==3.4.0
     # via
@@ -725,7 +725,7 @@ python-memcached==1.62
     # via -r requirements/test.in
 python-monkey-business==1.0.0
     # via django-nested-admin
-python-slugify==8.0.2
+python-slugify==8.0.3
     # via
     #   -r requirements/base.in
     #   code-annotations
@@ -733,7 +733,7 @@ python-stdnum==1.19
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements/base.in
     #   babel
@@ -783,7 +783,7 @@ requests==2.31.0
     #   social-auth-core
     #   sphinx
     #   zeep
-requests-file==1.5.1
+requests-file==2.0.0
     # via zeep
 requests-oauthlib==1.3.1
     # via
@@ -835,7 +835,6 @@ six==1.16.0
     #   jsonschema
     #   python-dateutil
     #   python-monkey-business
-    #   requests-file
     #   websocket-client
 slumber==0.7.1
     # via edx-rest-api-client
