@@ -145,6 +145,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'course_type': course.type.slug,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'url_slug': None,
+            'course_run_statuses': course.course_run_statuses,
         }
 
     def test_data(self):
@@ -1095,6 +1096,7 @@ class MinimalProgramSerializerTests(TestCase):
             'ofac_comment': program.ofac_comment,
             'subscription_eligible': None,
             'subscription_prices': [],
+            'course_run_statuses': program.course_run_statuses,
         }
 
     def test_data(self):

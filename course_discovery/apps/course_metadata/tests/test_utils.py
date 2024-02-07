@@ -842,7 +842,6 @@ class UtilsTests(TestCase):
     @ddt.unpack
     def test_clean_html(self, content, expected):
         """ Verify the method removes unnecessary HTML attributes. """
-        self.maxDiff = None
         assert clean_html(content) == expected
 
     def test_skill_data_transformation(self):

@@ -1175,6 +1175,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     url_slug = serializers.SerializerMethodField()
     course_type = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
+    course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1212,7 +1213,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
                   'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion',
-                  'excluded_from_seo', 'excluded_from_search')
+                  'excluded_from_seo', 'excluded_from_search', 'course_run_statuses')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1969,6 +1970,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
     card_image_url = serializers.SerializerMethodField()
+    course_run_statuses = serializers.ReadOnlyField()
     organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
     organization_logo_override_url = serializers.SerializerMethodField()
     primary_subject_override = SubjectSerializer()
@@ -2012,8 +2014,8 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
             'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
-            'excluded_from_search', 'excluded_from_seo', 'subscription', 'has_ofac_restrictions', 'ofac_comment'
-
+            'excluded_from_search', 'excluded_from_seo', 'subscription', 'has_ofac_restrictions', 'ofac_comment',
+            'course_run_statuses',
         )
         read_only_fields = (
             'uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp', 'has_ofac_restrictions', 'ofac_comment'
@@ -2197,7 +2199,6 @@ class ProgramSerializer(MinimalProgramSerializer):
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     product_source = SourceSerializer(required=False, read_only=True)
-    course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2259,7 +2260,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
-            'product_source', 'excluded_from_search', 'excluded_from_seo', 'course_run_statuses',
+            'product_source', 'excluded_from_search', 'excluded_from_seo',
         )
         read_only_fields = ('enterprise_subscription_inclusion', 'product_source',)
 
