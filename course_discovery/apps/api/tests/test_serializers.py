@@ -1101,7 +1101,6 @@ class MinimalProgramSerializerTests(TestCase):
 
     def test_data(self):
         request = make_request()
-        self.maxDiff = None
         program = self.create_program()
         serializer = self.serializer_class(program, context={'request': request})
         expected = self.get_expected_data(program, request)

@@ -42,7 +42,6 @@ class TestsCourseRecommendationsSerializer(TestCase):
         """
         Tests serializer Data.
         """
-        self.maxDiff = None
         recommendation = CourseRecommendationFactory()
         serializer = self.serializer_class(recommendation)
         expected = self.get_expected_data(recommendation)
