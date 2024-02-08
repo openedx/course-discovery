@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Run coverage
         run: make ci_coverage
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v4
 
   quality:
     runs-on: ubuntu-latest
