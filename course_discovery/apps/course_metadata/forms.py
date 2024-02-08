@@ -49,7 +49,7 @@ class ProgramAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['type'].required = True
-        self.fields['marketing_slug'].required = True
+        self.fields['marketing_slug'].required = False
         self.fields['courses'].required = False
         if self.fields.get('product_source'):
             self.fields['product_source'].required = True
@@ -67,6 +67,27 @@ class ProgramAdminForm(forms.ModelForm):
             ))
 
         return self.cleaned_data
+
+    def clean_authoring_organizations(self):
+        """
+        Checks the presence of images of logos of certificates of author orgs.
+
+        Iterates through authoring organizations and throws a ValidationError
+        if any organization does not have a certificate logo image.
+        """
+        authoring_organizations = self.cleaned_data.get('authoring_organizations')
+        orgs_with_empty_certificate_logo_image = []
+
+        for organization in authoring_organizations:
+            if not organization.certificate_logo_image:
+                orgs_with_empty_certificate_logo_image.append(organization.name)
+
+        if orgs_with_empty_certificate_logo_image:
+            error_message = f'Certificate logo image cannot be empty for organizations: ' \
+                            f'{", ".join(orgs_with_empty_certificate_logo_image)}.'
+            raise ValidationError(error_message)
+
+        return authoring_organizations
 
 
 class CourseRunSelectionForm(forms.ModelForm):

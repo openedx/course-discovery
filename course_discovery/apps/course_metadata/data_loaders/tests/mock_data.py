@@ -585,7 +585,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Explore water management concepts and technologies',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'water-management',
+        'marketing_slug': 'xseries/delftx-water-management',
         'organizations': [
             {
                 'display_name': 'Delft University of Technology',
@@ -680,7 +680,7 @@ PROGRAMS_API_BODIES = [
         'subtitle': 'Learn how to design and optimize the supply chain to enhance business performance.',
         'category': 'xseries',
         'status': 'active',
-        'marketing_slug': 'supply-chain-management-0',
+        'marketing_slug': 'xseries/mitx-supply-chain-management',
         'organizations': [
             {
                 'display_name': 'Massachusetts Institute of Technology',
@@ -3200,9 +3200,9 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'publish_date': '01/25/2020',
     'start_date': '01/25/2020',
     'start_time': '00:00',
-    'end_date': '02/25/2020',
+    'end_date': '02/25/2050',
     'end_time': '00:00',
-    'reg_close_date': '01/25/2020',
+    'reg_close_date': '01/25/2050',
     'reg_close_time': '00:00',
     'course_pacing': 'self-paced',
     'course_run_enrollment_track': 'Paid Executive Education',

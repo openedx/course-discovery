@@ -70,7 +70,6 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.default_product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
         cls.non_default_product_source = SourceFactory(slug="not-default-product-source")
 
     @property
@@ -181,7 +180,11 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.everything.get(key=f"{datum['org']}+{datum['number']}", draft=False)
             mock_logger.info.assert_any_call(f"Course created with uuid {str(course.uuid)} and key {course.key}")
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
-            assert course.product_source == self.default_product_source
+            default_product_source = SourceFactory.create(
+                slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG,
+                name=settings.DEFAULT_PRODUCT_SOURCE_NAME,
+            )
+            assert course.product_source.slug == default_product_source.slug
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()

@@ -736,7 +736,8 @@ SUBSCRIPTION_METADATA_MAPPING = {
     'INPUT_TAB_ID': '',
 }
 
-DEFAULT_PRODUCT_SOURCE_SLUG = ''
+DEFAULT_PRODUCT_SOURCE_NAME = 'edX'
+DEFAULT_PRODUCT_SOURCE_SLUG = 'edx'
 EXTERNAL_PRODUCT_SOURCE_SLUG = ''
 
 CONTENTFUL_SPACE_ID = None
@@ -773,3 +774,14 @@ NOTIFY_SLUG_UPDATE_RECIPIENTS = []
 SIMPLE_HISTORY_DATE_INDEX = False
 
 USE_DEPRECATED_PYTZ = True
+ORGANIC_MARKETING_EMAIL = None
+
+CSRF_TRUSTED_ORIGINS = (
+    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:1991',  # frontend-app-admin-portal
+    'http://localhost:18400',  # frontend-app-publisher
+    'http://localhost:18450',  # frontend-app-support-tools
+    'http://localhost:2000',  # frontend-app-learning
+)
+
+ENABLE_COURSE_REVIEWS_ADMIN = False

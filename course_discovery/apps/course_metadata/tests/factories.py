@@ -306,6 +306,7 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = CourseType
+        django_get_or_create = ('slug',)
 
     @factory.post_generation
     def entitlement_types(self, create, extracted, **kwargs):
@@ -478,6 +479,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     has_ofac_restrictions = True
     enterprise_subscription_inclusion = False
     type = factory.SubFactory(CourseRunTypeFactory)
+    variant_id = factory.LazyFunction(uuid4)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

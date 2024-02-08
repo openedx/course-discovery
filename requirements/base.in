@@ -74,6 +74,7 @@ requests
 redis
 simple-salesforce
 social-auth-app-django
+unicodecsv
 python-slugify
 xss-utils
 taxonomy-connector

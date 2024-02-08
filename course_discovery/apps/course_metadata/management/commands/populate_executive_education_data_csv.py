@@ -281,8 +281,8 @@ class Command(BaseCommand):
             'course_enrollment_track': 'Executive Education(2U)',
             'course_run_enrollment_track': 'Unpaid Executive Education',
             'start_time': '00:00:00',
-            'end_time': '23:59:59',
-            'reg_close_time': '23:59:59',
+            'end_time': '00:00:00',
+            'reg_close_time': '00:00:00',
             'publish_date': date.today().isoformat(),
             'course_level': 'Introductory',
             'course_pacing': 'Instructor-Paced',
@@ -346,7 +346,9 @@ class Command(BaseCommand):
             'secondary_subject': partially_filled_csv_dict.get('secondary_subject', ''),
             'tertiary_subject': partially_filled_csv_dict.get('tertiary_subject', ''),
             'start_date': partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate'],
-            'reg_close_date': partially_filled_csv_dict.get('regCloseDate') or product_dict['variant']['regCloseDate'],
+            'reg_close_date': partially_filled_csv_dict.get(
+                'reg_close_date'
+            ) or product_dict['variant']['finalRegCloseDate'],
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
             'organization_logo_override': utils.format_base64_strings(product_dict['logoUrl']),

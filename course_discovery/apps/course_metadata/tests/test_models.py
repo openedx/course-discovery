@@ -18,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
+from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
 from slugify import slugify
@@ -31,6 +32,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
+from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX as slug_format
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
     AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseRunType, CourseType, Curriculum,
@@ -212,6 +214,39 @@ class TestCourse(TestCase):
                     assert course.active_url_slug == f'{active_url_slug}'
                     assert not official_version.course.active_url_slug.startswith('boot-camps/')
                     assert official_version.course.active_url_slug == f'{active_url_slug}'
+
+    def test_automate_url_restructuring_for_missing_active_url_slug(self):
+        """
+        Tests automate url slug restructuring generates slug for studio created courses.
+
+        Studio generated courses do not get a default slug generated using course title. Due to that, active_url_slug
+        is None for such courses.
+        """
+        source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+        audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        course_draft = CourseFactory(draft=True, type=audit_type, product_source=source)
+
+        # Delete the random slug created by Factory
+        course_draft.url_slug_history.all().delete()
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+        subject = SubjectFactory(name='Subject1')
+        org = OrganizationFactory(name='organization1')
+        course_draft.subjects.add(subject)
+        course_draft.authoring_organizations.add(org)
+        course_draft.save()
+
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+        assert draft_course_run.course.active_url_slug is None
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            draft_course_run.status = CourseRunStatus.LegalReview
+            draft_course_run.save()
+            course = draft_course_run.course
+            official_version = draft_course_run.update_or_create_official_version()
+            course.refresh_from_db()
+            assert course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
+            assert official_version.course.active_url_slug == f'learn/{subject.slug}/{org.name}-{slugify(course.title)}'
 
     @ddt.data(
         ('https://www.example.com', 'test-slug', 'https://www.example.com/course/test-slug'),
@@ -452,8 +487,8 @@ class TestCourse(TestCase):
         assert course.additional_metadata.end_date == additional_metadata.end_date
         assert course.additional_metadata.product_status == ExternalProductStatus.Published
 
-    def test_enterprise_subscription_inclusion(self):
-        """ Verify the enterprise inclusion boolean is calculated as expected. """
+    def test_enterprise_subscription_inclusion__authoring_organizations(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on authoring orgs inclusion."""
         org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org_list = [org1, org2]
@@ -469,6 +504,26 @@ class TestCourse(TestCase):
             authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
         )
         assert course1.enterprise_subscription_inclusion is False
+
+    @ddt.data(
+        (CourseType.VERIFIED_AUDIT, True),
+        (CourseType.AUDIT, True),
+        (CourseType.PROFESSIONAL, True),
+        (CourseType.EMPTY, True),
+        ('verified', True),
+        (CourseType.CREDIT_VERIFIED_AUDIT, True),
+        (CourseType.BOOTCAMP_2U, False),
+        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+    )
+    @ddt.unpack
+    def test_enterprise_subscription_inclusion__course_type(self, course_type_slug, expected_inclusion_value):
+        """ Verify the enterprise inclusion boolean is calculated as expected based on allowed course types."""
+        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseTypeFactory(slug=course_type_slug)
+        course = factories.CourseFactory(
+            authoring_organizations=[org1], enterprise_subscription_inclusion=None, type=course_type,
+        )
+        assert course.enterprise_subscription_inclusion is expected_inclusion_value
 
     def test_set_active_url_slug__draft_only(self):
         """
@@ -508,6 +563,9 @@ class TestCourse(TestCase):
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
         draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
         non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
         with LogCapture(LOGGER_PATH) as logger:
@@ -536,7 +594,9 @@ class TestCourse(TestCase):
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
-
+        # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
+        # cache with factory data
+        RequestCache("active_url_cache").clear()
         CourseUrlSlugFactory(course=draft_course, is_active=True, is_active_on_draft=True, url_slug='test-course')
         CourseUrlSlugFactory(course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1')
         non_draft_slug_obj = CourseUrlSlugFactory(
@@ -997,6 +1057,24 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         assert course_run.availability == expected_availability
 
+    def test_course_run_statuses(self):
+        """ Verify that we are looping through all runs to get statuses. """
+
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Published)
+        course_run_2 = factories.CourseRunFactory(course=course, status=CourseRunStatus.Unpublished)
+        start_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=2)
+        end_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=1)
+        course_run_3 = factories.CourseRunFactory(
+            course=course,
+            status=CourseRunStatus.Unpublished,
+            start=start_date_past,
+            end=end_date_past)
+        course_run.save()
+        course_run_2.save()
+        course_run_3.save()
+        assert course.course_run_statuses == ['archived', 'published', 'unpublished']
+
     def test_marketing_url(self):
         """ Verify the property constructs a marketing URL based on the marketing slug. """
         expected = '{root}/course/{slug}'.format(root=self.partner.marketing_site_url_root.strip('/'),
@@ -1248,7 +1326,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=20),
     )
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
-    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
     def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_is_published(
         self, when, mock_course_url_email, mock_email
     ):
@@ -1287,7 +1365,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=20),
     )
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
-    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers')
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_to_notify_course_watchers_and_marketing')
     def test_reviewed_with_go_live_date_along_with_watchers_email_when_course_run_is_scheduled(
         self, when, mock_course_url_email, mock_email
     ):
@@ -2736,6 +2814,26 @@ class ProgramTests(TestCase):
             program_type=program_type,
         )
 
+    def test_course_run_statuses(self):
+        """ Verify that we are looping through all runs to get statuses. """
+
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Published)
+        course_2 = factories.CourseFactory()
+        course_run_2 = factories.CourseRunFactory(course=course_2, status=CourseRunStatus.Unpublished)
+        start_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=2)
+        end_date_past = datetime.datetime.now(pytz.UTC) - relativedelta(months=1)
+        course_run_3 = factories.CourseRunFactory(
+            course=course_2,
+            status=CourseRunStatus.Unpublished,
+            start=start_date_past,
+            end=end_date_past)
+        course_run.save()
+        course_run_2.save()
+        course_run_3.save()
+        program = factories.ProgramFactory(courses=[course, course_2])
+        assert program.course_run_statuses == ['archived', 'published', 'unpublished']
+
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         assert str(self.program) == f"{self.program.title} - {self.program.marketing_slug}"
@@ -2834,6 +2932,59 @@ class ProgramTests(TestCase):
         actual_languages = self.program.languages
         assert len(actual_languages) > 0
         assert actual_languages == expected_languages
+
+    def test_auto_generate_program_slug_if_not_provided(self):
+        """
+        Verify that program slug is autogenerated if not populated while creation
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        program = ProgramFactory(title='test-program', authoring_organizations=organizations, type=program_type)
+        assert program.marketing_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
+
+    def test_program_slug_can_be_updated_once_autogenerated(self):
+        """
+        Verify that program slug can be updated after autogenerated
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        program = ProgramFactory(title='test-program', authoring_organizations=organizations, type=program_type)
+        assert program.marketing_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
+
+        new_slug = program.marketing_slug + 'test-string'
+        program.marketing_slug = new_slug
+        program.save()
+
+        assert program.marketing_slug == new_slug
+
+    def test_program_slug_not_autogenerated_if_in_subdirectory_format(self):
+        """
+        Verify that program slug can not be autogenerated if provided in sub-directory format.
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        slug = 'category/subcategory/test-slug'
+        program = ProgramFactory(
+            title='test-program', authoring_organizations=organizations, type=program_type, marketing_slug=slug
+        )
+        assert program.marketing_slug == slug
+
+    def test_program_slug_autogenerated_if_not_in_subdirectory_format(self):
+        """
+        Verify that program slug can be autogenerated if not provided in sub-directory format.
+        """
+        program_type = factories.ProgramTypeFactory(slug='doctorate')
+        organizations = [factories.OrganizationFactory(name='test org')]
+        slug = 'test-slug'
+        program = ProgramFactory(
+            title='test-program', authoring_organizations=organizations, type=program_type, marketing_slug=slug
+        )
+        assert program.marketing_slug != slug
+        expected_slug = f'{program.type.slug}/{program.authoring_organizations.first().slug}-{program.title}'
+        assert program.marketing_slug == expected_slug
+        assert bool(re.fullmatch(slug_format, program.marketing_slug))
 
     def test_data_modified_timestamp_change_model_field(self):
         """

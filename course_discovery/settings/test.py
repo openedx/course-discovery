@@ -11,6 +11,10 @@ ALLOWED_HOSTS = ['*']
 
 DEFAULT_PARTNER_ID = 1
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',  # Use MD5 hasher for testing
+]
+
 TEST_NON_SERIALIZED_APPS = [
     # Prevents the issue described at https://code.djangoproject.com/ticket/23727.
     'django.contrib.contenttypes',
@@ -120,6 +124,7 @@ GETSMARTER_CLIENT_CREDENTIALS = {
     'PRODUCTS_DETAILS_URL' : 'https://test-getsmarter.com/api/v1/products?detail=2',
 }
 
+DEFAULT_PRODUCT_SOURCE_NAME = 'Test Source'
 DEFAULT_PRODUCT_SOURCE_SLUG = 'test-source'
 EXTERNAL_PRODUCT_SOURCE_SLUG = 'external-test-source'
 

@@ -6,7 +6,6 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Q
-from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -156,9 +155,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 programs=programs,
             )
         if pub_q and edit_mode:
-            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by(Lower('key'))
+            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by('key')
 
-        return queryset.order_by(Lower('key'))
+        return queryset.order_by('key')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -397,6 +396,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Then the course itself
         course = serializer.save()
+
         if url_slug:
             course.set_active_url_slug(url_slug)
             if course.official_version and (not draft or self._is_course_run_reviewed(course)):
@@ -515,8 +515,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = self.get_object()
         if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
-
-        return super().retrieve(request, *args, **kwargs)
+            course.refresh_from_db(fields=['entitlements'])
+        # Rather than call super().retrieve, we instantiate the serializer and return its
+        # data ourselves. This is to prevent duplicate calls (and hence duplicate queries)
+        # to self.get_object. Note that we have called get_object once already(see above).
+        serializer = self.get_serializer(course)
+        return Response(serializer.data)
 
 
 class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):

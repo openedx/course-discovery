@@ -9,6 +9,7 @@ from urllib.parse import urljoin, urlparse
 
 import html2text
 import markdown
+import pytz
 import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
@@ -19,12 +20,15 @@ from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
+from edx_django_utils.cache import RequestCache, get_cache_key
 from getsmarter_api_clients.geag import GetSmarterEnterpriseApiClient
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import (
     DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
     SUBDIRECTORY_SLUG_FORMAT_REGEX
@@ -34,7 +38,9 @@ from course_discovery.apps.course_metadata.exceptions import (
 )
 from course_discovery.apps.course_metadata.googleapi_client import GoogleAPIClient
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -414,38 +420,62 @@ def calculated_seat_upgrade_deadline(seat):
 
 
 def serialize_seat_for_ecommerce_api(seat, mode):
+    """
+    Serializes seat data for ecommerce publication API.
+    """
+    attribute_values_list = [
+        {
+            'name': 'certificate_type',
+            'value': mode.certificate_type,
+        },
+        {
+            'name': 'id_verification_required',
+            'value': mode.is_id_verified,
+        }
+    ]
+
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course_run = seat.course_run
+        if course_run and course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course_run.variant_id),
+            })
+
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
         'product_class': 'Seat',
         'stockrecords': [{'partner_sku': getattr(seat, 'sku', None)}],
-        'attribute_values': [
-            {
-                'name': 'certificate_type',
-                'value': mode.certificate_type,
-            },
-            {
-                'name': 'id_verification_required',
-                'value': mode.is_id_verified,
-            }
-        ]
+        'attribute_values': attribute_values_list,
     }
 
 
 def serialize_entitlement_for_ecommerce_api(entitlement):
+    """
+    Serializes entitlement data for ecommerce publication API.
+    """
     attribute_values_list = [
         {
             'name': 'certificate_type',
             'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
         },
     ]
-    additional_metadata = entitlement.course.additional_metadata
-    if additional_metadata and additional_metadata.variant_id:
-        attribute_values_list.append({
-            'name': 'variant_id',
-            'value': str(additional_metadata.variant_id),
 
-        })
+    if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
+        course = entitlement.course
+        if course.advertised_course_run and course.advertised_course_run.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(course.advertised_course_run.variant_id),
+            })
+    else:
+        additional_metadata = entitlement.course.additional_metadata
+        if additional_metadata and additional_metadata.variant_id:
+            attribute_values_list.append({
+                'name': 'variant_id',
+                'value': str(additional_metadata.variant_id),
+            })
 
     return {
         'price': str(entitlement.price),
@@ -1194,3 +1224,35 @@ def transform_dict_keys(data):
         transformed_dict[updated_key] = value
 
     return transformed_dict
+
+
+def clear_slug_request_cache_for_course(course_uuid):
+    """
+    Clear request cache for both draft and non-draft entries to ensure data consistency.
+    """
+    active_url_cache = RequestCache("active_url_cache")
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=True))
+    active_url_cache.delete(get_cache_key(course_uuid=course_uuid, draft=False))
+
+
+def get_product_skill_names(product_identifier, product_type):
+    """
+    Util method to get list of skill names associated with a product (course/program).
+    """
+    product_skills = get_whitelisted_serialized_skills(product_identifier, product_type=product_type)
+    return list({product_skill['name'] for product_skill in product_skills})
+
+
+def get_course_run_statuses(statuses, course_runs):
+    """
+    Util method to get course run statuses based on the course_runs
+    """
+    now = datetime.datetime.now(pytz.UTC)
+    for course_run in course_runs:
+        if course_run.hidden:
+            continue
+        if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
+            statuses.add('archived')
+        else:
+            statuses.add(course_run.status)
+    return statuses

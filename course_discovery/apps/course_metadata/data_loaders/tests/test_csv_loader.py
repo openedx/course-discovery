@@ -1,11 +1,14 @@
 """
 Unit tests for CSV Data loader.
 """
+import datetime
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
 import responses
 from ddt import data, ddt, unpack
+from edx_toggles.toggles.testutils import override_waffle_switch
+from pytz import UTC
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -18,6 +21,7 @@ from course_discovery.apps.course_metadata.models import AdditionalMetadata, Cou
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, SourceFactory
 )
+from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
 
@@ -256,7 +260,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'created_products': [{
                             'uuid': str(course.uuid),
                             'external_course_marketing_type': 'short_course',
-                            'url_slug': expected_slug
+                            'url_slug': expected_slug,
+                            'rerun': True
                         }],
                         'archived_products_count': 0,
                         'archived_products': [],
@@ -337,7 +342,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'created_products': [{
                             'uuid': str(course.uuid),
                             'external_course_marketing_type': 'short_course',
-                            'url_slug': 'csv-course'
+                            'url_slug': 'csv-course',
+                            'rerun': True
                         }],
                         'archived_products_count': 2,
                         'errors': loader.error_logs
@@ -368,6 +374,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             type=self.course_run_type,
             status='published',
             draft=True,
+            variant_id='00000000-0000-0000-0000-000000000000'
         )
         expected_course_data = {
             **self.BASE_EXPECTED_COURSE_DATA,
@@ -429,6 +436,119 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'archived_products': [],
                         'errors': loader.error_logs
                     }
+
+    @responses.activate
+    def test_ingest_flow_for_preexisting_published_course_with_new_run_creation(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader makes a new course run for a published course run if none of variant_id or start and end
+        dates match the existing course run.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        course = CourseFactory(
+            key=self.COURSE_KEY,
+            partner=self.partner,
+            type=self.course_type,
+            draft=True,
+            key_for_reruns=''
+        )
+
+        CourseRunFactory(
+            course=course,
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
+            end=datetime.datetime(2024, 3, 1, tzinfo=UTC),
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+        )
+        expected_course_data = {
+            **self.BASE_EXPECTED_COURSE_DATA,
+            'draft': True,
+        }
+        expected_course_run_data = {
+            **self.BASE_EXPECTED_COURSE_RUN_DATA,
+            'draft': True,
+            'status': 'review_by_legal',
+        }
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+                with LogCapture(LOGGER_PATH) as log_capture:
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_call_course_api',
+                            self.mock_call_course_api
+                    ):
+                        loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                        loader.ingest()
+
+                        self._assert_default_logs(log_capture)
+                        log_capture.check_present(
+                            (
+                                LOGGER_PATH,
+                                'INFO',
+                                'Course edx+csv_123 is located in the database.'
+                            ),
+                            (
+                                LOGGER_PATH,
+                                'INFO',
+                                (
+                                    'Course Run with variant_id {variant_id} could not be found.' +
+                                    'Creating new course run for course {course_key} with variant_id {variant_id}'
+                                ).format(
+                                    variant_id='00000000-0000-0000-0000-000000000000',
+                                    course_key=self.COURSE_KEY,
+                                )
+                            ),
+                            (
+                                LOGGER_PATH,
+                                'INFO',
+                                'Draft flag is set to False for the course CSV Course'
+                            ),
+                        )
+
+                        # Verify the existence of both draft and non-draft versions
+                        assert Course.everything.count() == 2
+                        # Total course_runs count is 3 -> 2 for existing course runs (draft/non-draft)
+                        # and 1 for new course run (draft)
+                        assert CourseRun.everything.count() == 3
+
+                        course = Course.objects.filter_drafts(key=self.COURSE_KEY, partner=self.partner).first()
+                        course_run = CourseRun.everything.get(
+                            course=course,
+                            variant_id='00000000-0000-0000-0000-000000000000'
+                        )
+
+                        self._assert_course_data(course, expected_course_data)
+                        self._assert_course_run_data(course_run, expected_course_run_data)
+
+                        assert course.product_source == self.source
+
+                        assert loader.get_ingestion_stats() == {
+                            'total_products_count': 1,
+                            'success_count': 1,
+                            'failure_count': 0,
+                            'updated_products_count': 0,
+                            'created_products_count': 1,
+                            'created_products': [{
+                                'uuid': str(course.uuid),
+                                'external_course_marketing_type':
+                                    course.additional_metadata.external_course_marketing_type,
+                                'url_slug': course.active_url_slug,
+                                'rerun': True
+                            }],
+                            'archived_products_count': 0,
+                            'archived_products': [],
+                            'errors': loader.error_logs
+                        }
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument

@@ -1,14 +1,17 @@
+# pylint: disable=W0223
 import datetime
 
 import pytz
+from django.db import models
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
+from rest_framework.serializers import ListSerializer
 from taxonomy.choices import ProductTypes
-from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
@@ -16,6 +19,24 @@ from ..documents import CourseDocument
 from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 
 __all__ = ('CourseSearchDocumentSerializer',)
+
+
+class CourseSearchDocumentListSerializer(ModelObjectDocumentSerializerMixin, ListSerializer):
+    """
+    Custom List Serializer for CourseSearchDocument to fetch all instances at once.
+    """
+
+    def to_representation(self, data):
+        """
+        Custom list representation to fetch all the course instances at once.
+        """
+        iterable = data.all() if isinstance(data, models.Manager) else data
+        _objects = list(self.get_model_object_by_instances(iterable))
+
+        object_dict = {obj.pk: obj for obj in _objects}
+        result_tuples = [(item, object_dict.get(item.pk)) for item in iterable]
+
+        return super().to_representation(result_tuples)
 
 
 class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTimeSerializerMixin, DocumentSerializer):
@@ -98,8 +119,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         return list(set(seat_types))
 
     def get_skill_names(self, result):
-        course_skills = get_whitelisted_product_skills(result.key, product_type=ProductTypes.Course)
-        return list(set(course_skill.skill.name for course_skill in course_skills))
+        return get_product_skill_names(result.key, ProductTypes.Course)
 
     def get_skills(self, result):
         return get_whitelisted_serialized_skills(result.key, product_type=ProductTypes.Course)
@@ -121,15 +141,28 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             self.fields.pop('outcome', None)
 
     def to_representation(self, instance):
-        _object = self.get_model_object_by_instance(instance)
-        setattr(instance, 'object', _object)  # pylint: disable=literal-used-as-attribute
-        return super().to_representation(instance)
+        """
+        Custom instance representation.
+        The instance needs to be handled differently and can be either of the two:
+
+        1. A tuple consistent of an ES Hit object and a model object to be assigned to the hit object.
+        2. A single ES Hit object
+        """
+        if isinstance(instance, tuple):
+            setattr(instance[0], 'object', instance[1])  # pylint: disable=literal-used-as-attribute
+            prepared_instance = instance[0]
+        else:
+            _object = self.get_model_object_by_instances(instance).get()
+            setattr(instance, 'object', _object)  # pylint: disable=literal-used-as-attribute
+            prepared_instance = instance
+        return super().to_representation(prepared_instance)
 
     class Meta:
         """
         Meta options.
         """
 
+        list_serializer_class = CourseSearchDocumentListSerializer
         document = CourseDocument
         ignore_fields = COMMON_IGNORED_FIELDS
         fields = BASE_SEARCH_INDEX_FIELDS + (
