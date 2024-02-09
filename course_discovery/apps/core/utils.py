@@ -4,6 +4,7 @@ import re
 from collections import namedtuple
 
 from django.conf import settings
+from django.db.models import prefetch_related_objects
 from django_elasticsearch_dsl import Index
 
 IndexMeta = namedtuple("IndexMeta", "name alias")
@@ -152,27 +153,63 @@ class SearchQuerySetWrapper:
     Decorates a SearchQuerySet object using a generator for efficient iteration
     """
 
-    def __init__(self, qs):
-        self.qs = qs
+    def __init__(self, queryset, model):
+        # This is necessary to act like Django ORM Queryset
+        self.model = model
+
+        self.queryset = queryset
+        self._select_related_lookups = ()
+        self._prefetch_related_lookups = ()
+
+    def prefetch_related(self, *lookups):
+        """Same as QuerySet.prefetch_related()"""
+        clone = self._chain()
+        if lookups == (None,):
+            clone._prefetch_related_lookups = ()  # pylint: disable=protected-access
+        else:
+            clone._prefetch_related_lookups += lookups
+        return clone
+
+    def select_related(self, *lookups):
+        """Will work same as .prefetch_related()"""
+        clone = self._chain()
+        if lookups == (None,):
+            clone._select_related_lookups = ()  # pylint: disable=protected-access
+        else:
+            clone._select_related_lookups += lookups
+        return clone
+
+    def _chain(self):
+        clone = self.__class__(queryset=self.queryset, model=self.model)
+        clone._select_related_lookups = self._select_related_lookups  # pylint: disable=protected-access
+        clone._prefetch_related_lookups = self._prefetch_related_lookups  # pylint: disable=protected-access
+        return clone
 
     def __getattr__(self, item):
-        try:
-            return super().__getattr__(item)
-        except AttributeError:
-            # If the attribute is not found on this class,
-            # proxy the request to the SearchQuerySet.
-            return getattr(self.qs, item)
+        # If the attribute is not found on this class,
+        # proxy the request to the SearchQuerySet.
+        return getattr(self.queryset, item)
 
     def __iter__(self):
-        for result in self.qs:
-            yield result.object
+        results = [r.object for r in self.queryset]
+
+        # Both select_related & prefetch_related will act as prefetch_related
+        prefetch_lookups = set(self._select_related_lookups) | set(self._prefetch_related_lookups)
+        if prefetch_lookups:
+            prefetch_related_objects(results, *prefetch_lookups)
+
+        yield from results
 
     def __getitem__(self, key):
-        if isinstance(key, int) and (key >= 0 or key < self.count()):
-            # return the object at the specified position
-            return self.qs[key].execute()[0].object
-        # Pass the slice/range on to the delegate
-        return SearchQuerySetWrapper(self.qs[key])
+        single_value = isinstance(key, int)
+
+        clone = self._chain()
+        clone.queryset = self.queryset[slice(key, key + 1) if single_value else key]
+
+        if single_value:
+            return list(clone)[0]
+
+        return clone
 
 
 def use_read_replica_if_available(queryset):
