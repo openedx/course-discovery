@@ -258,7 +258,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'hidden': body.get('hidden', False),
             'license': body.get('license') or '',  # license cannot be None
             'title_override': body['name'],  # we support Studio edits, even though Publisher also owns titles
-            'pacing_type': self.get_pacing_type(body)
+            'pacing_type': self.get_pacing_type(body),
+            'invite_only': body.get('invitation_only', False),
         }
 
         if not self.partner.uses_publisher:
