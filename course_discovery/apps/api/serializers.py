@@ -1991,7 +1991,10 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         # Explicitly check if the queryset is None before selecting related
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
 
-        return queryset.select_related('type', 'partner').prefetch_related(
+        return queryset.select_related(
+            'type', 'partner', 'degree', 'language_override', 'level_type_override', 'primary_subject_override',
+            'degree__additional_metadata'
+        ).prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
@@ -1999,9 +2002,16 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'type__applicable_seat_types',
             'type__translations',
             'authoring_organizations',
-            'degree',
+            'degree__costs',
+            'degree__deadlines',
             'curricula',
             'subscription__prices__currency',
+            'primary_subject_override__translations',
+            'level_type_override__translations',
+            'degree__specializations',
+            'degree__rankings',
+            'degree__quick_facts',
+            'labels',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 
