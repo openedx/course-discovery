@@ -1893,7 +1893,7 @@ class DegreeSerializer(BaseModelSerializer):
     micromasters_background_image = StdImageSerializerField()
     micromasters_path = serializers.SerializerMethodField()
     additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
-    specializations = serializers.SerializerMethodField()
+    specializations = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Degree
@@ -1915,9 +1915,6 @@ class DegreeSerializer(BaseModelSerializer):
             return url.sub('', degree.micromasters_url)
         else:
             return degree.micromasters_url
-
-    def get_specializations(self, degree):
-        return list(degree.specializations.values_list('value', flat=True))
 
 
 class ProgramSubscriptionPriceSerializer(BaseModelSerializer):
