@@ -317,6 +317,48 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_course_search(course)
         ]
 
+    def test_results_include_active_course_runs(self):
+        """
+        Verify the search results include course runs that are active (means the course run is currently open for
+        enrollment, marketable and not ended).
+        """
+        # These runs should not be in the results
+        course = CourseFactory(
+            key=self.desired_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            end=datetime.datetime.now(),
+        )
+        CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            enrollment_end=datetime.datetime.now()
+        )
+
+        # This course run should be in the results
+        course_run = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            type__is_marketable=True,
+            status=CourseRunStatus.Published,
+            enrollment_start=datetime.datetime.now() - datetime.timedelta(days=20),
+            enrollment_end=datetime.datetime.now() + datetime.timedelta(days=20),
+            end=datetime.datetime.now() + datetime.timedelta(days=30)
+        )
+        SeatFactory(course_run=course_run)
+        self.reindex_course_runs(course)
+
+        response = self.get_response(query={"active": "true"}, endpoint=self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [self.serialize_course_run_search(course_run)]
+
     def test_results_include_match_key_objects(self):
         """ Verify the search results include items that match 'key' set to 'course:edX+DemoX' by substring."""
 

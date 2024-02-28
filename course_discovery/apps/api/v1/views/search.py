@@ -127,6 +127,9 @@ class CourseRunSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumentVie
         'subjects': {'field': 'subjects.raw', 'enabled': True},
         'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'content_type': {'field': 'content_type', 'enabled': True},
+        'active': {
+            'field': 'is_active', 'enabled': True
+        },
     }
 
 
@@ -164,6 +167,9 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'external_course_marketing_type': {'field': 'external_course_marketing_type', 'enabled': True},
         'product_source': {'field': 'product_source', 'enabled': True},
         'first_enrollable_paid_seat_price': {'field': 'first_enrollable_paid_seat_price', 'enabled': True},
+        'active': {
+            'field': 'is_active', 'enabled': True
+        },
         'language': {'field': 'language.raw', 'enabled': True},
         'level_type': {'field': 'level_type.raw', 'enabled': True},
         'mobile_available': {'field': 'mobile_available', 'enabled': True},
@@ -223,6 +229,9 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
                 LOOKUP_QUERY_LTE,
                 LOOKUP_FILTER_TERMS,
             ],
+        },
+        'active': {
+            'field': 'is_active', 'lookups': [LOOKUP_FILTER_TERM],
         },
         'end': {'field': 'end', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
         'end_date': {
