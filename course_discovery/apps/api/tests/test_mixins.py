@@ -18,7 +18,7 @@ class TestAPIView(AnonymousUserThrottleAuthenticatedEndpointMixin, APIView):
     permission_classes = ()
     authentication_classes = ()
 
-    def get(self, request, *_args, **_kwargs):  # pylint: disable=unused-argument
+    def get(self, request, *_args, **_kwargs):
         return Response(
             status=status.HTTP_200_OK,
             data="Hello, World"

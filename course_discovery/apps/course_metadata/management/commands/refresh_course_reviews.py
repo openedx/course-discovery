@@ -46,8 +46,7 @@ class Command(BaseCommand):
         try:
             cs.execute(SNOWFLAKE_REFRESH_COURSE_REVIEWS_QUERY)
             rows = cs.fetchall()
-            for row in rows:
-                yield row
+            yield from rows
         finally:
             cs.close()
         ctx.close()
