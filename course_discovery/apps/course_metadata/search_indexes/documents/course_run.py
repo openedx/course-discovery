@@ -40,6 +40,7 @@ class CourseRunDocument(BaseCourseDocument):
     first_enrollable_paid_seat_sku = fields.TextField()
     go_live_date = fields.DateField()
     has_enrollable_seats = fields.BooleanField()
+    is_active = fields.BooleanField()
     has_enrollable_paid_seats = fields.BooleanField()
     hidden = fields.BooleanField()
     is_enrollable = fields.BooleanField()
@@ -88,6 +89,9 @@ class CourseRunDocument(BaseCourseDocument):
 
     def prepare_first_enrollable_paid_seat_sku(self, obj):
         return obj.first_enrollable_paid_seat_sku()
+
+    def prepare_is_active(self, obj):
+        return self._prepare_is_active(obj)
 
     def prepare_is_current_and_still_upgradeable(self, obj):
         return obj.is_current_and_still_upgradeable()

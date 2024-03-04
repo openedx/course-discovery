@@ -150,6 +150,14 @@ class BaseDocument(Document, metaclass=DocumentMeta):
             return language.get_search_facet_display()
         return None
 
+    def _prepare_is_active(self, obj):
+        """
+        Returns True if the object is `is_marketable` and `is_enrollable` and active.
+        - is_marketable`, `is_enrollable`: properties of the CourseRun Model
+        - `has_ended()`: methods of the CourseRun Model to check if the course end date has passed.
+        """
+        return obj.is_marketable and obj.is_enrollable and not obj.has_ended()
+
     object = property(_get_object, _set_object)
 
     def prepare_authoring_organization_uuids(self, obj):
