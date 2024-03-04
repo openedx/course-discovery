@@ -29,7 +29,6 @@ from course_discovery.apps.course_metadata.models import Degree, Person, Positio
 from course_discovery.apps.course_metadata.tests import factories
 
 
-# pylint: disable=no-member
 @ddt.ddt
 class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""

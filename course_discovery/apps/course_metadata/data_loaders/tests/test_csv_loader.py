@@ -462,7 +462,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         CourseRunFactory(
             course=course,
             start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
-            end=datetime.datetime(2024, 3, 1, tzinfo=UTC),
+            # 2050 end date is to ensure the course run is present among active runs and thus
+            # non-draft entries are created. If the discovery is there till 2050, you would need to update the
+            # tests after Jan 1, 2050.
+            end=datetime.datetime(2050, 1, 1, tzinfo=UTC),
             key=self.COURSE_RUN_KEY,
             type=self.course_run_type,
             status='published',
