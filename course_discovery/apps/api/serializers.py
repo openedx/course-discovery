@@ -1183,8 +1183,12 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner', 'type', 'canonical_course_run').prefetch_related(
+        return queryset.select_related(
+            'partner', 'type', 'canonical_course_run'
+        ).prefetch_related(
             'authoring_organizations',
+            'canonical_course_run__seats__type',
+            'canonical_course_run__seats__currency',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
@@ -2154,21 +2158,10 @@ class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
-        # Explicitly check if the queryset is None before selecting related
-        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+        queryset = super().prefetch_queryset(partner=partner, queryset=queryset)
 
-        return queryset.select_related('type', 'partner').prefetch_related(
-            'excluded_course_runs',
+        return queryset.prefetch_related(
             'expected_learning_items',
-            # `type` is serialized by a third-party serializer. Providing this field name allows us to
-            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
-            # `ProgramType` on `Program`.
-            'type__applicable_seat_types',
-            'type__translations',
-            'authoring_organizations',
-            'degree',
-            'curricula',
-            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalProgramSerializer.Meta):
