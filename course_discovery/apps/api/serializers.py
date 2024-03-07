@@ -1047,6 +1047,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         return queryset.select_related(
             'course__level_type',
             'course__video__image',
+            'course__additional_metadata',
             'language',
             'video',
             'expected_program_type'
@@ -1183,8 +1184,12 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner', 'type', 'canonical_course_run').prefetch_related(
+        return queryset.select_related(
+            'partner', 'type', 'canonical_course_run'
+        ).prefetch_related(
             'authoring_organizations',
+            'canonical_course_run__seats__type',
+            'canonical_course_run__seats__currency',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
@@ -1998,7 +2003,6 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
             'type__translations',
-            'authoring_organizations',
             'degree__costs',
             'degree__deadlines',
             'curricula',
@@ -2010,6 +2014,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'degree__quick_facts',
             'labels',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
     class Meta:
@@ -2154,21 +2159,10 @@ class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
-        # Explicitly check if the queryset is None before selecting related
-        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+        queryset = super().prefetch_queryset(partner=partner, queryset=queryset)
 
-        return queryset.select_related('type', 'partner').prefetch_related(
-            'excluded_course_runs',
+        return queryset.prefetch_related(
             'expected_learning_items',
-            # `type` is serialized by a third-party serializer. Providing this field name allows us to
-            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
-            # `ProgramType` on `Program`.
-            'type__applicable_seat_types',
-            'type__translations',
-            'authoring_organizations',
-            'degree',
-            'curricula',
-            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalProgramSerializer.Meta):
@@ -2225,17 +2219,33 @@ class ProgramSerializer(MinimalProgramSerializer):
             'geolocation',
             'in_year_value',
             'product_source',
-            'location_restriction'
+            'location_restriction',
+            'degree',
+            'language_override',
+            'level_type_override',
+            'primary_subject_override',
+            'degree__additional_metadata'
         ).prefetch_related(
             'excluded_course_runs',
-            'expected_learning_items',
-            'faq',
-            'job_outlook_items',
-            'instructor_ordering',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
+            'type__translations',
+            'degree__costs',
+            'degree__deadlines',
+            'curricula',
+            'subscription__prices__currency',
+            'primary_subject_override__translations',
+            'level_type_override__translations',
+            'degree__specializations',
+            'degree__rankings',
+            'degree__quick_facts',
+            'labels',
+            'expected_learning_items',
+            'faq',
+            'job_outlook_items',
+            'instructor_ordering',
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
             Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partner=partner)),
