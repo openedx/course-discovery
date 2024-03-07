@@ -13,7 +13,7 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue
+from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
     DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
@@ -524,6 +524,20 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             assert course.learning_type == ['Course']
 
     @ddt.data(
+        (ProgramType.PROFESSIONAL_CERTIFICATE, 'Certificate courses'),
+        (ProgramType.MASTERS, 'Degrees'),
+        (ProgramType.MICROBACHELORS, 'Paths to degrees'),
+    )
+    @ddt.unpack
+    def test_learning_type_exp_open_course(self, program_type_slug, learning_type):
+        course_type = CourseTypeFactory()
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner, type=course_type)
+        program_type = ProgramType.objects.get(slug=program_type_slug)
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+        course.programs.set([program])
+        assert course.learning_type_exp == ['Course', learning_type]
+
+    @ddt.data(
         (CourseType.EXECUTIVE_EDUCATION_2U, 'Executive Education'),
         (CourseType.BOOTCAMP_2U, 'Boot Camp'),
     )
@@ -532,6 +546,16 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         course.type = CourseTypeFactory(slug=course_type_slug)
         assert course.learning_type == [expected_result]
+
+    @ddt.data(
+        (CourseType.EXECUTIVE_EDUCATION_2U, 'Certificate courses'),
+        (CourseType.BOOTCAMP_2U, 'Boot Camp'),
+    )
+    @ddt.unpack
+    def test_learning_type_exp_non_open_course(self, course_type_slug, expected_result):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.type = CourseTypeFactory(slug=course_type_slug)
+        assert course.learning_type_exp == [expected_result]
 
 
 @ddt.ddt
@@ -849,3 +873,14 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program_type = ProgramTypeFactory()
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
         assert program.learning_type == [program_type.name_t]
+
+    @ddt.data(
+        (ProgramType.PROFESSIONAL_CERTIFICATE, 'Certificate courses'),
+        (ProgramType.MASTERS, 'Degrees'),
+        (ProgramType.MICROBACHELORS, 'Paths to degrees'),
+    )
+    @ddt.unpack
+    def test_learning_type_exp(self, program_type_slug, learning_type):
+        program_type = ProgramType.objects.get(slug=program_type_slug)
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+        assert program.learning_type_exp == [learning_type]
