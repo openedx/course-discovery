@@ -2230,7 +2230,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         )
         course.course_runs.add(course_run)
         course.save()
-        seat = SeatFactory(course_run=course_run)
+
         course_skill = CourseSkillsFactory(
             course_key=course.key
         )
@@ -2250,9 +2250,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'subjects': [subject.name for subject in course.subjects.all()],
             'languages': [
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
-                if course_run.language
+                if course_run.language and course.is_active
             ],
-            'seat_types': [seat.type.slug],
+            'seat_types': [],
             'skill_names': [course_skill.skill.name],
             'skills': [
                 {
