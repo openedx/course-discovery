@@ -51,9 +51,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.34.54
+boto3==1.34.59
     # via django-ses
-botocore==1.34.54
+botocore==1.34.59
     # via
     #   boto3
     #   s3transfer
@@ -118,7 +118,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.10
+django==4.2.11
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -203,7 +203,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.2.3
     # via -r requirements/base.in
-django-filter==23.5
+django-filter==24.1
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -301,7 +301,7 @@ edx-django-release-util==1.3.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.2
     # via -r requirements/base.in
-edx-django-utils==5.10.1
+edx-django-utils==5.11.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -361,9 +361,9 @@ gevent==24.2.1
     # via -r requirements/production.in
 google-api-core==2.17.1
     # via google-api-python-client
-google-api-python-client==2.120.0
+google-api-python-client==2.121.0
     # via -r requirements/base.in
-google-auth==2.28.1
+google-auth==2.28.2
     # via
     #   google-api-core
     #   google-api-python-client
@@ -395,7 +395,7 @@ idna==3.6
     #   requests
     #   snowflake-connector-python
     #   yarl
-importlib-metadata==7.0.1
+importlib-metadata==7.0.2
     # via
     #   -r requirements/base.in
     #   markdown
@@ -455,7 +455,7 @@ openedx-events==9.5.2
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
     #   taxonomy-connector
-packaging==23.2
+packaging==24.0
     # via
     #   django-nine
     #   drf-yasg
@@ -508,9 +508,9 @@ pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pyopenssl==24.0.0
+pyopenssl==24.1.0
     # via snowflake-connector-python
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
@@ -551,7 +551,7 @@ pyyaml==6.0.1
     #   edx-django-release-util
 rcssmin==1.1.1
     # via django-compressor
-redis==5.0.2
+redis==5.0.3
     # via
     #   -r requirements/base.in
     #   walrus
@@ -575,7 +575,7 @@ requests==2.31.0
     #   zeep
 requests-file==2.0.0
     # via zeep
-requests-oauthlib==1.3.1
+requests-oauthlib==1.4.0
     # via
     #   getsmarter-api-clients
     #   google-auth-oauthlib
