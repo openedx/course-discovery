@@ -432,6 +432,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
         return None
 
     @classmethod
+    @function_trace('organization_serializer_prefetch')
     def prefetch_queryset(cls, partner):
         return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
 
@@ -777,11 +778,8 @@ class SeatSerializer(BaseModelSerializer):
     bulk_sku = serializers.CharField()
 
     @classmethod
-    def prefetch_queryset(cls):
-        return cls.traced_prefetch()
-
     @function_trace('seat_serializer_fetch')
-    def traced_prefetch(self):
+    def prefetch_queryset(cls):
         return Seat.everything.all().select_related('currency', 'type')
 
     class Meta:
@@ -929,15 +927,12 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     variant_id = serializers.UUIDField(allow_null=True, required=False)
 
     @classmethod
+    @function_trace('minimal_course_run_serializer_prefetch')
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all CourseRuns when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return cls.traced_prefetch(queryset)
-
-    @function_trace('minimal_course_run_serializer_prefetch')
-    def traced_prefetch(self, queryset):
         return queryset.select_related('course', 'type').prefetch_related(
             '_official_version',
             'course__partner',
@@ -1188,15 +1183,12 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
+    @function_trace('minimal_course_serializer_prefetch')
     def prefetch_queryset(cls, queryset=None, course_runs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return cls.traced_prefetch(queryset, course_runs)
-
-    @function_trace('minimal_course_serializer_prefetch')
-    def traced_prefetch(self, queryset, course_runs):
         return queryset.select_related(
             'partner', 'type', 'canonical_course_run'
         ).prefetch_related(
@@ -1204,7 +1196,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
             'canonical_course_run__seats__type',
             'canonical_course_run__seats__currency',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
-            self.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
+            cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
 
     def get_course_type(self, obj):
@@ -2002,14 +1994,11 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         return None
 
     @classmethod
+    @function_trace('minimal_program_prefetch_trace')
     def prefetch_queryset(cls, partner, queryset=None):
         # Explicitly check if the queryset is None before selecting related
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
 
-        return cls.traced_prefetch(queryset, partner)
-
-    @function_trace('minimal_program_prefetch_trace')
-    def traced_prefetch(self, queryset, partner):
         return queryset.select_related(
             'type', 'partner', 'degree', 'language_override', 'level_type_override', 'primary_subject_override',
             'degree__additional_metadata'
@@ -2312,16 +2301,10 @@ class PathwaySerializer(BaseModelSerializer):
     course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
+    @function_trace('pathways_program_prefetch')
     def prefetch_queryset(cls, partner):
         queryset = Pathway.objects.filter(partner=partner)
 
-        return cls.traced_prefetch(queryset, partner)
-
-    @function_trace('pathways_program_prefetch')
-    def traced_prefetch(self, queryset, partner):
-        """
-        Temporary function to have tracing on program serializer fetch
-        """
         return queryset.prefetch_related(
             Prefetch('programs', queryset=MinimalProgramSerializer.prefetch_queryset(partner=partner)),
         )
