@@ -1,3 +1,5 @@
+""" Tests for the ietf_language_tags utility methods """
+
 import ddt
 import pytest
 from django.test import TestCase
