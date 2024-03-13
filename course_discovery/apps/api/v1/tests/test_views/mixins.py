@@ -22,8 +22,13 @@ from course_discovery.apps.course_metadata.tests import factories
 
 
 class SerializationMixin:
-    def _get_request(self, format=None):
+    def _get_request(self, format=None, query_params=None):
         if getattr(self, 'request', None):
+            if query_params:
+                mutable_query_dict = self.request.GET.copy()
+                mutable_query_dict.update(query_params)
+                self.request.GET = mutable_query_dict
+
             request = self.request
         else:
             query_data = {}
@@ -41,8 +46,12 @@ class SerializationMixin:
         # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
         return APIView().initialize_request(request)
 
-    def _serialize_object(self, serializer, obj, many=False, format=None, extra_context=None):
-        context = {'request': self._get_request(format)}
+    def _serialize_object(self, serializer, obj, many=False, format=None, extra_context=None, query_params=None):
+        context = {}
+        if query_params:
+            context = {'request': self._get_request(format, query_params)}
+        else:
+            context = {'request': self._get_request(format)}
         if extra_context:
             context.update(extra_context)
         return serializer(obj, many=many, context=context).data
@@ -56,9 +65,9 @@ class SerializationMixin:
     def serialize_course(self, course, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
-    def serialize_course_search(self, course, serializer=None):
+    def serialize_course_search(self, course, serializer=None, query_params=None):
         obj = self._get_search_result(CourseDocument, **{'key.raw': course.key})
-        return self._serialize_object(serializer or CourseSearchDocumentSerializer, obj)
+        return self._serialize_object(serializer or CourseSearchDocumentSerializer, obj, query_params=query_params)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)

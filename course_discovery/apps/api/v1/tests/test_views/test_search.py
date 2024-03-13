@@ -266,6 +266,11 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         super().setUp()
         self.desired_key = 'course-v1:edx+DemoX+2018'
         self.regular_key = 'course-v1:edx+TeamX+2019'
+        # request.GET is immutable, so we need to make a copy of it and then clear it
+        # Clearing the request.GET is necessary to avoid the query parameters being passed to the next request
+        temp_req_dict = self.request.GET.copy()
+        temp_req_dict.clear()
+        self.request.GET = temp_req_dict
 
     def get_response(self, query=None, endpoint=None):
         path = endpoint or self.faceted_path
@@ -504,7 +509,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 7), (False, 7))
+    @ddt.data((True, 7), (False, 8))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -534,7 +539,9 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(program),
             # We need to render the json, and then parse it again, to get all of the formatted
             # data the same as the data coming out of search.
-            json.loads(JSONRenderer().render(self.serialize_course_search(course_run.course)).decode('utf-8')),
+            json.loads(JSONRenderer().render(
+                self.serialize_course_search(course_run.course, query_params={'exclude_expired_course_run': 'True'})
+                if exclude_expired else self.serialize_course_search(course_run.course)).decode('utf-8')),
         ]
         self.assertCountEqual(response_data['results'], expected)
 

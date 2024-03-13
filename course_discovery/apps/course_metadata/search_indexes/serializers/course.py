@@ -50,6 +50,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
     skills = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
     course_ends = serializers.SerializerMethodField()
+    languages = serializers.SerializerMethodField()
 
     def course_run_detail(self, request, detail_fields, course_run):
         course_run_detail = {
@@ -114,8 +115,28 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             if should_include_course_run(course_run, query_params, exclude_expired)
         ]
 
+    def get_languages(self, result):
+        request = self.context['request']
+        exclude_non_active_languages = request.GET.get('exclude_expired_course_run')
+        if request.method == 'POST':
+            exclude_non_active_languages = request.POST.get('exclude_expired_course_run', exclude_non_active_languages)
+
+        return result.object.languages(exclude_non_active_languages)
+
     def get_seat_types(self, result):
-        seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
+        now = datetime.datetime.now(pytz.UTC)
+        request = self.context['request']
+        exclude_expired = request.GET.get('exclude_expired_course_run')
+        if request.method == 'POST':
+            exclude_expired = request.POST.get('exclude_expired_course_run', exclude_expired)
+        if exclude_expired:
+            # if course_run is active then add course_run.seat_types to seat_types
+            seat_types = [
+                seat.slug for course_run in result.object.course_runs.all()
+                if course_run.end is None or course_run.end > now for seat in course_run.seat_types
+            ]
+        else:
+            seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
     def get_skill_names(self, result):

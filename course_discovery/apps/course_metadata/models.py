@@ -64,6 +64,7 @@ from course_discovery.apps.course_metadata.utils import (
     push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.ietf_language_tags.utils import serialize_language
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
@@ -1680,6 +1681,23 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         else:
             return _('Past')
 
+    def languages(self, exclude_inactive_runs=False):
+        """
+        Returns a set of all languages used in this course.
+
+        Arguments:
+            exclude_inactive_runs (bool): whether to exclude inactive runs
+        """
+        if exclude_inactive_runs:
+            return list({
+                serialize_language(course_run.language) for course_run in self.course_runs.all()
+                if course_run.is_active and course_run.language is not None
+            })
+        return list({
+            serialize_language(course_run.language) for course_run in self.course_runs.all()
+            if course_run.language is not None
+        })
+
     @property
     def first_enrollable_paid_seat_price(self):
         """
@@ -1706,6 +1724,13 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         """
         statuses = set()
         return sorted(list(get_course_run_statuses(statuses, self.course_runs.all())))
+
+    @property
+    def is_active(self):
+        """
+        Returns true if any of the course runs of the course is active
+        """
+        return any(course_run.is_active for course_run in self.course_runs.all())
 
     def unpublish_inactive_runs(self, published_runs=None):
         """
@@ -2849,6 +2874,14 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
+
+    @property
+    def is_active(self):
+        """
+        Returns True if the course run is active, meaning it is both enrollable, marketable and has not ended.
+        - `has_ended()`: method of the CourseRun Model to check if the course end date has passed.
+        """
+        return self.is_enrollable and self.is_marketable and not self.has_ended()
 
     def complete_review_phase(self, has_ofac_restrictions, ofac_comment):
         """
