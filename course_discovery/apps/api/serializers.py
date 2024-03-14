@@ -17,7 +17,6 @@ from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
-from edx_django_utils.monitoring import function_trace
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from opaque_keys.edx.locator import CourseLocator
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
@@ -432,7 +431,6 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
         return None
 
     @classmethod
-    @function_trace('organization_serializer_prefetch')
     def prefetch_queryset(cls, partner):
         return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
 
@@ -778,7 +776,6 @@ class SeatSerializer(BaseModelSerializer):
     bulk_sku = serializers.CharField()
 
     @classmethod
-    @function_trace('seat_serializer_fetch')
     def prefetch_queryset(cls):
         return Seat.everything.all().select_related('currency', 'type')
 
@@ -927,7 +924,6 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     variant_id = serializers.UUIDField(allow_null=True, required=False)
 
     @classmethod
-    @function_trace('minimal_course_run_serializer_prefetch')
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all CourseRuns when the
         # queryset passed in happens to be empty.
@@ -1183,7 +1179,6 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
-    @function_trace('minimal_course_serializer_prefetch')
     def prefetch_queryset(cls, queryset=None, course_runs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
@@ -1994,7 +1989,6 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         return None
 
     @classmethod
-    @function_trace('minimal_program_prefetch_trace')
     def prefetch_queryset(cls, partner, queryset=None):
         # Explicitly check if the queryset is None before selecting related
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
@@ -2301,7 +2295,6 @@ class PathwaySerializer(BaseModelSerializer):
     course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
-    @function_trace('pathways_program_prefetch')
     def prefetch_queryset(cls, partner):
         queryset = Pathway.objects.filter(partner=partner)
 
