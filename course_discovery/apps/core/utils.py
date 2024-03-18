@@ -164,7 +164,7 @@ class SearchQuerySetWrapper:
     def prefetch_related(self, *lookups):
         """Same as QuerySet.prefetch_related()"""
         clone = self._chain()
-        if lookups == (None,):
+        if not lookups or lookups == (None,):
             clone._prefetch_related_lookups = ()  # pylint: disable=protected-access
         else:
             clone._prefetch_related_lookups += lookups
@@ -173,7 +173,7 @@ class SearchQuerySetWrapper:
     def select_related(self, *lookups):
         """Will work same as .prefetch_related()"""
         clone = self._chain()
-        if lookups == (None,):
+        if not lookups or lookups == (None,):
             clone._select_related_lookups = ()  # pylint: disable=protected-access
         else:
             clone._select_related_lookups += lookups
