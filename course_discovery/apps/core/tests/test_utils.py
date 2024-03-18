@@ -121,3 +121,9 @@ class SearchQuerySetWrapperTests(TestCase):
 
     def test_getitem(self):
         assert self.course_runs[0] == self.wrapper[0]
+
+    def test_prefetch_related_count(self):
+        assert self.search_queryset.count() == self.wrapper.prefetch_related().count()
+
+    def test_select_related_count(self):
+        assert self.search_queryset.count() == self.wrapper.select_related().count()
