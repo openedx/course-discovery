@@ -681,7 +681,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
             'content_language_search_facet_name': course_run.language.get_search_facet_display(translate=True),
-            'transcript_languages': [],
+            'transcript_languages': [lang.code for lang in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
@@ -705,12 +705,18 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'ofac_comment': course_run.ofac_comment,
             'estimated_hours': get_course_run_estimated_hours(course_run),
             'enterprise_subscription_inclusion': course_run.enterprise_subscription_inclusion,
+            'transcript_languages_search_facet_names': [
+                lang.get_search_facet_display() for lang in course_run.transcript_languages.all()
+            ]
         })
         return expected
 
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
+        # Adjusting transcript_languages here for CourseRunSerializerTests to avoid affecting
+        # other tests that use CourseRunFactory
+        course_run.transcript_languages.set([LanguageTag.objects.first()])
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
 
