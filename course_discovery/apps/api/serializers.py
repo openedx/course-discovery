@@ -1018,6 +1018,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         required=False, many=True, slug_field='code',
         queryset=LanguageTag.objects.prefetch_related('translations').order_by('name')
     )
+    transcript_languages_search_facet_names = serializers.SerializerMethodField()
     video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
@@ -1066,10 +1067,11 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion'
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion',
+            'transcript_languages_search_facet_names'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
-                            'enterprise_subscription_inclusion')
+                            'enterprise_subscription_inclusion', 'transcript_languages_search_facet_names')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1083,6 +1085,17 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         if language is None:
             return None
         return language.get_search_facet_display(translate=True)
+
+    def get_transcript_languages_search_facet_names(self, obj):
+        transcript_languages = obj.transcript_languages.all()
+        if not transcript_languages:
+            return None
+
+        transcript_languages_facet_names = []
+        for language in transcript_languages:
+            transcript_languages_facet_names.append(language.get_search_facet_display(translate=True))
+
+        return transcript_languages_facet_names
 
     def update_video(self, instance, video_data):
         # A separate video object is a historical concept. These days, we really just use the link address. So

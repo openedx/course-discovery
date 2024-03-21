@@ -705,6 +705,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'ofac_comment': course_run.ofac_comment,
             'estimated_hours': get_course_run_estimated_hours(course_run),
             'enterprise_subscription_inclusion': course_run.enterprise_subscription_inclusion,
+            'transcript_languages_search_facet_names': None
         })
         return expected
 
