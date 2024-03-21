@@ -3,7 +3,9 @@ Admin definitions for models defined in `taxonomy-support`.
 """
 from django.contrib import admin
 
-from course_discovery.apps.taxonomy_support.models import CourseRecommendation, UpdateCourseRecommendationsConfig
+from course_discovery.apps.taxonomy_support.models import (
+    CourseRecommendation, SkillValidationConfiguration, UpdateCourseRecommendationsConfig
+)
 
 
 @admin.register(CourseRecommendation)
@@ -20,3 +22,8 @@ class CourseRecommendationAdmin(admin.ModelAdmin):
 class UpdateCourseRecommendationsConfigAdmin(admin.ModelAdmin):
     fields = ('uuids', 'num_past_days', 'all_courses')
     list_display = ('id',)
+
+
+@admin.register(SkillValidationConfiguration)
+class SkillValidationConfigurationAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['course', 'organization']

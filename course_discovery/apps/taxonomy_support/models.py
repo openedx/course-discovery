@@ -2,12 +2,19 @@
 Models for taxonomy related tables, these tables are placed here as opposed to inside `taxonomy-connector`
 because they have direct dependency with models from course discovery.
 """
+import logging
+
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 from solo.models import SingletonModel
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization
+
+LOGGER = logging.getLogger(__name__)
 
 
 class CourseRecommendation(TimeStampedModel):
@@ -60,3 +67,107 @@ class UpdateCourseRecommendationsConfig(SingletonModel):
 
     def __str__(self):
         return 'Configuration for the update_course_recommendations management command'
+
+
+class SkillValidationConfiguration(TimeStampedModel):
+    """
+    Model to store the configuration for disabling skill validation for a course or organization.
+    """
+
+    course = models.ForeignKey(
+        Course,
+        null=True,
+        blank=True,
+        related_name='+',
+        on_delete=models.CASCADE,
+        help_text=_('The course, for which skill validation is disabled.'),
+    )
+    organization = models.ForeignKey(
+        Organization,
+        null=True,
+        blank=True,
+        related_name='+',
+        on_delete=models.CASCADE,
+        help_text=_('The organization, for which skill validation is disabled.'),
+    )
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        message = ''
+
+        if self.course:
+            message = f'Skill validation disabled for course: {self.course.key}'
+        elif self.organization:
+            message = f'Skill validation disabled for organization: {self.organization.key}'
+
+        return message
+
+    class Meta:
+        """
+        Meta configuration for SkillValidationConfiguration model.
+        """
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(course__isnull=False) &
+                    Q(organization__isnull=True)
+                ) | (
+                    Q(course__isnull=True) &
+                    Q(organization__isnull=False)
+                ),
+                name='either_course_or_org',
+                violation_error_message='Select either course or organization.'
+            ),
+            models.UniqueConstraint(fields=['course'], name="unique_course"),
+            models.UniqueConstraint(fields=['organization'], name="unique_organization")
+        ]
+
+        verbose_name = 'Skill Validation Configuration'
+        verbose_name_plural = 'Skill Validation Configurations'
+
+    @staticmethod
+    def is_valid_course_run_key(course_run_key):
+        """
+        Check if the given course run key is in valid format.
+
+        Arguments:
+            course_run_key (str): Course run key
+        """
+        try:
+            return True, CourseKey.from_string(course_run_key)
+        except InvalidKeyError:
+            LOGGER.error('[TAXONOMY_SKILL_VALIDATION_CONFIGURATION] Invalid course_run key: [%s]', course_run_key)
+
+        return False, None
+
+    @classmethod
+    def is_disabled(cls, course_run_key) -> bool:
+        """
+        Check if skill validation is disabled for the given course run key.
+
+        Arguments:
+            course_run_key (str): Course run key
+
+        Returns:
+            bool: True if skill validation is disabled for the given course run key.
+        """
+        is_valid_course_run_key, course_run_key = cls.is_valid_course_run_key(course_run_key)
+        if not is_valid_course_run_key:
+            return False
+
+        course_run_org = course_run_key.org
+        if cls.objects.filter(organization__key=course_run_org).exists():
+            return True
+
+        try:
+            course_run = CourseRun.objects.select_related('course').get(key=course_run_key)
+            course_key = course_run.course.key
+        except CourseRun.DoesNotExist:
+            return False
+
+        if cls.objects.filter(course__key=course_key).exists():
+            return True
+
+        return False

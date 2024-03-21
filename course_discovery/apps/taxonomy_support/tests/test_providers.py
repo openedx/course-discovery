@@ -27,19 +27,25 @@ discovery and its interface in taxonomy are always in sync.
 from unittest import mock
 from urllib.parse import urljoin
 
+import pytest
 from django.conf import settings
 from django.test import TestCase
 from taxonomy.providers import CourseRunContent
-from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
+from taxonomy.providers.utils import (
+    get_course_metadata_provider, get_course_run_metadata_provider, get_xblock_metadata_provider
+)
 from taxonomy.validators import (
     CourseMetadataProviderValidator, CourseRunMetadataProviderValidator, ProgramMetadataProviderValidator,
     XBlockMetadataProviderValidator
 )
+from taxonomy_support.tests.factories import SkillValidationConfigurationFactory
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory
+)
 
 
 class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
@@ -138,3 +144,61 @@ class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
         provider = get_xblock_metadata_provider()
         xblocks = provider.get_xblocks(block_ids)
         assert 'Should not be included in tagging content.' not in xblocks[0].content
+
+
+@pytest.mark.django_db
+class DiscoveryCourseMetadataProviderTests(TestCase):
+    """
+    Tests for `DiscoveryCourseMetadataProvider`.
+    """
+    def setUp(self):
+        super().setUp()
+
+        self.course_with_skill_validation_disabled = CourseFactory()
+        self.course_with_skill_validation_enabled = CourseFactory()
+
+        self.courserun_with_skill_validation_disabled = CourseRunFactory(
+            course=self.course_with_skill_validation_disabled
+        )
+        self.courserun_with_skill_validation_enabled = CourseRunFactory(
+            course=self.course_with_skill_validation_enabled
+        )
+
+        organization = OrganizationFactory(key='MAx')
+        self.course_with_org_skill_validation_disabled = CourseFactory(authoring_organizations=[organization])
+        self.courserun_with_org_skill_validation_disabled_1 = CourseRunFactory(
+            key='course-v1:MAx+4084+1T2025',
+            authoring_organizations=[organization]
+        )
+        self.courserun_with_org_skill_validation_disabled_2 = CourseRunFactory(
+            key='course-v1:MAx+3985+1T2025',
+            authoring_organizations=[organization]
+        )
+
+        # create a config that will disable skill validation for a course
+        SkillValidationConfigurationFactory(
+            course=self.course_with_skill_validation_disabled
+        )
+        # create a config that will disable skill validation for an organization
+        SkillValidationConfigurationFactory(
+            organization=organization
+        )
+
+    def test_skill_validation_disabled(self):
+        """
+        Test that `skill_validation_disabled` work as expected.
+        """
+        assert get_course_metadata_provider().skill_validation_disabled(
+            self.courserun_with_skill_validation_disabled.key
+        ) is True
+        assert get_course_metadata_provider().skill_validation_disabled(
+            self.course_with_skill_validation_enabled.key
+        ) is False
+
+        # skill validation should be disabled for all courses runs of an orgranization
+        assert get_course_metadata_provider().skill_validation_disabled(
+            self.courserun_with_org_skill_validation_disabled_1.key
+        ) is True
+        assert get_course_metadata_provider().skill_validation_disabled(
+            self.courserun_with_org_skill_validation_disabled_2.key
+        ) is True

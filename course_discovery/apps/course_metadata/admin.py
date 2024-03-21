@@ -31,6 +31,7 @@ from course_discovery.apps.course_metadata.views import (
     CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
 )
 from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
+from course_discovery.apps.taxonomy_support.urls import app_name as taxonomy_support_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -137,7 +138,9 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
-        if request.GET.get('app_label') == learner_pathway_app_name:
+        # Filter out draft courses when the user is searching for courses in django admin in the
+        # learner pathway or taxonomy support app
+        if request.GET.get('app_label') in (learner_pathway_app_name, taxonomy_support_app_name):
             queryset = queryset.filter(draft=False)
         return queryset, may_have_duplicates
 

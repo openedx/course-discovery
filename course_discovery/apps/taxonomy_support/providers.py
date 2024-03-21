@@ -28,6 +28,7 @@ from course_discovery.apps.course_metadata.contentful_utils import (
     aggregate_contentful_data, fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
 )
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.taxonomy_support.models import SkillValidationConfiguration
 
 
 class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
@@ -71,6 +72,18 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                         course.full_description
                     ),
                 }
+
+    def skill_validation_disabled(self, course_run_key) -> bool:
+        """
+        Get whether skill validation is disabled for a course.
+
+        Arguments:
+          course_run_key(str): A course run key.
+
+        Returns:
+          bool: `True` if skill validation is disabled for the course run, `False` otherwise.
+        """
+        return SkillValidationConfiguration.is_disabled(course_run_key)
 
 
 class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):
