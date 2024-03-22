@@ -35,7 +35,7 @@ ARG DISCOVERY_CODE_DIR="${DISCOVERY_APP_DIR}/${DISCOVERY_SERVICE_NAME}"
 ARG DISCOVERY_NODEENV_DIR="${DISCOVERY_APP_DIR}/nodeenvs/${DISCOVERY_SERVICE_NAME}"
 
 ENV PATH "${DISCOVERY_VENV_DIR}/bin:${DISCOVERY_NODEENV_DIR}/bin:$PATH"
-ENV DISCOVERY_CFG "minimal.yml"
+ENV DISCOVERY_CFG "/edx/etc/discovery.yml"
 ENV DISCOVERY_CODE_DIR "${DISCOVERY_CODE_DIR}"
 ENV DISCOVERY_APP_DIR "${DISCOVERY_APP_DIR}"
 
@@ -63,7 +63,7 @@ ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.production"
 
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/production.txt
 
-RUN make OPENEDX_ATLAS_PULL=true pull_translations
+RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
@@ -74,7 +74,7 @@ ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.devstack"
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/django.txt
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
 
-RUN make OPENEDX_ATLAS_PULL=true pull_translations
+RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
 # Devstack related step for backwards compatibility
 RUN touch ${DISCOVERY_APP_DIR}/discovery_env
