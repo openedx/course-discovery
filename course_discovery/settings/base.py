@@ -131,7 +131,7 @@ WSGI_APPLICATION = 'course_discovery.wsgi.application'
 # Set this value in the environment-specific files (e.g. local.py, production.py, test.py)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'discovery',
         'USER': 'discov001',
         'PASSWORD': 'password',
@@ -140,7 +140,7 @@ DATABASES = {
         'ATOMIC_REQUESTS': False,
     },
     'read_replica': {
-        'ENGINE': 'django.db.backends.',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'discovery',
         'USER': 'discov001',
         'PASSWORD': 'password',
