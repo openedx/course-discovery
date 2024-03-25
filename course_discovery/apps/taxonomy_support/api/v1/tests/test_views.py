@@ -104,7 +104,7 @@ class CourseViewSetTests(OAuth2Mixin, APITestCase):
         path = reverse('taxonomy_support:course_recommendations', args=('NO+COURSE',))
         response = self.client.get(path)
         assert response.status_code == 404
-        assert response.json()['detail'] == 'Not found.'
+        assert response.json()['detail'] == 'No Course matches the given query.'
 
     @responses.activate
     def test_unauthenticated_user(self):
