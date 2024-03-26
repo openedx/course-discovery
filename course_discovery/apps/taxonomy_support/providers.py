@@ -27,7 +27,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.contentful_utils import (
     aggregate_contentful_data, fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
 )
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 
 class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
@@ -71,6 +71,42 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                         course.full_description
                     ),
                 }
+
+    def get_course_key(self, course_run_key):
+        """
+        Get course key for the given `course_run_key`.
+
+        Arguments:
+            course_run_key(str): course run key
+
+        Returns:
+            str: course key if course run exists, None otherwise
+        """
+        return CourseRun.objects.filter(key=course_run_key).values_list('course__key', flat=True).first()
+
+    def is_valid_course(self, course_key):
+        """
+        Validate that a course with given `course_key` exists.
+
+        Arguments:
+          course_key(str): course key
+
+        Returns:
+          bool: True if course is valid, False otherwise
+        """
+        return Course.objects.filter(key=course_key).exists()
+
+    def is_valid_organization(self, organization_key):
+        """
+        Validate that an organization with given `organization_key` exists.
+
+        Arguments:
+          organization_key(str): organization key
+
+        Returns:
+          bool: True if organization is valid, False otherwise
+        """
+        return Organization.objects.filter(key=organization_key).exists()
 
 
 class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):

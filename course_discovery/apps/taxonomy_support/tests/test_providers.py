@@ -30,7 +30,9 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.test import TestCase
 from taxonomy.providers import CourseRunContent
-from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
+from taxonomy.providers.utils import (
+    get_course_metadata_provider, get_course_run_metadata_provider, get_xblock_metadata_provider
+)
 from taxonomy.validators import (
     CourseMetadataProviderValidator, CourseRunMetadataProviderValidator, ProgramMetadataProviderValidator,
     XBlockMetadataProviderValidator
@@ -39,7 +41,9 @@ from taxonomy.validators import (
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory
+)
 
 
 class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
@@ -138,3 +142,38 @@ class TaxonomyIntegrationTests(TestCase, LMSAPIClientMixin):
         provider = get_xblock_metadata_provider()
         xblocks = provider.get_xblocks(block_ids)
         assert 'Should not be included in tagging content.' not in xblocks[0].content
+
+
+class DiscoveryCourseMetadataProviderTests(TestCase):
+    """
+    Tests for `DiscoveryCourseMetadataProvider`.
+    """
+    def setUp(self):
+        super().setUp()
+
+        self.course = CourseFactory()
+        self.organization = OrganizationFactory(key='MAx')
+        self.courserun = CourseRunFactory(course=self.course)
+
+        self.course_metadata_provider = get_course_metadata_provider()
+
+    def test_get_course_key(self):
+        """
+        Verify that `get_course_key` work as expected.
+        """
+        assert self.course_metadata_provider.get_course_key(self.courserun.key) == self.course.key
+        assert not self.course_metadata_provider.get_course_key('blah blah')
+
+    def test_is_valid_course(self):
+        """
+        Verify that `is_valid_course` work as expected.
+        """
+        assert self.course_metadata_provider.is_valid_course(self.course.key) is True
+        assert self.course_metadata_provider.is_valid_course('blah blah') is False
+
+    def test_is_valid_organization(self):
+        """
+        Verify that `is_valid_organization` work as expected.
+        """
+        assert self.course_metadata_provider.is_valid_organization(self.organization.key) is True
+        assert self.course_metadata_provider.is_valid_organization('blah blah') is False
