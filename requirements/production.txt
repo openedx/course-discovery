@@ -52,9 +52,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.34.69
+boto3==1.34.71
     # via django-ses
-botocore==1.34.69
+botocore==1.34.71
     # via
     #   boto3
     #   s3transfer
@@ -186,7 +186,7 @@ django-contrib-comments==2.2.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
     # via -r requirements/base.in
-django-countries==7.5.1
+django-countries==7.6
     # via -r requirements/base.in
 django-crum==0.7.9
     # via
@@ -350,7 +350,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl-drf
 fastavro==1.9.4
     # via openedx-events
-filelock==3.13.1
+filelock==3.13.3
     # via snowflake-connector-python
 frozenlist==1.4.1
     # via
@@ -488,11 +488,11 @@ protobuf==4.25.3
     #   proto-plus
 psutil==5.9.8
     # via edx-django-utils
-pyasn1==0.5.1
+pyasn1==0.6.0
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.3.0
+pyasn1-modules==0.4.0
     # via google-auth
 pycountry==23.12.11
     # via -r requirements/base.in
@@ -634,7 +634,7 @@ stevedore==5.2.0
     #   edx-opaque-keys
 strenum==0.4.15
     # via gspread
-taxonomy-connector==1.46.2
+taxonomy-connector==1.50.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
