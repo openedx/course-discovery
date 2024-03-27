@@ -17,4 +17,5 @@ SNOWFLAKE:
     - CourseRun.start
     - BackfillCourseRunSlugsConfig.all
     - HistoricalCourseRun.start
+    - SkillValidationConfiguration.organization
 STITCH:
