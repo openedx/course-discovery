@@ -977,14 +977,18 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         title = 'Some random title'
         course_runs = factories.CourseRunFactory.create_batch(3, title=title)
         query = 'title:' + title
-        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
+        actual_sorted = sorted(
+            SearchQuerySetWrapper(CourseRun.search(query), CourseRunFactory), key=lambda course_run: course_run.key
+        )
         expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
         assert actual_sorted == expected_sorted
 
     def test_wildcard_search(self):
         """ Verify the method returns an unfiltered queryset of course runs. """
         course_runs = factories.CourseRunFactory.create_batch(3)
-        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search('*')), key=lambda course_run: course_run.key)
+        actual_sorted = sorted(
+            SearchQuerySetWrapper(CourseRun.search('*'), CourseRunFactory), key=lambda course_run: course_run.key
+        )
         expected_sorted = sorted(course_runs + [self.course_run], key=lambda course_run: course_run.key)
         assert actual_sorted == expected_sorted
 

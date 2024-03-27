@@ -111,7 +111,7 @@ class SearchQuerySetWrapperTests(TestCase):
         CourseRunFactory.create_batch(3, title=title)
         self.search_queryset = CourseRunDocument().search().query('query_string', query=query)
         self.course_runs = [e.object for e in self.search_queryset]
-        self.wrapper = SearchQuerySetWrapper(self.search_queryset)
+        self.wrapper = SearchQuerySetWrapper(self.search_queryset, CourseRunFactory)
 
     def test_count(self):
         assert self.search_queryset.count() == self.wrapper.count()
@@ -121,3 +121,9 @@ class SearchQuerySetWrapperTests(TestCase):
 
     def test_getitem(self):
         assert self.course_runs[0] == self.wrapper[0]
+
+    def test_prefetch_related_count(self):
+        assert self.search_queryset.count() == self.wrapper.prefetch_related().count()
+
+    def test_select_related_count(self):
+        assert self.search_queryset.count() == self.wrapper.select_related().count()
