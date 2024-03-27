@@ -26,7 +26,7 @@ class LanguageTag(TranslatableModel):
         # All other languages are grouped by macrolanguage.
         if self.code.startswith('zh'):
             return self.name_t if translate else self.name
-        return self.translated_macrolanguage if translate else self.macrolanguage
+        return self.translated_macrolanguage if translate and self.name_t else self.macrolanguage
 
 
 class LanguageTagTranslation(TranslatedFieldsModel):
