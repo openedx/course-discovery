@@ -14,7 +14,6 @@ class CourseRecommendationsAPIView(AnonymousUserThrottleAuthenticatedEndpointMix
     Example:
         GET /taxonomy/api/v1/course_recommendations/edX+DemoX/
     """
-    anonymous_user_throttle_class = CourseRecommendationsViewAnonymousUserThrottle
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Course.objects.all()
     serializer_class = CourseRecommendationsSerializer
