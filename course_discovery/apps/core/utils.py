@@ -72,6 +72,11 @@ class ElasticsearchUtils:
         connection.indices.update_aliases(body)
 
     @classmethod
+    def update_max_result_window(cls, connection, max_result_window, index):
+        if connection.indices.exists(index=index):
+            connection.indices.put_settings(body={"index": {"max_result_window": max_result_window}})
+
+    @classmethod
     def create_index(cls, index, conn_name='default'):
         """
         Creates a new index whose name is prefixed with the specified value.

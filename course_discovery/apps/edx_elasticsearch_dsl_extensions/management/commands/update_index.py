@@ -117,11 +117,13 @@ class Command(DjangoESDSLCommand):
                     )
                     if record_count_is_sane:
                         ElasticsearchUtils.set_alias(conn, alias, new_index_name)
+                        ElasticsearchUtils.update_max_result_window(conn, settings.MAX_RESULT_WINDOW, new_index_name)
                         indexes_pending.pop(new_index_name, None)
                     else:
                         indexes_pending[new_index_name] = index_info_string
                 else:
                     ElasticsearchUtils.set_alias(conn, alias, new_index_name)
+                    ElasticsearchUtils.update_max_result_window(conn, settings.MAX_RESULT_WINDOW, new_index_name)
                     indexes_pending.pop(new_index_name, None)
 
         for index_alias_mapper in alias_mappings:

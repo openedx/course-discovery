@@ -5,7 +5,6 @@ import re
 from urllib.parse import urlencode
 
 import ddt
-import pytest
 import responses
 from django.test import TestCase
 from django.utils.text import slugify
@@ -2623,9 +2622,7 @@ class PersonSearchModelSerializerTests(PersonSearchDocumentSerializerTest):
         }
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
-class TestProgramSearchDocumentSerializer(TestCase):
+class TestProgramSearchDocumentSerializer(ElasticsearchTestMixin, TestCase):
     serializer_class = ProgramSearchDocumentSerializer
 
     def setUp(self):
@@ -2722,9 +2719,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
         return expected
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
-class TestLearnerPathwaySearchDocumentSerializer(TestCase):
+class TestLearnerPathwaySearchDocumentSerializer(ElasticsearchTestMixin, TestCase):
     serializer_class = LearnerPathwaySearchDocumentSerializer
 
     def setUp(self):
@@ -2782,9 +2777,7 @@ class LearnerPathwaySearchModelSerializerTest(TestLearnerPathwaySearchDocumentSe
         return expected
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
-class TestTypeaheadCourseRunSearchSerializer:
+class TestTypeaheadCourseRunSearchSerializer(ElasticsearchTestMixin, TestCase):
     serializer_class = TypeaheadCourseRunSearchSerializer
 
     @classmethod
@@ -2809,9 +2802,7 @@ class TestTypeaheadCourseRunSearchSerializer:
         return serializer
 
 
-@pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
-class TestTypeaheadProgramSearchSerializer:
+class TestTypeaheadProgramSearchSerializer(ElasticsearchTestMixin, TestCase):
     serializer_class = TypeaheadProgramSearchSerializer
 
     @classmethod
