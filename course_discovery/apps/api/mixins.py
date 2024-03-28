@@ -182,7 +182,8 @@ class AnonymousUserThrottleAuthenticatedEndpointMixin:
     See https://github.com/encode/django-rest-framework/issues/5234 for more context.
     """
     def dispatch(self, request, *args, **kwargs):
-        user = request.user
+        initialized_request = self.initialize_request(request, *args, **kwargs)
+        user = initialized_request.user
         if isinstance(user, AnonymousUser) and (
                 self.authentication_classes or (self.permission_classes and IsAuthenticated in self.permission_classes)
         ):
@@ -194,7 +195,7 @@ class AnonymousUserThrottleAuthenticatedEndpointMixin:
                 wait = math.ceil(throttle_instance.wait())
                 self.args = args
                 self.kwargs = kwargs
-                self.request = self.initialize_request(request, *args, **kwargs)
+                self.request = initialized_request
                 self.headers = {**self.default_response_headers, 'Retry-After': wait}
                 self.format_kwarg = self.get_format_suffix(**kwargs)
                 response = Response(
