@@ -98,6 +98,7 @@ class Partner(TimeStampedModel):
     )
     analytics_url = models.URLField(max_length=255, blank=True, verbose_name=_('Analytics API URL'), default='')
     analytics_token = models.CharField(max_length=255, blank=True, verbose_name=_('Analytics Access Token'), default='')
+    is_disabled = models.BooleanField(verbose_name=_('Disable Partner'), default=False)
 
     history = HistoricalRecords()
 
