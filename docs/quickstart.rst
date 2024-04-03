@@ -57,6 +57,6 @@ This will install some dependencies in addition to running all tests. After the 
 
 .. code-block:: bash
 
-    $ docker-compose -f .ci/docker-compose-ci.yml exec discovery bash -c 'cd /edx/app/discovery/discovery && .tox/py38-django22/bin/pytest course_discovery/apps/api/v1/tests/test_views/test_programs.py'
+    $ docker compose -f .ci/docker-compose-ci.yml exec discovery bash -c 'cd /edx/app/discovery/discovery && .tox/py38-django22/bin/pytest course_discovery/apps/api/v1/tests/test_views/test_programs.py'
 
 When you're done, take down the services you brought up with ``make ci_down``.

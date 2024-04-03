@@ -117,13 +117,13 @@ push_translations: ## Push source translation files (.po) to Transifex
 	tx push -s
 
 start-devstack: ## Run a local development copy of the server
-	docker-compose up
+	docker compose up
 
 stop-devstack: ## Shutdown the local development server
-	docker-compose down
+	docker compose down
 
 open-devstack: ## Open a shell on the server started by start-devstack
-	docker-compose up -d
+	docker compose up -d
 	docker exec -it course-discovery env TERM=$(TERM) /edx/app/discovery/devstack.sh open
 
 accept: ## Run acceptance tests
