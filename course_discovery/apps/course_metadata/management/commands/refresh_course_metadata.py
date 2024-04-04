@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         # For each partner defined...
-        partners = Partner.objects.all()
+        partners = Partner.objects.filter(is_disabled=False)
 
         # If a specific partner was indicated, filter down the set
         partner_code = options.get('partner_code')
