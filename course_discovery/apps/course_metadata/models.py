@@ -43,8 +43,8 @@ from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus,
-    PayeeType, ProgramStatus, ReportingType
+    CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
+    ExternalCourseMarketingType, ExternalProductStatus, PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
@@ -4537,3 +4537,23 @@ class DeduplicateHistoryConfig(SingletonModel):
 
     def __str__(self):
         return self.arguments
+
+
+class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
+    """
+    Model to hold information for restricted Course Runs. Restricted course
+    runs will only be exposed in the APIs if explicitly asked for through
+    a query param. Consult ADR-27 for more details
+    """
+    course_run = models.OneToOneField(
+        CourseRun, models.CASCADE, related_name='restricted_run',
+        help_text='Course Run that will be restricted'
+    )
+    restriction_type = models.CharField(
+        max_length=255, null=True, blank=True,
+        choices=CourseRunRestrictionType.choices,
+        help_text='The type of restriction for the course run'
+    )
+
+    def __str__(self):
+        return f"{self.course_run.key}: <{self.restriction_type}>"

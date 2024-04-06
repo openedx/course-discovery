@@ -79,3 +79,8 @@ class ExternalCourseMarketingType(models.TextChoices):
     ShortCourse = 'short_course', _('Short Course')
     Sprint = 'sprint', _('Sprint')
     CourseStack = 'course_stack', _('Course Stack')
+
+
+class CourseRunRestrictionType(models.TextChoices):
+    CustomB2BEnterprise = 'custom-b2b-enterprise', _('Custom B2B Enterprise')
+    CustomB2C = 'custom-b2c', _('Custom B2C')

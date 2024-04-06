@@ -1045,6 +1045,12 @@ class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
                      "price", "currency__name")
 
 
+@admin.register(RestrictedCourseRun)
+class RestrictedCourseRunAdmin(admin.ModelAdmin):
+    list_display = ['course_run', 'restriction_type']
+    search_fields = ['course_run__key', 'restriction_type']
+
+
 class CourseReviewAdmin(admin.ModelAdmin):
     """
     Admin settings for CourseReview model

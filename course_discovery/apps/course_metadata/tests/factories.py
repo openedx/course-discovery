@@ -995,3 +995,11 @@ class MigrateCourseSlugConfigurationFactory(factory.django.DjangoModelFactory):
 class MigrateProgramSlugConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MigrateProgramSlugConfiguration
+
+
+class RestrictedCourseRunFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = RestrictedCourseRun
+
+    course_run = factory.SubFactory(CourseRunFactory)
+    restriction_type = FuzzyChoice([name for name, __ in CourseRunRestrictionType.choices])

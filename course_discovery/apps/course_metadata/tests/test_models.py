@@ -31,7 +31,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus, ProgramStatus
+)
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX as slug_format
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
@@ -3982,3 +3984,19 @@ class TestCourseRecommendations(TestCase):
         assert course2_recs[0].key == 'course3'
         assert course2_recs[1].key == 'course6'
         assert course2_recs[2].key == 'course4'
+
+
+class RestrictedCourseRunTests(TestCase):
+    """ Tests for the `RestrictedCourseRun` model. """
+
+    def test_basic(self):
+        """ Some sanity checks """
+        course_run = factories.CourseRunFactory(key="course-v1:SC+BreadX+3T2015")
+        restricted_course_run = factories.RestrictedCourseRunFactory(
+            course_run=course_run,
+            restriction_type=CourseRunRestrictionType.CustomB2BEnterprise.value
+        )
+
+        self.assertEqual(course_run.restricted_run, restricted_course_run)
+        self.assertEqual(restricted_course_run.restriction_type, 'custom-b2b-enterprise')
+        self.assertEqual(str(restricted_course_run), "course-v1:SC+BreadX+3T2015: <custom-b2b-enterprise>")
