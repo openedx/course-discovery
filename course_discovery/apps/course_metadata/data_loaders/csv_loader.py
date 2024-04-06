@@ -262,8 +262,11 @@ class CSVDataLoader(AbstractDataLoader):
 
             if course_run.status == CourseRunStatus.Unpublished:
                 course_run.refresh_from_db()
+                # Pushing the run into LegalReview is necessary to ensure that the
+                # url slug is correctly generated in subdirectory format
                 course_run.status = CourseRunStatus.LegalReview
-                course_run.save(update_fields=['status'])
+                course_run.save(update_fields=['status'], send_emails=False)
+                self._complete_run_review(row, course_run)
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title

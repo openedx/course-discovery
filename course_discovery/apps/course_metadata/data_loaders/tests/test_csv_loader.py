@@ -17,11 +17,16 @@ from course_discovery.apps.course_metadata.choices import ExternalCourseMarketin
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
-from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType, Source
+from course_discovery.apps.course_metadata.models import (
+    AdditionalMetadata, Course, CourseEntitlement, CourseRun, CourseType, Seat, Source
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, SourceFactory
 )
-from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED,
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+)
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
 
@@ -193,15 +198,15 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
 
     @data(
-        ('csv-course-custom-slug', 'csv-course'),
-        ('custom-slug-2', 'csv-course'),
-        ('', 'csv-course')  # No slug in CSV corresponds to default slug mechanism
+        ('csv-course-custom-slug', 'executive-education/edx-csv-course'),
+        ('custom-slug-2', 'executive-education/edx-csv-course'),
+        ('', 'executive-education/edx-csv-course')
     )
     @unpack
     @responses.activate
     def test_single_valid_row(self, csv_slug, expected_slug, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that for a single row of valid data for a non-existent course, the draft unpublished
+        Verify that for a single row of valid data for a non-existent course, the draft and non-draft
         entries are created.
         """
         self._setup_prerequisites(self.partner)
@@ -228,7 +233,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         product_type=self.course_type.slug,
                         product_source=self.source.slug
                     )
-                    loader.ingest()
+
+                    with mock.patch(
+                        'course_discovery.apps.course_metadata.emails.send_email_for_legal_review'
+                    ) as mocked_legal_email:
+                        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED, active=True):
+                                loader.ingest()
+                    assert not mocked_legal_email.called
 
                     self._assert_default_logs(log_capture)
                     log_capture.check_present(
@@ -239,18 +251,33 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    assert Course.everything.count() == 1
-                    assert CourseRun.everything.count() == 1
+                    for model in [Course, CourseRun, Seat, CourseEntitlement]:
+                        assert model.objects.count() == 1
+                        assert model.everything.count() == 2
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.everything.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                    course_run = CourseRun.everything.get(course=course, draft=True)
+
+                    official_course = course.official_version
+                    official_course_run = course_run.official_version
 
                     assert course.image.read() == image_content
                     assert course.organization_logo_override.read() == image_content
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
+                    self._assert_course_data(
+                        official_course, {**self.BASE_EXPECTED_COURSE_DATA, 'draft': False}
+                    )
+                    self._assert_course_run_data(
+                        official_course_run, {**self.BASE_EXPECTED_COURSE_RUN_DATA, 'draft': False}
+                    )
+
+                    assert course.entitlements.get().official_version == official_course.entitlements.get()
+                    assert course_run.seats.get().official_version == official_course_run.seats.get()
                     assert course.active_url_slug == expected_slug
+                    assert course.official_version.active_url_slug == expected_slug
+
                     assert loader.get_ingestion_stats() == {
                         'total_products_count': 1,
                         'success_count': 1,
@@ -327,10 +354,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
 
                     # Verify the existence of both draft and non-draft versions
-                    assert Course.everything.count() == 4
+                    assert Course.everything.count() == 5
                     assert AdditionalMetadata.objects.count() == 4
 
-                    course = Course.everything.get(key=self.COURSE_KEY)
+                    course = Course.everything.get(key=self.COURSE_KEY, draft=True)
                     stats = loader.get_ingestion_stats()
                     archived_products = stats.pop('archived_products')
                     assert stats == {
@@ -458,7 +485,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             draft=True,
             key_for_reruns=''
         )
-
         CourseRunFactory(
             course=course,
             start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
@@ -473,13 +499,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         )
         expected_course_data = {
             **self.BASE_EXPECTED_COURSE_DATA,
-            'draft': True,
         }
         expected_course_run_data = {
             **self.BASE_EXPECTED_COURSE_RUN_DATA,
-            'draft': True,
-            'status': 'review_by_legal',
         }
+
+        assert Seat.everything.count() == 0
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
@@ -520,9 +545,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                         # Verify the existence of both draft and non-draft versions
                         assert Course.everything.count() == 2
-                        # Total course_runs count is 3 -> 2 for existing course runs (draft/non-draft)
-                        # and 1 for new course run (draft)
-                        assert CourseRun.everything.count() == 3
+                        # Total course_runs count is 4 -> 2 for existing course runs (draft/non-draft)
+                        # and 2 for new course run (draft/non-draft)
+                        assert CourseRun.everything.count() == 4
+
+                        assert Seat.everything.count() == 2
+                        assert CourseEntitlement.everything.count() == 2
 
                         course = Course.objects.filter_drafts(key=self.COURSE_KEY, partner=self.partner).first()
                         course_run = CourseRun.everything.get(
@@ -531,9 +559,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
 
                         self._assert_course_data(course, expected_course_data)
+                        self._assert_course_data(course.official_version, {**expected_course_data, 'draft': False})
                         self._assert_course_run_data(course_run, expected_course_run_data)
+                        self._assert_course_run_data(
+                            course_run.official_version, {**expected_course_run_data, 'draft': False}
+                        )
 
                         assert course.product_source == self.source
+                        assert course.official_version.product_source == self.source
 
                         assert loader.get_ingestion_stats() == {
                             'total_products_count': 1,
@@ -612,7 +645,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @responses.activate
     def test_ingest_flow_for_preexisting_unpublished_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that the course run will be unpublished if csv loader updates data for an unpublished course.
+        Verify that the course run will be published if csv loader updates data for an unpublished course.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
@@ -653,12 +686,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    # Verify the existence of draft only
-                    assert Course.everything.count() == 1
-                    assert CourseRun.everything.count() == 1
+                    # Verify the existence of draft and non-draft
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.everything.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                    course_run = CourseRun.everything.get(course=course, draft=True)
 
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
@@ -670,6 +703,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         """
         test_org = OrganizationFactory(name='testOrg', key='testOrg', partner=self.partner)
         self._setup_prerequisites(self.partner)
+        self.mock_ecommerce_publication(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_image_response()
 
@@ -704,11 +738,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    assert Course.everything.count() == 2
-                    assert CourseRun.everything.count() == 2
+                    assert Course.everything.count() == 4
+                    assert CourseRun.everything.count() == 4
 
-                    course1 = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course2 = Course.everything.get(key='testOrg+csv_123', partner=self.partner)
+                    course1 = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                    course2 = Course.everything.get(key='testOrg+csv_123', partner=self.partner, draft=True)
 
                     assert course1.active_url_slug == 'csv-course'
                     assert course2.active_url_slug == 'csv-course-2'
@@ -732,6 +766,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         Verify that the loader runs as expected for minimal set of data.
         """
         self._setup_prerequisites(self.partner)
+        self.mock_ecommerce_publication(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_image_response()
         with NamedTemporaryFile() as csv:
@@ -762,11 +797,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    assert Course.everything.count() == 1
-                    assert CourseRun.everything.count() == 1
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.everything.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                    course_run = CourseRun.everything.get(course=course, draft=True)
 
                     # Asserting some required and optional values to verify the correctnesss
                     assert course.title == 'CSV Course'
@@ -791,6 +826,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             'course_enrollment_track': 'Bootcamp(2U)',  # Additional metadata can exist only for ExecEd and Bootcamp
         }
         self._setup_prerequisites(self.partner)
+        self.mock_ecommerce_publication(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_image_response()
         with NamedTemporaryFile() as csv:
@@ -818,10 +854,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    assert Course.everything.count() == 1
-                    assert CourseRun.everything.count() == 1
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
 
                     # Asserting some required and optional values to verify the correctness
                     assert course.title == 'CSV Course'
