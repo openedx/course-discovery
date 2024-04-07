@@ -118,7 +118,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.10
+django==4.2.11
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
