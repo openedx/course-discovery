@@ -434,7 +434,7 @@ exceptiongroup==1.2.0
     #   pytest
     #   trio
     #   trio-websocket
-execnet==2.1.0
+execnet==2.1.1
     # via pytest-xdist
 face==22.0.0
     # via glom
@@ -592,7 +592,7 @@ packaging==21.3
     #   tox
 paramiko==3.4.0
     # via docker
-path==16.12.1
+path==16.13.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
