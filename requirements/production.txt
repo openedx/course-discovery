@@ -421,10 +421,13 @@ kombu==5.3.6
     # via celery
 libsass==0.23.0
     # via django-libsass
-lxml==5.2.1
+lxml[html-clean,html_clean]==5.2.1
     # via
     #   -r requirements/base.in
+    #   lxml-html-clean
     #   zeep
+lxml-html-clean==0.1.1
+    # via lxml
 markdown==3.6
     # via -r requirements/base.in
 markupsafe==2.1.5
