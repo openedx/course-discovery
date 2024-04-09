@@ -157,3 +157,7 @@ COURSE_URL_SLUGS_PATTERN = {
             'error_msg': 'Course edit was unsuccessful. The course URL slug "[{url_slug}]" is an invalid format. Please ensure that the slug is in the format `boot-camps/<primary_subject>/<organization_name>-<course_title>`',
         }},
 }
+
+ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 10000
+
+ELASTICSEARCH_DSL_LOAD_PER_QUERY = 10000
