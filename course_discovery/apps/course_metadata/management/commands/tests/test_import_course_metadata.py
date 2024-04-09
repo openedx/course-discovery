@@ -158,11 +158,11 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
                         )
 
-                        assert Course.everything.count() == 1
-                        assert CourseRun.everything.count() == 1
+                        assert Course.everything.count() == 2
+                        assert CourseRun.everything.count() == 2
 
-                        course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                        course_run = CourseRun.everything.get(course=course)
+                        course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                        course_run = CourseRun.everything.get(course=course, draft=True)
                         slug_path = f'{slugify(course.authoring_organizations.first().name)}-{slugify(course.title)}'
 
                         assert course.image.read() == image_content

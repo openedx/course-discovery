@@ -340,8 +340,6 @@ class CSVLoaderMixin:
         'content_language', 'transcript_language', 'syllabus', 'frequently_asked_questions',
     ]
     BASE_EXPECTED_COURSE_DATA = {
-        # Loader does not publish newly created course or a course that has not reached published status.
-        # That's why only the draft version of the course exists.
         'draft': True,
         'verified_price': 150,
         'title': 'CSV Course',
@@ -378,10 +376,8 @@ class CSVLoaderMixin:
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
-        # Loader does not publish newly created course or a course that has not reached published status.
-        # That's why only the draft version of the course run exists.
         'draft': True,
-        'status': CourseRunStatus.LegalReview,
+        'status': CourseRunStatus.Published,
         'length': 10,
         'minimum_effort': 4,
         'maximum_effort': 10,
