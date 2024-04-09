@@ -7,7 +7,6 @@
 
 django-debug-toolbar
 django-elasticsearch-debug-toolbar
-docker-compose
 edx-i18n-tools
 pytest-split
 pywatchman                                 # For devserver code reloading
