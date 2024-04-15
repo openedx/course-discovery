@@ -63,8 +63,6 @@ backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     #   djangorestframework
     #   kombu
     #   pendulum
-bcrypt==4.1.2
-    # via paramiko
 beautifulsoup4==4.12.3
     # via
     #   -r requirements/base.in
@@ -77,9 +75,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.79
+boto3==1.34.80
     # via django-ses
-botocore==1.34.79
+botocore==1.34.80
     # via
     #   boto3
     #   s3transfer
@@ -155,7 +153,6 @@ coverage[toml]==7.4.4
     #   pytest-cov
 cryptography==42.0.5
     # via
-    #   paramiko
     #   pyjwt
     #   pyopenssl
     #   simple-salesforce
@@ -176,8 +173,6 @@ dill==0.3.8
     # via pylint
 distlib==0.3.8
     # via virtualenv
-distro==1.9.0
-    # via docker-compose
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -275,7 +270,7 @@ django-filter==24.2
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-django-fsm==2.8.1
+django-fsm==3.0.0
     # via -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
@@ -345,14 +340,6 @@ djangorestframework-csv==3.0.2
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==7.0.0
-    # via docker-compose
-docker-compose==1.29.2
-    # via -r requirements/local.in
-dockerpty==0.4.1
-    # via docker-compose
-docopt==0.6.2
-    # via docker-compose
 docutils==0.19
     # via
     #   pydata-sphinx-theme
@@ -393,7 +380,7 @@ edx-django-utils==5.12.0
     #   taxonomy-connector
 edx-drf-extensions==10.3.0
     # via -r requirements/base.in
-edx-event-bus-kafka==5.6.0
+edx-event-bus-kafka==5.7.0
     # via -r requirements/base.in
 edx-event-bus-redis==0.5.0
     # via -r requirements/base.in
@@ -434,13 +421,13 @@ exceptiongroup==1.2.0
     #   pytest
     #   trio
     #   trio-websocket
-execnet==2.1.0
+execnet==2.1.1
     # via pytest-xdist
 face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==24.7.1
+faker==24.8.0
     # via factory-boy
 fastavro==1.9.4
     # via openedx-events
@@ -527,9 +514,7 @@ jmespath==1.0.1
 jsonfield==3.1.0
     # via -r requirements/base.in
 jsonschema==3.2.0
-    # via
-    #   docker-compose
-    #   semgrep
+    # via semgrep
 kombu==5.3.6
     # via celery
 libsass==0.23.0
@@ -581,7 +566,6 @@ outcome==1.3.0.post0
 packaging==21.3
     # via
     #   django-nine
-    #   docker
     #   drf-yasg
     #   pydata-sphinx-theme
     #   pyproject-api
@@ -590,9 +574,7 @@ packaging==21.3
     #   snowflake-connector-python
     #   sphinx
     #   tox
-paramiko==3.4.0
-    # via docker
-path==16.12.1
+path==16.14.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
@@ -679,9 +661,7 @@ pymemcache==4.0.0
 pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
-    # via
-    #   edx-django-utils
-    #   paramiko
+    # via edx-django-utils
 pyopenssl==24.1.0
     # via snowflake-connector-python
 pyparsing==3.1.2
@@ -725,8 +705,6 @@ python-dateutil==2.9.0.post0
     #   freezegun
     #   pendulum
     #   time-machine
-python-dotenv==0.21.1
-    # via docker-compose
 python-lsp-jsonrpc==1.0.0
     # via semgrep
 python-memcached==1.62
@@ -753,10 +731,9 @@ pytz==2024.1
     #   zeep
 pywatchman==2.0.0
     # via -r requirements/local.in
-pyyaml==5.4.1
+pyyaml==6.0.1
     # via
     #   code-annotations
-    #   docker-compose
     #   drf-yasg
     #   edx-django-release-util
     #   edx-i18n-tools
@@ -772,8 +749,6 @@ requests==2.31.0
     #   -r requirements/base.in
     #   algoliasearch
     #   contentful
-    #   docker
-    #   docker-compose
     #   edx-analytics-data-api-client
     #   edx-drf-extensions
     #   edx-rest-api-client
@@ -831,7 +806,6 @@ six==1.16.0
     # via
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-    #   dockerpty
     #   edx-auth-backends
     #   edx-ccx-keys
     #   edx-django-release-util
@@ -841,7 +815,6 @@ six==1.16.0
     #   jsonschema
     #   python-dateutil
     #   python-monkey-business
-    #   websocket-client
 slumber==0.7.1
     # via edx-rest-api-client
 sniffio==1.3.1
@@ -901,8 +874,6 @@ testfixtures==8.1.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
-texttable==1.7.0
-    # via docker-compose
 time-machine==2.14.1
     # via pendulum
 tinycss2==1.2.1
@@ -960,7 +931,6 @@ uritemplate==4.1.1
 urllib3[socks]==1.26.18
     # via
     #   botocore
-    #   docker
     #   elasticsearch
     #   requests
     #   responses
@@ -984,8 +954,6 @@ webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
-websocket-client==0.59.0
-    # via docker-compose
 wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.5.0
