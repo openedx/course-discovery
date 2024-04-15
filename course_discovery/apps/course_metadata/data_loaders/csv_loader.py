@@ -169,6 +169,7 @@ class CSVDataLoader(AbstractDataLoader):
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             is_course_created = False
             is_course_run_created = False
+            course_run_restriction = None
 
             if course:
                 try:
@@ -199,6 +200,11 @@ class CSVDataLoader(AbstractDataLoader):
                 course_run = CourseRun.everything.filter(course=course).first()
                 is_course_created = True
                 is_course_run_created = True
+                course_run_restriction = (
+                    None
+                    if row.get('restriction_type', None) == 'None'
+                    else row.get('restriction_type', None)
+                )
 
             is_downloaded = download_and_save_course_image(
                 course,
@@ -271,8 +277,8 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
-                str(course.uuid), is_course_created, is_course_run_created, course.active_url_slug,
-                row.get('external_course_marketing_type', None))
+                str(course.uuid), str(course_run.variant_id), is_course_created, is_course_run_created,
+                course_run_restriction, course.active_url_slug, row.get('external_course_marketing_type', None))
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
@@ -305,8 +311,11 @@ class CSVDataLoader(AbstractDataLoader):
         start_datetime = self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}")
         end_datetime = self.get_formatted_datetime_string(f'{data["end_date"]} {data["end_time"]}')
 
+        # Added a sanity check (variant_id__isnull=True) to ensure that a wrong course run with the same schedule is not
+        # incorrectly updated. It is possible the runs with same schedule but different restriction types can exist.
         filtered_course_runs = course_runs.filter(
-            Q(variant_id=variant_id) | (Q(start=start_datetime) & Q(end=end_datetime))
+            Q(variant_id=variant_id) |
+            (Q(start=start_datetime) & Q(end=end_datetime) & Q(variant_id__isnull=True))
         ).order_by('created')
         course_run = filtered_course_runs.last()
 
@@ -406,9 +415,11 @@ class CSVDataLoader(AbstractDataLoader):
     def _register_successful_ingestion(
         self,
         course_uuid,
+        course_run_variant_id,
         is_course_created,
         is_course_run_created,
-        active_url_slug,
+        course_run_restriction='None',
+        active_url_slug='',
         external_course_marketing_type=None
     ):
         """
@@ -421,7 +432,9 @@ class CSVDataLoader(AbstractDataLoader):
                     'uuid': course_uuid,
                     'external_course_marketing_type': external_course_marketing_type,
                     'url_slug': active_url_slug,
-                    'rerun': is_course_run_created
+                    'rerun': is_course_run_created,
+                    'course_run_variant_id': course_run_variant_id,
+                    'restriction_type': course_run_restriction,
                 }
             )
         else:
@@ -555,6 +568,7 @@ class CSVDataLoader(AbstractDataLoader):
         transcript_language = self.verify_and_get_language_tags(data['transcript_language'])
         registration_deadline = data.get('reg_close_date', '')
         variant_id = data.get('variant_id', '')
+        restriction_type = data.get('restriction_type', None)
 
         update_course_run_data = {
             'run_type': str(course_run.type.uuid),
@@ -583,6 +597,8 @@ class CSVDataLoader(AbstractDataLoader):
             )})
         if variant_id:
             update_course_run_data.update({'variant_id': variant_id})
+        if restriction_type and restriction_type != 'None':
+            update_course_run_data.update({'restriction_type': restriction_type})
         return update_course_run_data
 
     def get_formatted_datetime_string(self, date_string):

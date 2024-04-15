@@ -16,6 +16,7 @@ import requests
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
 from course_discovery.apps.course_metadata.data_loaders import utils
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
@@ -40,7 +41,7 @@ class Command(BaseCommand):
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type'
+        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'restriction_type',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -150,8 +151,15 @@ class Command(BaseCommand):
                 if getsmarter_flag:
                     product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
-                output_dict = self.get_transformed_data(row, product)
-                output_writer = self.write_csv_row(output_writer, output_dict)
+                if product.get('variants'):
+                    variants = product.pop('variants')
+                    for variant in variants:
+                        product.update({'variant': variant})
+                        output_dict = self.get_transformed_data(row, product)
+                        output_writer = self.write_csv_row(output_writer, output_dict)
+                else:
+                    output_dict = self.get_transformed_data(row, product)
+                    output_writer = self.write_csv_row(output_writer, output_dict)
                 logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
@@ -301,7 +309,9 @@ class Command(BaseCommand):
         return {
             **default_values,
             'organization': product_dict.get('organization', ''),
-            'organization_short_code_override': product_dict['altUniversityAbbreviation'],
+            'organization_short_code_override': product_dict[
+                'altUniversityAbbreviation'
+            ],
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
@@ -310,28 +320,40 @@ class Command(BaseCommand):
             '2u_primary_subject': product_dict['subjectMatter'],
             'subject_subcategory': product_dict['altSubjectMatter1'],
             'syllabus': utils.format_curriculum(product_dict['curriculum']),
-            'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
+            'learner_testimonials': utils.format_testimonials(
+                product_dict['testimonials']
+            ),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
             'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
             'variant_id': product_dict['variant']['id'],
             'end_date': product_dict['variant']['endDate'],
+            'restriction_type': (
+                CourseRunRestrictionType.CustomB2BEnterprise.value
+                if product_dict['variant'].get('websiteVisibility', None) == 'private'
+                else None
+            ),
             'length': product_dict['durationWeeks'],
-            'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
+            'redirect_url': utils.format_base64_strings(
+                product_dict.get('edxPlpUrl', '')
+            ),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
-            'lead_capture_form_url': utils.format_base64_strings(product_dict['lcfURL']),
+            'lead_capture_form_url': utils.format_base64_strings(
+                product_dict['lcfURL']
+            ),
             'certificate_header': product_dict['certificate'].get('headline', ''),
             'certificate_text': product_dict['certificate'].get('blurb', ''),
             'stat1': stats.get('stat1', ''),
             'stat1_text': stats.get('stat1Blurb', ''),
             'stat2': stats.get('stat2', ''),
             'stat2_text': stats.get('stat2Blurb', ''),
-            'organic_url': utils.format_base64_strings(product_dict.get('edxRedirectUrl', '')),
+            'organic_url': utils.format_base64_strings(
+                product_dict.get('edxRedirectUrl', '')
+            ),
             'meta_title': product_dict.get('metaTitle', ''),
             'meta_description': product_dict.get('metaDescription', ''),
             'meta_keywords': product_dict.get('metaKeywords', ''),
             'slug': product_dict.get('slug', ''),
-
             'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
             '2u_title': product_dict['name'],
             'edx_title': product_dict['altName'],
@@ -341,8 +363,10 @@ class Command(BaseCommand):
             ),
             'verified_price': partially_filled_csv_dict.get('verified_price') or product_dict['variant']['finalPrice'],
             'collaborators': partially_filled_csv_dict.get('collaborators', ''),
-            'prerequisites': partially_filled_csv_dict.get('prerequisites', ''),
-            'additional_information': partially_filled_csv_dict.get('additional_information', ''),
+            "prerequisites": partially_filled_csv_dict.get("prerequisites", ""),
+            'additional_information': partially_filled_csv_dict.get(
+                'additional_information', ''
+            ),
             'secondary_subject': partially_filled_csv_dict.get('secondary_subject', ''),
             'tertiary_subject': partially_filled_csv_dict.get('tertiary_subject', ''),
             'start_date': partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate'],
@@ -351,6 +375,8 @@ class Command(BaseCommand):
             ) or product_dict['variant']['finalRegCloseDate'],
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
-            'organization_logo_override': utils.format_base64_strings(product_dict['logoUrl']),
+            'organization_logo_override': utils.format_base64_strings(
+                product_dict['logoUrl']
+            ),
             'external_course_marketing_type': product_dict['productType'],
         }

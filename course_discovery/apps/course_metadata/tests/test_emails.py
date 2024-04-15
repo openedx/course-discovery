@@ -557,6 +557,7 @@ class TestIngestionEmail(TestCase):
         Verify the email content for new products.
         """
         uuid = str(uuid4())
+        variant_id = str(uuid4())
         url_slug = 'course-slug-1'
         emails.send_ingestion_email(
             self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT, self.source,
@@ -571,11 +572,14 @@ class TestIngestionEmail(TestCase):
                         'external_course_marketing_type': None,
                         'url_slug': url_slug,
                         'rerun': True,
+                        'course_run_variant_id': variant_id,
+                        'restriction_type': 'None',
                     }
                 ],
             }
         )
 
+        # pylint: disable=line-too-long
         self._assert_email_content(
             self.EMAIL_SUBJECT,
             [
@@ -584,10 +588,11 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"A new run has been created</li>"
+                "<tr><th>Course UUID</th><th>URL Slug</th><th>External Course Marketing Type</th><th>Variant ID</th><th>Restriction Type</th><th>Rerun</th></tr>",
+                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td></td><td>{variant_id}</td><td>None</td><td>Yes</td></tr>",
             ]
         )
+        # pylint: enable=line-too-long
 
     def test_email_new_exec_ed_products(self):
         """
@@ -625,6 +630,7 @@ class TestIngestionEmail(TestCase):
             }
         )
 
+        # pylint: disable=line-too-long
         self._assert_email_content(
             self.EMAIL_SUBJECT,
             [
@@ -633,14 +639,13 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(sprint) A new run has been created</li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(course_stack) A new run has been created</li>"
-                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a> - {url_slug} "
-                f"(short_course) A new run has been created</li>"
+                "<tr><th>Course UUID</th><th>URL Slug</th><th>External Course Marketing Type</th><th>Variant ID</th><th>Restriction Type</th><th>Rerun</th></tr>",
+                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>sprint</td><td></td><td></td><td>Yes</td></tr>",
+                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>course_stack</td><td></td><td></td><td>Yes</td></tr>",
+                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>short_course</td><td></td><td></td><td>Yes</td></tr>",
             ]
         )
+        # pylint: enable=line-too-long
 
     def test_email_ingestion_failures(self):
         """
