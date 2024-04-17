@@ -97,6 +97,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             sub_url += self.course_id
 
         response = self.api_client.get(self.api_url + sub_url, params=params)
+        self.api_client.close()
+        
         response.raise_for_status()
         res = response.json()
         if self.course_id:
@@ -443,7 +445,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     )
     def _request_course_runs(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
-        return self.api_client.get(self.api_url + '/courses/', params=params).json()
+        response =  self.api_client.get(self.api_url + '/courses/', params=params).json()
+        self.api_client.close()
+        
+        return response
 
     @backoff.on_exception(
         backoff.expo,
@@ -452,7 +457,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     )
     def _request_entitlements(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
-        return self.api_client.get(self.api_url + '/products/', params=params).json()
+        response = self.api_client.get(self.api_url + '/products/', params=params).json()
+        self.api_client.close()
+
+        return response
 
     @backoff.on_exception(
         backoff.expo,
@@ -464,7 +472,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         if self.course_id:
             params['course_id'] = self.course_id
 
-        return self.api_client.get(self.api_url + '/products/', params=params).json()
+        response =  self.api_client.get(self.api_url + '/products/', params=params).json()
+        self.api_client.close()
+
+        return response
 
     def _process_course_runs(self, response):
         results = response['results']
@@ -811,6 +822,8 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         while page:
             params = {'page': page, 'page_size': self.PAGE_SIZE}
             response = self.api_client.get(self.api_url + '/programs/', params=params)
+            self.api_client.close()
+
             response.raise_for_status()
             response_json = response.json()
             count = response_json['count']
@@ -951,9 +964,10 @@ class WordPressApiDataLoader(AbstractDataLoader):
             settings.WORDPRESS_APP_AUTH_USERNAME,
             settings.WORDPRESS_APP_AUTH_PASSWORD
         )
-        response = requests.get(self.api_url, auth=auth, params=params)
-        response.raise_for_status()
-        return response.json()
+
+        with requests.get(self.api_url, auth=auth, params=params) as response:
+            response.raise_for_status()
+            return response.json()
 
     def _load_data(self, page):
         """
@@ -1122,7 +1136,9 @@ class CourseRatingApiDataLoader(AbstractDataLoader):
         logger.info('Requesting course rating page %d...', page)
         params = {'page': page, 'page_size': self.PAGE_SIZE}
         response = self.api_client.get(self.partner.lms_url + '/api/v1/course_average_rating/', params=params)
+        self.api_client.close()
         response.raise_for_status()
+        
         return response.json()
 
     def _load_data(self, page):
