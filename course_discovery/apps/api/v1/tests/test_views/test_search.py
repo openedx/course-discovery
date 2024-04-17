@@ -1,5 +1,6 @@
 import datetime
 import json
+import sys
 import urllib.parse
 import uuid
 
@@ -66,7 +67,12 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             'next': None,
         }
         actual = response_data['objects'] if path == self.faceted_path else response_data
-        self.assertDictContainsSubset(expected, actual)
+        if sys.version_info > (3, 9):
+            # Remove this pylint disable once discovery reaches python 3.11+
+            # pylint: disable=unsupported-binary-operation
+            self.assertEqual(actual, actual | expected)  # pragma: no cover
+        else:
+            self.assertDictContainsSubset(expected, actual)
 
         return course_run, response_data
 
@@ -90,7 +96,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
                 'narrow_url': self.build_facet_url({'selected_query_facets': 'availability_upcoming'})
             },
         }
-        self.assertDictContainsSubset(expected, response_data['queries'])
+
+        if sys.version_info > (3, 9):
+            # Remove this pylint disable once discovery reaches python 3.11+
+            # pylint: disable=unsupported-binary-operation
+            self.assertEqual(response_data['queries'], response_data['queries'] | expected)  # pragma: no cover
+        else:
+            self.assertDictContainsSubset(expected, response_data['queries'])
 
     @ddt.data(faceted_path, list_path, detailed_path)
     def test_authentication(self, path):
@@ -117,7 +129,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             'text': course_run.pacing_type,
             'count': 1,
         }
-        self.assertDictContainsSubset(expected, response_data['fields']['pacing_type'][0])
+        actual = response_data['fields']['pacing_type'][0]
+        if sys.version_info > (3, 9):
+            # Remove this pylint disable once discovery reaches python 3.11+
+            # pylint: disable=unsupported-binary-operation
+            self.assertEqual(actual, actual | expected)  # pragma: no cover
+        else:
+            self.assertDictContainsSubset(expected, actual)
 
     def test_invalid_query_facet(self):
         """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
@@ -202,7 +220,12 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
                 self.serialize_course_run_search(course_run, serializer=serializer)
             ]
         }
-        self.assertDictContainsSubset(expected, response_data)
+        if sys.version_info > (3, 9):
+            # Remove this pylint disable once discovery reaches python 3.11+
+            # pylint: disable=unsupported-binary-operation
+            self.assertEqual(response_data, response_data | expected)  # pragma: no cover
+        else:
+            self.assertDictContainsSubset(expected, response_data)
 
         # Check that the program is indeed the active one.
         for key in result_location_keys:
