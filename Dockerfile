@@ -1,8 +1,12 @@
 FROM ubuntu:focal as app
 
+ARG PYTHON_VERSION=3.8
+
 ENV DEBIAN_FRONTEND noninteractive
 # System requirements.
-RUN apt update && \
+RUN apt-get update && \
+  apt-get install -y software-properties-common && \
+  apt-add-repository -y ppa:deadsnakes/ppa && \
   apt-get install -qy \
   curl \
   gettext \
@@ -10,11 +14,14 @@ RUN apt update && \
   git \
   language-pack-en \
   build-essential \
-  python3.8-dev \
-  python3-virtualenv \
-  python3.8-distutils \
+  python${PYTHON_VERSION}-dev \
+  python${PYTHON_VERSION}-distutils \
   libmysqlclient-dev \
   libssl-dev \
+  # Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
+  # So this apt package is needed for building Pillow on 3.12,
+  # and can be removed when version of Pillow is upgraded to 10.5.0+
+  libjpeg-dev \
   # mysqlclient >= 2.2.0 requires pkg-config.
   pkg-config \
   libcairo2-dev && \
@@ -38,8 +45,12 @@ ENV PATH "${DISCOVERY_VENV_DIR}/bin:${DISCOVERY_NODEENV_DIR}/bin:$PATH"
 ENV DISCOVERY_CFG "/edx/etc/discovery.yml"
 ENV DISCOVERY_CODE_DIR "${DISCOVERY_CODE_DIR}"
 ENV DISCOVERY_APP_DIR "${DISCOVERY_APP_DIR}"
+ENV PYTHON_VERSION "${PYTHON_VERSION}"
 
-RUN virtualenv -p python3.8 --always-copy ${DISCOVERY_VENV_DIR}
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+RUN pip install virtualenv
+
+RUN virtualenv -p python${PYTHON_VERSION} --always-copy ${DISCOVERY_VENV_DIR}
 
 # No need to activate discovery venv as it is already in path
 RUN pip install nodeenv

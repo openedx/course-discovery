@@ -18,6 +18,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Format Python Version
+        id: format_python_version
+        shell: bash
+        run: |
+          # Remove 'py' and insert a dot to format the version
+          FORMATTED_VERSION=${{ matrix.python-version }}  # e.g., py38
+          FORMATTED_VERSION=${FORMATTED_VERSION/py3/3.}    # becomes 3.8
+          
+          # Set environment variables
+          echo "PYTHON_VERSION=$FORMATTED_VERSION" >> $GITHUB_ENV
+          
+          # Output formatted version for use in subsequent steps
+          echo "Using Python Version: $PYTHON_VERSION"
+
       - run: make ci_up
       - name: run tests
         env:
@@ -42,6 +56,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: make ci_up
+        env:
+          PYTHON_VERSION: 3.8
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
         uses: actions/download-artifact@v2
@@ -54,6 +70,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: make ci_up
+        env:
+          PYTHON_VERSION: 3.8
       - run: make ci_quality
 
   semgrep:
@@ -61,5 +79,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: make ci_up
+        env:
+          PYTHON_VERSION: 3.8
       - name: Run semgrep Django rules
         run: make ci_semgrep
