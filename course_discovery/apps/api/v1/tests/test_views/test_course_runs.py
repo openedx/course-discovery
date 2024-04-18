@@ -21,14 +21,14 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType, CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, RestrictedCourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.signals import (
     connect_course_data_modified_timestamp_signal_handlers, disconnect_course_data_modified_timestamp_signal_handlers
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
-    PersonFactory, ProgramFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
+    PersonFactory, ProgramFactory, RestrictedCourseRunFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
 )
 from course_discovery.apps.course_metadata.toggles import (
     IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
@@ -182,6 +182,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         }, format='json')
         assert response.status_code == 201
         new_course_run = CourseRun.everything.get(key=new_key)
+        assert RestrictedCourseRun.everything.count() == 0
         self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
         assert new_course_run.pacing_type == 'instructor_paced'
         # default we provide
@@ -266,11 +267,16 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     @responses.activate
     def test_create_sets_additional_fields(self):
-        """ Verify that instructors, languages, min & max effort, and weeks to complete are set on a rerun. """
-        self.draft_course_run.staff.add(PersonFactory())
+        """
+            Verify that instructors, languages, min & max effort, and weeks to complete are set on a rerun.
+            Verify that the course run restriction is not copied to a rerun
+        """
         self.draft_course_run.transcript_languages.add(self.draft_course_run.language)
         self.draft_course_run.save()
-
+        RestrictedCourseRun.everything.create(
+            course_run=self.draft_course_run,
+            restriction_type=CourseRunRestrictionType.CustomB2BEnterprise.value
+        )
         # Create rerun based on draft course
         course = self.draft_course_run.course
         new_key = f'course-v1:{course.key_for_reruns}+1T2000'
@@ -295,6 +301,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert list(new_course_run.staff.all()) == list(self.draft_course_run.staff.all())
         assert new_course_run.language == self.draft_course_run.language
         assert list(new_course_run.transcript_languages.all()) == list(self.draft_course_run.transcript_languages.all())
+        assert not hasattr(new_course_run, "restricted_run")
 
     @freeze_time("2022-01-14 12:00:01")
     @ddt.data(True, False, "bogus")
@@ -319,6 +326,40 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         new_course_run = CourseRun.everything.get(key=new_key)
         self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
         assert new_course_run.draft
+
+    @ddt.data(
+        True,
+        False
+    )
+    @freeze_time("2022-01-14 12:00:01")
+    @responses.activate
+    def test_create_restriction_type(self, is_restricted):
+        """ Verify the endpoint supports creating a course_run with a restriction_type. """
+        course = self.draft_course_run.course
+        new_key = f'course-v1:{course.key_for_reruns}+1T2000'
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        post_data = {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
+        }
+
+        if is_restricted:
+            post_data['restriction_type'] = 'custom-b2c'
+
+        response = self.client.post(url, post_data, format='json')
+        assert response.status_code == 201
+        new_course_run = CourseRun.everything.get(key=new_key)
+        assert RestrictedCourseRun.everything.count() == (
+            1 if is_restricted else 0
+        )
+        if is_restricted:
+            assert new_course_run.restricted_run == RestrictedCourseRun.everything.get()
+            assert response.data['restriction_type'] == 'custom-b2c'
+        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
 
     @freeze_time("2022-01-14 12:00:01")
     @responses.activate
@@ -526,6 +567,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'max_effort': expected_max_effort,
             'min_effort': expected_min_effort,
             'variant_id': variant_id,
+            'restriction_type': CourseRunRestrictionType.CustomB2BEnterprise.value
         }
 
         # Update this course_run with the new info
@@ -539,6 +581,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert self.draft_course_run.variant_id == prev_variant_id
+        assert self.draft_course_run.restricted_run == RestrictedCourseRun.everything.get()
 
     def test_partial_update_with_waffle_switch_variant_id_editable_enable(self):
         """
@@ -622,6 +665,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             {'min_effort': 10000, 'max_effort': 10000},
             'Minimum effort and Maximum effort cannot be the same',
         ),
+        (
+            {'restriction_type': 'foobar'},
+            'Not a valid choice for restriction_type'
+        )
     )
     @ddt.unpack
     def test_partial_update_common_errors(self, data, error):
@@ -725,9 +772,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
             'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
+            'restriction_type': 'custom-b2c',
         }, format='json')
         assert response.status_code == 403
-
+        assert RestrictedCourseRun.everything.count() == 0
         response = self.client.patch(url, {}, format='json')
         assert response.status_code == 403
 
@@ -901,6 +949,85 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert official_run.max_effort == updated_max_effort
         assert draft_run.end == updated_end
         assert official_run.end == updated_end
+
+    @ddt.data(
+        (True, {'restriction_type': 'custom-b2b-enterprise'}, 'custom-b2b-enterprise'),
+        (True, {'restriction_type': ''}, None),
+        (True, {}, 'custom-b2c',),
+        (False, {'restriction_type': 'custom-b2c'}, 'custom-b2c'),
+        (False, {}, None),
+    )
+    @ddt.unpack
+    @responses.activate
+    def test_patch_restriction_type(self, is_restricted, patch_data, changed_restriction_value):
+        """
+        is_restriced: indicates if the run is restricted when the test starts.
+                      If so, it is assigned the CustomB2C restriction
+        patch_data: data for the patch request
+        changed_restriction_value: expected restriction value after the patch request
+
+        This test proceeds in 4 steps. First, we patch the course run and verify if
+        the restriction is created/updated successfully. Then we patch the course run to
+        the published state and verify that the restrictions are copied over to the official
+        versions. Thirdly, we update the restriction_type in the published state to verify changes
+        made in the published state. Finally, we remove the restrictions entirely.
+        """
+
+        self.mock_patch_to_studio(self.draft_course_run.key)
+        self.mock_ecommerce_publication()
+
+        if is_restricted:
+            RestrictedCourseRunFactory(
+                course_run=self.draft_course_run,
+                restriction_type=CourseRunRestrictionType.CustomB2C.value,
+                draft=True
+            )
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+
+        response = self.client.patch(url, patch_data, format='json')
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+
+        self.draft_course_run.refresh_from_db()
+        assert hasattr(self.draft_course_run, 'restricted_run') == bool(changed_restriction_value)
+        if changed_restriction_value:
+            assert self.draft_course_run.restricted_run.restriction_type == changed_restriction_value
+            assert RestrictedCourseRun.everything.count() == 1
+        else:
+            assert RestrictedCourseRun.everything.count() == 0
+
+        # Publish the course run and verify that official versions
+        # of RestrictedCourseRuns are created
+        self.draft_course_run.status = CourseRunStatus.InternalReview
+        self.draft_course_run.save()
+        assert CourseRun.objects.filter(key=self.draft_course_run.key, draft=False).count() == 0
+        response = self.client.patch(url, {'status': 'reviewed'}, format='json')
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+
+        official_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
+        draft_run = official_run.draft_version
+        assert draft_run == self.draft_course_run
+        if not changed_restriction_value:
+            assert RestrictedCourseRun.everything.count() == 0
+        else:
+            assert RestrictedCourseRun.everything.count() == 2
+            assert official_run.restricted_run.draft_version == draft_run.restricted_run
+            assert official_run.restricted_run.restriction_type == draft_run.restricted_run.restriction_type
+            assert draft_run.restricted_run.restriction_type == changed_restriction_value
+
+        # Make Changes while Published
+        response = self.client.patch(url, {'restriction_type': 'custom-b2b-enterprise', 'draft': False}, format='json')
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+        official_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
+        draft_run = official_run.draft_version
+        assert RestrictedCourseRun.everything.count() == 2
+        assert official_run.restricted_run.draft_version == draft_run.restricted_run
+        assert official_run.restricted_run.restriction_type == draft_run.restricted_run.restriction_type
+        assert draft_run.restricted_run.restriction_type == 'custom-b2b-enterprise'
+
+        # Remove the restrictions
+        response = self.client.patch(url, {'restriction_type': '', 'draft': False}, format='json')
+        assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
+        assert RestrictedCourseRun.everything.count() == 0
 
     def create_course_and_run_types(self, seat_type):
         tracks = []

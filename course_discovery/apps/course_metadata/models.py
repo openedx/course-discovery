@@ -2656,12 +2656,41 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         self.seats.exclude(type__in=seat_types).delete()
         self.seats.set(seats)
 
+    def update_or_create_restriction(self, restriction_type):
+        """
+        Updates or creates a CourseRunRestriction object for a draft course run
+        """
+
+        if restriction_type is None:
+            return
+
+        if restriction_type and restriction_type not in CourseRunRestrictionType.values:
+            raise Exception('Not a valid choice for restriction_type')
+
+        if not restriction_type and hasattr(self, "restricted_run"):
+            self.restricted_run.delete()
+            official_obj = self.official_version
+            if hasattr(official_obj, "restricted_run"):
+                official_obj.restricted_run.delete()
+        elif restriction_type:
+            RestrictedCourseRun.everything.update_or_create(
+                course_run=self,
+                draft=True,
+                defaults={
+                    'restriction_type': restriction_type,
+                }
+            )
+        self.refresh_from_db()
+
     def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
         official_version = set_official_state(draft_version, CourseRun)
 
         for seat in self.seats.all():
             set_official_state(seat, Seat, {'course_run': official_version})
+
+        if hasattr(self, "restricted_run"):
+            set_official_state(self.restricted_run, RestrictedCourseRun, {'course_run': official_version})
 
         official_course = self.course._update_or_create_official_version(official_version)  # pylint: disable=protected-access
         official_version.slug = self.slug

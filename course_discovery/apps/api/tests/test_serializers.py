@@ -638,6 +638,11 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'is_marketable': course_run.is_marketable,
             'availability': course_run.availability,
             'variant_id': str(course_run.variant_id),
+            'restriction_type': (
+                course_run.restricted_run.restriction_type
+                if hasattr(course_run, 'restricted_run')
+                else None
+            )
         }
 
 

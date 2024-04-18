@@ -28,13 +28,13 @@ from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, CourseType, CourseUrlSlug, Seat, SeatType, Track
+    Course, CourseEditor, CourseRun, CourseType, CourseUrlSlug, RestrictedCourseRun, Seat, SeatType, Track
 )
 from course_discovery.apps.course_metadata.tests.constants import MOCK_PRODUCTS_DATA
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, ModeFactory,
-    OrganizationFactory, OrganizationMappingFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
-    SourceFactory, SubjectFactory
+    OrganizationFactory, OrganizationMappingFactory, PartnerFactory, ProgramFactory, RestrictedCourseRunFactory,
+    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.toggles import (
@@ -557,12 +557,18 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         assert not_draft_course_run.draft_version == ensured_draft_course_run
 
     def test_ensure_draft_world_not_draft_course_given(self):
+        # pylint: disable=undefined-loop-variable
         course = CourseFactory()
         entitlement = CourseEntitlementFactory(course=course)
         course.entitlements.add(entitlement)
         course_runs = CourseRunFactory.create_batch(3, course=course)
         for run in course_runs:
             course.course_runs.add(run)
+
+        RestrictedCourseRunFactory(
+            course_run=run,
+            restriction_type='custom-b2c'
+        )
         course.canonical_course_run = course_runs[0]
         course.save()
         org = OrganizationFactory()
@@ -615,6 +621,15 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
 
         assert draft_entitlement.official_version == not_draft_entitlement
         assert not_draft_entitlement.draft_version == draft_entitlement
+
+        # Check restricted runs
+        run.refresh_from_db()
+        draft_run = run.draft_version
+        assert draft_run.restricted_run == run.restricted_run.draft_version
+        assert draft_run.restricted_run.restriction_type == 'custom-b2c'
+        assert run.restricted_run.restriction_type == 'custom-b2c'
+        assert RestrictedCourseRun.objects.count() == 1
+        assert RestrictedCourseRun.everything.count() == 2
 
     def test_ensure_draft_world_creates_course_entitlement_from_seats(self):
         """

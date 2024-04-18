@@ -922,6 +922,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
     variant_id = serializers.UUIDField(allow_null=True, required=False)
+    restriction_type = serializers.CharField(source='restricted_run.restriction_type', read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -932,6 +933,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         return queryset.select_related('course', 'type').prefetch_related(
             '_official_version',
             'course__partner',
+            'restricted_run',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
         )
 
@@ -939,8 +941,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end', 'weeks_to_complete',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability',
-                  'variant_id')
+                  'pacing_type', 'type', 'restriction_type', 'run_type', 'status', 'is_enrollable', 'is_marketable',
+                  'term', 'availability', 'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
