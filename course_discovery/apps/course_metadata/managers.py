@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.db.models.manager import BaseManager
 
 from course_discovery.apps.course_metadata.query import CourseRunQuerySet
 
@@ -28,11 +29,11 @@ class DraftManager(models.Manager):
         return self.filter_drafts(**kwargs).get()
 
 
-class CourseRunEverythingManager(CourseRunQuerySet.as_manager()):
+class CourseRunEverythingManager(BaseManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
         return super().get_queryset().exclude(restricted_run__isnull=False)
 
 
-class CourseRunObjectsManager(DraftManager.from_queryset(CourseRunQuerySet)()):
+class CourseRunObjectsManager(DraftManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
         return super().get_queryset().exclude(restricted_run__isnull=False)
