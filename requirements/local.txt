@@ -6,7 +6,7 @@
 #
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohttp==3.9.4
+aiohttp==3.9.5
     # via openai
 aiosignal==1.3.1
     # via aiohttp
@@ -62,7 +62,6 @@ backports-zoneinfo[tzdata]==0.2.1 ; python_version < "3.9"
     #   django
     #   djangorestframework
     #   kombu
-    #   pendulum
 beautifulsoup4==4.12.3
     # via
     #   -r requirements/base.in
@@ -75,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.84
+boto3==1.34.88
     # via django-ses
-botocore==1.34.84
+botocore==1.34.88
     # via
     #   boto3
     #   s3transfer
@@ -93,7 +92,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.3.6
+celery==5.4.0
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -155,7 +154,6 @@ cryptography==42.0.5
     # via
     #   pyjwt
     #   pyopenssl
-    #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
 cssselect2==0.7.0
@@ -294,7 +292,7 @@ django-object-actions==4.2.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.6.0
+django-ses==4.0.0
     # via taxonomy-connector
 django-simple-history==3.5.0
     # via -r requirements/base.in
@@ -360,11 +358,11 @@ edx-api-doc-tools==1.8.0
     # via -r requirements/base.in
 edx-auth-backends==4.3.0
     # via -r requirements/base.in
-edx-ccx-keys==1.2.1
+edx-ccx-keys==1.3.0
     # via -r requirements/base.in
 edx-django-release-util==1.4.0
     # via -r requirements/base.in
-edx-django-sites-extensions==4.0.2
+edx-django-sites-extensions==4.2.0
     # via -r requirements/base.in
 edx-django-utils==5.12.0
     # via
@@ -416,7 +414,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via
     #   pytest
     #   trio
@@ -427,7 +425,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==24.9.0
+faker==24.11.0
     # via factory-boy
 fastavro==1.9.4
     # via openedx-events
@@ -448,7 +446,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.18.0
     # via google-api-python-client
-google-api-python-client==2.125.0
+google-api-python-client==2.126.0
     # via -r requirements/base.in
 google-auth==2.29.0
     # via
@@ -490,9 +488,7 @@ importlib-metadata==6.11.0
     #   markdown
     #   sphinx
 importlib-resources==5.13.0
-    # via
-    #   pendulum
-    #   pycountry
+    # via pycountry
 inflection==0.5.1
     # via drf-yasg
 iniconfig==2.0.0
@@ -543,7 +539,7 @@ multidict==6.0.5
     #   yarl
 mysqlclient==2.2.4
     # via -r requirements/test.in
-newrelic==9.8.0
+newrelic==9.9.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -556,7 +552,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.0
     # via -r requirements/base.in
-openedx-events==9.9.1
+openedx-events==9.9.2
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -578,10 +574,8 @@ path==16.14.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
-peewee==3.17.1
+peewee==3.17.3
     # via semgrep
-pendulum==3.0.0
-    # via simple-salesforce
 pillow==9.5.0
     # via
     #   -c requirements/constraints.txt
@@ -595,7 +589,7 @@ platformdirs==4.2.0
     #   tox
     #   virtualenv
     #   zeep
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   pytest
     #   tox
@@ -703,8 +697,6 @@ python-dateutil==2.9.0.post0
     #   elasticsearch-dsl
     #   faker
     #   freezegun
-    #   pendulum
-    #   time-machine
 python-lsp-jsonrpc==1.0.0
     # via semgrep
 python-memcached==1.62
@@ -800,7 +792,7 @@ semgrep==0.102.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
-simple-salesforce==1.12.5
+simple-salesforce==1.12.6
     # via -r requirements/base.in
 six==1.16.0
     # via
@@ -821,7 +813,7 @@ sniffio==1.3.1
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.8.1
+snowflake-connector-python==3.9.0
     # via -r requirements/base.in
 social-auth-app-django==5.4.0
     # via
@@ -874,8 +866,6 @@ testfixtures==8.1.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
-time-machine==2.14.1
-    # via pendulum
 tinycss2==1.2.1
     # via
     #   cairosvg
@@ -914,12 +904,12 @@ typing-extensions==4.11.0
     #   pydata-sphinx-theme
     #   pylint
     #   semgrep
+    #   simple-salesforce
     #   snowflake-connector-python
 tzdata==2024.1
     # via
     #   backports-zoneinfo
     #   celery
-    #   pendulum
 ujson==5.9.0
     # via python-lsp-jsonrpc
 unicodecsv==0.14.1
@@ -942,7 +932,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.25.1
+virtualenv==20.25.3
     # via tox
 walrus==0.9.3
     # via edx-event-bus-redis
