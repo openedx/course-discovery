@@ -807,6 +807,8 @@ class UtilsTests(TestCase):
         ('<p><span lang="en">with lang</span></p>', '<p><span lang="en">with lang</span></p>'),
         ('<p><span class="body" lang="en">lang and class</span></p>', '<p><span lang="en">lang and class</span></p>'),
         ('<p><span class="body">class only</span></p>', '<p>class only</p>'),
+        ('<p dir="rtl"><span lang="en">1 span tag inside RTL p</span></p>', '<p dir="rtl"><span lang="en">1 span tag inside RTL p</span></p>'),
+        ('<p dir="rtl"><span lang="en"><span lang="en"><span lang="en">multiple span tags inside RTL p</span></span></span></p>', '<p dir="rtl"><span lang="en">multiple span tags inside RTL p</span></p>'),
 
         # A sample text from real life when pasting from Microsoft Word into a rich text editor
         # pylint: disable=line-too-long
