@@ -576,7 +576,7 @@ pbr==6.0.0
     # via stevedore
 peewee==3.17.3
     # via semgrep
-pillow==9.5.0
+pillow==10.0.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
