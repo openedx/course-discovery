@@ -31,9 +31,9 @@ class DraftManager(models.Manager):
 
 class CourseRunEverythingManager(BaseManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
-        return super().get_queryset().exclude(restricted_run__isnull=False)
+        return super().get_queryset().filter(restricted_run__isnull=True)
 
 
 class CourseRunObjectsManager(DraftManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
-        return super().get_queryset().exclude(restricted_run__isnull=False)
+        return super().get_queryset().filter(restricted_run__isnull=True)
