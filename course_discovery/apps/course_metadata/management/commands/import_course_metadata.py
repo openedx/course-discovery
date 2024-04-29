@@ -93,6 +93,7 @@ class Command(BaseCommand):
         for model in apps.get_app_config('course_metadata').get_models():
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
+
         products_json = []
         try:
             loader = CSVDataLoader(

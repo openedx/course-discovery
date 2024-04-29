@@ -47,21 +47,70 @@
 <div>
     <h3>New Products</h3>
         <ul>
+            {% if product_type != "DEGREES" %}
+                <table border="2" style="padding: 5px;">
+                    <tr>
+                        <th>
+                            Course UUID
+                        </th>
+                        <th>
+                            URL Slug
+                        </th>
+                        <th>
+                            External Course Marketing Type
+                        </th>
+                        <th>
+                            Variant ID
+                        </th>
+                        <th>
+                            Restriction Type
+                        </th>
+                        <th>
+                            Rerun
+                        </th>
+                    </tr>
+            {% endif %}
             {% for new_product in created_products %}
                 {% if product_type != "DEGREES" %}
-                    <li><a href="{{publisher_url}}courses/{{new_product.uuid}}">{{ new_product.uuid }}</a> - {{ new_product.url_slug}} 
-                        {% if new_product.external_course_marketing_type %}
-                            ({{ new_product.external_course_marketing_type }})
-                        {% endif %}
-                        {% if new_product.rerun %}
-                            A new run has been created
-                        {% endif %}
-                    </li>
+                    <tr>
+                        <td>
+                            <a href='{{publisher_url}}courses/{{new_product.uuid}}'>{{ new_product.uuid }}</a>
+                        </td>
+                        <td>
+                            {{ new_product.url_slug}}
+                        </td>
+                        <td>
+                            {% if new_product.external_course_marketing_type %}
+                                {{ new_product.external_course_marketing_type }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if new_product.course_run_variant_id %}
+                                {{ new_product.course_run_variant_id }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if new_product.restriction_type %}
+                                {{ new_product.restriction_type }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if new_product.rerun %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% else %}
                     <li>{{ new_product.uuid }}</li>
                 {% endif %}
             {% endfor %}
-        </ul>
+            {% if product_type != "DEGREES" %}
+                </table>
+            {% else %}
+                </ul>
+            {% endif %}
 </div>
 {% endif %}
 

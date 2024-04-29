@@ -1,6 +1,7 @@
 """
 Unit tests for populate_executive_education_data_csv management command.
 """
+import copy
 import csv
 import json
 from datetime import date
@@ -106,21 +107,58 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             },
         ]}
 
-    def mock_product_api_call(self):
+    variant_1 = {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "course": "Test Organisations Programme 2024-01-31",
+        "currency": "USD",
+        "normalPrice": 36991.0,
+        "discount": 4000.0,
+        "finalPrice": 32991.0,
+        "regCloseDate": "2024-03-12",
+        "startDate": "2024-03-20",
+        "endDate": "2024-04-28",
+        "finalRegCloseDate": "2024-03-26",
+        "websiteVisibility": "private",
+    }
+
+    variant_2 = {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "course": "Test Organisations Programme 2024-02-06",
+        "currency": "USD",
+        "normalPrice": 36991.0,
+        "discount": 4000.0,
+        "finalPrice": 32991.0,
+        "regCloseDate": "2024-03-12",
+        "startDate": "2024-03-20",
+        "endDate": "2024-04-28",
+        "finalRegCloseDate": "2024-03-26",
+        "websiteVisibility": "public",
+    }
+
+    SUCCESS_API_RESPONSE_V2 = copy.deepcopy(SUCCESS_API_RESPONSE)
+    SUCCESS_API_RESPONSE_V2['products'][0].pop('variant')
+    SUCCESS_API_RESPONSE_V2["products"][0].update({"variants": [variant_1, variant_2,]})
+
+    def mock_product_api_call(self, override_product_api_response=None):
         """
         Mock product api with success response.
         """
+        api_response = self.SUCCESS_API_RESPONSE
+        if override_product_api_response:
+            api_response = override_product_api_response
         responses.add(
             responses.GET,
             settings.PRODUCT_API_URL + '/?detail=2',
-            body=json.dumps(self.SUCCESS_API_RESPONSE),
+            body=json.dumps(api_response),
             status=200,
         )
 
-    def mock_get_smarter_client_response(self):
+    def mock_get_smarter_client_response(self, override_get_smarter_client_response=None):
         """
         Mock get_smarter_client response with success response.
         """
+        if override_get_smarter_client_response:
+            return override_get_smarter_client_response
         return self.SUCCESS_API_RESPONSE
 
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
@@ -140,6 +178,55 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             reader = csv.DictReader(open(output_csv.name, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
             data_row = next(reader)
             self._assert_api_response(data_row)
+            log_capture.check_present(
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Data population and transformation completed for CSV row title CSV Course'
+                ),
+            )
+
+    @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
+    def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
+        """
+        Verify the successful population has data from API response if getsmarter flag is provided and
+        the product can have multiple variants
+        """
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(override_get_smarter_client_response=self.SUCCESS_API_RESPONSE_V2)
+        )
+        with NamedTemporaryFile() as output_csv:
+            with LogCapture(LOGGER_PATH) as log_capture:
+                call_command(
+                    'populate_executive_education_data_csv',
+                    '--output_csv', output_csv.name,
+                    '--use_getsmarter_api_client', True,
+                )
+
+            output_csv.seek(0)
+            with open(output_csv.name, 'r') as csv_file:
+                reader = csv.DictReader(csv_file)
+                data_row = next(reader)
+                assert data_row['Variant Id'] == self.variant_1['id']
+                assert data_row['Start Time'] == '00:00:00'
+                assert data_row['Start Date'] == self.variant_1['startDate']
+                assert data_row['End Time'] == '00:00:00'
+                assert data_row['End Date'] == self.variant_1['endDate']
+                assert data_row['Reg Close Date'] == self.variant_1['finalRegCloseDate']
+                assert data_row['Reg Close Time'] == '00:00:00'
+                assert data_row['Verified Price'] == str(self.variant_1['finalPrice'])
+                assert data_row['Restriction Type'] == 'custom-b2b-enterprise'
+
+                data_row = next(reader)
+                assert data_row['Variant Id'] == self.variant_2['id']
+                assert data_row['Start Time'] == '00:00:00'
+                assert data_row['Start Date'] == self.variant_2['startDate']
+                assert data_row['End Time'] == '00:00:00'
+                assert data_row['End Date'] == self.variant_2['endDate']
+                assert data_row['Reg Close Date'] == self.variant_2['finalRegCloseDate']
+                assert data_row['Reg Close Time'] == '00:00:00'
+                assert data_row['Verified Price'] == str(self.variant_2['finalPrice'])
+                assert data_row['Restriction Type'] == 'None'
 
             log_capture.check_present(
                 (
@@ -201,6 +288,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Learner Testimonials'] == '<div><p><i>" This is a good course"</i></p><p>-Lorem ' \
                                                            'Ipsum (Gibberish)</p></div>'
                 assert str(date.today().year) in data_row['Publish Date']
+                assert data_row['Restriction Type'] == 'None'
 
                 log_capture.check_present(
                     (
