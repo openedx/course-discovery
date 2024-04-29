@@ -216,7 +216,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         run_data.pop('draft', None)
 
         prices = run_data.pop('prices', {})
-
+        restriction_type = run_data.pop('restriction_type', None)
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
         course_key = run_data.get('course', None)  # required field
         if not course_key:
@@ -235,6 +235,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         course_run = serializer.save(draft=True)
 
         course_run.update_or_create_seats(course_run.type, prices)
+        course_run.update_or_create_restriction(restriction_type)
 
         # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
         # updated *each* time we make a new run?)
@@ -273,7 +274,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         return response
 
     @writable_request_wrapper
-    def _update_course_run(self, course_run, draft, changed, serializer, request, prices, upgrade_deadline_override):
+    def _update_course_run(self, course_run, draft, changed, serializer, request, prices, upgrade_deadline_override, restriction_type=None):  # pylint: disable=line-too-long
         save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
@@ -293,7 +294,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
 
         if course_run in course_run.course.active_course_runs:
             course_run.update_or_create_seats(course_run.type, prices, upgrade_deadline_override,)
-
+        course_run.update_or_create_restriction(restriction_type)
         self.push_to_studio(request, course_run, create=False)
 
         # Published course runs can be re-published directly or course runs that remain in the Reviewed
@@ -333,6 +334,8 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
         prices = request.data.pop('prices', {})
+        restriction_type = request.data.pop('restriction_type', None)
+
         upgrade_deadline_override = request.data.pop('upgrade_deadline_override', None) \
             if self.request.user.is_staff else None
 
@@ -367,7 +370,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             CourseRun.STATUS_CHANGE_EXEMPT_FIELDS
         )
         response = self._update_course_run(course_run, draft, bool(changed_fields),
-                                           serializer, request, prices, upgrade_deadline_override,)
+                                           serializer, request, prices, upgrade_deadline_override, restriction_type)
 
         self.update_course_run_image_in_studio(course_run)
 

@@ -85,7 +85,7 @@ def set_official_state(obj, model, attrs=None):
         the official version of that object with the attributes updated to attrs
     """
     # pylint: disable=import-outside-toplevel
-    from course_discovery.apps.course_metadata.models import Course, CourseRun
+    from course_discovery.apps.course_metadata.models import Course, CourseRun, RestrictedCourseRun
 
     # This is so we don't create the marketing node with an incorrect slug.
     # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
@@ -102,6 +102,11 @@ def set_official_state(obj, model, attrs=None):
         obj.draft_version = draft_version
         if isinstance(obj, Course):
             obj.canonical_course_run = official_obj.canonical_course_run if official_obj else None
+        # If an object has a one-to-one field, it is necessary to change that field
+        # before officiating(saving) it here, else we'll get an IntegrityError
+        # because of two different objects "being" 1-1 connected with the same object
+        if isinstance(obj, RestrictedCourseRun):
+            obj.course_run = attrs['course_run']
         obj.save(**save_kwargs)
         official_obj = obj
         # Copy many-to-many fields manually (they are not copied by the pk trick above).
@@ -264,7 +269,9 @@ def ensure_draft_world(obj):
         obj (Model object): The returned object will be the draft version on the input object.
     """
     # pylint: disable=import-outside-toplevel
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
+    from course_discovery.apps.course_metadata.models import (
+        Course, CourseEntitlement, CourseRun, RestrictedCourseRun, Seat
+    )
     if obj.draft:
         return obj
     elif obj.draft_version:
@@ -294,6 +301,8 @@ def ensure_draft_world(obj):
 
             for seat in original_run.seats.all():
                 set_draft_state(seat, Seat, {'course_run': draft_run})
+            if hasattr(original_run, "restricted_run"):
+                set_draft_state(original_run.restricted_run, RestrictedCourseRun, {'course_run': draft_run})
             if original_course.canonical_course_run and draft_run.uuid == original_course.canonical_course_run.uuid:
                 draft_course.canonical_course_run = draft_run
 

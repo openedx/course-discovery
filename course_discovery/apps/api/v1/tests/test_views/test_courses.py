@@ -25,8 +25,8 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement,
-    CourseLocationRestriction, CourseRun, CourseRunType, CourseType, Fact, GeoLocation, ProductMeta, ProductValue, Seat,
-    Source
+    CourseLocationRestriction, CourseRun, CourseRunType, CourseType, Fact, GeoLocation, ProductMeta, ProductValue,
+    RestrictedCourseRun, Seat, Source
 )
 from course_discovery.apps.course_metadata.signals import (
     additional_metadata_facts_changed, connect_course_data_modified_timestamp_signal_handlers,
@@ -769,12 +769,30 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseEditor.objects.get(user=self.user, course=course)
         assert CourseEditor.objects.count() == 1
 
-    def test_create_makes_course_and_course_run(self):
+    @ddt.data(
+        ({'restriction_type': 'custom-b2c'}, True),
+        ({}, False),
+    )
+    @ddt.unpack
+    def test_create_makes_course_and_course_run(self, restriction_data, is_run_restricted):
         """
         When creating a course and supplying a course_run, it should create both the course
         and course run as drafts. When mode = 'audit', an audit seat should also be created.
+
+        The is_run_restricted param specifies if the created course run is restricted i.e has
+        an associated RestrictedCourseRun object
         """
-        response = self.create_course_and_course_run()
+
+        data = {
+            "course_run": {
+                "start": "2001-01-01T00:00:00Z",
+                "end": datetime.datetime.now() + datetime.timedelta(days=1),
+                "run_type": str(CourseRunType.objects.get(slug=CourseRunType.AUDIT).uuid),
+            }
+        }
+        data['course_run'] = {**data['course_run'], **restriction_data}
+
+        response = self.create_course_and_course_run(data=data)
         assert response.status_code == 201
 
         course = Course.everything.last()
@@ -783,6 +801,11 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         course_run = CourseRun.everything.last()
         assert course_run.draft
         assert course_run.course == course
+
+        assert hasattr(course_run, 'restricted_run') == is_run_restricted
+        assert RestrictedCourseRun.everything.count() == (
+            1 if is_run_restricted else 0
+        )
 
         # Creating with mode = 'audit' should also create an audit seat
         assert 1 == Seat.everything.count()
