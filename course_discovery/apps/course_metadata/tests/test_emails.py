@@ -589,7 +589,7 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
                 "<tr><th>Course UUID</th><th>URL Slug</th><th>External Course Marketing Type</th><th>Variant ID</th><th>Restriction Type</th><th>Rerun</th></tr>",
-                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td></td><td>{variant_id}</td><td>None</td><td>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
@@ -640,9 +640,9 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
                 "<tr><th>Course UUID</th><th>URL Slug</th><th>External Course Marketing Type</th><th>Variant ID</th><th>Restriction Type</th><th>Rerun</th></tr>",
-                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>sprint</td><td></td><td></td><td>Yes</td></tr>",
-                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>course_stack</td><td></td><td></td><td>Yes</td></tr>",
-                f"<tr><td><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td>{url_slug}</td><td>short_course</td><td></td><td></td><td>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>sprint</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>course_stack</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>short_course</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
