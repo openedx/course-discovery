@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 from django.db.models import Q
 from django.db.models.manager import BaseManager
@@ -8,7 +9,9 @@ from course_discovery.apps.course_metadata.query import CourseRunQuerySet
 class DraftManager(models.Manager):
     """ Model manager that hides draft rows unless you ask for them. """
 
-    def get_queryset(self):
+    def get_queryset(self, draft=False):
+        if draft:
+            return super().get_queryset()
         return super().get_queryset().filter(draft=models.Value(0))
 
     def _with_drafts(self):
@@ -32,11 +35,16 @@ class DraftManager(models.Manager):
 class CourseRunEverythingManager(BaseManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
         return super().get_queryset().exclude(restricted_run__isnull=False)
-
+    
+    def _with_drafts(self):
+        return super().get_queryset(draft=True).exclude(restricted_run__isnull=False)
 
 class CourseRunObjectsManager(DraftManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
         return super().get_queryset().exclude(restricted_run__isnull=False)
+    
+    def _with_drafts(self):
+        return super()._with_drafts().exclude(restricted_run__isnull=False)
 
 class CourseRunEverythingAllManager(BaseManager.from_queryset(CourseRunQuerySet)):
     def get_queryset(self):
