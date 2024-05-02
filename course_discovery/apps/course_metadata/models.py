@@ -48,7 +48,7 @@ from course_discovery.apps.course_metadata.choices import (
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
-from course_discovery.apps.course_metadata.managers import DraftManager
+from course_discovery.apps.course_metadata.managers import DraftManager, DraftRunManagerWithoutRestriction, EverythingRunManagerWithoutRestriction
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -2193,6 +2193,9 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
 
+    # everything = EverythingRunManagerWithoutRestriction()
+    # objects = DraftRunManagerWithoutRestriction.from_queryset(CourseRunQuerySet)()
+
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -2259,6 +2262,8 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             ('key', 'draft'),
             ('uuid', 'draft'),
         )
+        # base_manager_name='everything'
+        # default_manager_name='everything'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

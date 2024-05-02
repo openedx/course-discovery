@@ -4,6 +4,8 @@ from logging.handlers import SysLogHandler
 from os.path import abspath, dirname, join
 from sys import path
 
+# from course_discovery.apps.course_metadata.middle import *
+
 from corsheaders.defaults import default_headers as corsheaders_default_headers
 
 here = lambda *x: join(abspath(dirname(__file__)), *x)
@@ -119,6 +121,7 @@ MIDDLEWARE = (
     'edx_django_utils.cache.middleware.TieredCacheMiddleware',
     'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
+    'course_discovery.apps.course_metadata.middle.MagicMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'

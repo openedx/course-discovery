@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-
+from course_discovery.apps.course_metadata.query import *
 
 class DraftManager(models.Manager):
     """ Model manager that hides draft rows unless you ask for them. """
@@ -24,3 +24,29 @@ class DraftManager(models.Manager):
         If a draft is not available, we give back the non-draft version.
         """
         return self.filter_drafts(**kwargs).get()
+
+
+class EverythingRunManagerWithoutRestriction(models.Manager):
+    def get_queryset(self):
+        return CourseRunQuerySet(self.model).filter(restricted_run__isnull=True)
+
+
+class DraftRunManagerWithoutRestriction(DraftManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(restricted_run__isnull=True)
+    def _with_drafts(self):
+        return super()._with_drafts().filter(restricted_run__isnull=True)
+
+    def filter_drafts(self, **kwargs):
+        """
+        Acts like filter(), but prefers draft versions.
+        If a draft is not available, we give back the non-draft version.
+        """
+        return self._with_drafts().filter(Q(draft=models.Value(1)) | Q(draft_version=None)).filter(**kwargs).filter(restricted_run__isnull=True)
+
+    def get_draft(self, **kwargs):
+        """
+        Acts like get(), but prefers draft versions. (including raising exceptions like get does)
+        If a draft is not available, we give back the non-draft version.
+        """
+        return self.filter_drafts(**kwargs).filter(restricted_run__isnull=True).get()
