@@ -287,6 +287,12 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     save_error = False
     form = CourseRunAdminForm
 
+    def get_queryset(self, request):
+        """
+        Override the default queryset to show all course runs, not including the restricted ones.
+        """
+        return self.model.everything_with_restricted_runs.all()
+
     def get_readonly_fields(self, request, obj=None):
         """
         Make UUID field editable for draft if flag is enabled.
