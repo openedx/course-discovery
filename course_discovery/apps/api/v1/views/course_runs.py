@@ -97,9 +97,11 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             queryset = CourseEditor.editable_course_runs(self.request.user, queryset)
         else:
             queryset = self.queryset
-        queryset = queryset.filter(
-            Q(restricted_run__isnull=True) | Q(restricted_run__restriction_type__in=restriction_list)
-        )
+        
+        if self.request.method == 'GET':
+            queryset = queryset.filter(
+                Q(restricted_run__isnull=True) | Q(restricted_run__restriction_type__in=restriction_list)
+            )
         if q:
             queryset = SearchQuerySetWrapper(
                 CourseRun.search(q).filter('term', partner=partner.short_code),
