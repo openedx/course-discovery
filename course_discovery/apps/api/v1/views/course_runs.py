@@ -1,6 +1,7 @@
 import logging
 
 from django.db import models, transaction
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import gettext as _
@@ -81,6 +82,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
               multiple: false
         """
         q = self.request.query_params.get('q')
+        restriction_list = self.request.query_params.get('restriction_list', '').split(',')
         partner = self.request.site.partner
         edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
 
@@ -95,7 +97,9 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             queryset = CourseEditor.editable_course_runs(self.request.user, queryset)
         else:
             queryset = self.queryset
-
+        queryset = queryset.filter(
+            Q(restricted_run__isnull=True) | Q(restricted_run__restriction_type__in=restriction_list)
+        )
         if q:
             queryset = SearchQuerySetWrapper(
                 CourseRun.search(q).filter('term', partner=partner.short_code),

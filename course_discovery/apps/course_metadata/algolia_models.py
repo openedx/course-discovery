@@ -10,9 +10,9 @@ from sortedm2m.fields import SortedManyToManyField
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus, CourseRunRestrictionType
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, CourseType, ProductValue, Program, ProgramType
+    AbstractLocationRestrictionModel, Course, CourseRun, CourseType, ProductValue, Program, ProgramType
 )
 from course_discovery.apps.course_metadata.utils import transform_skills_data
 
@@ -26,8 +26,8 @@ ALGOLIA_DEFAULT_GEO_COORDINATES = 34.921696, -40.839980
 
 # Utility methods used by both courses and programs
 def get_active_language_tag(course):
-    if course.advertised_course_run and course.advertised_course_run.language:
-        return course.advertised_course_run.language
+    if course.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]) and course.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).language:
+        return course.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).language
     return None
 
 
@@ -88,6 +88,7 @@ def delegate_attributes(cls):
 
 def get_course_availability(course):
     all_runs = course.course_runs.filter(status=CourseRunStatus.Published)
+    all_runs = CourseRun.get_exposed_runs(all_runs, restriction_list=[CourseRunRestrictionType.CustomB2C.value])
     availability = set()
 
     for course_run in all_runs:
@@ -211,6 +212,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     class Meta:
         proxy = True
 
+
     @property
     def product_type(self):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
@@ -253,15 +255,15 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def active_run_key(self):
-        return getattr(self.advertised_course_run, 'key', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'key', None)
 
     @property
     def active_run_start(self):
-        return getattr(self.advertised_course_run, 'start', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'start', None)
 
     @property
     def active_run_type(self):
-        return getattr(self.advertised_course_run, 'type', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'type', None)
 
     @property
     def availability_level(self):
@@ -329,15 +331,15 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_weeks_to_complete(self):
-        return getattr(self.advertised_course_run, 'weeks_to_complete', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'weeks_to_complete', None)
 
     @property
     def product_min_effort(self):
-        return getattr(self.advertised_course_run, 'min_effort', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'min_effort', None)
 
     @property
     def product_max_effort(self):
-        return getattr(self.advertised_course_run, 'max_effort', None)
+        return getattr(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]), 'max_effort', None)
 
     @property
     def owners(self):
@@ -409,8 +411,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.active_url_slug and
                 self.partner.name == 'edX' and
                 self.availability_level and
-                bool(self.advertised_course_run) and
-                not self.advertised_course_run.hidden)
+                bool(self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value])) and
+                not self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).hidden)
 
     @property
     def should_index_spanish(self):
@@ -430,15 +432,15 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def availability_rank(self):
         today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-        if self.advertised_course_run:
-            if self.advertised_course_run.is_current_and_still_upgradeable():
+        if self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]):
+            if self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).is_current_and_still_upgradeable():
                 return 1
-            paid_seat_enrollment_end = self.advertised_course_run.get_paid_seat_enrollment_end()
+            paid_seat_enrollment_end = self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).get_paid_seat_enrollment_end()
             if paid_seat_enrollment_end and paid_seat_enrollment_end > today_midnight:
                 return 2
-            if datetime.datetime.now(pytz.UTC) >= self.advertised_course_run.start:
+            if datetime.datetime.now(pytz.UTC) >= self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).start:
                 return 3
-            return self.advertised_course_run.start.timestamp()
+            return self.advertised_course_run(restriction_list=[CourseRunRestrictionType.CustomB2C.value]).start.timestamp()
         return None  # Algolia will deprioritize entries where a ranked field is empty
 
     @property

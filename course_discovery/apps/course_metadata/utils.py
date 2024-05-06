@@ -473,10 +473,11 @@ def serialize_entitlement_for_ecommerce_api(entitlement):
 
     if IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE.is_enabled():
         course = entitlement.course
-        if course.advertised_course_run and course.advertised_course_run.variant_id:
+        advertised_run = course.advertised_course_run()
+        if advertised_run and advertised_run.variant_id:
             attribute_values_list.append({
                 'name': 'variant_id',
-                'value': str(course.advertised_course_run.variant_id),
+                'value': str(advertised_run.variant_id),
             })
     else:
         additional_metadata = entitlement.course.additional_metadata
@@ -1252,13 +1253,19 @@ def get_product_skill_names(product_identifier, product_type):
     return list({product_skill['name'] for product_skill in product_skills})
 
 
-def get_course_run_statuses(statuses, course_runs):
+def get_course_run_statuses(statuses, course_runs, restriction_list=None):
     """
     Util method to get course run statuses based on the course_runs
     """
     now = datetime.datetime.now(pytz.UTC)
     for course_run in course_runs:
         if course_run.hidden:
+            continue
+        if (
+            restriction_list is not None and
+            hasattr(course_run, "restricted_run") and
+            course_run.restricted_run.restriction_type not in restriction_list
+        ):
             continue
         if course_run.end and course_run.end < now and course_run.status == CourseRunStatus.Unpublished:
             statuses.add('archived')

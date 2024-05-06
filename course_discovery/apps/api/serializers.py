@@ -1183,7 +1183,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     url_slug = serializers.SerializerMethodField()
     course_type = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
-    course_run_statuses = serializers.ReadOnlyField()
+    course_run_statuses = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1206,6 +1206,10 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
 
     def get_url_slug(self, obj):  # pylint: disable=unused-argument
         return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
+
+    def get_course_run_statuses(self, course):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        return course.course_run_statuses(restriction_list=restriction_list)
 
     @classmethod
     def prefetch_course_runs(cls, serializer_class, course_runs=None):
@@ -1317,7 +1321,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
     url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
-    course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
                                                        queryset=Collaborator.objects.all(),
@@ -1400,7 +1403,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
+            'url_slug_history', 'url_redirects', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
             'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
             'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo', 'watchers',
@@ -1603,16 +1606,22 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
     def get_advertised_course_run_uuid(self, course):
-        if course.advertised_course_run:
-            return course.advertised_course_run.uuid
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        advertised_run = course.advertised_course_run(restriction_list)
+        if advertised_run:
+            return advertised_run.uuid
         return None
 
     def get_course_run_keys(self, course):
-        return [course_run.key for course_run in course.course_runs.all()]
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+
+        return [course_run.key for course_run in CourseRun.get_exposed_runs(course.course_runs.all(), restriction_list)]
 
     def get_course_runs(self, course):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+
         return CourseRunSerializer(
-            course.course_runs,
+            CourseRun.get_exposed_runs(course.course_runs.all(), restriction_list),
             many=True,
             context={
                 'request': self.context.get('request'),
@@ -1667,7 +1676,9 @@ class CourseRecommendationSerializer(MinimalCourseSerializer):
         )
 
     def get_course_run_keys(self, course):
-        return [course_run.key for course_run in course.course_runs.all()]
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+
+        return [course_run.key for course_run in CourseRun.get_exposed_runs(course.course_runs.all(), restriction_list)]
 
     class Meta(CourseSerializer.Meta):
         model = Course
@@ -1710,8 +1721,10 @@ class CatalogCourseSerializer(CourseSerializer):
         )
 
     def get_course_runs(self, course):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+
         return CourseRunSerializer(
-            course.course_runs,
+            CourseRun.get_exposed_runs(course.course_runs.all(), restriction_list),
             many=True,
             context=self.context
         ).data
@@ -1735,7 +1748,10 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
     course_runs = serializers.SerializerMethodField()
 
     def get_course_runs(self, course):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+
         course_runs = self.context['course_runs']
+        course_runs = CourseRun.get_exposed_runs(course_runs, restriction_list)
         course_runs = [course_run for course_run in course_runs if course_run.course == course]
 
         if self.context.get('published_course_runs_only'):
@@ -1979,7 +1995,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
     card_image_url = serializers.SerializerMethodField()
-    course_run_statuses = serializers.ReadOnlyField()
+    course_run_statuses = serializers.SerializerMethodField()
     organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
     organization_logo_override_url = serializers.SerializerMethodField()
     primary_subject_override = SubjectSerializer()
@@ -1994,6 +2010,10 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         if logo_image_override:
             return logo_image_override.url
         return None
+
+    def get_course_run_statuses(self, program):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        return program.course_run_statuses(restriction_list=restriction_list)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2299,7 +2319,11 @@ class PathwaySerializer(BaseModelSerializer):
     description = serializers.CharField()
     destination_url = serializers.CharField()
     pathway_type = serializers.CharField()
-    course_run_statuses = serializers.ReadOnlyField()
+    course_run_statuses = serializers.SerializerMethodField()
+
+    def get_course_run_statuses(self, pathway):
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        return pathway.course_run_statuses(restriction_list=restriction_list)
 
     @classmethod
     def prefetch_queryset(cls, partner):

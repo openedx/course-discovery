@@ -1713,8 +1713,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
         return None
 
-    @property
-    def course_run_statuses(self):
+    def course_run_statuses(self, restriction_list=None):
         """
         Returns all unique course run status values inside this course.
 
@@ -1723,7 +1722,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         invalidates the prefetch on API level.
         """
         statuses = set()
-        return sorted(list(get_course_run_statuses(statuses, self.course_runs.all())))
+        return sorted(list(get_course_run_statuses(statuses, self.course_runs.all(), restriction_list)))
 
     @property
     def is_active(self):
@@ -1873,8 +1872,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
                 other_slug.is_active_on_draft = False
                 other_slug.save()
 
-    @cached_property
-    def advertised_course_run(self):
+    def advertised_course_run(self, restriction_list=None):
         now = datetime.datetime.now(pytz.UTC)
         min_date = datetime.datetime.min.replace(tzinfo=pytz.UTC)
         max_date = datetime.datetime.max.replace(tzinfo=pytz.UTC)
@@ -1884,7 +1882,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         tier_three = []
 
         marketable_course_runs = [course_run for course_run in self.course_runs.all() if course_run.is_marketable]
-
+        marketable_course_runs = CourseRun.get_exposed_runs(marketable_course_runs, restriction_list)
         for course_run in marketable_course_runs:
             course_run_started = (not course_run.start) or (course_run.start and course_run.start < now)
             if course_run.is_current_and_still_upgradeable():
@@ -2586,6 +2584,17 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             return queryset.query(ESDSLQ('match_all'))
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
         return queryset.query(dsl_query)
+
+    @classmethod
+    def get_exposed_runs(cls, runs, restriction_list=None):
+        if restriction_list is None:
+            return runs
+
+        return filter(
+            lambda cr: not hasattr(cr, "restricted_run") or
+                        cr.restricted_run.restriction_type in restriction_list,
+            runs
+        )
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -3439,8 +3448,7 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
             if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
                 yield canonical_course_run
 
-    @property
-    def course_run_statuses(self):
+    def course_run_statuses(self, restriction_list=None):
         """
         Returns all unique course run status values inside the courses in this program.
 
@@ -3450,7 +3458,7 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         """
         statuses = set()
         for course in self.courses.all():
-            get_course_run_statuses(statuses, course.course_runs.all())
+            get_course_run_statuses(statuses, course.course_runs.all(), restriction_list)
         return sorted(list(statuses))
 
     @property
@@ -3654,9 +3662,9 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
 
     @property
     def staff(self):
-        advertised_course_runs = [course.advertised_course_run for
+        advertised_course_runs = [course.advertised_course_run() for
                                   course in self.courses.all() if
-                                  course.advertised_course_run]
+                                  course.advertised_course_run()]
         staff = [advertised_course_run.staff.all() for advertised_course_run in advertised_course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)
@@ -4189,8 +4197,7 @@ class Pathway(TimeStampedModel):
             msg = _('These programs are for a different partner than the pathway itself: {}')
             raise ValidationError(msg.format(', '.join(bad_programs)))
 
-    @property
-    def course_run_statuses(self):
+    def course_run_statuses(self, restriction_list=None):
         """
         Returns all unique course run status values inside the programs in this pathway.
 
@@ -4201,7 +4208,7 @@ class Pathway(TimeStampedModel):
         statuses = set()
         for program in self.programs.all():
             for course in program.courses.all():
-                get_course_run_statuses(statuses, course.course_runs.all())
+                get_course_run_statuses(statuses, course.course_runs.all(), restriction_list)
         return sorted(list(statuses))
 
 
