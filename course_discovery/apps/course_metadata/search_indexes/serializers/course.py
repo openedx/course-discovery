@@ -12,6 +12,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, get_product_skill_names
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
@@ -94,6 +95,9 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             exclude_expired = request.POST.get('exclude_expired_course_run') or exclude_expired
             detail_fields = request.POST.get('detail_fields') or detail_fields
 
+        restriction_list = request.query_params.get('restriction_list', '').split(',')
+        forbidden = set(CourseRunRestrictionType.values) - set(restriction_list)
+
         def should_include_course_run(course_run, params, exclude_expired):
             matches_parameter = False
             for key, values in params.items():
@@ -103,6 +107,8 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
                             matches_parameter = True
                 if matches_parameter:
                     break
+            if hasattr(course_run, 'restricted_run') and course_run.restricted_run.restriction_type in forbidden:
+                return False
             return (not exclude_expired or matches_parameter or course_run.end is None or course_run.end > now)
 
         return [

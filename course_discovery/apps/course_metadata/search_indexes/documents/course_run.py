@@ -64,6 +64,7 @@ class CourseRunDocument(BaseCourseDocument):
         'description': fields.TextField(),
     })
     status = fields.KeywordField()
+    restriction_type = fields.KeywordField()
     start = fields.DateField()
     slug = fields.TextField()
     staff_uuids = fields.KeywordField(multi=True)
@@ -125,6 +126,10 @@ class CourseRunDocument(BaseCourseDocument):
     def prepare_skill_names(self, obj):
         return get_product_skill_names(obj.course.key, ProductTypes.Course)
 
+    def prepare_restriction_type(self, obj):
+        if hasattr(obj, "restricted_run"):
+            return obj.restricted_run.restriction_type
+        return None
     def prepare_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.course.key, product_type=ProductTypes.Course)
 

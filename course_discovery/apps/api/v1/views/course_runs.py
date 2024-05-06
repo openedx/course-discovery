@@ -23,7 +23,7 @@ from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import StudioAPI, get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunRestrictionType
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
@@ -83,6 +83,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         """
         q = self.request.query_params.get('q')
         restriction_list = self.request.query_params.get('restriction_list', '').split(',')
+        forbidden = list(set(CourseRunRestrictionType.values) - set(restriction_list))
         partner = self.request.site.partner
         edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
 
@@ -104,7 +105,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             )
         if q:
             queryset = SearchQuerySetWrapper(
-                CourseRun.search(q).filter('term', partner=partner.short_code),
+                CourseRun.search(q).filter('term', partner=partner.short_code).exclude('terms', restriction_type=forbidden),
                 model=queryset.model
             )
         else:

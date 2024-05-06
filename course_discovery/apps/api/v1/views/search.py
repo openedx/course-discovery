@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.utils import update_query_params_with_body_data
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import ProgramStatus, CourseRunRestrictionType
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
 from course_discovery.apps.course_metadata.search_indexes import serializers as search_indexes_serializers
@@ -132,6 +132,16 @@ class CourseRunSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumentVie
         },
     }
 
+    def get_queryset(self):
+        """Get queryset."""
+        queryset = super().get_queryset()
+
+        query_params = self.request.query_params
+        restriction_list = query_params.get('restriction_list', '').split(',')
+        forbidden = list(set(CourseRunRestrictionType.values) - set(restriction_list))
+        queryset = queryset.exclude('terms', restriction_type=forbidden)
+
+        return queryset
 
 class ProgramSearchViewSet(BaseElasticsearchDocumentViewSet):
     """
@@ -299,6 +309,10 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         query_params = self.request.query_params
         if not query_params.get(LEARNER_PATHWAY_FEATURE_PARAM, 'false').lower() == 'true':
             queryset = queryset.exclude('term', content_type=LearnerPathway.__name__.lower())
+
+        restriction_list = query_params.get('restriction_list', '').split(',')
+        forbidden = list(set(CourseRunRestrictionType.values) - set(restriction_list))
+        queryset = queryset.exclude('terms', restriction_type=forbidden)
 
         return queryset
 
