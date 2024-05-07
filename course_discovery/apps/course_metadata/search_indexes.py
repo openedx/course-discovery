@@ -254,6 +254,12 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     total_raters = indexes.IntegerField(model_attr='total_raters', null=True)
     yt_video_url = indexes.CharField(model_attr='yt_video_url', null=True)
     course_duration_override = indexes.IntegerField(model_attr='course_duration_override', null=True)
+    course_training_packages = indexes.CharField(model_attr='course_training_packages', null=True)
+    course_department = indexes.CharField(model_attr='course_department', null=True)
+    course_certifications = indexes.CharField(model_attr='course_certifications', null=True)
+    course_format = indexes.CharField(model_attr='course_format', null=True)
+    course_difficulty_level = indexes.CharField(model_attr='course_difficulty_level', null=True)
+    course_language = indexes.CharField(model_attr='course_language', null=True)
 
     def read_queryset(self, using=None):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's

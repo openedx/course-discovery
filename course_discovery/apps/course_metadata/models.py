@@ -1327,6 +1327,18 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         null=True, blank=True, help_text=_('This field contains override course duration value.'),
         verbose_name=_('Course Duration Override')
     )
+    course_training_packages = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Training Packages'))
+    course_department = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Department'))
+    course_certifications = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Certifications'))
+    course_format = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Format'))
+    course_difficulty_level = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Difficulty Level'))
+    course_language = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_('Course Language'))
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

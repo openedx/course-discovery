@@ -1079,6 +1079,12 @@ class WordPressApiDataLoader(AbstractDataLoader):
                 course_run.is_marketing_price_hidden = body['hide_price']
                 course_run.yt_video_url = body['yt_video_url']
                 course_run.course_duration_override = body['course_duration_override']
+                course_run.course_training_packages = body['course_training_packages']
+                course_run.course_department = body['course_department']
+                course_run.course_certifications = body['course_certifications']
+                course_run.course_format = body['course_format']
+                course_run.course_difficulty_level = body['course_difficulty_level']
+                course_run.course_language = body['course_language']
                 course_run.status = self._process_course_status(body['status'])
 
                 course_run.tags.clear()
