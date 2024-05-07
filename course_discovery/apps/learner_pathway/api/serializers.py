@@ -84,7 +84,10 @@ class LearnerPathwayProgramSerializer(LearnerPathwayProgramMinimalSerializer):
         return program.card_image_url
 
     def get_courses(self, obj):
-        return obj.get_linked_courses_and_course_runs()
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        forbidden = set(CourseRunRestrictionType.values) - set(restriction_list)
+
+        return obj.get_linked_courses_and_course_runs(forbidden_restriction_types=forbidden)
 
 
 class LearnerPathwayBlockSerializer(serializers.ModelSerializer):

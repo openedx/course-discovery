@@ -1681,20 +1681,20 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         else:
             return _('Past')
 
-    def languages(self, exclude_inactive_runs=False):
+    def languages(self, exclude_inactive_runs=False, allowed_restriction_types=[]):
         """
         Returns a set of all languages used in this course.
 
         Arguments:
             exclude_inactive_runs (bool): whether to exclude inactive runs
         """
+        runs = self.course_runs.all()
         if exclude_inactive_runs:
-            return list({
-                serialize_language(course_run.language) for course_run in self.course_runs.all()
-                if course_run.is_active and course_run.language is not None
-            })
+            runs = filter(lambda r: r.is_active, runs)
+        runs = filter(lambda r: not hasattr(r, "restricted_run") or r.restricted_run.restriction_type in allowed_restriction_types, runs)
+
         return list({
-            serialize_language(course_run.language) for course_run in self.course_runs.all()
+            serialize_language(course_run.language) for course_run in runs
             if course_run.language is not None
         })
 

@@ -127,7 +127,9 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         if request.method == 'POST':
             exclude_non_active_languages = request.POST.get('exclude_expired_course_run', exclude_non_active_languages)
 
-        return result.object.languages(exclude_non_active_languages)
+        restriction_list = request.query_params.get('restriction_list', '').split(',')
+
+        return result.object.languages(exclude_non_active_languages, allowed_restriction_types=restriction_list)
 
     def get_seat_types(self, result):
         now = datetime.datetime.now(pytz.UTC)
@@ -135,14 +137,15 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         exclude_expired = request.GET.get('exclude_expired_course_run')
         if request.method == 'POST':
             exclude_expired = request.POST.get('exclude_expired_course_run', exclude_expired)
+
+        runs = result.object.course_runs.all()
         if exclude_expired:
-            # if course_run is active then add course_run.seat_types to seat_types
-            seat_types = [
-                seat.slug for course_run in result.object.course_runs.all()
-                if course_run.end is None or course_run.end > now for seat in course_run.seat_types
-            ]
-        else:
-            seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
+            runs = filter(lambda r: r.end is None or r.end > now, runs)
+
+        restriction_list = request.query_params.get('restriction_list', '').split(',')
+        runs = filter(lambda r: not hasattr(r, "restricted_run") or r.restricted_run.restriction_type in restriction_list, runs)
+
+        seat_types = [seat.slug for course_run in runs for seat in course_run.seat_types]
         return list(set(seat_types))
 
     def get_skill_names(self, result):
