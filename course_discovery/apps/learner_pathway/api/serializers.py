@@ -3,7 +3,7 @@ Serializers for learner_pathway app.
 """
 from rest_framework import serializers
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunRestrictionType
 from course_discovery.apps.learner_pathway import models
 
 
@@ -19,7 +19,10 @@ class LearnerPathwayCourseMinimalSerializer(serializers.ModelSerializer):
         fields = ('key', 'course_runs')
 
     def get_course_runs(self, obj):
-        return list(obj.course.course_runs.filter(status=CourseRunStatus.Published).values('key'))
+        restriction_list = self.context['request'].query_params.get('restriction_list', '').split(',')
+        forbidden = set(CourseRunRestrictionType.values) - set(restriction_list)
+
+        return list(obj.course.course_runs.filter(status=CourseRunStatus.Published).exclude(restricted_run__restriction_type__in=forbidden).values('key'))
 
 
 class LearnerPathwayCourseSerializer(LearnerPathwayCourseMinimalSerializer):
