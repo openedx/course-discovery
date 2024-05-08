@@ -76,10 +76,13 @@ jobs:
 
   semgrep:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v3
       - run: make ci_up
         env:
-          PYTHON_VERSION: 3.8
+          PYTHON_VERSION: ${{ matrix.python-version }}
       - name: Run semgrep Django rules
         run: make ci_semgrep
