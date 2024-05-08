@@ -8,7 +8,7 @@ from rest_framework import status
 
 from course_discovery.apps import learner_pathway
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, RestrictedCourseRunFactory
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.tests.factories import (
     LearnerPathwayCourseFactory, LearnerPathwayFactory, LearnerPathwayProgramFactory, LearnerPathwayStepFactory
@@ -90,7 +90,7 @@ class TestLearnerPathwayViewSet(TestCase):
             course__title=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['title'],
             course__short_description=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['short_description'],
         )
-        __ = CourseRunFactory(
+        self.learner_pathway_course__course_run = CourseRunFactory(
             course=self.learner_pathway_course.course,
             key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
             status='published',
@@ -106,7 +106,7 @@ class TestLearnerPathwayViewSet(TestCase):
 
         self.view_url = '/api/v1/learner-pathway/{}/'.format(self.learner_pathway.uuid)  # reverse('learner-pathway')
 
-    def _verify_learner_pathway_data(self, api_response, expected_data):
+    def _verify_learner_pathway_data(self, api_response, expected_data, restricted=False):
         """
         Verify that learner pathway api response matches the expected data.
         """
@@ -132,7 +132,10 @@ class TestLearnerPathwayViewSet(TestCase):
         api_response_step_course = data['steps'][0]['courses'][0]
         expected_lerner_pathway_step_course = expected_data['steps'][0]['courses'][0]
         for key, value in expected_lerner_pathway_step_course.items():
-            assert api_response_step_course[key] == value
+            if restricted and key=='course_runs':
+                assert api_response_step_course[key] == []
+            else:
+                assert api_response_step_course[key] == value
 
         # course card_image_url should not be empty
         assert api_response_step_course['card_image_url']
@@ -146,12 +149,15 @@ class TestLearnerPathwayViewSet(TestCase):
         # program card_image_url should not be empty
         assert api_response_step_course['card_image_url']
 
-    def test_learner_pathway_api(self):
+    @ddt.data([True, False])
+    def test_learner_pathway_api(self, restricted_run):
         """
         Verify that learner pathway api returns the expected response.
         """
+        if restricted_run:
+            RestrictedCourseRunFactory(course_run=self.learner_pathway_course__course_run, restriction_type='custom-b2c')
         api_response = self.client.get(self.view_url)
-        self._verify_learner_pathway_data(api_response, LEARNER_PATHWAY_DATA)
+        self._verify_learner_pathway_data(api_response, LEARNER_PATHWAY_DATA, restricted=restricted_run)
 
     def test_learner_pathway_api_filtering(self):
         """

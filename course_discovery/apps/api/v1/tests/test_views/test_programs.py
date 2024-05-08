@@ -13,13 +13,13 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, Seria
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseType, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
     CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeFactory, EndorsementFactory,
     ExpectedLearningItemFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory,
-    ProgramTypeFactory, VideoFactory
+    ProgramTypeFactory, RestrictedCourseRunFactory, VideoFactory
 )
 
 
@@ -48,13 +48,16 @@ class TestProgramViewSet(SerializationMixin):
         self.partner = partner
         self.request = request
 
-    def create_program(self, courses=None, program_type=None):
+    def create_program(self, courses=None, program_type=None, include_restricted_run=False):
         organizations = [OrganizationFactory(partner=self.partner)]
         person = PersonFactory()
 
         if courses is None:
             courses = [CourseFactory(partner=self.partner)]
-            CourseRunFactory(course=courses[0], staff=[person])
+            cr = CourseRunFactory(course=courses[0], staff=[person])
+
+        if include_restricted_run:
+            RestrictedCourseRunFactory(course_run=cr, restriction_type='custom-b2c')
 
         if program_type is None:
             program_type = ProgramTypeFactory()
@@ -215,6 +218,20 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
 
         self.assert_list_results(self.list_path, expected, 26)
+
+    def test_list_exclude_restricted_by_default(self):
+        """ Verify the endpoint returns a list of all programs. """
+        self.create_program(include_restricted_run=True)
+        resp = self.client.get(self.list_path)
+        self.assertListEqual(resp.data['results'][0]['courses'][0]['course_runs'], [])
+        self.assertEqual(resp.data['results'][0]['course_run_statuses'], [])
+
+    def test_list_include_restricted(self):
+        """ Verify the endpoint returns a list of all programs. """
+        self.create_program(include_restricted_run=True)
+        resp = self.client.get(self.list_path + '?restriction_list=custom-b2c')
+        self.assertEqual(len(resp.data['results'][0]['courses'][0]['course_runs']), 1)
+        self.assertEqual(resp.data['results'][0]['course_run_statuses'], [CourseRunStatus.Published])
 
     def test_extended_query_param_fields(self):
         """ Verify that the `extended` query param will result in an extended amount of fields returned. """

@@ -11,6 +11,7 @@ import pytz
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
@@ -21,7 +22,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory, RestrictedCourseRunFactory
 )
 from course_discovery.conftest import get_course_run_states
 
@@ -292,9 +293,10 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         assert response.data['results'] == self.serialize_catalog_course(desired_courses, many=True)
 
     @ddt.data(
-        *STATES()
+        [(st, res, lst) for st in STATES() for res in [True, False] for lst in ['', 'custom-b2c']]
     )
-    def test_courses(self, state):
+    @ddt.unpack
+    def test_courses(self, state, restriction, restriction_list):
         """
         Verify the endpoint returns the list of available courses contained in
         the catalog, and that courses appearing in the response always have at
@@ -305,6 +307,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         Course.objects.all().delete()
 
         course_run = CourseRunFactory(course__title='ABC Test Course')
+        if restriction:
+            RestrictedCourseRunFactory(course_run=course_run, restriction_type='custom-b2c')
         for function in state:
             function(course_run)
 
@@ -325,10 +329,16 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # Emulate prefetching behavior.
             filtered_course_run.delete()
 
-            assert response.data['results'] == self.serialize_catalog_course([course], many=True)
+            mock_request = APIRequestFactory()
+            mock_request.query_params = {'restriction_list', restriction_list}
+            assert response.data['results'] == self.serialize_catalog_course([course], many=True, extra_context={'request': mock_request})
 
-            # Any course appearing in the response must have at least one serialized run.
-            assert response.data['results'][0]['course_runs']
+            if not restriction:
+                # Any course appearing in the response must have at least one serialized run.
+                assert response.data['results'][0]['course_runs']
+            else:
+                assert not response.data['results'][0]['course_runs']
+
         else:
             response = self.client.get(url)
 

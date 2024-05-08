@@ -53,6 +53,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course = CourseFactory(partner=self.partner, draft=True, product_source=self.product_source)
         self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
+        self.restricted_run = CourseRunFactory(course__partner=self.partner)
+        RestrictedCourseRunFactory(course_run=self.restricted_run, restriction_type='custom-b2c')
         self.course_run_type = CourseRunTypeFactory(tracks=[TrackFactory()])
         self.verified_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
         self.refresh_index()
@@ -1197,6 +1199,21 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
+        restrieved_keys = [r.key for r in response.data['results']]
+        assert self.restricted_run.key not in restrieved_keys
+
+
+    def test_list_include_restricted(self):
+        """ Verify the endpoint returns a list of all course runs. """
+        url = reverse('api:v1:course_run-list') + '?restriction_list=custom-b2c'
+
+        with self.assertNumQueries(14, threshold=3):
+            response = self.client.get(url)
+
+        assert response.status_code == 200
+        restrieved_keys = [r.key for r in response.data['results']]
+        assert self.restricted_run.key in restrieved_keys
+
 
     def test_list_sorted_by_course_start_date(self):
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
@@ -1215,6 +1232,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns a filtered list of courses """
         course_runs = CourseRunFactory.create_batch(3, title='Some random title', course__partner=self.partner)
         CourseRunFactory(title='non-matching name')
+        restricted_run = CourseRunFactory(title='Some random title', course__partner=self.partner)
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
@@ -1223,6 +1242,25 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
         expected_sorted = sorted(self.serialize_course_run(course_runs, many=True),
+                                 key=lambda course_run: course_run['key'])
+        self.assertListEqual(actual_sorted, expected_sorted)
+
+
+    def test_list_query_include_restricted(self):
+        """ Verify the endpoint returns a filtered list of courses """
+        course_runs = CourseRunFactory.create_batch(3, title='Some random title', course__partner=self.partner)
+        CourseRunFactory(title='non-matching name')
+        restricted_run = CourseRunFactory(title='Some random title', course__partner=self.partner)
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+        query = 'title:Some random title'
+        url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
+        url += '?restriction_list=custom-b2c,custom-b2b-enterprise'
+
+        with self.assertNumQueries(25, threshold=3):
+            response = self.client.get(url)
+
+        actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
+        expected_sorted = sorted(self.serialize_course_run([*course_runs, restricted_run], many=True),
                                  key=lambda course_run: course_run['key'])
         self.assertListEqual(actual_sorted, expected_sorted)
 
