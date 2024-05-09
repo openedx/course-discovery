@@ -30,7 +30,7 @@ jobs:
           echo "PYTHON_VERSION=$FORMATTED_VERSION" >> $GITHUB_ENV
           
           # Output formatted version for use in subsequent steps
-          echo "Using Python Version: $PYTHON_VERSION"
+          echo "Using Python Version: $FORMATTED_VERSION"
 
       - run: make ci_up
       - name: run tests
