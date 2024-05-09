@@ -18,7 +18,7 @@ RUN apt-get update && \
   python${PYTHON_VERSION}-distutils \
   libmysqlclient-dev \
   libssl-dev \
-  # Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
+  # TODO: Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
   # So this apt package is needed for building Pillow on 3.12,
   # and can be removed when version of Pillow is upgraded to 10.5.0+
   libjpeg-dev \
