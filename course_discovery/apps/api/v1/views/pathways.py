@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
+from course_discovery.apps.api.utils import get_excluded_restriction_types
+from course_discovery.apps.course_metadata.models import CourseRun
 
 
 class PathwayViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
@@ -11,5 +13,11 @@ class PathwayViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
     serializer_class = serializers.PathwaySerializer
 
     def get_queryset(self):
-        queryset = self.get_serializer_class().prefetch_queryset(partner=self.request.site.partner)
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        course_runs = CourseRun.objects.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
+
+        queryset = self.get_serializer_class().prefetch_queryset(
+            partner=self.request.site.partner,
+            course_runs=course_runs
+        )
         return queryset.order_by('created')

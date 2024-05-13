@@ -23,7 +23,9 @@ from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
-from course_discovery.apps.api.utils import decode_image_data, get_query_param, reviewable_data_has_changed
+from course_discovery.apps.api.utils import (
+    decode_image_data, get_excluded_restriction_types, get_query_param, reviewable_data_has_changed
+)
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -122,9 +124,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         else:
             queryset = self.queryset
 
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
         if q:
             queryset = Course.search(q, queryset=queryset)
-            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
+            course_runs = CourseRun.objects.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
+            queryset = self.get_serializer_class().prefetch_queryset(
+                queryset=queryset, partner=partner, course_runs=course_runs
+            )
         else:
             if edit_mode:
                 course_runs = CourseRun.objects.filter_drafts(course__partner=partner)
@@ -148,6 +154,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             else:
                 programs = Program.objects.exclude(status=ProgramStatus.Deleted)
 
+            course_runs = course_runs.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=queryset,
                 course_runs=course_runs,

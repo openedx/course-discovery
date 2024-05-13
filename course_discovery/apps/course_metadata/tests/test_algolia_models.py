@@ -17,8 +17,8 @@ from course_discovery.apps.course_metadata.models import CourseRunStatus, Course
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
     DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
-    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory,
-    SourceFactory, SubjectFactory, VideoFactory
+    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RestrictedCourseRunFactory,
+    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -200,7 +200,7 @@ class TestAlgoliaProxyWithEdxPartner(TestCase, TestAlgoliaDataMixin):
         Partner.objects.all().delete()
         Site.objects.all().delete()
         cls.site = SiteFactory(id=settings.SITE_ID, domain=TEST_DOMAIN)
-        cls.edxPartner = PartnerFactory(site=cls.site)
+        cls.edxPartner = PartnerFactory(site=cls.site, name='edX')
         cls.edxPartner.name = 'edX'
 
 
@@ -212,6 +212,17 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         assert course.should_index
+
+    def test_restricted_run_should_not_index(self):
+        """
+        Test that if a course has only one run and that run is restricted,
+        it will not be indexed
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        RestrictedCourseRunFactory(course_run=course.course_runs.first(), restriction_type="custom-b2b-enterprise")
+        qs = AlgoliaProxyCourse.prefetch_queryset()
+        assert not qs.first().should_index
 
     def test_do_not_index_if_no_owners(self):
         course = self.create_course_with_basic_active_course_run()
@@ -638,6 +649,17 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.courses.add(course)
 
         assert program.availability_level == []
+
+    def test_program_availability_if_restricted_runs(self):
+        '''
+        Test that program availability calculation ignores restricted runs
+        '''
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        run = self.attach_published_course_run(course=course, run_type="current and ends within two weeks")
+        program.courses.add(course)
+        RestrictedCourseRunFactory(course_run=run, restriction_type='custom-b2b-enterprise')
+        assert AlgoliaProxyProgram.prefetch_queryset().first().availability_level == []
 
     def test_only_programs_with_spanish_courses_promoted_in_spanish_index(self):
         all_spanish_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, language_override=None)

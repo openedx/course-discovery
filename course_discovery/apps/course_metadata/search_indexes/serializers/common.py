@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from django_elasticsearch_dsl.registries import registry
 
+from course_discovery.apps.api.utils import get_excluded_restriction_types
 from course_discovery.apps.core.utils import ElasticsearchUtils, serialize_datetime
 
 log = logging.getLogger(__name__)
@@ -30,6 +31,9 @@ class ModelObjectDocumentSerializerMixin:
         Provide Model objects by elasticsearch response instances.
         Fetches all the incoming instances at once and returns model queryset.
         """
+
+        excluded_restriction_types = get_excluded_restriction_types(self.context['request'])
+
         if not isinstance(instances, list):
             instances = [instances]
         document = None
@@ -48,7 +52,9 @@ class ModelObjectDocumentSerializerMixin:
 
         if document and es_pks:
             try:
-                _objects = document(hit).get_queryset().filter(pk__in=es_pks)
+                _objects = document(hit).get_queryset(
+                    excluded_restriction_types=excluded_restriction_types
+                ).filter(pk__in=es_pks)
             except ObjectDoesNotExist:
                 log.error("Object could not be found in database for SearchResult '%r'.", self)
 

@@ -23,8 +23,10 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, LimitedAggregateSearchSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory, SeatFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory,
+    RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory
 )
+from course_discovery.apps.ietf_language_tags.utils import serialize_language
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 from course_discovery.apps.learner_pathway.tests.factories import LearnerPathwayStepFactory
 from course_discovery.apps.publisher.tests import factories as publisher_factories
@@ -119,6 +121,34 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
     def test_search(self, path, serializer):
         """ Verify the view returns search results. """
         self.assert_successful_search(path=path, serializer=serializer)
+
+    @ddt.data(
+        [list_path, True],
+        [list_path, False],
+        [detailed_path, True],
+        [detailed_path, False]
+    )
+    @ddt.unpack
+    def test_search_restricted_runs(self, path, include_restriction_param):
+        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
+                                      status=CourseRunStatus.Published)
+
+        RestrictedCourseRunFactory(course_run=course_run, restriction_type='custom-b2c')
+        call_command('search_index', '--populate')
+
+        if include_restriction_param:
+            path += '?include_restricted=custom-b2c'
+
+        response = self.get_response('software', path=path)
+
+        assert response.status_code == 200
+
+        if include_restriction_param:
+            assert response.data['results']
+            assert response.data['count'] == 1
+        else:
+            assert not response.data['results']
+            assert response.data['count'] == 0
 
     def test_faceted_search(self):
         """ Verify the view returns results and facets. """
@@ -295,14 +325,14 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         temp_req_dict.clear()
         self.request.GET = temp_req_dict
 
-    def get_response(self, query=None, endpoint=None):
+    def get_response(self, query=None, endpoint=None, path_has_params=False):
         path = endpoint or self.faceted_path
         qs = ''
 
         if query:
             qs = urllib.parse.urlencode(query, True)
 
-        url = f'{path}?{qs}'
+        url = f'{path}&{qs}' if path_has_params else f'{path}?{qs}'
         return self.client.get(url)
 
     def process_response(self, response):
@@ -310,6 +340,62 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         objects = response['objects']
         assert objects['count'] > 0
         return objects
+
+    @ddt.data(True, False)
+    def test_results_restricted_runs(self, include_restriced_param):
+        CourseFactory(
+            key=self.regular_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course = CourseFactory(
+            key=self.desired_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course_run_restricted = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            key=self.regular_key,
+            type__is_marketable=True
+        )
+        SeatFactory(type=SeatTypeFactory.verified(), course_run=course_run_restricted)
+        RestrictedCourseRunFactory(course_run=course_run_restricted, restriction_type='custom-b2c')
+        course_run = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Reviewed,
+            key='course-v1:edx+TeamX+2024',
+            type__is_marketable=True
+        )
+        SeatFactory(type=SeatTypeFactory.audit(), course_run=course_run)
+
+        call_command('search_index', '--populate')
+
+        endpoint = self.list_path
+        if include_restriced_param:
+            endpoint += '?include_restricted=custom-b2c'
+        response = self.get_response(
+            query={'key.raw': self.desired_key},
+            endpoint=endpoint,
+            path_has_params=include_restriced_param
+        )
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert len(response_data["results"]) == 1
+
+        if not include_restriced_param:
+            assert len(response_data["results"][0]["course_runs"]) == 1
+            assert set(response_data["results"][0]["languages"]) == {serialize_language(course_run.language)}
+            assert set(response_data["results"][0]["seat_types"]) == {'audit'}
+        else:
+            assert len(response_data["results"][0]["course_runs"]) == 2
+            assert set(response_data["results"][0]["languages"]) == {
+                serialize_language(course_run.language), serialize_language(course_run_restricted.language)
+            }
+            assert set(response_data["results"][0]["seat_types"]) == {'audit', 'verified'}
 
     def test_results_only_include_specific_key_objects(self):
         """ Verify the search results only include items with 'key' set to 'course:edX+DemoX'. """
@@ -532,7 +618,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 7), (False, 8))
+    @ddt.data((True, 8), (False, 9))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """

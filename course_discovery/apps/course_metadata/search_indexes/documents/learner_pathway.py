@@ -50,10 +50,10 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     def prepare_published(self, obj):
         return obj.status == PathwayStatus.Active
 
-    def get_queryset(self):
+    def get_queryset(self, excluded_restriction_types=None):  # pylint: disable=unused-argument
         return super().get_queryset().prefetch_related(
             'steps', 'steps__learnerpathwaycourse_set', 'steps__learnerpathwayprogram_set',
-            'steps__learnerpathwayblock_set'
+            'steps__learnerpathwayblock_set',
         )
 
     def prepare_skill_names(self, obj):

@@ -35,7 +35,7 @@ from course_discovery.apps.course_metadata.signals import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
-    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
+    RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, ensure_draft_world
@@ -277,6 +277,68 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert response.status_code == 200
         self.assertListEqual(response.data['course_run_keys'], expected_keys)
         self.assertListEqual([run['key'] for run in response.data['course_runs']], expected_keys)
+
+    @ddt.data(True, False)
+    def test_course_runs_restriction(self, include_restriction_param):
+        run_restricted = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime(2033, 1, 1, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Published
+        )
+        run_not_restricted = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime(2033, 1, 1, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Unpublished
+        )
+        RestrictedCourseRunFactory(course_run=run_restricted, restriction_type='custom-b2c')
+        SeatFactory(course_run=run_restricted)
+        SeatFactory(course_run=run_not_restricted)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        if include_restriction_param:
+            url += '?include_restricted=custom-b2c'
+        with self.assertNumQueries(36, threshold=3):
+            response = self.client.get(url)
+        assert response.status_code == 200
+
+        if not include_restriction_param:
+            self.assertEqual(response.data['course_run_keys'], [run_not_restricted.key])
+            self.assertEqual(response.data['course_run_statuses'], [run_not_restricted.status])
+            self.assertEqual(len(response.data['course_runs']), 1)
+            self.assertEqual(response.data['advertised_course_run_uuid'], None)
+        else:
+            self.assertEqual(set(response.data['course_run_keys']), {run_not_restricted.key, run_restricted.key})
+            self.assertEqual(
+                set(response.data['course_run_statuses']),
+                {run_not_restricted.status, run_restricted.status}
+            )
+            self.assertEqual(len(response.data['course_runs']), 2)
+            self.assertEqual(response.data['advertised_course_run_uuid'], run_restricted.uuid)
+
+    def test_course_runs_restriction_param(self):
+        run_restricted = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime(2033, 1, 1, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Published
+        )
+        run_not_restricted = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime(2033, 1, 1, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Unpublished
+        )
+        RestrictedCourseRunFactory(course_run=run_restricted, restriction_type='custom-b2c')
+        SeatFactory(course_run=run_restricted)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        url += '?include_restricted=custom-b2c'
+        with self.assertNumQueries(36, threshold=3):
+            response = self.client.get(url)
+        assert response.status_code == 200
+
+        self.assertEqual(set(response.data['course_run_keys']), {run_not_restricted.key, run_restricted.key})
+        self.assertEqual(set(response.data['course_run_statuses']), {run_not_restricted.status, run_restricted.status})
+        self.assertEqual(len(response.data['course_runs']), 2)
+        self.assertEqual(response.data['advertised_course_run_uuid'], run_restricted.uuid)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """

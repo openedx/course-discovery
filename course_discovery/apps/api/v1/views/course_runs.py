@@ -19,7 +19,9 @@ from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixi
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import StudioAPI, get_query_param, reviewable_data_has_changed
+from course_discovery.apps.api.utils import (
+    StudioAPI, get_excluded_restriction_types, get_query_param, reviewable_data_has_changed
+)
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -83,6 +85,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         q = self.request.query_params.get('q')
         partner = self.request.site.partner
         edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
 
         if edit_mode and q:
             raise EditableAndQUnsupported()
@@ -96,9 +99,13 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         else:
             queryset = self.queryset
 
+        if self.request.method == 'GET':
+            queryset = queryset.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
         if q:
             queryset = SearchQuerySetWrapper(
-                CourseRun.search(q).filter('term', partner=partner.short_code),
+                CourseRun.search(q).filter('term', partner=partner.short_code).exclude(
+                    'terms', restriction_type=excluded_restriction_types
+                ),
                 model=queryset.model
             )
         else:

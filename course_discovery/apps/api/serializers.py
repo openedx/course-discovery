@@ -31,7 +31,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )
-from course_discovery.apps.api.utils import StudioAPI
+from course_discovery.apps.api.utils import StudioAPI, get_excluded_restriction_types
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import update_instance
@@ -1638,8 +1638,10 @@ class CourseWithRecommendationsSerializer(FlexFieldsSerializerMixin, TimestampMo
     recommendations = serializers.SerializerMethodField()
 
     def get_recommendations(self, course):
+        excluded_restriction_types = get_excluded_restriction_types(self.context['request'])
+        recommended_courses = course.recommendations(excluded_restriction_types=excluded_restriction_types)
         return CourseRecommendationSerializer(
-            course.recommendations(),
+            recommended_courses,
             many=True,
             context={
                 'request': self.context.get('request'),
@@ -1996,7 +1998,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
         return None
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
         # Explicitly check if the queryset is None before selecting related
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
 
@@ -2020,7 +2022,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'degree__rankings',
             'degree__quick_facts',
             'labels',
-            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset(course_runs=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
@@ -2165,8 +2167,8 @@ class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None):
-        queryset = super().prefetch_queryset(partner=partner, queryset=queryset)
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+        queryset = super().prefetch_queryset(partner=partner, queryset=queryset, course_runs=course_runs)
 
         return queryset.prefetch_related(
             'expected_learning_items',
@@ -2209,7 +2211,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     product_source = SourceSerializer(required=False, read_only=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -2255,7 +2257,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'instructor_ordering',
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
-            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partner=partner)),
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partner=partner, course_runs=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
@@ -2302,11 +2304,13 @@ class PathwaySerializer(BaseModelSerializer):
     course_run_statuses = serializers.ReadOnlyField()
 
     @classmethod
-    def prefetch_queryset(cls, partner):
+    def prefetch_queryset(cls, partner, course_runs=None):
         queryset = Pathway.objects.filter(partner=partner)
 
         return queryset.prefetch_related(
-            Prefetch('programs', queryset=MinimalProgramSerializer.prefetch_queryset(partner=partner)),
+            Prefetch('programs', queryset=MinimalProgramSerializer.prefetch_queryset(
+                partner=partner, course_runs=course_runs
+            )),
         )
 
     class Meta:

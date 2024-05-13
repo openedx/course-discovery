@@ -9,6 +9,7 @@ import pytest
 import pytz
 import responses
 from django.contrib.auth.models import Group
+from django.core.management import call_command
 from django.db.models.functions import Lower
 from django.db.models.signals import pre_save
 from django.test import override_settings
@@ -1210,6 +1211,43 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by('start'), many=True)
         )
+
+    @ddt.data(True, False)
+    def test_list_include_restricted(self, include_restriction_param):
+        restricted_run = CourseRunFactory(course__partner=self.partner)
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+        url = reverse('api:v1:course_run-list')
+        if include_restriction_param:
+            url += '?include_restricted=custom-b2c'
+
+        with self.assertNumQueries(14, threshold=3):
+            response = self.client.get(url)
+
+        assert response.status_code == 200
+        retrieved_keys = [r['key'] for r in response.data['results']]
+        if include_restriction_param:
+            assert restricted_run.key in retrieved_keys
+        else:
+            assert restricted_run.key not in retrieved_keys
+
+    @ddt.data([True, 4], [False, 3])
+    @ddt.unpack
+    def test_list_query_include_restricted(self, include_restriction_param, expected_result_count):
+        CourseRunFactory.create_batch(3, title='Some cool title', course__partner=self.partner)
+        CourseRunFactory(title='non-cool title')
+        restricted_run = CourseRunFactory(title='Some cool title', course__partner=self.partner)
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+        query = 'title:Some cool title'
+        url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
+        if include_restriction_param:
+            url += '&include_restricted=custom-b2c,custom-b2b-enterprise'
+
+        call_command('search_index', '--rebuild', '-f')
+
+        with self.assertNumQueries(30, threshold=3):
+            response = self.client.get(url)
+
+        assert len(response.data['results']) == expected_result_count
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """

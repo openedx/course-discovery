@@ -12,7 +12,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, CourseType, ProductValue, Program, ProgramType
+    AbstractLocationRestrictionModel, Course, CourseRun, CourseType, ProductValue, Program, ProgramType
 )
 from course_discovery.apps.course_metadata.utils import transform_skills_data
 
@@ -106,7 +106,8 @@ def delegate_attributes(cls):
 
 
 def get_course_availability(course):
-    all_runs = course.course_runs.filter(status=CourseRunStatus.Published)
+    all_runs = course.course_runs.all()
+    all_runs = filter(lambda r: r.status == CourseRunStatus.Published, all_runs)
     availability = set()
 
     for course_run in all_runs:
@@ -229,6 +230,14 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     class Meta:
         proxy = True
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return cls.objects.all().prefetch_related(
+            models.Prefetch(
+                'course_runs', queryset=CourseRun.objects.filter(restricted_run__isnull=True)
+            )
+        )
 
     @property
     def product_type(self):
@@ -469,6 +478,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     class Meta:
         proxy = True
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return cls.objects.all().prefetch_related(
+            models.Prefetch(
+                'courses__course_runs', queryset=CourseRun.objects.filter(restricted_run__isnull=True)
+            )
+        )
 
     @property
     def product_type(self):

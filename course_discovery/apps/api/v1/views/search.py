@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.utils import update_query_params_with_body_data
+from course_discovery.apps.api.utils import get_excluded_restriction_types, update_query_params_with_body_data
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
@@ -131,6 +131,12 @@ class CourseRunSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumentVie
             'field': 'is_active', 'enabled': True
         },
     }
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        queryset = queryset.exclude('terms', restriction_type=excluded_restriction_types)
+        return queryset
 
 
 class ProgramSearchViewSet(BaseElasticsearchDocumentViewSet):
@@ -300,6 +306,8 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         if not query_params.get(LEARNER_PATHWAY_FEATURE_PARAM, 'false').lower() == 'true':
             queryset = queryset.exclude('term', content_type=LearnerPathway.__name__.lower())
 
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        queryset = queryset.exclude('terms', restriction_type=excluded_restriction_types)
         return queryset
 
     @update_query_params_with_body_data
@@ -373,6 +381,7 @@ class PersonTypeaheadSearchView(APIView):
               type: List of string
         """
         query = request.query_params.get('q')
+
         if not query:
             raise ValidationError("The 'q' querystring parameter is required for searching.")
         words = query.split()

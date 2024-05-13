@@ -13,13 +13,13 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, Seria
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseType, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
     CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeFactory, EndorsementFactory,
     ExpectedLearningItemFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory,
-    ProgramTypeFactory, VideoFactory
+    ProgramTypeFactory, RestrictedCourseRunFactory, VideoFactory
 )
 
 
@@ -48,13 +48,16 @@ class TestProgramViewSet(SerializationMixin):
         self.partner = partner
         self.request = request
 
-    def create_program(self, courses=None, program_type=None):
+    def create_program(self, courses=None, program_type=None, include_restricted_run=False):
         organizations = [OrganizationFactory(partner=self.partner)]
         person = PersonFactory()
 
         if courses is None:
             courses = [CourseFactory(partner=self.partner)]
-            CourseRunFactory(course=courses[0], staff=[person])
+            course_run = CourseRunFactory(course=courses[0], staff=[person])
+
+            if include_restricted_run:
+                RestrictedCourseRunFactory(course_run=course_run, restriction_type='custom-b2c')
 
         if program_type is None:
             program_type = ProgramTypeFactory()
@@ -215,6 +218,21 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
 
         self.assert_list_results(self.list_path, expected, 26)
+
+    @pytest.mark.parametrize("include_restriction_param", [True, False])
+    def test_list_restricted_runs(self, include_restriction_param):
+        self.create_program(include_restricted_run=True)
+        query_param_string = "?include_restricted=custom-b2c" if include_restriction_param else ""
+        resp = self.client.get(self.list_path + query_param_string)
+
+        if include_restriction_param:
+            assert resp.data['results'][0]['courses'][0]['course_runs']
+            assert resp.data['results'][0]['courses'][0]['course_run_statuses']
+            assert resp.data['results'][0]['course_run_statuses'] == [CourseRunStatus.Published]
+        else:
+            assert not resp.data['results'][0]['courses'][0]['course_runs']
+            assert not resp.data['results'][0]['courses'][0]['course_run_statuses']
+            assert resp.data['results'][0]['course_run_statuses'] == []
 
     def test_extended_query_param_fields(self):
         """ Verify that the `extended` query param will result in an extended amount of fields returned. """
