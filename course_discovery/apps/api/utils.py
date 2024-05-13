@@ -13,6 +13,7 @@ from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
 from course_discovery.apps.course_metadata.models import CourseRun
 
 logger = logging.getLogger(__name__)
@@ -197,6 +198,11 @@ def increment_character(character):
     Given a character and it will return its next character using ASCII code
     """
     return chr(ord(character) + 1) if character != 'z' else 'a'
+
+
+def get_excluded_restriction_types(request):
+    include_restricted = request.query_params.get('include_restricted', '').split(',')
+    return list(set(CourseRunRestrictionType.values) - set(include_restricted))
 
 
 class StudioAPI:

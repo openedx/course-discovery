@@ -2,13 +2,11 @@ from urllib.parse import urlencode
 
 import ddt
 from django.test import Client, TestCase
-from django.urls import reverse
 from pytest import mark
 from rest_framework import status
 
-from course_discovery.apps import learner_pathway
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, RestrictedCourseRunFactory
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.tests.factories import (
     LearnerPathwayCourseFactory, LearnerPathwayFactory, LearnerPathwayProgramFactory, LearnerPathwayStepFactory
@@ -90,7 +88,7 @@ class TestLearnerPathwayViewSet(TestCase):
             course__title=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['title'],
             course__short_description=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['short_description'],
         )
-        __ = CourseRunFactory(
+        self.learner_pathway_course__course_run = CourseRunFactory(
             course=self.learner_pathway_course.course,
             key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
             status='published',
@@ -169,6 +167,23 @@ class TestLearnerPathwayViewSet(TestCase):
         assert data['count'] == 2
         assert data['results'][0]['uuid'] == self.learner_pathway.uuid
         assert data['results'][1]['uuid'] == another_learner_pathway.uuid
+
+    @ddt.data([True, 2], [False, 1])
+    @ddt.unpack
+    def test_learner_pathway_restricted_runs(self, add_restriction_param, expected_run_count):
+        restricted_run = CourseRunFactory(
+            course=self.learner_pathway_course.course,
+            key='course-v1:AA+AA101+3T2024',
+            status='published',
+        )
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+        url = '/api/v1/learner-pathway/'
+        if add_restriction_param:
+            url += '?include_restricted=custom-b2c'
+
+        api_response = self.client.get(url)
+        data = api_response.json()
+        assert len(data['results'][0]['steps'][0]['courses'][0]['course_runs']) == expected_run_count
 
     def test_learner_pathway_api_returns_active_pathway_only(self):
         """

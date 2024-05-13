@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.utils import get_query_param
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.api.utils import get_excluded_restriction_types, get_query_param
+from course_discovery.apps.course_metadata.models import CourseRun, Program
 
 
 class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
@@ -46,7 +46,14 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
             queryset = Program.objects.filter(uuid=program_uuid)
         elif q:
             queryset = Program.search(q, queryset=queryset)
-        return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
+
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        course_runs = CourseRun.objects.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
+        return self.get_serializer_class().prefetch_queryset(
+            queryset=queryset,
+            partner=partner,
+            course_runs=course_runs
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

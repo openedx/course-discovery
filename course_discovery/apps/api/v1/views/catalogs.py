@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
-from course_discovery.apps.api.utils import check_catalog_api_access
+from course_discovery.apps.api.utils import check_catalog_api_access, get_excluded_restriction_types
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun, CourseType
 
@@ -105,7 +105,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
         if not catalog.include_archived:
             queryset = queryset.available()
             course_runs = course_runs.active().enrollable().marketable()
-
+        excluded_restriction_types = get_excluded_restriction_types(request)
+        course_runs = course_runs.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
         queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
             self.request.site.partner,
             queryset=queryset,

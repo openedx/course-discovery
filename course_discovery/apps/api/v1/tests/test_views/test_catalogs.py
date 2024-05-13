@@ -21,7 +21,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseRunFactory, RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.conftest import get_course_run_states
 
@@ -334,6 +334,33 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
             assert response.status_code == 200
             assert response.data['results'] == []
+
+    @ddt.data([True, 2], [False, 1])
+    @ddt.unpack
+    def test_courses_with_restricted_runs(self, include_restriction_param, expected_result_count):
+        url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
+        Course.objects.all().delete()
+
+        now = datetime.datetime.now(pytz.UTC)
+        future = now + datetime.timedelta(days=30)
+        course_run = CourseRunFactory.create(
+            course__title='ABC Test Course With Archived', end=future, enrollment_end=future
+        )
+        restricted_course_run = CourseRunFactory.create(
+            course=course_run.course,
+            course__title='ABC Test Course With Archived', end=future, enrollment_end=future,
+            status=CourseRunStatus.Published
+        )
+        RestrictedCourseRunFactory(course_run=restricted_course_run, restriction_type='custom-b2b-enterprise')
+        SeatFactory.create(course_run=course_run)
+        SeatFactory.create(course_run=restricted_course_run)
+
+        if include_restriction_param:
+            url += '?include_restricted=custom-b2b-enterprise'
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results'][0]['course_runs']) == expected_result_count
 
     def test_courses_with_include_archived(self):
         """

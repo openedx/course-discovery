@@ -65,6 +65,7 @@ class CourseRunDocument(BaseCourseDocument):
     })
     status = fields.KeywordField()
     start = fields.DateField()
+    restriction_type = fields.KeywordField()
     slug = fields.TextField()
     staff_uuids = fields.KeywordField(multi=True)
     type = fields.TextField(
@@ -125,6 +126,11 @@ class CourseRunDocument(BaseCourseDocument):
     def prepare_skill_names(self, obj):
         return get_product_skill_names(obj.course.key, ProductTypes.Course)
 
+    def prepare_restriction_type(self, obj):
+        if hasattr(obj, "restricted_run"):
+            return obj.restricted_run.restriction_type
+        return None
+
     def prepare_skills(self, obj):
         return get_whitelisted_serialized_skills(obj.course.key, product_type=ProductTypes.Course)
 
@@ -137,7 +143,7 @@ class CourseRunDocument(BaseCourseDocument):
             for language in obj.transcript_languages.all()
         ]
 
-    def get_queryset(self):
+    def get_queryset(self, excluded_restriction_types=None):  # pylint: disable=unused-argument
         return filter_visible_runs(
             super().get_queryset()
                    .select_related('course')

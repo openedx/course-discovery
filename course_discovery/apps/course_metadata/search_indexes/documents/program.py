@@ -1,10 +1,11 @@
 from django.conf import settings
+from django.db.models import Prefetch
 from django_elasticsearch_dsl import Index, fields
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Degree, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Program
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
@@ -121,8 +122,17 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     def prepare_type(self, obj):
         return obj.type.name_t
 
-    def get_queryset(self):
-        return super().get_queryset().select_related('type').select_related('partner')
+    def get_queryset(self, excluded_restriction_types=None):
+        if excluded_restriction_types is None:
+            excluded_restriction_types = []
+
+        return super().get_queryset().select_related('type').select_related('partner').prefetch_related(
+            Prefetch('courses', queryset=Course.objects.all().prefetch_related(
+                Prefetch('course_runs', queryset=CourseRun.objects.exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ))
+            ))
+        )
 
     class Django:
         """

@@ -299,13 +299,22 @@ class LearnerPathwayProgram(LearnerPathwayNode):
 
         return program_skills
 
-    def get_linked_courses_and_course_runs(self) -> [dict]:
+    def get_linked_courses_and_course_runs(self, excluded_restriction_types=None) -> [dict]:
         """
         Returns list of dict where each dict contains a course key linked with program and all its course runs
         """
+        if excluded_restriction_types is None:
+            excluded_restriction_types = []
+
         courses = []
         for course in self.program.courses.all():
-            course_runs = list(course.course_runs.filter(status=CourseRunStatus.Published).values('key'))
+            course_runs = list(
+                course.course_runs.filter(
+                    status=CourseRunStatus.Published
+                ).exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ).values('key')
+            )
             courses.append({"key": course.key, "course_runs": course_runs})
         return courses
 

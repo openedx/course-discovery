@@ -1909,20 +1909,25 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
     def has_marketable_run(self):
         return any(run.is_marketable for run in self.course_runs.all())
 
-    def recommendations(self):
+    def recommendations(self, excluded_restriction_types=None):
         """
         Recommended set of courses for upsell after finishing a course. Returns de-duped list of Courses that:
         A) belong in the same program as given Course
         B) share the same subject AND same organization (or at least one)
         in priority of A over B
         """
+        if excluded_restriction_types is None:
+            excluded_restriction_types = []
+
         program_courses = list(
             Course.objects.filter(
                 programs__in=self.programs.all()
             )
             .select_related('partner', 'type')
             .prefetch_related(
-                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                Prefetch('course_runs', queryset=CourseRun.objects.exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ).select_related('type').prefetch_related('seats')),
                 'authoring_organizations',
                 '_official_version'
             )
@@ -1937,7 +1942,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             )
             .select_related('partner', 'type')
             .prefetch_related(
-                Prefetch('course_runs', queryset=CourseRun.objects.select_related('type').prefetch_related('seats')),
+                Prefetch('course_runs', queryset=CourseRun.objects.exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ).select_related('type').prefetch_related('seats')),
                 'authoring_organizations',
                 '_official_version'
             )

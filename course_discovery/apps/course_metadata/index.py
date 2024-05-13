@@ -23,11 +23,11 @@ class BaseProductIndex(AlgoliaIndex):
 
         bootcamp_contentful_data = fetch_and_transform_bootcamp_contentful_data()
         qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data=bootcamp_contentful_data)
-               for course in AlgoliaProxyCourse.objects.all()]
+               for course in AlgoliaProxyCourse.prefetch_queryset()]
 
         degree_contentful_data = fetch_and_transform_degree_contentful_data()
         qs2 = [AlgoliaProxyProduct(program, self.language, contentful_data=degree_contentful_data)
-               for program in AlgoliaProxyProgram.objects.all()]
+               for program in AlgoliaProxyProgram.prefetch_queryset()]
 
         return qs1 + qs2
 

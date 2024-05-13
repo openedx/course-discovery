@@ -1,10 +1,11 @@
 from django.conf import settings
+from django.db.models import Prefetch
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword
@@ -122,9 +123,17 @@ class CourseDocument(BaseCourseDocument):
     def prepare_prerequisites(self, obj):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
 
-    def get_queryset(self):
+    def get_queryset(self, excluded_restriction_types=None):
+        if excluded_restriction_types is None:
+            excluded_restriction_types = []
+
         return super().get_queryset().prefetch_related(
-            'course_runs__seats__type', 'course_runs__type', 'course_runs__language').select_related('partner')
+            Prefetch('course_runs', queryset=CourseRun.objects.exclude(
+                restricted_run__restriction_type__in=excluded_restriction_types
+            ).prefetch_related(
+                'seats__type', 'type', 'language', 'restricted_run',
+            ))
+        ).select_related('partner')
 
     def prepare_course_type(self, obj):
         return obj.type.slug

@@ -71,6 +71,9 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'estimated_hours': get_course_run_estimated_hours(course_run),
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0,
             'is_enrollable': course_run.is_enrollable,
+            'restriction_type': (
+                course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
+            ),
         }
         if detail_fields:
             course_run_detail.update(
@@ -228,7 +231,6 @@ class CourseSearchModelSerializer(DocumentDSLSerializerMixin, ContentTypeSeriali
     """
     Serializer for course model elasticsearch document.
     """
-
     class Meta(CourseWithProgramsSerializer.Meta):
         document = CourseDocument
         fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields

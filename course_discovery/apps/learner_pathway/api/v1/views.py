@@ -34,7 +34,7 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     @action(detail=True)
     def snapshot(self, request, uuid):
         pathway = get_object_or_404(self.queryset, uuid=uuid, status=PathwayStatus.Active.value)
-        serializer = serializers.LearnerPathwaySerializer(pathway, many=False)
+        serializer = serializers.LearnerPathwaySerializer(pathway, many=False, context={'request': self.request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False)

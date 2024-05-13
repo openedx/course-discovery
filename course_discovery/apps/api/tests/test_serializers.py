@@ -2347,7 +2347,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 'staff': MinimalPersonSerializer(course_run.staff, many=True,
                                                  context={'request': request}).data,
                 'content_language': course_run.language.code if course_run.language else None,
-
+                'restriction_type': (
+                    course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
+                )
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],
@@ -2418,6 +2420,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 'estimated_hours': get_course_run_estimated_hours(course_run),
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0,
                 'is_enrollable': course_run.is_enrollable,
+                'restriction_type': (
+                    course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
+                )
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],
@@ -2549,6 +2554,9 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
             'is_enrollable': course_run.is_enrollable,
+            'restriction_type': (
+                course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
+            )
         }
 
 
@@ -2751,7 +2759,8 @@ class TestLearnerPathwaySearchDocumentSerializer(ElasticsearchTestMixin, TestCas
             'visible_via_association': True,
             'steps': LearnerPathwayStepSerializer(
                 learner_pathway.steps.all(),
-                many=True
+                many=True,
+                context={'request': request}
             ).data,
             'created': serialize_datetime(learner_pathway.created),
         }

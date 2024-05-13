@@ -47,7 +47,7 @@ class PersonDocument(BaseDocument):
             return []
         return [position.title, position.organization_override]
 
-    def get_queryset(self):
+    def get_queryset(self, excluded_restriction_types=None):  # pylint: disable=unused-argument
         return super().get_queryset().select_related('bio_language')
 
     class Django:
