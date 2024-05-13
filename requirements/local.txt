@@ -74,9 +74,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.98
+boto3==1.34.103
     # via django-ses
-botocore==1.34.98
+botocore==1.34.103
     # via
     #   boto3
     #   s3transfer
@@ -150,7 +150,7 @@ coverage[toml]==7.5.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==42.0.6
+cryptography==42.0.7
     # via
     #   pyjwt
     #   pyopenssl
@@ -361,7 +361,9 @@ edx-api-doc-tools==1.8.0
 edx-auth-backends==4.3.0
     # via -r requirements/base.in
 edx-ccx-keys==1.3.0
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   openedx-events
 edx-django-release-util==1.4.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.2.0
@@ -427,7 +429,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==25.0.1
+faker==25.1.0
     # via factory-boy
 fastavro==1.9.4
     # via openedx-events
@@ -436,7 +438,7 @@ filelock==3.14.0
     #   snowflake-connector-python
     #   tox
     #   virtualenv
-freezegun==1.5.0
+freezegun==1.5.1
     # via -r requirements/test.in
 frozenlist==1.4.1
     # via
@@ -448,7 +450,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.19.0
     # via google-api-python-client
-google-api-python-client==2.127.0
+google-api-python-client==2.129.0
     # via -r requirements/base.in
 google-auth==2.29.0
     # via
@@ -554,7 +556,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.0
     # via -r requirements/base.in
-openedx-events==9.9.2
+openedx-events==9.10.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -576,7 +578,7 @@ path==16.14.0
     # via edx-i18n-tools
 pbr==6.0.0
     # via stevedore
-peewee==3.17.3
+peewee==3.17.5
     # via semgrep
 pillow==9.5.0
     # via
@@ -879,7 +881,7 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tomlkit==0.12.4
+tomlkit==0.12.5
     # via
     #   pylint
     #   snowflake-connector-python
