@@ -99,5 +99,5 @@ urllib3==1.26.18
     # via
     #   elasticsearch
     #   requests
-zipp==3.18.1
+zipp==3.18.2
     # via importlib-metadata
