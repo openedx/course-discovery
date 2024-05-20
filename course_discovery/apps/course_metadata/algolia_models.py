@@ -50,6 +50,25 @@ def get_owners(entry):
     return list(filter(lambda owner: owner['logoImageUrl'] is not None, all_owners))
 
 
+def process_learning_type(product_type):
+    CERTIFICATES = _('Certificates')
+    PATHWAYS_TO_DEGREES = _('Pathways to Degrees')
+
+    product_map = {
+        'Boot Camp': _('Boot Camps'),
+        'Certificate': CERTIFICATES,
+        'License': CERTIFICATES,
+        'Professional Certificate': CERTIFICATES,
+        'XSeries': CERTIFICATES,
+        'MicroBachelors': PATHWAYS_TO_DEGREES,
+        'MicroMasters': PATHWAYS_TO_DEGREES,
+        'Bachelors': _('Bachelor’s'),
+        'Masters': _('Master’s')
+    }
+
+    return product_map.get(product_type, product_type)
+
+
 def delegate_attributes(cls):
     '''
     Class decorator. For all Algolia fields, when my_instance.attribute is accessed, get the attribute off
@@ -300,26 +319,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         Temporary field used as a variant of `learning_type` for an experiment. If the experiment is successful,
         this will replace `learning_type`.
         """
-        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
-            return [_('Certificate courses')]
-
+        course_type = process_learning_type(self.product_type)
         processed_program_types = []
         for program_type in self.program_types:
-            if program_type in [
-                'Certificate',
-                'License',
-                'Professional Certificate',
-                'XSeries'
-            ]:
-                processed_program_types.append(_('Certificate courses'))
-            elif program_type in ['Bachelors', 'Doctorate', 'Masters']:
-                processed_program_types.append(_('Degrees'))
-            elif program_type in ['MicroBachelors', 'MicroMasters']:
-                processed_program_types.append(_('Paths to degrees'))
-            else:
-                processed_program_types.append(program_type)
+            processed_program_types.append(process_learning_type(program_type))
 
-        return [self.product_type, *processed_program_types]
+        return [course_type, *processed_program_types]
 
     @property
     def product_card_image_url(self):
@@ -572,22 +577,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         this will replace `learning_type`.
         """
         if self.type:
-            if self.type.slug in [
-                ProgramType.CERTIFICATE,
-                ProgramType.LICENSE,
-                ProgramType.PROFESSIONAL_CERTIFICATE,
-                ProgramType.XSERIES
-            ]:
-                return [_('Certificate courses')]
-            if self.type.slug in [
-                ProgramType.BACHELORS,
-                ProgramType.DOCTORATE,
-                ProgramType.MASTERS
-            ]:
-                return [_('Degrees')]
-            if self.type.slug in [ProgramType.MICROBACHELORS, ProgramType.MICROMASTERS]:
-                return [_('Paths to degrees')]
-            return [self.type.name_t]
+            return [process_learning_type(self.type.name_t)]
         return []
 
     @property

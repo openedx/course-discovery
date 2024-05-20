@@ -524,9 +524,9 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             assert course.learning_type == ['Course']
 
     @ddt.data(
-        (ProgramType.PROFESSIONAL_CERTIFICATE, 'Certificate courses'),
-        (ProgramType.MASTERS, 'Degrees'),
-        (ProgramType.MICROBACHELORS, 'Paths to degrees'),
+        (ProgramType.XSERIES, 'Certificates'),
+        (ProgramType.MASTERS, 'Master’s'),
+        (ProgramType.MICROMASTERS, 'Pathways to Degrees'),
     )
     @ddt.unpack
     def test_learning_type_exp_open_course(self, program_type_slug, learning_type):
@@ -548,8 +548,8 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.learning_type == [expected_result]
 
     @ddt.data(
-        (CourseType.EXECUTIVE_EDUCATION_2U, 'Certificate courses'),
-        (CourseType.BOOTCAMP_2U, 'Boot Camp'),
+        (CourseType.EXECUTIVE_EDUCATION_2U, 'Executive Education'),
+        (CourseType.BOOTCAMP_2U, 'Boot Camps'),
     )
     @ddt.unpack
     def test_learning_type_exp_non_open_course(self, course_type_slug, expected_result):
@@ -875,9 +875,9 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert program.learning_type == [program_type.name_t]
 
     @ddt.data(
-        (ProgramType.PROFESSIONAL_CERTIFICATE, 'Certificate courses'),
-        (ProgramType.MASTERS, 'Degrees'),
-        (ProgramType.MICROBACHELORS, 'Paths to degrees'),
+        (ProgramType.PROFESSIONAL_CERTIFICATE, 'Certificates'),
+        (ProgramType.MASTERS, 'Master’s'),
+        (ProgramType.MICROBACHELORS, 'Pathways to Degrees'),
     )
     @ddt.unpack
     def test_learning_type_exp(self, program_type_slug, learning_type):
