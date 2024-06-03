@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 )
         else:
             input_reader = []
-
+        products = []
         if dev_input_json:
             products = self.mock_product_details(dev_input_json)
         elif auth_token:

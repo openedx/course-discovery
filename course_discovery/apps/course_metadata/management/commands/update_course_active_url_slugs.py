@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 file_reader = DictReader(open(csv_file_path, 'r'))  # pylint: disable=consider-using-with
                 logger.info(f'Reading csv file from path: {csv_file_path}')
             else:
-                file = csv_from_config.csv_file if csv_from_config.is_enabled() else None
+                file = csv_from_config.csv_file if csv_from_config.is_enabled() else None  # pylint: disable=possibly-used-before-assignment
                 file_reader = DictReader(file.open('r'))
                 logger.info(f'Reading csv file from config MigrateCourseSlugConfiguration {csv_from_config.csv_file}')
 

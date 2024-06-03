@@ -92,7 +92,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         elif self.course_uuid_regex.match(key):
             filter_key = 'uuid'
 
-        filter_kwargs = {filter_key: key}
+        filter_kwargs = {filter_key: key}  # pylint: disable=possibly-used-before-assignment
         obj = get_object_or_404(queryset, **filter_kwargs)
 
         # May raise a permission denied
