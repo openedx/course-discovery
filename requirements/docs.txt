@@ -14,7 +14,7 @@ babel==2.15.0
     #   sphinx
 beautifulsoup4==4.12.3
     # via pydata-sphinx-theme
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   elasticsearch
     #   requests
@@ -62,7 +62,7 @@ python-dateutil==2.9.0.post0
     # via elasticsearch-dsl
 pytz==2024.1
     # via babel
-requests==2.31.0
+requests==2.32.3
     # via sphinx
 six==1.16.0
     # via
@@ -93,11 +93,11 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-typing-extensions==4.11.0
+typing-extensions==4.12.1
     # via pydata-sphinx-theme
 urllib3==1.26.18
     # via
     #   elasticsearch
     #   requests
-zipp==3.18.1
+zipp==3.19.1
     # via importlib-metadata

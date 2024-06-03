@@ -169,6 +169,7 @@ class TestAlgoliaDataMixin():
         return course
 
     def attach_published_course_run(self, course, run_type="archived", **kwargs):
+        course_start = course_end = ''
         if run_type == 'current and ends within two weeks':
             course_start = self.ONE_MONTH_AGO
             course_end = self.TOMORROW
@@ -569,6 +570,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
     def attach_course_run(self, course, availability="Archived"):
+        course_start = course_end = ''
         if availability == 'none':
             return CourseRunFactory(
                 course=course,

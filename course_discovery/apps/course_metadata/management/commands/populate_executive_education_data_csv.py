@@ -97,7 +97,7 @@ class Command(BaseCommand):
             help='Product source to be used for mapping external organization code to internal organization code'
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # pylint: disable=too-many-statements
         input_csv = options.get('input_csv')
         output_csv = options.get('output_csv')
         auth_token = options.get('auth_token')
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 )
         else:
             input_reader = []
-
+        products = []
         if dev_input_json:
             products = self.mock_product_details(dev_input_json)
         elif auth_token:

@@ -475,7 +475,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             draft_run = CourseRun.objects.create(course=draft_course, key=run_key, type=audit_run_type, draft=True)
             draft_course.canonical_course_run = draft_run
             draft_course.save()
-            draft_course.authoring_organizations.add(org)
+            draft_course.authoring_organizations.add(org)  # pylint: disable=possibly-used-before-assignment
             official_course_kwargs = {'draft_version': draft_course}
             official_run_kwargs = {'draft_version': draft_run}
             all_courses.add(draft_course)
