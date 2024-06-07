@@ -8,7 +8,7 @@ from rest_framework.renderers import CoreJSONRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
 from rest_framework.views import APIView
-
+## Just a dummy useless change
 
 class SwaggerSchemaView(APIView):
     permission_classes = [AllowAny]
