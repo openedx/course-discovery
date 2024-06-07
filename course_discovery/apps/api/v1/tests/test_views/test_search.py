@@ -29,7 +29,7 @@ from course_discovery.apps.learner_pathway.models import LearnerPathway
 from course_discovery.apps.learner_pathway.tests.factories import LearnerPathwayStepFactory
 from course_discovery.apps.publisher.tests import factories as publisher_factories
 
-
+# Another useless comment
 @ddt.ddt
 class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                   mixins.APITestCase):
