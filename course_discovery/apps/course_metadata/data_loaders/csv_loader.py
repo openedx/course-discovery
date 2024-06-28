@@ -169,7 +169,7 @@ class CSVDataLoader(AbstractDataLoader):
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             is_course_created = False
             is_course_run_created = False
-            course_run_restriction = course_run_restriction = (
+            course_run_restriction = (
                 None
                 if row.get('restriction_type', None) == 'None'
                 else row.get('restriction_type', None)
