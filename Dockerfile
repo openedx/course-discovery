@@ -1,4 +1,4 @@
-FROM ubuntu:focal as app
+FROM ubuntu:noble as app
 
 ARG PYTHON_VERSION=3.8
 
