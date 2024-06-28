@@ -329,7 +329,7 @@ class Command(BaseCommand):
             'end_date': product_dict['variant']['endDate'],
             'restriction_type': (
                 CourseRunRestrictionType.CustomB2BEnterprise.value
-                if product_dict['variant'].get('websiteVisibility', None).lower() == 'private'
+                if product_dict['variant'].get('websiteVisibility', 'None').lower() == 'private'
                 else None
             ),
             'length': product_dict['durationWeeks'],
