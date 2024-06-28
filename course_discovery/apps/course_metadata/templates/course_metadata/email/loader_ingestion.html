@@ -46,29 +46,31 @@
 {% if created_products_count > 0 %}
 <div>
     <h3>New Products</h3>
-        <ul>
-            {% if product_type != "DEGREES" %}
-                <table border="2" style="padding: 5px;">
-                    <tr>
-                        <th style="padding: 5px;">
-                            Course UUID
-                        </th>
-                        <th style="padding: 5px;">
-                            URL Slug
-                        </th>
-                        <th style="padding: 5px;">
-                            External Course Marketing Type
-                        </th>
-                        <th style="padding: 5px;">
-                            Variant ID
-                        </th>
-                        <th style="padding: 5px;">
-                            Restriction Type
-                        </th>
-                        <th style="padding: 5px;">
-                            Rerun
-                        </th>
-                    </tr>
+        {% if product_type != "DEGREES" %}
+            <table border="2">
+                <tr>
+                    <th style="padding: 5px;">
+                        Course UUID
+                    </th>
+                    <th style="padding: 5px;">
+                        URL Slug
+                    </th>
+                    <th style="padding: 5px;">
+                        External Course Marketing Type
+                    </th>
+                    <th style="padding: 5px;">
+                        Variant ID
+                    </th>
+                    <th style="padding: 5px;">
+                        Restriction Type
+                    </th>
+                    <th style="padding: 5px;">
+                        Rerun
+                    </th>
+                </tr>
+            {% endif %}
+            {% if product_type == "DEGREES" %}
+                <ul>
             {% endif %}
             {% for new_product in created_products %}
                 {% if product_type != "DEGREES" %}
