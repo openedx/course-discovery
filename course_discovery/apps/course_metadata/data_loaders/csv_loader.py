@@ -169,7 +169,11 @@ class CSVDataLoader(AbstractDataLoader):
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             is_course_created = False
             is_course_run_created = False
-            course_run_restriction = None
+            course_run_restriction = (
+                None
+                if row.get('restriction_type', None) == 'None'
+                else row.get('restriction_type', None)
+            )
 
             if course:
                 try:
@@ -200,11 +204,6 @@ class CSVDataLoader(AbstractDataLoader):
                 course_run = CourseRun.everything.filter(course=course).first()
                 is_course_created = True
                 is_course_run_created = True
-                course_run_restriction = (
-                    None
-                    if row.get('restriction_type', None) == 'None'
-                    else row.get('restriction_type', None)
-                )
 
             is_downloaded = download_and_save_course_image(
                 course,
