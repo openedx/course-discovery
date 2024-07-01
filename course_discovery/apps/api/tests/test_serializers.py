@@ -2554,9 +2554,6 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
             'is_enrollable': course_run.is_enrollable,
-            'restriction_type': (
-                course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
-            )
         }
 
 
