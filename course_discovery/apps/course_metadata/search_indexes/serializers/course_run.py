@@ -90,7 +90,6 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
             'transcript_languages',
             'type',
             'weeks_to_complete',
-            'restriction_type',
         )
 
 
