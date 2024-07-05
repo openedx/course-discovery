@@ -3311,11 +3311,11 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     )
     taxi_form = models.OneToOneField(
         TaxiForm,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         default=None,
-        related_name='taxi_form',
+        related_name='program',
     )
     program_duration_override = models.CharField(
         help_text=_(
