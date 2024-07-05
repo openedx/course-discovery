@@ -103,6 +103,17 @@ class ProductMetaFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.keywords, extracted)
 
 
+class TaxiFormFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TaxiForm
+
+    form_id = FuzzyInteger(1, 10)
+    grouping = FuzzyText()
+    title = FuzzyText()
+    subtitle = FuzzyText()
+    post_submit_url = FuzzyURL()
+
+
 class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = AdditionalMetadata
@@ -118,6 +129,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     variant_id = factory.LazyFunction(uuid4)
     course_term_override = FuzzyText()
     product_meta = factory.SubFactory(ProductMetaFactory, keywords=['test', 'test2'])
+    taxi_form = factory.SubFactory(TaxiFormFactory)
     product_status = ExternalProductStatus.Published
     external_course_marketing_type = FuzzyChoice([name for name, __ in ExternalCourseMarketingType.choices])
     display_on_org_page = True
@@ -126,17 +138,6 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     def facts(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.facts, extracted)
-
-
-class TaxiFormFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = TaxiForm
-
-    form_id = FuzzyInteger(1, 10)
-    grouping = FuzzyText()
-    title = FuzzyText()
-    subtitle = FuzzyText()
-    post_submit_url = FuzzyURL()
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):

@@ -882,6 +882,9 @@ class TaxiForm(ManageHistoryMixin, TimeStampedModel):
             return False
         return self.has_model_changed()
 
+    def __str__(self):
+        return f"{self.title}({self.form_id})"
+
 
 class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     """
@@ -936,6 +939,14 @@ class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
         null=True,
         default=None,
         related_name="product_additional_metadata"
+    )
+    taxi_form = models.OneToOneField(
+        TaxiForm,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        default=None,
+        related_name='additional_metadata',
     )
     product_status = models.CharField(
         default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
@@ -3300,11 +3311,11 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     )
     taxi_form = models.OneToOneField(
         TaxiForm,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         default=None,
-        related_name='taxi_form',
+        related_name='program',
     )
     program_duration_override = models.CharField(
         help_text=_(
