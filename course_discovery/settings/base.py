@@ -68,6 +68,7 @@ THIRD_PARTY_APPS = [
     'nested_admin',
     'openedx_events',
     'multi_email_field',
+    'django_meili',
 ]
 
 ALGOLIA = {
@@ -787,3 +788,20 @@ CSRF_TRUSTED_ORIGINS = (
 )
 
 ENABLE_COURSE_REVIEWS_ADMIN = False
+
+################### Studio Search (beta), using Meilisearch ###################
+MEILISEARCH_ENABLED = False
+if MEILISEARCH_ENABLED:
+    MEILISEARCH = {
+        'HTTPS': False,  # Whether HTTPS is enabled for the meilisearch server
+        'HOST': 'meilisearch',  # The host for the meilisearch server
+        'MASTER_KEY': 'masterKey',
+        # The master key for meilisearch. See https://www.meilisearch.com/docs/learn/security/basic_security for more detail
+        'PORT': 7700,  # The port for the meilisearch server
+        'TIMEOUT': None,  # The timeout to wait for when using sync meilisearch server
+        'CLIENT_AGENTS': None,  # The client agents for the meilisearch server
+        'DEBUG': DEBUG,  # Whether to throw exceptions on failed creation of documents
+        'SYNC': False,
+        # Whether to execute operations to meilisearch in a synchronous manner (waiting for each rather than letting the task queue operate)
+        'OFFLINE': False,  # Whether to make any http requests for the application.
+    }

@@ -98,8 +98,8 @@ class Command(DjangoESDSLCommand):
         for document in registry.get_documents(models):
             # pylint: disable=protected-access
             index = document._index
-            record_count = self.get_record_count(document)
             alias, new_index_name = self.prepare_backend_index(index)
+            record_count = self.get_record_count(document)
             alias_mappings.append(AliasMapper(document, index, new_index_name, alias, record_count))
         # Set the alias (from settings) to the timestamped catalog.
         run_attempts = 0
