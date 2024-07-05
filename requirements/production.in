@@ -12,3 +12,4 @@ newrelic
 python-memcached
 pymemcache
 PyYAML
+django-meili==0.0.6

@@ -23,6 +23,7 @@ from django_countries import countries as COUNTRIES
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
+from django_meili.models import IndexMixin
 from edx_django_utils.cache import RequestCache, get_cache_key
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
@@ -4604,3 +4605,32 @@ class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
 
     def __str__(self):
         return f"{self.course_run.key}: <{self.restriction_type}>"
+
+if settings.MEILISEARCH_ENABLED:
+    class CourseProxy(IndexMixin, Course):
+        class MeiliMeta:
+            index_name = "Course"
+            filterable_fields = ("title",)
+            searchable_fields = ("uuid", "title")
+            displayed_fields = ("uuid", "title")
+            index_name = "course"
+
+        class Meta:
+            proxy = True
+
+
+    class PersonProxy(IndexMixin, Person):
+        class MeiliMeta:
+            index_name = "person"
+
+        class Meta:
+            proxy = True
+
+
+    class CourseRunProxy(IndexMixin, CourseRun):
+        class MeiliMeta:
+            index_name = "course_run"
+            primary_key = "uuid"
+
+        class Meta:
+            proxy = True
