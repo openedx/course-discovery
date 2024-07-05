@@ -2367,6 +2367,14 @@ class AdditionalMetadataTests(TestCase):
         connect_course_data_modified_timestamp_related_models()
         super().tearDownClass()
 
+    def test_taxi_form(self):
+        additional_metadata = factories.AdditionalMetadataFactory()
+        assert additional_metadata.taxi_form is not None
+        assert additional_metadata.taxi_form.form_id <= 10
+        additional_metadata = factories.AdditionalMetadataFactory(taxi_form=None)
+        additional_metadata.refresh_from_db()
+        assert additional_metadata.taxi_form is None
+
     def test_update_product_data_modified_timestamp(self):
         """
         Verify that if AdditionalMetadata is changed since last save, the data modified timestamp for related course

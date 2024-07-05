@@ -345,7 +345,7 @@ class CourseLocationRestrictionAdmin(admin.ModelAdmin):
 
 @admin.register(TaxiForm)
 class TaxiFormAdmin(admin.ModelAdmin):
-    list_display = ('id', 'grouping', 'title')
+    list_display = ('id', 'grouping', 'title', 'form_id')
     fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
     readonly_fields = ('created', 'modified')
 
