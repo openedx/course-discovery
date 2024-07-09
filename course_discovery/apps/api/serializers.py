@@ -688,6 +688,13 @@ class ProductMetaSerializer(TaggitSerializer, BaseModelSerializer):
         fields = ('title', 'description', 'keywords')
 
 
+class TaxiFormSerializer(BaseModelSerializer):
+    """Serializer for the ``TaxiForm`` model."""
+    class Meta:
+        model = TaxiForm
+        fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
+
+
 class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
 
@@ -698,10 +705,11 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     end_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField(allow_null=True)
     variant_id = serializers.UUIDField(allow_null=True)
+    taxi_form = TaxiFormSerializer(required=False, allow_null=True)
 
     @classmethod
     def prefetch_queryset(cls):
-        return AdditionalMetadata.objects.select_related('facts', 'certificate_info', 'product_meta')
+        return AdditionalMetadata.objects.select_related('facts', 'certificate_info', 'product_meta', 'taxi_form')
 
     class Meta:
         model = AdditionalMetadata
@@ -709,8 +717,19 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date', 'end_date',
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
-            'product_meta', 'external_course_marketing_type', 'display_on_org_page',
+            'product_meta', 'external_course_marketing_type', 'display_on_org_page', 'taxi_form',
         )
+
+    def update_taxi_form(self, instance, taxi_form):
+        if instance.taxi_form:
+            if not taxi_form:
+                instance.taxi_form = None
+            else:
+                TaxiForm.objects.filter(
+                    id=instance.taxi_form.id
+                ).update(**taxi_form)
+        elif taxi_form:
+            instance.taxi_form = TaxiForm.objects.create(**taxi_form)
 
     def _update_product_meta(self, instance, product_meta):
         if instance.product_meta:
@@ -721,22 +740,32 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
                 **product_meta)
 
     def update(self, instance, validated_data):
-        # Handle writing nested fields separately
-        if 'product_meta' in validated_data:
+        """
+        Update the AdditionalMetadata instance with the validated data along with handling
+        of the nested fields separately.
+        """
+        def handle_product_meta(instance, validated_data):
             # Handle product metadata only for 2U Executive Education courses else just pop
-            product_meta_data = validated_data.pop(
-                'product_meta')
-            if instance:
-                self._update_product_meta(
-                    instance, product_meta_data)
+            if 'product_meta' in validated_data:
+                product_meta_data = validated_data.pop('product_meta')
+
+                if instance:
+                    self._update_product_meta(instance, product_meta_data)
+
+            return validated_data
+
+        def handle_taxi_form(instance, validated_data):
+            if 'taxi_form' in validated_data:
+                taxi_form_data = validated_data.pop('taxi_form')
+
+                if instance:
+                    self.update_taxi_form(instance, taxi_form_data)
+
+            return validated_data
+
+        validated_data = handle_product_meta(instance, validated_data)
+        validated_data = handle_taxi_form(instance, validated_data)
         return super().update(instance, validated_data)
-
-
-class TaxiFormSerializer(BaseModelSerializer):
-    """Serializer for the ``TaxiForm`` model."""
-    class Meta:
-        model = TaxiForm
-        fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
 
 
 class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
@@ -1488,12 +1517,24 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         return instance.product_meta, changed
 
+    def update_taxi_form(self, instance, taxi_form):
+        changed = False
+        if instance.taxi_form:
+            _, changed = update_instance(instance.taxi_form, taxi_form, True)
+        elif taxi_form:
+            instance.taxi_form = TaxiForm.objects.create(**taxi_form)
+            instance.save()
+            changed = True
+
+        return instance.taxi_form, changed
+
     def update_additional_metadata(self, instance, additional_metadata):
 
         changed = False
         facts = additional_metadata.pop('facts', None)
         certificate_info = additional_metadata.pop('certificate_info', None)
         product_meta = additional_metadata.pop('product_meta', None)
+        taxi_form = additional_metadata.pop('taxi_form', None)
 
         if instance.additional_metadata:
             _, additional_metadata_changed = update_instance(instance.additional_metadata, additional_metadata, True)
@@ -1512,6 +1553,10 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if certificate_info:
             _, certification_info_changed = self.update_certificate_info(instance.additional_metadata, certificate_info)
             changed = changed or certification_info_changed
+
+        if taxi_form:
+            _, taxi_form_changed = self.update_taxi_form(instance.additional_metadata, taxi_form)
+            changed = changed or taxi_form_changed
 
         return changed
         # save() will be called by main update()

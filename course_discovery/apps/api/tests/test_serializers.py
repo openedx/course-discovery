@@ -2059,6 +2059,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'product_status': additional_metadata.product_status,
             'external_course_marketing_type': additional_metadata.external_course_marketing_type,
             'display_on_org_page': additional_metadata.display_on_org_page,
+            'taxi_form': TaxiFormSerializer(additional_metadata.taxi_form).data,
         }
         assert serializer.data == expected
 

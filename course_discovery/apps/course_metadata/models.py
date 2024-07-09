@@ -971,7 +971,7 @@ class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     def has_changed(self):
         if not self.pk:
             return False
-        external_keys = [self.product_meta,]
+        external_keys = [self.product_meta, self.taxi_form]
         return self.has_model_changed(external_keys=external_keys)
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):

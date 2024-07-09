@@ -26,7 +26,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement,
     CourseLocationRestriction, CourseRun, CourseRunType, CourseType, Fact, GeoLocation, ProductMeta, ProductValue,
-    RestrictedCourseRun, Seat, Source
+    RestrictedCourseRun, Seat, Source, TaxiForm
 )
 from course_discovery.apps.course_metadata.signals import (
     additional_metadata_facts_changed, connect_course_data_modified_timestamp_signal_handlers,
@@ -1306,6 +1306,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'product_meta': None,
             'external_course_marketing_type': None,
             'display_on_org_page': True,
+            'taxi_form': None,
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1418,6 +1419,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'product_meta': None,
             'external_course_marketing_type': None,
             'display_on_org_page': True,
+            'taxi_form': None,
         }
         additional_metadata_1 = {
             **additional_metadata,
@@ -1583,6 +1585,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             'product_meta': product_meta,
             'external_course_marketing_type': None,
             'display_on_org_page': True,
+            'taxi_form': None,
         }
 
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
@@ -1596,7 +1599,6 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert ProductMeta.objects.count() == 2
 
         course = Course.everything.get(uuid=course.uuid, draft=True)
-
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
         self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
         assert previous_data_modified_timestamp < course.data_modified_timestamp
@@ -1609,7 +1611,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         response = self.client.patch(
             url, {'additional_metadata': {'product_meta': product_meta}}, format='json'
         )
-        additional_metadata['product_meta'] = product_meta
+        assert additional_metadata['product_meta'] == product_meta
         assert response.status_code == 200
         course = Course.everything.get(uuid=course.uuid, draft=True)
 
@@ -1631,6 +1633,152 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         pre_save.disconnect(data_modified_timestamp_update, ProductMeta)
         m2m_changed.disconnect(product_meta_taggable_changed, ProductMeta.keywords.through)
+
+    @responses.activate
+    def test_update_taxi_form_with_additional_metadata(self):
+        """ Verify that the taxi_form is updated when additional_metadata is updated. """
+        pre_save.connect(data_modified_timestamp_update, TaxiForm)
+        current = datetime.datetime.now(pytz.UTC)
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        previous_data_modified_timestamp = course.data_modified_timestamp
+
+        taxi_form = {
+            "form_id": "12344",
+            "grouping": "test-grouping",
+            "title": course.title,
+            "subtitle": "hey you",
+            "post_submit_url": "http://www.edx.org",
+        }
+
+        additional_metadata = {
+            'external_url': 'https://example.com/456',
+            'external_identifier': '456',
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'facts': [{'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}],
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'start_date': serialize_datetime(current),
+            'end_date': serialize_datetime(current + datetime.timedelta(days=10)),
+            'registration_deadline': serialize_datetime(current),
+            'variant_id': str(uuid4()),
+            'course_term_override': 'Example Program',
+            'product_status': 'published',
+            'product_meta': None,
+            'external_course_marketing_type': None,
+            'display_on_org_page': True,
+            'taxi_form': taxi_form,
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, {'additional_metadata': additional_metadata}, format='json')
+        assert response.status_code == 200
+
+        assert TaxiForm.objects.get(form_id=taxi_form['form_id']) is not None
+
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['taxi_form'], taxi_form)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        taxi_form['title'] = 'New title'
+        response = self.client.patch(
+            url, {'additional_metadata': {'taxi_form': taxi_form}}, format='json'
+        )
+        additional_metadata['taxi_form'] = taxi_form
+
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['taxi_form'], taxi_form)
+        course.refresh_from_db(fields=('data_modified_timestamp',))
+
+        # If there is no taxi form change, the timestamp won't be updated.
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        response = self.client.patch(
+            url, {'additional_metadata': {'taxi_form': taxi_form}}, format='json'
+        )
+        additional_metadata['taxi_form'] = taxi_form
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        assert previous_data_modified_timestamp == course.data_modified_timestamp
+
+        pre_save.disconnect(data_modified_timestamp_update, TaxiForm)
+
+    @responses.activate
+    def test_update_additional_metadata__taxi_form_removal(self):
+        """ Verify that the taxi_form removed when additional_metadata is updated. """
+        pre_save.connect(data_modified_timestamp_update, TaxiForm)
+        current = datetime.datetime.now(pytz.UTC)
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        previous_data_modified_timestamp = course.data_modified_timestamp
+
+        taxi_form = {
+            "form_id": "12344",
+            "grouping": "test-grouping",
+            "title": course.title,
+            "subtitle": "hey you",
+            "post_submit_url": "http://www.edx.org",
+        }
+
+        additional_metadata = {
+            'external_url': 'https://example.com/456',
+            'external_identifier': '456',
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'facts': [{'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}],
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'start_date': serialize_datetime(current),
+            'end_date': serialize_datetime(current + datetime.timedelta(days=10)),
+            'registration_deadline': serialize_datetime(current),
+            'variant_id': str(uuid4()),
+            'course_term_override': 'Example Program',
+            'product_status': 'published',
+            'product_meta': None,
+            'external_course_marketing_type': None,
+            'display_on_org_page': True,
+            'taxi_form': taxi_form,
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, {'additional_metadata': additional_metadata}, format='json')
+        assert response.status_code == 200
+        assert TaxiForm.objects.get(form_id=taxi_form['form_id']) is not None
+
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['taxi_form'], taxi_form)
+        assert previous_data_modified_timestamp < course.data_modified_timestamp
+
+        previous_data_modified_timestamp = course.data_modified_timestamp
+        taxi_form = {
+            "form_id": "",
+            "grouping": "",
+            "title": "",
+            "subtitle": "",
+            "post_submit_url": "",
+        }
+        additional_metadata['taxi_form'] = taxi_form
+
+        response = self.client.patch(
+            url, {'additional_metadata': {'taxi_form': taxi_form}}, format='json'
+        )
+
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+        assert self.serialize_course(course)['additional_metadata']['taxi_form'] == taxi_form
+        pre_save.disconnect(data_modified_timestamp_update, TaxiForm)
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):
