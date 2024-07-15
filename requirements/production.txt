@@ -50,9 +50,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.34.140
+boto3==1.34.144
     # via django-ses
-botocore==1.34.140
+botocore==1.34.144
     # via
     #   boto3
     #   s3transfer
@@ -116,7 +116,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.13
+django==4.2.14
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -221,7 +221,7 @@ django-multi-email-field==0.7.0
     # via -r requirements/base.in
 django-multiselectfield==0.1.13
     # via -r requirements/base.in
-django-nested-admin==4.0.2
+django-nested-admin==4.1.0
     # via -r requirements/base.in
 django-nine==0.2.7
     # via django-elasticsearch-dsl-drf
@@ -247,7 +247,7 @@ django-stdimage==5.3.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-django-storages==1.14.3
+django-storages==1.14.4
     # via -r requirements/base.in
 django-taggit==5.0.1
     # via
@@ -351,7 +351,7 @@ elasticsearch-dsl==7.4.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-fastavro==1.9.4
+fastavro==1.9.5
     # via openedx-events
 filelock==3.15.4
     # via snowflake-connector-python
@@ -365,9 +365,9 @@ gevent==24.2.1
     # via -r requirements/production.in
 google-api-core==2.19.1
     # via google-api-python-client
-google-api-python-client==2.136.0
+google-api-python-client==2.137.0
     # via -r requirements/base.in
-google-auth==2.31.0
+google-auth==2.32.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -378,7 +378,7 @@ google-auth-httplib2==0.2.0
     # via
     #   -r requirements/base.in
     #   google-api-python-client
-google-auth-oauthlib==1.2.0
+google-auth-oauthlib==1.2.1
     # via gspread
 googleapis-common-protos==1.63.2
     # via google-api-core
@@ -441,7 +441,7 @@ multidict==6.0.5
     #   yarl
 mysqlclient==2.2.4
     # via -r requirements/production.in
-newrelic==9.11.0
+newrelic==9.12.0
     # via
     #   -r requirements/production.in
     #   edx-django-utils
@@ -528,7 +528,7 @@ python-dateutil==2.9.0.post0
     #   elasticsearch-dsl
 python-memcached==1.62
     # via -r requirements/production.in
-python-monkey-business==1.0.0
+python-monkey-business==1.1.0
     # via django-nested-admin
 python-slugify==8.0.4
     # via
@@ -608,12 +608,11 @@ six==1.16.0
     #   elasticsearch-dsl
     #   isodate
     #   python-dateutil
-    #   python-monkey-business
 slumber==0.7.1
     # via edx-rest-api-client
 snowflake-connector-python==3.11.0
     # via -r requirements/base.in
-social-auth-app-django==5.4.1
+social-auth-app-django==5.4.2
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
@@ -640,7 +639,7 @@ tinycss2==1.3.0
     # via
     #   cairosvg
     #   cssselect2
-tomlkit==0.12.5
+tomlkit==0.13.0
     # via snowflake-connector-python
 tqdm==4.66.4
     # via openai
