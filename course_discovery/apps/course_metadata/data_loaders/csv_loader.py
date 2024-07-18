@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import (
-    CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus
+    CourseRunRestrictionType, CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus
 )
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
@@ -525,6 +525,11 @@ class CSVDataLoader(AbstractDataLoader):
         Create and return the request data for making a patch call to update the course.
         """
         collaborator_uuids = self.process_collaborators(data.get('collaborators', ''), course.key)
+        price = (
+            self.get_pricing_representation(data['verified_price'], course.type)
+            if data.get('restriction_type', 'None') != CourseRunRestrictionType.CustomB2BEnterprise.value else {}
+        )
+
         subjects = self.get_subject_slugs(
             data.get('primary_subject'),
             data.get('secondary_subject'),
@@ -539,7 +544,7 @@ class CSVDataLoader(AbstractDataLoader):
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
-            'prices': self.get_pricing_representation(data['verified_price'], course.type),
+            'prices': price,
 
             'title': data['title'],
             'syllabus_raw': data.get('syllabus', ''),
