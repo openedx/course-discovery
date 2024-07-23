@@ -942,6 +942,30 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = self.course_run
         assert str(course_run) == f'{course_run.key}: {course_run.title}'
 
+    def test_course_run_fixed_usd_price(self):
+        """
+        Verify that the course_run_fixed_usd_price attribute returns the correct fixed usd price for the course run.
+        """
+        ee_course_type = factories.CourseRunTypeFactory(slug=CourseRunType.UNPAID_EXECUTIVE_EDUCATION)
+
+        ee_course_run = factories.CourseRunFactory(
+            type=ee_course_type,
+            course=CourseFactory(additional_metadata=AdditionalMetadataFactory()),
+            fixed_price_usd=100
+        )
+        assert ee_course_run.fixed_price_usd == 100
+
+        ee_course_run = factories.CourseRunFactory(
+            type=ee_course_type,
+            course=CourseFactory(additional_metadata=AdditionalMetadataFactory()),
+        )
+        assert ee_course_run.fixed_price_usd >= 0
+
+        course_run = factories.CourseRunFactory(
+            fixed_price_usd=None
+        )
+        assert course_run.fixed_price_usd is None
+
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
         # Happy path

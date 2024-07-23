@@ -481,6 +481,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     enterprise_subscription_inclusion = False
     type = factory.SubFactory(CourseRunTypeFactory)
     variant_id = factory.LazyFunction(uuid4)
+    fixed_price_usd = FuzzyDecimal(0.0, 650.0)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

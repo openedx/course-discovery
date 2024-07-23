@@ -2112,6 +2112,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         (False, _('Unrestricted')),
     )
 
+    PRICE_FIELD_CONFIG = {
+        'decimal_places': 2,
+        'max_digits': 10,
+    }
+
     IN_REVIEW_STATUS = [CourseRunStatus.InternalReview, CourseRunStatus.LegalReview]
     POST_REVIEW_STATUS = [CourseRunStatus.Reviewed, CourseRunStatus.Published]
 
@@ -2228,6 +2233,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             'The identifier for a product variant. This is used to link a course run to a product variant for external '
             'LOBs (i.e; ExecEd & Bootcamps).'
         )
+    )
+
+    fixed_price_usd = models.DecimalField(
+        **PRICE_FIELD_CONFIG, null=True, blank=True, editable=True,
+        help_text=('The fixed USD price for course runs to minimize the impact of currency fluctuations.')
     )
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
