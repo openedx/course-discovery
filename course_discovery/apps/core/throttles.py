@@ -49,7 +49,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
 
                 # If the user is not a privileged user, increase throttling rate if they are an enterprise user
                 if is_enterprise_user(request):
-                    self.rate = '300/hour'
+                    self.rate = '600/hour'
 
         self.num_requests, self.duration = self.parse_rate(self.rate)
 
