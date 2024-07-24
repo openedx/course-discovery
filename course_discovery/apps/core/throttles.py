@@ -1,5 +1,6 @@
 """Custom API throttles."""
 from django.core.cache import InvalidCacheBackendError, caches
+from edx_rest_framework_extensions.auth.jwt.decoder import configured_jwt_decode_handler
 from rest_framework.throttling import UserRateThrottle
 
 from course_discovery.apps.core.models import UserThrottleRate
@@ -16,6 +17,19 @@ def throttling_cache():
         return caches['default']
 
 
+def is_enterprise_user(request):
+    """
+    Determine whether a JWT-authenticated user is an enterprise user based on the `roles` in
+    the decoded JWT token associated with the request (e.g., `enterprise_learner`).
+    """
+    jwt_token = request.auth
+    if not jwt_token:
+        return False
+    decoded_jwt = configured_jwt_decode_handler(jwt_token)
+    roles = decoded_jwt.get('roles', [])
+    return any('enterprise' in role for role in roles)
+
+
 class OverridableUserRateThrottle(UserRateThrottle):
     """Rate throttling of requests, overridable on a per-user basis."""
     cache = throttling_cache()
@@ -28,10 +42,15 @@ class OverridableUserRateThrottle(UserRateThrottle):
                 # Override this throttle's rate if applicable
                 user_throttle = UserThrottleRate.objects.get(user=user)
                 self.rate = user_throttle.rate
-                self.num_requests, self.duration = self.parse_rate(self.rate)
             except UserThrottleRate.DoesNotExist:
                 # If we don't have a custom user override, skip throttling if they are a privileged user
                 if user.is_superuser or user.is_staff or is_publisher_user(user):
                     return True
+
+                # If the user is not a privileged user, increase throttling rate if they are an enterprise user
+                if is_enterprise_user(request):
+                    self.rate = '300/hour'
+
+        self.num_requests, self.duration = self.parse_rate(self.rate)
 
         return super().allow_request(request, view)
