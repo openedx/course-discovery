@@ -821,6 +821,55 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.subjects.first().slug == "computer-science"
                     assert course_run.staff.exists() is False
 
+    @data(True, False)
+    @responses.activate
+    def test_entitlement_price_update_for_custom_presentation(self, reverse_order, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader does not update price for custom-b2b-enterprise in Course's Entitlement.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+        csv_key_order = list(self.CSV_DATA_KEYS_ORDER)
+        csv_key_order.append('restriction_type')
+
+        csv_data = [
+            {
+                **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+                "restriction_type": None,
+                "short_description": "ABC",
+            },
+            {
+                **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+                "restriction_type": "custom-b2b-enterprise",
+                "verified_price": "250",
+                "variant_id": "11111111-1111-1111-1111-111111111111",
+                "short_description": "ABC",
+            },
+        ]
+
+        if reverse_order:
+            csv_data = list(reversed(csv_data))
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, csv_data, csv_key_order)
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    course = Course.objects.get(title='CSV Course')
+                    assert course.entitlements.count() == 1
+                    assert course.entitlements.first().price == 150
+                    assert course.short_description == '<p>ABC</p>'
+
     @responses.activate
     def test_ingest_product_metadata_flow_for_non_exec_ed(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
