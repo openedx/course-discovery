@@ -173,6 +173,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': ['This field is required.'],
         })
         variant_id = str(uuid.uuid4())
+        fixed_price_usd = 500
         # Send minimum requested
         response = self.client.post(url, {
             'course': course.key,
@@ -180,6 +181,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'end': '2001-01-01T00:00:00Z',
             'run_type': str(self.course_run_type.uuid),
             'variant_id': variant_id,
+            'fixed_price_usd': fixed_price_usd,
         }, format='json')
         assert response.status_code == 201
         new_course_run = CourseRun.everything.get(key=new_key)
@@ -189,6 +191,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         # default we provide
         assert str(new_course_run.end) == '2001-01-01 00:00:00+00:00'
         assert str(new_course_run.variant_id) == variant_id
+        assert new_course_run.fixed_price_usd == round(fixed_price_usd, 2)
         # spot check that input made it
         assert new_course_run.draft
 
@@ -562,13 +565,15 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         expected_min_effort = 867
         expected_max_effort = 5309
+        fixed_price_usd = 500
         prev_variant_id = self.draft_course_run.variant_id
         variant_id = str(uuid.uuid4())
         data = {
             'max_effort': expected_max_effort,
             'min_effort': expected_min_effort,
             'variant_id': variant_id,
-            'restriction_type': CourseRunRestrictionType.CustomB2BEnterprise.value
+            'restriction_type': CourseRunRestrictionType.CustomB2BEnterprise.value,
+            'fixed_price_usd': fixed_price_usd,
         }
 
         # Update this course_run with the new info
@@ -582,6 +587,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert self.draft_course_run.variant_id == prev_variant_id
+        assert self.draft_course_run.fixed_price_usd == round(fixed_price_usd, 2)
         assert self.draft_course_run.restricted_run == RestrictedCourseRun.everything.get()
 
     def test_partial_update_with_waffle_switch_variant_id_editable_enable(self):
@@ -594,11 +600,13 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         expected_min_effort = 867
         expected_max_effort = 5309
+        fixed_price_usd = 500
         variant_id = str(uuid.uuid4())
         data = {
             'max_effort': expected_max_effort,
             'min_effort': expected_min_effort,
             'variant_id': variant_id,
+            'fixed_price_usd': fixed_price_usd,
         }
 
         # Update this course_run with the new info
@@ -612,6 +620,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert str(self.draft_course_run.variant_id) == variant_id
+        assert self.draft_course_run.fixed_price_usd == round(fixed_price_usd, 2)
 
     def test_partial_update_no_studio_url(self):
         """ Verify we skip pushing when no studio url is set. """
