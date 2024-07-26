@@ -42,6 +42,7 @@ class Command(BaseCommand):
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
         'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'restriction_type',
+        'fixed_price_usd',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -362,6 +363,7 @@ class Command(BaseCommand):
                 'what_will_you_learn'
             ),
             'verified_price': partially_filled_csv_dict.get('verified_price') or product_dict['variant']['finalPrice'],
+            'fixed_price_usd': product_dict['variant'].get('enterprisePriceUsd', ''),
             'collaborators': partially_filled_csv_dict.get('collaborators', ''),
             "prerequisites": partially_filled_csv_dict.get("prerequisites", ""),
             'additional_information': partially_filled_csv_dict.get(

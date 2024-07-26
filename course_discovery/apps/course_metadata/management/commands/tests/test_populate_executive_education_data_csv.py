@@ -63,6 +63,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     "startDate": "2022-03-06",
                     "regCloseDate": "2022-02-06",
                     "finalRegCloseDate": "2022-02-15",
+                    "enterprisePriceUsd": "333.3"
                 },
                 "curriculum": {
                     "heading": "Course curriculum",
@@ -119,6 +120,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         "endDate": "2024-04-28",
         "finalRegCloseDate": "2024-03-26",
         "websiteVisibility": "private",
+        "enterprisePriceUsd": 3510.0
     }
 
     variant_2 = {
@@ -216,6 +218,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Reg Close Time'] == '00:00:00'
                 assert data_row['Verified Price'] == str(self.variant_1['finalPrice'])
                 assert data_row['Restriction Type'] == 'custom-b2b-enterprise'
+                assert data_row['Fixed Price Usd'] == '3510.0'
 
                 data_row = next(reader)
                 assert data_row['Variant Id'] == self.variant_2['id']
@@ -227,6 +230,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Reg Close Time'] == '00:00:00'
                 assert data_row['Verified Price'] == str(self.variant_2['finalPrice'])
                 assert data_row['Restriction Type'] == 'None'
+                assert data_row['Fixed Price Usd'] == ''
 
             log_capture.check_present(
                 (
@@ -473,3 +477,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Meta Keywords'] == 'Keyword 1, Keyword 2'
         assert data_row['Slug'] == 'csv-course-slug'
         assert data_row['External Course Marketing Type'] == "short_course"
+        assert data_row['Fixed Price Usd'] == "333.3"
