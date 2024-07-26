@@ -2558,7 +2558,8 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'is_enrollable': course_run.is_enrollable,
             'restriction_type': (
                 course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
-            )
+            ),
+            'fixed_price_usd': float(course_run.fixed_price_usd),
         }
 
 
