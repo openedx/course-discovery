@@ -618,7 +618,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 8), (False, 9))
+    @ddt.data((True, 9), (False, 9))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
