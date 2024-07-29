@@ -50,13 +50,13 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.34.144
+boto3==1.34.149
     # via django-ses
-botocore==1.34.144
+botocore==1.34.149
     # via
     #   boto3
     #   s3transfer
-cachetools==5.3.3
+cachetools==5.4.0
     # via google-auth
 cairocffi==1.4.0
     # via
@@ -175,7 +175,7 @@ django-choices==2.0.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-django-compressor==4.5
+django-compressor==4.5.1
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -365,7 +365,7 @@ gevent==24.2.1
     # via -r requirements/production.in
 google-api-core==2.19.1
     # via google-api-python-client
-google-api-python-client==2.137.0
+google-api-python-client==2.138.0
     # via -r requirements/base.in
 google-auth==2.32.0
     # via
@@ -515,7 +515,7 @@ pymongo==4.8.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via snowflake-connector-python
 pyparsing==3.1.2
     # via httplib2
@@ -610,7 +610,7 @@ six==1.16.0
     #   python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==3.11.0
+snowflake-connector-python==3.12.0
     # via -r requirements/base.in
 social-auth-app-django==5.4.2
     # via
@@ -624,14 +624,14 @@ sortedcontainers==2.4.0
     # via snowflake-connector-python
 soupsieve==2.5
     # via beautifulsoup4
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via django
 stevedore==5.2.0
     # via
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.50.0
+taxonomy-connector==1.51.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
