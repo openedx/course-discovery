@@ -37,6 +37,7 @@ class CourseRunDocument(BaseCourseDocument):
     end = fields.DateField()
     enrollment_start = fields.DateField()
     enrollment_end = fields.DateField()
+    fixed_price_usd = fields.FloatField()
     first_enrollable_paid_seat_sku = fields.TextField()
     go_live_date = fields.DateField()
     has_enrollable_seats = fields.BooleanField()
