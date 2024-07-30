@@ -2,6 +2,7 @@
 Unit tests for CSV Data loader.
 """
 import datetime
+from decimal import Decimal
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
@@ -665,10 +666,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             type=self.course_run_type,
             status='unpublished',
             draft=True,
+            fixed_price_usd=111.11
         )
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            csv = self._write_csv(csv, [{**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, "fixed_price_usd": ""}])
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
@@ -700,7 +702,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course_run = CourseRun.everything.get(course=course, draft=True)
 
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
-                    self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+                    self._assert_course_run_data(
+                        course_run,
+                        {**self.BASE_EXPECTED_COURSE_RUN_DATA, "fixed_price_usd": Decimal('111.11')}
+                    )
 
     @responses.activate
     def test_active_slug(self, jwt_decode_patch):  # pylint: disable=unused-argument

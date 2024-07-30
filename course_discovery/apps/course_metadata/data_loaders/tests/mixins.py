@@ -1,3 +1,4 @@
+from decimal import Decimal
 from unittest import mock
 
 import responses
@@ -329,7 +330,7 @@ class CSVLoaderMixin:
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
         'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type',
+        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'fixed_price_usd'
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
@@ -389,6 +390,7 @@ class CSVLoaderMixin:
         'expected_program_type': 'professional-certificate',
         'expected_program_name': 'New Program for all',
         'registration_deadline': '2050-01-25T00:00:00+00:00',
+        "fixed_price_usd": Decimal('123.40'),
     }
 
     def setUp(self):
@@ -559,3 +561,4 @@ class CSVLoaderMixin:
         assert sorted(
             [language.name for language in course_run.transcript_languages.all()]
         ) == sorted(expected_data['transcript_language'])
+        assert course_run.fixed_price_usd == expected_data['fixed_price_usd']

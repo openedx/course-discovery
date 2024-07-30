@@ -479,6 +479,7 @@ class CSVDataLoader(AbstractDataLoader):
             'prices': pricing,
             'course': course.key,
         }
+
         if rerun:
             course_run_creation_fields['rerun'] = rerun
         return course_run_creation_fields
@@ -594,6 +595,8 @@ class CSVDataLoader(AbstractDataLoader):
                 f"{data.get('upgrade_deadline_override_time', '')}".strip()
             ),
         }
+        if fix_price := data.get('fixed_price_usd', ''):
+            update_course_run_data['fixed_price_usd'] = fix_price
 
         if registration_deadline:
             update_course_run_data.update({'enrollment_end': self.get_formatted_datetime_string(
