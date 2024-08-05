@@ -1328,7 +1328,7 @@ class CourseSlugMethodsTests(TestCase):
             slug, error = utils.get_slug_for_course(course)
 
             assert error is None
-            slug_end_prefix = f"-{course_count+1}" if course_count else ""
+            slug_end_prefix = f"-{course_count + 1}" if course_count else ""
             assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}{slug_end_prefix}"
             course.set_active_url_slug(slug)
 

@@ -1,8 +1,10 @@
 FROM ubuntu:focal as app
 
-ARG PYTHON_VERSION=3.8
+ARG PYTHON_VERSION=3.12
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV TZ=UTC
+
 # System requirements.
 RUN apt-get update && \
   apt-get install -y software-properties-common && \
@@ -14,8 +16,6 @@ RUN apt-get update && \
   git \
   language-pack-en \
   build-essential \
-  python${PYTHON_VERSION}-dev \
-  python${PYTHON_VERSION}-distutils \
   libmysqlclient-dev \
   libssl-dev \
   # TODO: Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
@@ -24,7 +24,11 @@ RUN apt-get update && \
   libjpeg-dev \
   # mysqlclient >= 2.2.0 requires pkg-config.
   pkg-config \
-  libcairo2-dev && \
+  libcairo2-dev \
+  python3-pip \
+  python${PYTHON_VERSION} \
+  python${PYTHON_VERSION}-dev \
+  python${PYTHON_VERSION}-distutils && \
   rm -rf /var/lib/apt/lists/*
 
 # Use UTF-8.
@@ -46,6 +50,9 @@ ENV DISCOVERY_CFG "/edx/etc/discovery.yml"
 ENV DISCOVERY_CODE_DIR "${DISCOVERY_CODE_DIR}"
 ENV DISCOVERY_APP_DIR "${DISCOVERY_APP_DIR}"
 ENV PYTHON_VERSION "${PYTHON_VERSION}"
+
+# Setup zoneinfo for Python 3.12
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
 RUN pip install virtualenv
