@@ -974,7 +974,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
-            'description', 'duration', 'language', 'modified', 'creator_id', 'released_date'
+            'description', 'duration', 'language', 'created', 'modified', 'creator_id', 'released_date'
         )
 
 
