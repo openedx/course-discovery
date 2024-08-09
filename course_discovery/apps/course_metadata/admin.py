@@ -877,7 +877,7 @@ class DegreeAdmin(admin.ModelAdmin):
         updated = queryset.update(display_on_org_page=True)
         self.message_user(
             request,
-            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to display on org page.",
+            f"{updated} {'degrees were' if updated > 1 else 'degree was'} successfully set to display on org page.",
             messages.SUCCESS,
         )
 
@@ -886,7 +886,7 @@ class DegreeAdmin(admin.ModelAdmin):
         updated = queryset.update(display_on_org_page=False)
         self.message_user(
             request,
-            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to be hidden on org page.",
+            f"{updated} {'degrees were' if updated > 1 else 'degree was'} successfully set to be hidden on org page.",
             messages.SUCCESS,
         )
 
