@@ -91,6 +91,7 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
             'type',
             'weeks_to_complete',
             'restriction_type',
+            'fixed_price_usd',
         )
 
 
