@@ -6,9 +6,9 @@
 #
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
-aiohappyeyeballs==2.3.2
+aiohappyeyeballs==2.3.4
     # via aiohttp
-aiohttp==3.10.0
+aiohttp==3.10.1
     # via openai
 aiosignal==1.3.1
     # via aiohttp
@@ -75,13 +75,13 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.34.151
+boto3==1.34.153
     # via django-ses
-botocore==1.34.151
+botocore==1.34.153
     # via
     #   boto3
     #   s3transfer
-bracex==2.4
+bracex==2.5
     # via wcmatch
 cachetools==5.4.0
     # via
@@ -147,7 +147,7 @@ colorama==0.4.6
     #   tox
 contentful==2.2.0
     # via -r requirements/base.in
-coverage[toml]==7.6.0
+coverage[toml]==7.6.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -267,7 +267,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.2.3
     # via -r requirements/base.in
-django-filter==24.2
+django-filter==24.3
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -385,7 +385,7 @@ edx-django-utils==5.15.0
     #   taxonomy-connector
 edx-drf-extensions==10.3.0
     # via -r requirements/base.in
-edx-event-bus-kafka==5.7.0
+edx-event-bus-kafka==5.8.0
     # via -r requirements/base.in
 edx-event-bus-redis==0.5.0
     # via -r requirements/base.in
@@ -432,7 +432,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==26.0.0
+faker==26.1.0
     # via factory-boy
 fastavro==1.9.5
     # via openedx-events
@@ -606,7 +606,7 @@ prompt-toolkit==3.0.47
     # via click-repl
 proto-plus==1.24.0
     # via google-api-core
-protobuf==5.27.2
+protobuf==5.27.3
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -619,7 +619,7 @@ pyasn1==0.6.0
     #   rsa
 pyasn1-modules==0.4.0
     # via google-auth
-pycodestyle==2.12.0
+pycodestyle==2.12.1
     # via -r requirements/test.in
 pycountry==24.6.1
     # via -r requirements/base.in
@@ -632,7 +632,7 @@ pygments==2.18.0
     #   accessible-pygments
     #   pydata-sphinx-theme
     #   sphinx
-pyjwt[crypto]==2.8.0
+pyjwt[crypto]==2.9.0
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -887,7 +887,7 @@ tomlkit==0.13.0
     #   snowflake-connector-python
 tox==4.0.0
     # via -r requirements/test.in
-tqdm==4.66.4
+tqdm==4.66.5
     # via
     #   openai
     #   semgrep
