@@ -74,7 +74,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'restriction_type': (
                 course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
             ),
-            'fixed_price_usd': float(course_run.fixed_price_usd) if course_run.fixed_price_usd else None,
+            'fixed_price_usd': course_run.fixed_price_usd,
         }
         if detail_fields:
             course_run_detail.update(
