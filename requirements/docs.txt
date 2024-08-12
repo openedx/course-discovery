@@ -8,7 +8,7 @@ accessible-pygments==0.0.4
     # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
-babel==2.15.0
+babel==2.16.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
@@ -39,10 +39,8 @@ idna==3.7
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.11.0
-    # via
-    #   -c requirements/common_constraints.txt
-    #   sphinx
+importlib-metadata==8.2.0
+    # via sphinx
 jinja2==3.1.4
     # via sphinx
 markupsafe==2.1.5
@@ -99,5 +97,5 @@ urllib3==1.26.19
     # via
     #   elasticsearch
     #   requests
-zipp==3.19.2
+zipp==3.20.0
     # via importlib-metadata
