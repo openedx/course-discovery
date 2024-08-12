@@ -2351,7 +2351,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 'content_language': course_run.language.code if course_run.language else None,
                 'restriction_type': (
                     course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
-                )
+                ),
+                'fixed_price_usd': float(course_run.fixed_price_usd),
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],
@@ -2424,7 +2425,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 'is_enrollable': course_run.is_enrollable,
                 'restriction_type': (
                     course_run.restricted_run.restriction_type if hasattr(course_run, 'restricted_run') else None
-                )
+                ),
+                'fixed_price_usd': float(course_run.fixed_price_usd),
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],
