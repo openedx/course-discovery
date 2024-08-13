@@ -1710,6 +1710,15 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         })
 
     @property
+    def languages_codes(self):
+        """
+        Returns a string of languages codes used in this course. The languages codes are separated by comma.
+        This property will ignore restricted runs and course runs with no language set.
+        """
+        filtered_course_runs = self.active_course_runs.filter(language__isnull=False, restricted_run__isnull=True)
+        return ','.join(course_run.language.code for course_run in filtered_course_runs)
+
+    @property
     def first_enrollable_paid_seat_price(self):
         """
         Sort the course runs with sorted rather than order_by to avoid

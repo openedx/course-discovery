@@ -1,4 +1,5 @@
 import logging
+from string import ascii_uppercase
 
 import gspread
 from django.conf import settings
@@ -36,6 +37,96 @@ class GspreadClient:
         except Exception:  # pylint: disable=broad-except
             logger.exception('[Spread Sheet Read Error]: Exception occurred while reading sheet data')
         return None
+
+    def _get_or_create_worksheet(self, spread_sheet, tab_id, cols, rows):
+        """
+        Get or create a worksheet with the given tab_id in the given spread_sheet
+
+        Args:
+            spread_sheet: The spread sheet object
+            tab_id: The tab id of the worksheet
+            cols: The number of columns in the worksheet
+            rows: The number of rows in the worksheet
+        """
+        try:
+            return spread_sheet.worksheet(tab_id)
+        except gspread.exceptions.WorksheetNotFound:
+            return spread_sheet.add_worksheet(
+                title=tab_id,
+                rows=rows,
+                cols=cols,
+            )
+
+    def _write_headers(self, sheet_tab, headers):
+        """
+        Write headers to the first row of the worksheet
+
+        Args:
+            sheet_tab: The worksheet object
+            headers: The headers of the worksheet
+        """
+        sheet_tab.append_row(headers)
+        end_column = ascii_uppercase[len(headers) - 1]
+        cell_range = f"A1:{end_column}1"
+        sheet_tab.format(cell_range, {'textFormat': {'bold': True}})
+
+    def _write_rows(self, sheet_tab, headers, csv_data):
+        """
+        Write rows to the worksheet after headers
+
+        Args:
+            sheet_tab: The worksheet object
+            headers: The headers of the worksheet
+            csv_data: The data to be written in the worksheet, as a list of dictionaries, where
+            each dictionary represents a row
+        """
+        for row in csv_data:
+            sheet_tab.append_row(
+                [
+                    (
+                        row.get(header).replace('\"', '\"\"')  # double quote escape to preserve " in values
+                        if isinstance(row.get(header), str)
+                        else row.get(header)
+                    )
+                    for header in headers
+                ]
+            )
+
+    def write_data(self, config, csv_headers, csv_data, overwrite):
+        """
+        Write data to the google spread sheet
+
+        Args:
+            config: The configuration for the google spread sheet
+            csv_headers: The headers of the data to be written in the worksheet
+            csv_data: The data to be written in the worksheet, as a list of dictionaries, where
+            each dictionary represents a row
+            overwrite: Whether to overwrite the existing data in the worksheet
+        """
+        try:
+            spread_sheet = self.get_spread_sheet_by_key(config["SHEET_ID"])
+            sheet_tab = self._get_or_create_worksheet(
+                spread_sheet, config["OUTPUT_TAB_ID"], len(csv_headers) + 1, len(csv_data) + 1
+            )
+
+            if overwrite:
+                sheet_tab.clear()
+
+            if csv_headers:
+                self._write_headers(sheet_tab, csv_headers)
+
+            self._write_rows(sheet_tab, csv_headers, csv_data)
+
+            logger.info(
+                f"""
+                    [Spread Sheet Write Success]: Successfully written data to
+                    sheet {config["SHEET_ID"]} tab {config["OUTPUT_TAB_ID"]}
+                """
+            )
+        except gspread.exceptions.GSpreadException as e:
+            logger.exception(f"[Spread Sheet Write Error]: GSpreadException occurred while writing sheet data: {e}")
+        except Exception as e:  # pylint: disable=broad-except
+            logger.exception(f"[Spread Sheet Write Error]: Exception occurred while writing sheet data: {e}")
 
     @staticmethod
     def get_worksheet_data_by_tab_id(spread_sheet, tab_id):
