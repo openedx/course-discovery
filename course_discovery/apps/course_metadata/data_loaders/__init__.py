@@ -3,7 +3,7 @@ import abc
 from dateutil.parser import parse
 from edx_rest_framework_extensions.auth.jwt.decoder import configured_jwt_decode_handler
 
-from course_discovery.apps.course_metadata.models import Image, Video
+from course_discovery.apps.course_metadata.models import Course, Image, Video
 
 
 class AbstractDataLoader(metaclass=abc.ABCMeta):
@@ -80,16 +80,18 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     @classmethod
     def get_course_key_from_course_run_key(cls, course_run_key):
         """
-        Given a serialized course run key, return the corresponding
-        serialized course key.
+        Given a serialized course run key, return the corresponding serialized course key.
+        If the course key is a 'key_for_rerun', return the original course's key.
 
         Args:
             course_run_key (CourseKey): Course run key.
 
         Returns:
-            str
+            str: The corresponding course key.
         """
-        return f'{course_run_key.org}+{course_run_key.course}'
+        course_key = f'{course_run_key.org}+{course_run_key.course}'
+        # Check if this course key is a rerun and return the original course key if it is
+        return Course.objects.filter(key_for_reruns=course_key).values_list('key', flat=True).first() or course_key
 
     @classmethod
     def _get_or_create_media(cls, media_type, url):

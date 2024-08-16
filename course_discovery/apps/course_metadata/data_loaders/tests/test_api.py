@@ -534,6 +534,32 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert draft_run != official_run
         assert official_run.draft_version == draft_run
 
+    @responses.activate
+    def test_ingest_with_key_for_rerun(self):
+        """
+        Verify that we correctly stitch up a course run made in Studio but having key_for_rerun.
+        The test makes sure that the course_run isn't incorrectly assigned to course having key = key_for_rerun.
+        """
+        datum = mock_data.COURSES_API_BODY_ORIGINAL
+        self.mock_api([datum])
+        course_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        course_key = f"{datum['org']}+{datum['number']}"
+        course_key_with_key_for_rerun = 'test+key_for_rerun'
+        Course.objects.create(partner=self.partner, key=course_key, title='Title', type=course_type)
+        Course.objects.create(partner=self.partner, key=course_key_with_key_for_rerun, title='Key for Reruns',
+                              type=course_type, key_for_reruns=course_key)
+
+        self.loader.ingest()
+
+        test_course = Course.everything.get(partner=self.partner, key=course_key)
+        test_course_with_key_for_rerun = Course.everything.get(partner=self.partner, key=course_key_with_key_for_rerun)
+        test_course_run = CourseRun.everything.filter(course=test_course).first()
+        test_course_run_with_key_for_rerun = CourseRun.everything.filter(course=test_course_with_key_for_rerun).first()
+
+        assert test_course_with_key_for_rerun.key_for_reruns == test_course.key
+        assert test_course_run is None
+        assert test_course_run_with_key_for_rerun.course is not test_course
+
     def test_assigns_types(self):
         """
         Verify we set the special empty course and course run types when creating courses and runs.
