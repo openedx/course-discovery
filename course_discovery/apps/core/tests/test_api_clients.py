@@ -87,8 +87,6 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         Verify that `get_api_access_request` returns None when api_access_request
         returns an invalid response.
         """
-        # API response without proper paginated structure.
-        # Following is an invalid response.
         sample_invalid_response = {
             'id': 1,
             'created': '2017-09-25T08:37:05.872566Z',
@@ -237,3 +235,45 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert self.lms.get_blocks_data(self.block_id) == data['blocks']
         assert self.lms.get_blocks_data(self.block_id) == data['blocks']
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_get_course_run_translations(self):
+        """
+        Verify that `get_course_run_translations` returns correct translation data.
+        """
+        course_run_id = 'course-v1:edX+DemoX+Demo_Course'
+        translation_data = {
+            "en": {"title": "Course Title", "language": "English"},
+            "fr": {"title": "Titre du cours", "language": "French"}
+        }
+        resource = settings.LMS_API_URLS['translations']
+        resource_url = urljoin(self.partner.lms_url, resource)
+
+        responses.add(
+            responses.GET,
+            resource_url,
+            json=translation_data,
+            status=200
+        )
+
+        result = self.lms.get_course_run_translations(course_run_id)
+        assert result == translation_data
+
+    @responses.activate
+    def test_get_course_run_translations_with_error(self):
+        """
+        Verify that get_course_run_translations returns an empty dictionary when there's an error.
+        """
+        course_run_id = 'course-v1:edX+DemoX+Demo_Course'
+        resource = settings.LMS_API_URLS['translations']
+        resource_url = urljoin(self.partner.lms_url, resource)
+
+        responses.add(
+            responses.GET,
+            resource_url,
+            status=500
+        )
+
+        result = self.lms.get_course_run_translations(course_run_id)
+        assert result == {}
+        assert 'Failed to fetch translation data for course run [%s]' % course_run_id in self.log_messages['error'][0]

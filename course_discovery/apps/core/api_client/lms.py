@@ -209,3 +209,24 @@ class LMSAPIClient:
         }
         cache_key = get_cache_key(block_id=block_id, resource=resource)
         return self._get_blocks_data(block_id, cache_key, query_parameters, resource)
+
+    def get_course_run_translations(self, course_run_id: str):
+        """
+        Get translation information for a given course run.
+
+        Args:
+            course_run_id (str): The course run ID to fetch translation information for.
+
+        Returns:
+            dict: A dictionary containing the translation information or an empty dict on error.
+        """
+        resource = settings.LMS_API_URLS['translations']
+        resource_url = urljoin(self.lms_url, resource)
+
+        try:
+            response = self.client.get(resource_url, params={'course_id': course_run_id})
+            response.raise_for_status()
+            return response.json()
+        except RequestException as e:
+            logger.exception(f'Failed to fetch translation data for course run [{course_run_id}]: {e}')
+            return {}
