@@ -11,6 +11,9 @@
   "schedule": [
     "every weekday"
   ],
+  "reviewers": [
+    "team:2u-phoenix"
+  ],
   "packageRules": [
     {
       "matchPackageNames": ["node", "npm"],
