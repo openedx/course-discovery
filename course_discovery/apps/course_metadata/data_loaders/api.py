@@ -202,6 +202,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def get_or_create_course(self, body):
         course_run_key = CourseKey.from_string(body['id'])
         course_key = self.get_course_key_from_course_run_key(course_run_key)
+
         defaults = self.format_course_data(body)
         # We need to add the key to the defaults because django ignores kwargs with __
         # separators when constructing the create request
