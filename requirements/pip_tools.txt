@@ -8,7 +8,7 @@ build==1.2.1
     # via pip-tools
 click==8.1.7
     # via pip-tools
-importlib-metadata==8.2.0
+importlib-metadata==8.4.0
     # via build
 packaging==24.1
     # via build
