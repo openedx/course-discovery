@@ -482,6 +482,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     type = factory.SubFactory(CourseRunTypeFactory)
     variant_id = factory.LazyFunction(uuid4)
     fixed_price_usd = FuzzyDecimal(0.0, 650.0)
+    translation_languages = [{'code': 'fr', 'label': 'French'}]
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

@@ -2157,6 +2157,14 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
+    translation_languages = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_('A JSON list detailing the available translations for this run. '
+                    'Each element in the list is a dictionary containing two keys: the language code '
+                    'and the language label. These entries represent the languages into which the run '
+                    'content can be translated.')
+    )
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices)
     syllabus = models.ForeignKey(SyllabusItem, models.CASCADE, default=None, null=True, blank=True)
