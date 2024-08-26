@@ -53,9 +53,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.35.4
+boto3==1.35.5
     # via django-ses
-botocore==1.35.4
+botocore==1.35.5
     # via
     #   boto3
     #   s3transfer
@@ -397,7 +397,7 @@ httplib2==0.22.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-idna==3.7
+idna==3.8
     # via
     #   requests
     #   snowflake-connector-python
@@ -456,7 +456,7 @@ openai==0.28.1
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-openedx-atlas==0.6.1
+openedx-atlas==0.6.2
     # via -r requirements/base.in
 openedx-events==9.12.0
     # via
@@ -519,7 +519,7 @@ pynacl==1.5.0
     # via edx-django-utils
 pyopenssl==24.2.1
     # via snowflake-connector-python
-pyparsing==3.1.2
+pyparsing==3.1.4
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
