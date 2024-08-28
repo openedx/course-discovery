@@ -966,6 +966,17 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         assert course_run.fixed_price_usd is None
 
+    def test_course_run_translation_languages(self):
+        """
+        Sanity checks for the translation_languages field
+        """
+        DEFAULT_TRANSLATION_LANGUAGES = [{'code': 'fr', 'label': 'French'}]
+        course_run = factories.CourseRunFactory()
+        assert course_run.translation_languages == DEFAULT_TRANSLATION_LANGUAGES
+
+        course_run = factories.CourseRunFactory(translation_languages=None)
+        assert course_run.translation_languages is None
+
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
         # Happy path

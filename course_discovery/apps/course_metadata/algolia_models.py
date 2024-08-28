@@ -82,7 +82,8 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'product_source', 'primary_description',
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
-                    'product_allowed_in', 'product_blocked_in', 'learning_type', 'learning_type_exp']
+                    'product_allowed_in', 'product_blocked_in', 'learning_type', 'learning_type_exp',
+                    'product_translation_languages']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -354,6 +355,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return getattr(self.advertised_course_run, 'max_effort', None)
 
     @property
+    def product_translation_languages(self):
+        if self.advertised_course_run and self.advertised_course_run.translation_languages:
+            return self.advertised_course_run.translation_languages
+        return []
+
+    @property
     def owners(self):
         return get_owners(self)
 
@@ -532,6 +539,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def product_max_effort(self):
         return self.max_hours_effort_per_week
+
+    @property
+    def product_translation_languages(self):
+        return []
 
     @property
     def subject_names(self):

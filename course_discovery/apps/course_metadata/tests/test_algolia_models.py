@@ -151,7 +151,7 @@ class TestAlgoliaDataMixin():
         )
         return course
 
-    def create_blocked_course_run(self, **kwargs):
+    def create_blocked_course(self, status=CourseRunStatus.Published, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner,
                                            product_source=SourceFactory(slug='blocked'))
 
@@ -159,7 +159,7 @@ class TestAlgoliaDataMixin():
             course=course,
             start=self.YESTERDAY,
             end=self.YESTERDAY,
-            status=CourseRunStatus.Published,
+            status=status,
             **kwargs
         )
         SeatFactory(
@@ -442,13 +442,13 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
     @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=[])
     def test_product_source_excluded(self):
-        course = self.create_blocked_course_run()
+        course = self.create_blocked_course()
         course.authoring_organizations.add(OrganizationFactory())
         assert course.should_index
 
     @override_settings(ALGOLIA_INDEX_EXCLUDED_SOURCES=['blocked'])
     def test_product_source_should_excluded(self):
-        course = self.create_blocked_course_run()
+        course = self.create_blocked_course()
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
 
@@ -568,6 +568,14 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         course.type = CourseTypeFactory(slug=course_type_slug)
         assert course.learning_type_exp == [expected_result]
+
+    def test_course_translation_languages(self):
+        course = self.create_current_upgradeable_course()
+        assert course.product_translation_languages == [{'code': 'fr', 'label': 'French'}]
+
+    def test_course_translation_languages__no_advertised_run(self):
+        course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
+        assert course.product_translation_languages == []
 
 
 @ddt.ddt
@@ -908,3 +916,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program_type = ProgramType.objects.get(slug=program_type_slug)
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
         assert program.learning_type_exp == [learning_type]
+
+    def test_program_translation_languages(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        assert program.product_translation_languages == []
