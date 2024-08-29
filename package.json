@@ -19,7 +19,7 @@
     "sass": "1.77.6",
     "sass-loader": "12.1.0",
     "url-loader": "4.1.1",
-    "webpack": "5.53.0",
+    "webpack": "5.94.0",
     "webpack-bundle-tracker": "1.8.1",
     "webpack-cli": "4.8.0"
   },
