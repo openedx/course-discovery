@@ -62,3 +62,8 @@ openai<=0.28.1
 # https://github.com/PrefectHQ/prefect/pull/11229/files
 # https://github.com/hyperspy/hyperspy/pull/3274
 pytest-xdist < 3.5.0
+
+# 5.4.0 is breaking for Python 3.8 and 3.11 CI checks with error
+# importlib.resources' has no attribute 'files'
+# To be unpinned once course-discovery moves to Python 3.12
+edx-lint==5.3.7
