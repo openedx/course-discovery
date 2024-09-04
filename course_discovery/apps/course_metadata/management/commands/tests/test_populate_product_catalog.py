@@ -121,7 +121,7 @@ class PopulateProductCatalogCommandTests(TestCase):
                 partner=self.partner,
                 additional_metadata=None,
                 type=self.program_type,
-                status=ProgramStatus.Unpublished,  # Unpublished status
+                status=ProgramStatus.Unpublished,
                 marketing_slug="valid-slug-1",
                 title="Non-Marketable Degree - Unpublished Status"
             ),
@@ -130,7 +130,7 @@ class PopulateProductCatalogCommandTests(TestCase):
                 partner=self.partner,
                 additional_metadata=None,
                 type=self.program_type,
-                status=ProgramStatus.Retired,  # Retired status
+                status=ProgramStatus.Retired,
                 marketing_slug="valid-slug-2",
                 title="Non-Marketable Degree - Retired Status"
             ),
@@ -139,7 +139,7 @@ class PopulateProductCatalogCommandTests(TestCase):
                 partner=self.partner,
                 additional_metadata=None,
                 type=self.program_type,
-                status=ProgramStatus.Deleted,  # Deleted status
+                status=ProgramStatus.Deleted,
                 marketing_slug="valid-slug-3",
                 title="Non-Marketable Degree - Deleted Status"
             ),
@@ -148,20 +148,19 @@ class PopulateProductCatalogCommandTests(TestCase):
                 partner=self.partner,
                 additional_metadata=None,
                 type=self.program_type,
-                status=ProgramStatus.Active,  # Active, but empty marketing slug
-                marketing_slug="",  # Empty marketing_slug
+                status=ProgramStatus.Active,
+                marketing_slug="",
                 title="Non-Marketable Degree - Empty Slug"
             )
         ]
 
-        # Create a degree that should be included (marketable)
         marketable_degree = DegreeFactory.create(
             product_source=self.source,
             partner=self.partner,
             additional_metadata=None,
             type=self.program_type,
-            status=ProgramStatus.Active,  # Active status
-            marketing_slug="valid-marketing-slug",  # Valid marketing_slug
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
             title="Marketable Degree"
         )
 
@@ -184,13 +183,15 @@ class PopulateProductCatalogCommandTests(TestCase):
                         matching_rows = [
                             row for row in rows if row["UUID"] == str(degree.uuid)
                         ]
-                        self.assertEqual(len(matching_rows), 0, f"Non-marketable degree '{degree.title}' should not be in the CSV")
+                        self.assertEqual(len(matching_rows), 0,
+                                         f"Non-marketable degree '{degree.title}' should not be in the CSV")
 
                 # Check that the marketable degree is in the CSV
                 matching_rows = [
                     row for row in rows if row["UUID"] == str(marketable_degree.uuid)
                 ]
-                self.assertEqual(len(matching_rows), 1, f"Marketable degree '{marketable_degree.title}' should be in the CSV")
+                self.assertEqual(len(matching_rows), 1,
+                                 f"Marketable degree '{marketable_degree.title}' should be in the CSV")
 
     @mock.patch(
         "course_discovery.apps.course_metadata.management.commands.populate_product_catalog.Command.get_products"

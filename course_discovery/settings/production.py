@@ -89,5 +89,8 @@ COMPRESS_OFFLINE = True
 # Have images and such that we upload be publicly readable
 AWS_DEFAULT_ACL = 'public-read'
 
-# Convert dict keys to lowercase
-GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {k.lower(): v for k, v in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()}
+# Convert dict keys to lowercase. The if condition replaces \\n in private_key value with \n.
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
+    k.lower(): (v.replace("\\n", "\n") if k.lower() == "private_key" else v)
+    for (k, v) in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()
+}

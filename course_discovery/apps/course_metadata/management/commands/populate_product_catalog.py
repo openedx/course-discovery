@@ -7,7 +7,7 @@ from django.core.management import BaseCommand, CommandError
 from django.db.models import Prefetch
 
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
-from course_discovery.apps.course_metadata.models import Course, CourseType, SubjectTranslation, Program
+from course_discovery.apps.course_metadata.models import Course, CourseType, Program, SubjectTranslation
 
 logger = logging.getLogger(__name__)
 
@@ -164,9 +164,8 @@ class Command(BaseCommand):
                 "Languages": ", ".join(language.code for language in product.languages),
                 "Marketing Image": product.card_image.url if product.card_image else "",
             })
-        
+
         return data
-        
 
     def handle(self, *args, **options):
         product_type = options.get('product_type')

@@ -80,17 +80,19 @@ class GspreadClient:
             csv_data: The data to be written in the worksheet, as a list of dictionaries, where
             each dictionary represents a row
         """
-        for row in csv_data:
-            sheet_tab.append_row(
-                [
-                    (
-                        row.get(header).replace('\"', '\"\"')  # double quote escape to preserve " in values
-                        if isinstance(row.get(header), str)
-                        else row.get(header)
-                    )
-                    for header in headers
-                ]
-            )
+        rows = [
+            [
+                row.get(header).replace('\"', '\"\"') if isinstance(row.get(header), str) else row.get(header)
+                for header in headers
+            ]
+            for row in csv_data
+        ]
+        try:
+            sheet_tab.append_rows(rows)
+        except gspread.exceptions.APIError as e:
+            logger.exception(f"[Spread Sheet Write Error]: APIError occurred while writing rows: {e}")
+        except Exception as e:  # pylint: disable=broad-except
+            logger.exception(f"[Spread Sheet Write Error]: Exception occurred while writing rows: {e}")
 
     def write_data(self, config, csv_headers, csv_data, overwrite):
         """

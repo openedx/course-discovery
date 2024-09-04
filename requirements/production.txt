@@ -53,9 +53,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.0
     # via celery
-boto3==1.35.4
+boto3==1.35.10
     # via django-ses
-botocore==1.35.4
+botocore==1.35.10
     # via
     #   boto3
     #   s3transfer
@@ -71,7 +71,7 @@ celery==5.4.0
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements/production.in
     #   elasticsearch
@@ -264,7 +264,7 @@ django-waffle==4.1.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==3.1.0
+django-webpack-loader==3.1.1
     # via -r requirements/base.in
 djangorestframework==3.15.2
     # via
@@ -366,9 +366,9 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 gevent==24.2.1
     # via -r requirements/production.in
-google-api-core==2.19.1
+google-api-core==2.19.2
     # via google-api-python-client
-google-api-python-client==2.142.0
+google-api-python-client==2.143.0
     # via -r requirements/base.in
 google-auth==2.34.0
     # via
@@ -383,7 +383,7 @@ google-auth-httplib2==0.2.0
     #   google-api-python-client
 google-auth-oauthlib==1.2.1
     # via gspread
-googleapis-common-protos==1.63.2
+googleapis-common-protos==1.65.0
     # via google-api-core
 greenlet==3.0.3
     # via gevent
@@ -397,7 +397,7 @@ httplib2==0.22.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-idna==3.7
+idna==3.8
     # via
     #   requests
     #   snowflake-connector-python
@@ -429,7 +429,7 @@ lxml[html-clean,html_clean]==5.3.0
     #   -r requirements/base.in
     #   lxml-html-clean
     #   zeep
-lxml-html-clean==0.2.0
+lxml-html-clean==0.2.2
     # via lxml
 markdown==3.7
     # via -r requirements/base.in
@@ -456,7 +456,7 @@ openai==0.28.1
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-openedx-atlas==0.6.1
+openedx-atlas==0.6.2
     # via -r requirements/base.in
 openedx-events==9.12.0
     # via
@@ -469,7 +469,7 @@ packaging==24.1
     #   drf-yasg
     #   gunicorn
     #   snowflake-connector-python
-pbr==6.0.0
+pbr==6.1.0
     # via stevedore
 pillow==9.5.0
     # via
@@ -485,7 +485,7 @@ prompt-toolkit==3.0.47
     # via click-repl
 proto-plus==1.24.0
     # via google-api-core
-protobuf==5.27.3
+protobuf==5.28.0
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -519,7 +519,7 @@ pynacl==1.5.0
     # via edx-django-utils
 pyopenssl==24.2.1
     # via snowflake-connector-python
-pyparsing==3.1.2
+pyparsing==3.1.4
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
@@ -663,7 +663,7 @@ uritemplate==4.1.1
     # via
     #   drf-yasg
     #   google-api-python-client
-urllib3==1.26.19
+urllib3==1.26.20
     # via
     #   botocore
     #   elasticsearch
@@ -684,17 +684,17 @@ webencodings==0.5.1
     #   tinycss2
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.9.4
+yarl==1.9.7
     # via aiohttp
 zeep==4.2.1
     # via simple-salesforce
-zipp==3.20.0
+zipp==3.20.1
     # via
     #   importlib-metadata
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==7.0.1
+zope-interface==7.0.3
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

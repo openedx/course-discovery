@@ -75,12 +75,12 @@ class GspreadClientTests(TestCase):
         headers = ['header1', 'header2']
         csv_data = [{'header1': 'value1', 'header2': 'value2'}, {'header1': 'value3', 'header2': 'value4'}]
 
-        client = GspreadClient()
-        client._write_rows(mock_sheet_tab, headers, csv_data)  # pylint: disable=protected-access
+        expected_rows = [['value1', 'value2'], ['value3', 'value4']]
 
-        mock_sheet_tab.append_row.assert_any_call(['value1', 'value2'])
-        mock_sheet_tab.append_row.assert_any_call(['value3', 'value4'])
-        self.assertEqual(mock_sheet_tab.append_row.call_count, 2)
+        client = GspreadClient()
+
+        client._write_rows(mock_sheet_tab, headers, csv_data)  # pylint: disable=protected-access
+        mock_sheet_tab.append_rows.assert_called_once_with(expected_rows)
 
     @mock.patch('course_discovery.apps.course_metadata.gspread_client.GspreadClient._get_or_create_worksheet')
     @mock.patch('course_discovery.apps.course_metadata.gspread_client.GspreadClient._write_headers')

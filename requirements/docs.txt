@@ -14,7 +14,7 @@ babel==2.16.0
     #   sphinx
 beautifulsoup4==4.12.3
     # via pydata-sphinx-theme
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   elasticsearch
     #   requests
@@ -35,7 +35,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.7
+idna==3.8
     # via requests
 imagesize==1.4.1
     # via sphinx
@@ -93,9 +93,9 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 typing-extensions==4.12.2
     # via pydata-sphinx-theme
-urllib3==1.26.19
+urllib3==1.26.20
     # via
     #   elasticsearch
     #   requests
-zipp==3.20.0
+zipp==3.20.1
     # via importlib-metadata
