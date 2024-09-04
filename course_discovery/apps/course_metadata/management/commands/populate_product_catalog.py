@@ -7,7 +7,7 @@ from django.core.management import BaseCommand, CommandError
 from django.db.models import Prefetch
 
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
-from course_discovery.apps.course_metadata.models import Course, CourseType, SubjectTranslation
+from course_discovery.apps.course_metadata.models import Course, CourseType, Program, SubjectTranslation
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class Command(BaseCommand):
             'verified', 'spoc-verified-audit'
         ]
 
-        if (product_type := product_type.lower()) in ['executive_education', 'bootcamp', 'ocm_course']:
+        if product_type in ['executive_education', 'bootcamp', 'ocm_course']:
             queryset = Course.objects.available()
 
             if product_type == 'ocm_course':
@@ -100,6 +100,24 @@ class Command(BaseCommand):
                 'subjects',
                 subject_translations
             )
+        elif product_type == 'degree':
+            queryset = Program.objects.marketable().exclude(degree__isnull=True).select_related('partner', 'type')
+
+            if product_source:
+                queryset = queryset.filter(product_source__slug=product_source)
+
+            subject_translations = Prefetch(
+                'courses__subjects__translations',
+                queryset=SubjectTranslation.objects.filter(language_code='es'),
+                to_attr='spanish_translations'
+            )
+
+            return queryset.prefetch_related(
+                'authoring_organizations',
+                'courses__subjects',
+                'courses__course_runs',
+                subject_translations,
+            )
         else:
             # Return empty queryset if invalid product type specified
             return Course.objects.none()
@@ -112,28 +130,42 @@ class Command(BaseCommand):
         writer.writeheader()
         return writer
 
-    def get_transformed_data(self, product):
+    def get_transformed_data(self, product, product_type):
         """
         Transforms the product data for product's catalog
         """
         authoring_orgs = product.authoring_organizations.all()
-        return {
+
+        data = {
             "UUID": str(product.uuid),
             "Title": product.title,
             "Organizations Name": ", ".join(org.name for org in authoring_orgs),
-            "Organizations Logo": ", ".join(
-                org.logo_image.url for org in authoring_orgs if org.logo_image
-            ),
+            "Organizations Logo": ", ".join(org.logo_image.url for org in authoring_orgs if org.logo_image),
             "Organizations Abbr": ", ".join(org.key for org in authoring_orgs),
-            "Languages": product.languages_codes,
-            "Subjects": ", ".join(subject.name for subject in product.subjects.all()),
-            "Subjects Spanish": ", ".join(
-                translation.name for subject in product.subjects.all()
-                for translation in subject.spanish_translations
-            ),
             "Marketing URL": product.marketing_url,
-            "Marketing Image": (product.image.url if product.image else ""),
         }
+        if product_type in ['executive_education', 'bootcamp', 'ocm_course']:
+            data.update({
+                "Subjects": ", ".join(subject.name for subject in product.subjects.all()),
+                "Subjects Spanish": ", ".join(
+                    translation.name for subject in product.subjects.all()
+                    for translation in subject.spanish_translations
+                ),
+                "Languages": product.languages_codes,
+                "Marketing Image": product.image.url if product.image else "",
+            })
+        elif product_type == 'degree':
+            data.update({
+                "Subjects": ", ".join(subject.name for subject in product.subjects),
+                "Subjects Spanish": ", ".join(
+                    translation.name for subject in product.subjects
+                    for translation in subject.spanish_translations
+                ),
+                "Languages": ", ".join(language.code for language in product.languages),
+                "Marketing Image": product.card_image.url if product.card_image else "",
+            })
+
+        return data
 
     def handle(self, *args, **options):
         product_type = options.get('product_type')
@@ -152,6 +184,7 @@ class Command(BaseCommand):
         gspread_client = GspreadClient()
 
         try:
+            product_type = product_type.lower()
             products = self.get_products(product_type, product_source)
             if not products.exists():
                 raise CommandError('No products found for the given criteria.')
@@ -163,7 +196,7 @@ class Command(BaseCommand):
                     output_writer = self.write_csv_header(output_file)
                     for product in products:
                         try:
-                            output_writer.writerow(self.get_transformed_data(product))
+                            output_writer.writerow(self.get_transformed_data(product, product_type))
                         except Exception as e:  # pylint: disable=broad-exception-caught
                             logger.error(f"Error writing product {product.uuid} to CSV: {str(e)}")
                             continue
@@ -171,7 +204,7 @@ class Command(BaseCommand):
                     logger.info(f'Populated {products_count} {product_type}s to {output_csv}')
 
             elif gspread_client_flag:
-                csv_data = [self.get_transformed_data(product) for product in products]
+                csv_data = [self.get_transformed_data(product, product_type) for product in products]
                 gspread_client.write_data(
                     PRODUCT_CATALOG_CONFIG,
                     self.CATALOG_CSV_HEADERS,

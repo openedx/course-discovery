@@ -8,11 +8,12 @@ import mock
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.management.commands.populate_product_catalog import Command
-from course_discovery.apps.course_metadata.models import Course, CourseType
+from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, CourseTypeFactory, PartnerFactory, SeatFactory, SourceFactory
+    CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeFactory, PartnerFactory, ProgramTypeFactory, SeatFactory,
+    SourceFactory
 )
 
 
@@ -37,12 +38,20 @@ class PopulateProductCatalogCommandTests(TestCase):
         self.course_run_2 = CourseRunFactory.create_batch(
             2, course=Course.objects.all()[1]
         )
+        self.program_type = ProgramTypeFactory.create(slug=ProgramType.MICROMASTERS)
+        self.degrees = DegreeFactory.create_batch(
+            2,
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+        )
 
     def test_populate_product_catalog(self):
         """
         Test populate_product_catalog command and verify data has been populated successfully
         """
-        with NamedTemporaryFile(mode="w", delete=False) as output_csv:
+        with NamedTemporaryFile() as output_csv:
             call_command(
                 "populate_product_catalog",
                 product_type="ocm_course",
@@ -51,19 +60,138 @@ class PopulateProductCatalogCommandTests(TestCase):
                 gspread_client_flag=False,
             )
 
-        with open(output_csv.name, "r") as output_csv_file:
-            csv_reader = csv.DictReader(output_csv_file)
-            for row in csv_reader:
-                self.assertIn("UUID", row)
-                self.assertIn("Title", row)
-                self.assertIn("Organizations Name", row)
-                self.assertIn("Organizations Logo", row)
-                self.assertIn("Organizations Abbr", row)
-                self.assertIn("Languages", row)
-                self.assertIn("Subjects", row)
-                self.assertIn("Subjects Spanish", row)
-                self.assertIn("Marketing URL", row)
-                self.assertIn("Marketing Image", row)
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                for row in csv_reader:
+                    self.assertIn("UUID", row)
+                    self.assertIn("Title", row)
+                    self.assertIn("Organizations Name", row)
+                    self.assertIn("Organizations Logo", row)
+                    self.assertIn("Organizations Abbr", row)
+                    self.assertIn("Languages", row)
+                    self.assertIn("Subjects", row)
+                    self.assertIn("Subjects Spanish", row)
+                    self.assertIn("Marketing URL", row)
+                    self.assertIn("Marketing Image", row)
+
+    def test_populate_product_catalog_for_degrees(self):
+        """
+        Test populate_product_catalog command for all degree products and verify data has been populated successfully.
+        """
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+                self.assertEqual(len(rows), len(self.degrees))
+
+                for degree in self.degrees:
+                    with self.subTest(degree=degree):
+                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid)]
+                        self.assertEqual(len(matching_rows), 1)
+
+                        row = matching_rows[0]
+                        self.assertEqual(row["UUID"], str(degree.uuid))
+                        self.assertEqual(row["Title"], degree.title)
+                        self.assertIn("Organizations Name", row)
+                        self.assertIn("Organizations Logo", row)
+                        self.assertIn("Organizations Abbr", row)
+                        self.assertIn("Languages", row)
+                        self.assertIn("Subjects", row)
+                        self.assertIn("Subjects Spanish", row)
+                        self.assertIn("Marketing URL", row)
+                        self.assertIn("Marketing Image", row)
+
+    def test_populate_product_catalog_excludes_non_marketable_degrees(self):
+        """
+        Test that the populate_product_catalog command excludes non-marketable degrees, which are defined as:
+        - Degrees with status not set to ProgramStatus.Active
+        - Degrees with an empty marketing_slug
+        """
+        non_marketable_degrees = [
+            DegreeFactory.create(
+                product_source=self.source,
+                partner=self.partner,
+                additional_metadata=None,
+                type=self.program_type,
+                status=ProgramStatus.Unpublished,
+                marketing_slug="valid-slug-1",
+                title="Non-Marketable Degree - Unpublished Status"
+            ),
+            DegreeFactory.create(
+                product_source=self.source,
+                partner=self.partner,
+                additional_metadata=None,
+                type=self.program_type,
+                status=ProgramStatus.Retired,
+                marketing_slug="valid-slug-2",
+                title="Non-Marketable Degree - Retired Status"
+            ),
+            DegreeFactory.create(
+                product_source=self.source,
+                partner=self.partner,
+                additional_metadata=None,
+                type=self.program_type,
+                status=ProgramStatus.Deleted,
+                marketing_slug="valid-slug-3",
+                title="Non-Marketable Degree - Deleted Status"
+            ),
+            DegreeFactory.create(
+                product_source=self.source,
+                partner=self.partner,
+                additional_metadata=None,
+                type=self.program_type,
+                status=ProgramStatus.Active,
+                marketing_slug="",
+                title="Non-Marketable Degree - Empty Slug"
+            )
+        ]
+
+        marketable_degree = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree"
+        )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+
+                # Check that non-marketable degrees are not in the CSV
+                for degree in non_marketable_degrees:
+                    with self.subTest(degree=degree):
+                        matching_rows = [
+                            row for row in rows if row["UUID"] == str(degree.uuid)
+                        ]
+                        self.assertEqual(len(matching_rows), 0,
+                                         f"Non-marketable degree '{degree.title}' should not be in the CSV")
+
+                # Check that the marketable degree is in the CSV
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree.uuid)
+                ]
+                self.assertEqual(len(matching_rows), 1,
+                                 f"Marketable degree '{marketable_degree.title}' should be in the CSV")
 
     @mock.patch(
         "course_discovery.apps.course_metadata.management.commands.populate_product_catalog.Command.get_products"
@@ -114,7 +242,7 @@ class PopulateProductCatalogCommandTests(TestCase):
         product = self.courses[0]
         command = Command()
         product_authoring_orgs = product.authoring_organizations.all()
-        transformed_prod_data = command.get_transformed_data(product)
+        transformed_prod_data = command.get_transformed_data(product, "ocm_course")
         assert transformed_prod_data == {
             "UUID": str(product.uuid),
             "Title": product.title,
@@ -138,6 +266,32 @@ class PopulateProductCatalogCommandTests(TestCase):
             ),
             "Marketing URL": product.marketing_url,
             "Marketing Image": (product.image.url if product.image else ""),
+        }
+
+    def test_get_transformed_data_for_degree(self):
+        """
+        Verify get_transformed_data method is working correctly for degree
+        """
+        product = self.degrees[0]
+        command = Command()
+        product_authoring_orgs = product.authoring_organizations.all()
+        transformed_prod_data = command.get_transformed_data(product, "degree")
+        assert transformed_prod_data == {
+            "UUID": str(product.uuid),
+            "Title": product.title,
+            "Organizations Name": ", ".join(org.name for org in product_authoring_orgs),
+            "Organizations Logo": ", ".join(
+                org.logo_image.url for org in product_authoring_orgs if org.logo_image
+            ),
+            "Organizations Abbr": ", ".join(org.key for org in product_authoring_orgs),
+            "Languages": ", ".join(language.code for language in product.languages),
+            "Subjects": ", ".join(subject.name for subject in product.subjects),
+            "Subjects Spanish": ", ".join(
+                translation.name for subject in product.subjects
+                for translation in subject.spanish_translations
+            ),
+            "Marketing URL": product.marketing_url,
+            "Marketing Image": product.card_image.url if product.card_image else "",
         }
 
     @mock.patch('course_discovery.apps.course_metadata.management.commands.populate_product_catalog.GspreadClient')
