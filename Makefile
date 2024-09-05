@@ -90,10 +90,10 @@ html_coverage: ## Generate and view HTML coverage report
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 extract_translations: ## Extract strings to be translated, outputting .po and .mo files
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on CI.
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool dummy
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin compilemessages
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 ifeq ($(OPENEDX_ATLAS_PULL),)
