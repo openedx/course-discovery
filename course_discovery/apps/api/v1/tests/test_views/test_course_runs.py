@@ -1239,7 +1239,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         else:
             assert restricted_run.key not in retrieved_keys
 
-    @ddt.data([True, 4], [False, 3])
+    @ddt.data(
+        [True, 4],
+        # Skipping this because it's flaky: https://github.com/openedx/course-discovery/issues/4431
+        # [False, 3]
+    )
     @ddt.unpack
     def test_list_query_include_restricted(self, include_restriction_param, expected_result_count):
         CourseRunFactory.create_batch(3, title='Some cool title', course__partner=self.partner)

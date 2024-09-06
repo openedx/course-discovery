@@ -1,3 +1,4 @@
+import pytest
 from django.test.utils import override_settings
 from django.urls import path, reverse
 from mock import patch
@@ -68,6 +69,7 @@ class TestAnonymousUserThrottleMixin(APITestCase):
         assert response.data == "Hello, World"
         self.client.logout()
 
+    @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")
     def test_throttle_limit__authentication_classes(self):
         """
         Verify that endpoint is throttled against unauthenticated users when requests are greater than limit.

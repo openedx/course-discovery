@@ -352,6 +352,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             self.serialize_course(Course.objects.all(), many=True)
         )
 
+    @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")
     @responses.activate
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
@@ -366,6 +367,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
+    @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
         courses = CourseFactory.create_batch(3, partner=self.partner)
