@@ -100,6 +100,30 @@ class TestCourse(TestCase):
         course.image = None
         assert course.image_url == course.card_image_url
 
+    def test_language_codes(self):
+        partner = factories.PartnerFactory.create()
+        source = factories.SourceFactory.create(slug="edx")
+        course = factories.CourseFactory(
+            product_source=source,
+            partner=partner,
+            additional_metadata=None,
+        )
+        LanguageTag.objects.create(code='en', name='English')
+        course_run = CourseRunFactory(
+            course=Course.objects.all()[0],
+            status=CourseRunStatus.Published,
+            language=LanguageTag.objects.get(code='en')
+        )
+        SeatFactory.create(course_run=course_run)
+        CourseRunFactory(
+            course=Course.objects.all()[0],
+            status=CourseRunStatus.Unpublished,
+            language=LanguageTag.objects.get(code='es'),
+            enrollment_end=datetime.datetime.now() - datetime.timedelta(days=5)
+        )
+        assert course.languages_codes() == 'en, es'
+        assert course.languages_codes(exclude_inactive_runs=True) == 'en'
+
     def test_validate_history_created_only_on_change(self):
         """
         Validate that course history object would be created if the object is changed otherwise not.
