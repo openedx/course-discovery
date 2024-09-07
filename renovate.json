@@ -1,9 +1,6 @@
 {
   "extends": [
     "config:base",
-    ":automergeLinters",
-    ":automergeTesters",
-    ":automergeMinor",
     ":noUnscheduledUpdates",
     ":semanticCommits"
   ],
