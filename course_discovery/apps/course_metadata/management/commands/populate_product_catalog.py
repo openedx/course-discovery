@@ -4,7 +4,7 @@ import logging
 
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Q
 
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import Course, CourseType, Program, SubjectTranslation
@@ -74,7 +74,7 @@ class Command(BaseCommand):
         ]
 
         if product_type in ['executive_education', 'bootcamp', 'ocm_course']:
-            queryset = Course.objects.available()
+            queryset = Course.objects.available().select_related('partner', 'type')
 
             if product_type == 'ocm_course':
                 queryset = queryset.filter(type__slug__in=ocm_course_catalog_types)
@@ -87,6 +87,10 @@ class Command(BaseCommand):
 
             if product_source:
                 queryset = queryset.filter(product_source__slug=product_source)
+
+            queryset = queryset.annotate(
+                num_orgs=Count('authoring_organizations')
+            ).filter(Q(num_orgs__gt=0) & Q(image__isnull=False) & ~Q(image=''))
 
             # Prefetch Spanish translations of subjects
             subject_translations = Prefetch(
@@ -105,6 +109,10 @@ class Command(BaseCommand):
 
             if product_source:
                 queryset = queryset.filter(product_source__slug=product_source)
+
+            queryset = queryset.annotate(
+                num_orgs=Count('authoring_organizations')
+            ).filter(Q(num_orgs__gt=0) & Q(card_image__isnull=False) & ~Q(card_image=''))
 
             subject_translations = Prefetch(
                 'courses__subjects__translations',
@@ -137,7 +145,7 @@ class Command(BaseCommand):
         authoring_orgs = product.authoring_organizations.all()
 
         data = {
-            "UUID": str(product.uuid),
+            "UUID": str(product.uuid.hex),
             "Title": product.title,
             "Organizations Name": ", ".join(org.name for org in authoring_orgs),
             "Organizations Logo": ", ".join(org.logo_image.url for org in authoring_orgs if org.logo_image),
@@ -151,7 +159,7 @@ class Command(BaseCommand):
                     translation.name for subject in product.subjects.all()
                     for translation in subject.spanish_translations
                 ),
-                "Languages": product.languages_codes,
+                "Languages": product.languages_codes(),
                 "Marketing Image": product.image.url if product.image else "",
             })
         elif product_type == 'degree':
