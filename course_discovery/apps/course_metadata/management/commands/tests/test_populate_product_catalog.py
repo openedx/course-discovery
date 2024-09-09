@@ -309,8 +309,8 @@ class PopulateProductCatalogCommandTests(TestCase):
                 org.logo_image.url for org in product_authoring_orgs if org.logo_image
             ),
             "Organizations Abbr": ", ".join(org.key for org in product_authoring_orgs),
-            "Languages": ", ".join(language.code for language in product.languages),
-            "Subjects": ", ".join(subject.name for subject in product.subjects),
+            "Languages": ", ".join(language.code for language in product.active_languages),
+            "Subjects": ", ".join(subject.name for subject in product.active_subjects),
             "Subjects Spanish": ", ".join(
                 translation.name for subject in product.subjects
                 for translation in subject.spanish_translations

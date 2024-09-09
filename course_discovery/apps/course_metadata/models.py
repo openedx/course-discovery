@@ -3519,6 +3519,16 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         return {course_run.language for course_run in self.course_runs if course_run.language is not None}
 
     @property
+    def active_languages(self):
+        """
+        :return: The list of languages; It gives preference to the language_override over the languages
+        extracted from the course runs.
+        """
+        if self.language_override:
+            return {self.language_override}
+        return self.languages
+
+    @property
     def transcript_languages(self):
         languages = [course_run.transcript_languages.all() for course_run in self.course_runs]
         languages = itertools.chain.from_iterable(languages)
@@ -3539,6 +3549,24 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         common_primary = [s for s, _ in Counter(primary_subjects).most_common()][:1]
         common_others = [s for s, _ in Counter(course_subjects).most_common() if s not in common_primary]
         return common_primary + common_others
+
+    @property
+    def active_subjects(self):
+        """
+        :return: The list of subjects; the first subject should be the most common primary subjects of its courses,
+        other subjects should be collected and ranked by frequency among the courses.
+
+        Note: This method gives preference to the primary_subject_override over the primary subject of the courses.
+        """
+        subjects = self.subjects
+
+        if self.primary_subject_override:
+            if self.primary_subject_override not in subjects:
+                subjects = [self.primary_subject_override] + subjects
+            else:
+                subjects = [self.primary_subject_override] + [subject for subject in subjects if subject != self.primary_subject_override]
+
+        return subjects
 
     @property
     def topics(self):
