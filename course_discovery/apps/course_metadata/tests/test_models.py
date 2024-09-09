@@ -2573,6 +2573,11 @@ class ProgramTests(TestCase):
 
         cls.other_course_run = factories.CourseRunFactory()
         cls.other_program = factories.ProgramFactory(courses=[cls.other_course_run.course])
+        cls.program_with_overrides = factories.ProgramFactory(
+            courses=[cls.courses[0], cls.other_course_run.course],
+            excluded_course_runs=[cls.excluded_course_run],
+            language_override=LanguageTag.objects.get(code='es'),
+        )
 
     def tearDown(self):
         """

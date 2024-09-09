@@ -163,15 +163,27 @@ class Command(BaseCommand):
                 "Marketing Image": product.image.url if product.image else "",
             })
         elif product_type == 'degree':
-            data.update({
-                "Subjects": ", ".join(subject.name for subject in product.subjects),
-                "Subjects Spanish": ", ".join(
-                    translation.name for subject in product.subjects
-                    for translation in subject.spanish_translations
-                ),
-                "Languages": ", ".join(language.code for language in product.languages),
-                "Marketing Image": product.card_image.url if product.card_image else "",
-            })
+            if product.primary_subject_override:
+                if product.primary_subject_override not in product.subjects.all():
+                    product_subjects = [product.primary_subject_override] + list(product.subjects.all())
+                else:
+                    product_subjects = list(product.subjects.all())
+            data.update(
+                {
+                    "Subjects": ", ".join(subject.name for subject in product_subjects),
+                    "Subjects Spanish": ", ".join(
+                        translation.name for subject in product.subjects
+                        for translation in subject.spanish_translations
+                    ),
+                    "Languages": (
+                        product.language_override.code if product.language_override
+                        else ", ".join(language.code for language in product.languages) or "es-us"
+                    ),
+                    "Marketing Image": (
+                        product.card_image.url if product.card_image else ""
+                    ),
+                }
+            )
 
         return data
 
