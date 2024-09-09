@@ -692,7 +692,6 @@ def get_salesforce_util(partner):
 
 
 class HTML2TextWithLangSpans(html2text.HTML2Text):
-    # pylint: disable=abstract-method
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
