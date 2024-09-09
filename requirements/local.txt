@@ -76,9 +76,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.10
+boto3==1.35.14
     # via django-ses
-botocore==1.35.10
+botocore==1.35.14
     # via
     #   boto3
     #   s3transfer
@@ -104,7 +104,7 @@ certifi==2024.8.30
     #   requests
     #   selenium
     #   snowflake-connector-python
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   cairocffi
     #   cryptography
@@ -152,7 +152,7 @@ coverage[toml]==7.6.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   pyjwt
     #   pyopenssl
@@ -280,7 +280,7 @@ django-libsass==0.9
     # via -r requirements/base.in
 django-localflavor==4.0
     # via -r requirements/base.in
-django-model-utils==4.5.1
+django-model-utils==5.0.0
     # via taxonomy-connector
 django-multi-email-field==0.7.0
     # via -r requirements/base.in
@@ -384,24 +384,26 @@ edx-django-utils==5.15.0
     #   getsmarter-api-clients
     #   openedx-events
     #   taxonomy-connector
-edx-drf-extensions==10.3.0
+edx-drf-extensions==10.4.0
     # via -r requirements/base.in
 edx-event-bus-kafka==5.8.1
     # via -r requirements/base.in
 edx-event-bus-redis==0.5.0
     # via -r requirements/base.in
-edx-i18n-tools==1.6.2
+edx-i18n-tools==1.6.3
     # via -r requirements/local.in
 edx-lint==5.3.7
-    # via -r requirements/test.in
-edx-opaque-keys[django]==2.10.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.in
+edx-opaque-keys[django]==2.11.0
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==5.7.1
+edx-rest-api-client==6.0.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -433,11 +435,11 @@ face==22.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==28.1.0
+faker==28.4.1
     # via factory-boy
-fastavro==1.9.5
+fastavro==1.9.7
     # via openedx-events
-filelock==3.15.4
+filelock==3.16.0
     # via
     #   snowflake-connector-python
     #   tox
@@ -454,7 +456,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.19.2
     # via google-api-python-client
-google-api-python-client==2.143.0
+google-api-python-client==2.144.0
     # via -r requirements/base.in
 google-auth==2.34.0
     # via
@@ -538,7 +540,7 @@ mccabe==0.7.0
     # via pylint
 mock==5.1.0
     # via -r requirements/test.in
-more-itertools==10.4.0
+more-itertools==10.5.0
     # via simple-salesforce
 multidict==6.0.5
     # via
@@ -559,7 +561,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.in
-openedx-events==9.12.0
+openedx-events==9.14.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -589,7 +591,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==4.2.2
+platformdirs==4.3.2
     # via
     #   pylint
     #   snowflake-connector-python
@@ -685,7 +687,7 @@ pytest==8.3.2
     #   pytest-xdist
 pytest-cov==5.0.0
     # via -r requirements/test.in
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r requirements/test.in
 pytest-responses==0.5.1
     # via -r requirements/test.in
@@ -758,7 +760,6 @@ requests==2.32.3
     #   responses
     #   semgrep
     #   simple-salesforce
-    #   slumber
     #   snowflake-connector-python
     #   social-auth-core
     #   sphinx
@@ -812,8 +813,6 @@ six==1.16.0
     #   isodate
     #   jsonschema
     #   python-dateutil
-slumber==0.7.1
-    # via edx-rest-api-client
 sniffio==1.3.1
     # via trio
 snowballstemmer==2.2.0
@@ -935,7 +934,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.3
+virtualenv==20.26.4
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
@@ -951,7 +950,7 @@ wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.9.7
+yarl==1.11.0
     # via aiohttp
 zeep==4.2.1
     # via simple-salesforce
