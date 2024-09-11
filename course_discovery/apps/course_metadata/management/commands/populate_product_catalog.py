@@ -74,7 +74,7 @@ class Command(BaseCommand):
         ]
 
         if product_type in ['executive_education', 'bootcamp', 'ocm_course']:
-            queryset = Course.objects.available().select_related('partner', 'type')
+            queryset = Course.objects.available(exclude_hidden_runs=True).select_related('partner', 'type')
 
             if product_type == 'ocm_course':
                 queryset = queryset.filter(type__slug__in=ocm_course_catalog_types)

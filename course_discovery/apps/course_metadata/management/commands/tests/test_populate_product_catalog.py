@@ -41,6 +41,12 @@ class PopulateProductCatalogCommandTests(TestCase):
         self.course_run_2 = CourseRunFactory.create_batch(
             2, course=Course.objects.all()[1]
         )
+        self.course_run_3 = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=True,
+        )
+        self.hidden_run_seat = SeatFactory.create(course_run=self.course_run_3)
         self.program_type = ProgramTypeFactory.create(slug=ProgramType.MICROMASTERS)
         self.degrees = DegreeFactory.create_batch(
             2,
@@ -52,32 +58,89 @@ class PopulateProductCatalogCommandTests(TestCase):
             card_image=factory.django.ImageField()
         )
 
+    def _execute_populate_product_catalog(self, product_type, output_csv, product_source, gspread_client_flag=False):
+        """
+        Helper method to execute populate_product_catalog command
+        """
+        call_command(
+            "populate_product_catalog",
+            product_type=product_type,
+            output_csv=output_csv,
+            product_source=product_source,
+            gspread_client_flag=gspread_client_flag,
+        )
+        with open(output_csv, "r") as output_csv_file:
+            return list(csv.DictReader(output_csv_file))
+
+    def _assert_row_data(self, rows, expected_uuids, should_exist=True):
+        """
+        Helper method to assert row data in the CSV
+
+        Args:
+            rows (list): List of CSV rows
+            expected_uuids (list): List of Course UUIDs to be expected in the CSV
+            should_exist (bool, optional): Whether the expected UUIDs should exist in the CSV. Defaults to True.
+        """
+        for uuid in expected_uuids:
+            matching_rows = [row for row in rows if row["UUID"] == str(uuid.hex)]
+            if should_exist:
+                self.assertEqual(len(matching_rows), 1)
+            else:
+                self.assertEqual(len(matching_rows), 0, f"UUID {uuid} shouldn't be in the CSV")
+
     def test_populate_product_catalog(self):
         """
         Test populate_product_catalog command and verify data has been populated successfully
         """
         with NamedTemporaryFile() as output_csv:
-            call_command(
-                "populate_product_catalog",
-                product_type="ocm_course",
-                output_csv=output_csv.name,
-                product_source="edx",
-                gspread_client_flag=False,
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
             )
 
-            with open(output_csv.name, "r") as output_csv_file:
-                csv_reader = csv.DictReader(output_csv_file)
-                for row in csv_reader:
-                    self.assertIn("UUID", row)
-                    self.assertIn("Title", row)
-                    self.assertIn("Organizations Name", row)
-                    self.assertIn("Organizations Logo", row)
-                    self.assertIn("Organizations Abbr", row)
-                    self.assertIn("Languages", row)
-                    self.assertIn("Subjects", row)
-                    self.assertIn("Subjects Spanish", row)
-                    self.assertIn("Marketing URL", row)
-                    self.assertIn("Marketing Image", row)
+            for row in rows:
+                self.assertIn("UUID", row)
+                self.assertIn("Title", row)
+                self.assertIn("Organizations Name", row)
+                self.assertIn("Organizations Logo", row)
+                self.assertIn("Organizations Abbr", row)
+                self.assertIn("Languages", row)
+                self.assertIn("Subjects", row)
+                self.assertIn("Subjects Spanish", row)
+                self.assertIn("Marketing URL", row)
+                self.assertIn("Marketing Image", row)
+
+    def test_populate_product_catalog_for_courses_with_hidden_and_non_hidden_published_runs(self):
+        """
+        Test populate_product_catalog command for course having hidden and non-hidden published runs
+        and verify data has been populated successfully.
+        """
+        hidden_course_run = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=True,
+        )
+        SeatFactory.create(course_run=hidden_course_run)
+
+        with NamedTemporaryFile() as output_csv:
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
+            )
+            self._assert_row_data(rows, [self.courses[0].uuid], should_exist=True)
+            self._assert_row_data(rows, [self.courses[1].uuid], should_exist=False)
+
+        non_hidden_course_run = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=False,
+        )
+        SeatFactory.create(course_run=non_hidden_course_run)
+
+        with NamedTemporaryFile() as output_csv:
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
+            )
+            self._assert_row_data(rows, [self.courses[0].uuid], should_exist=True)
+            self._assert_row_data(rows, [self.courses[1].uuid], should_exist=True)
 
     def test_populate_product_catalog_for_degrees(self):
         """
@@ -197,7 +260,7 @@ class PopulateProductCatalogCommandTests(TestCase):
                 # Check that non-marketable degrees are not in the CSV
                 for degree in non_marketable_degrees:
                     with self.subTest(degree=degree):
-                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid)]
+                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid.hex)]
                         self.assertEqual(
                             len(matching_rows), 0, f"Non-marketable degree '{degree.title}' should not be in the CSV"
                         )
