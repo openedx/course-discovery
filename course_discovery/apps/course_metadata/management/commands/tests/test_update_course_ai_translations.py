@@ -101,6 +101,43 @@ class UpdateCourseAiTranslationsTests(TestCase):
             [{'code': 'es', 'label': 'Spanish'}]
         )
 
+    def test_command_with_marketable_and_active_flag(self, mock_get_translations):
+        """Test the command with the marketable and active flag filtering both marketable and active course runs."""
+        mock_get_translations.return_value = {
+            **self.TRANSLATION_DATA,
+            'available_translation_languages': [{'code': 'fr', 'label': 'French'}]
+        }
+
+        non_active_non_marketable_course_run = CourseRunFactory(
+            end=now() - datetime.timedelta(days=10), translation_languages=[])
+        active_non_marketable_course_run = CourseRunFactory(end=now() + datetime.timedelta(days=10))
+
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit')
+        verified_and_audit_type.is_marketable = True
+        verified_and_audit_type.save()
+
+        marketable_non_active_course_run = CourseRunFactory(
+            status='published',
+            slug='test-course-run',
+            type=verified_and_audit_type,
+            end=now() - datetime.timedelta(days=10), translation_languages=[]
+        )
+        seat = SeatFactory(course_run=marketable_non_active_course_run)
+        marketable_non_active_course_run.seats.add(seat)
+
+        call_command('update_course_ai_translations', partner=self.partner.name, marketable=True, active=True)
+
+        marketable_non_active_course_run.refresh_from_db()
+        self.assertListEqual(
+            marketable_non_active_course_run.translation_languages,
+            [{'code': 'fr', 'label': 'French'}]
+        )
+        self.assertListEqual(
+            active_non_marketable_course_run.translation_languages,
+            [{'code': 'fr', 'label': 'French'}]
+        )
+        self.assertListEqual(non_active_non_marketable_course_run.translation_languages, [])
+
     def test_command_no_partner(self, _):
         """Test the command raises an error if no valid partner is found."""
         with self.assertRaises(CommandError):
