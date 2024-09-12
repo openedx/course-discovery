@@ -3564,7 +3564,8 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
             if self.primary_subject_override not in subjects:
                 subjects = [self.primary_subject_override] + subjects
             else:
-                subjects = [self.primary_subject_override] + [subject for subject in subjects if subject != self.primary_subject_override]
+                subjects = [self.primary_subject_override] + \
+                    [subject for subject in subjects if subject != self.primary_subject_override]
 
         return subjects
 
