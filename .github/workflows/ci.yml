@@ -63,7 +63,10 @@ jobs:
         uses: actions/download-artifact@v4
       - name: Run coverage
         run: make ci_coverage
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   quality:
     runs-on: ubuntu-latest
