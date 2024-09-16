@@ -105,7 +105,8 @@ class Command(BaseCommand):
                 subject_translations
             )
         elif product_type == 'degree':
-            queryset = Program.objects.marketable().exclude(degree__isnull=True).select_related('partner', 'type')
+            queryset = Program.objects.marketable().exclude(degree__isnull=True) \
+                .select_related('partner', 'type', 'primary_subject_override', 'language_override')
 
             if product_source:
                 queryset = queryset.filter(product_source__slug=product_source)
@@ -164,12 +165,12 @@ class Command(BaseCommand):
             })
         elif product_type == 'degree':
             data.update({
-                "Subjects": ", ".join(subject.name for subject in product.subjects),
+                "Subjects": ", ".join(subject.name for subject in product.active_subjects),
                 "Subjects Spanish": ", ".join(
                     translation.name for subject in product.subjects
                     for translation in subject.spanish_translations
                 ),
-                "Languages": ", ".join(language.code for language in product.languages),
+                "Languages": ", ".join(language.code for language in product.active_languages),
                 "Marketing Image": product.card_image.url if product.card_image else "",
             })
 
@@ -198,7 +199,7 @@ class Command(BaseCommand):
                 raise CommandError('No products found for the given criteria.')
             products_count = products.count()
 
-            logger.info(f'Fetched {products_count} courses from the database')
+            logger.info(f'Fetched {products_count} {product_type}s from the database')
             if output_csv:
                 with open(output_csv, 'w', newline='') as output_file:
                     output_writer = self.write_csv_header(output_file)
