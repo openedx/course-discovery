@@ -51,10 +51,11 @@ class Command(BaseCommand):
 
         course_runs = CourseRun.objects.all()
 
-        if options['active']:
+        if options['active'] and options['marketable']:
+            course_runs = course_runs.marketable().union(course_runs.active())
+        elif options['active']:
             course_runs = course_runs.active()
-
-        if options['marketable']:
+        elif options['marketable']:
             course_runs = course_runs.marketable()
 
         for course_run in course_runs:

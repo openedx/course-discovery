@@ -44,7 +44,7 @@ jobs:
         continue-on-error: ${{ matrix.status == 'ignored' }}
       - name: Upload coverage
         if: matrix.db-version == 'mysql80'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage${{ matrix.pytest-split-group }}
           path: .coverage
@@ -60,10 +60,13 @@ jobs:
           PYTHON_VERSION: 3.12
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
       - name: Run coverage
         run: make ci_coverage
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   quality:
     runs-on: ubuntu-latest
