@@ -7,11 +7,12 @@ from tempfile import NamedTemporaryFile
 import factory
 import mock
 from django.core.management import CommandError, call_command
+from django.db.models import Prefetch, prefetch_related_objects
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.management.commands.populate_product_catalog import Command
-from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType, SubjectTranslation
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeFactory, OrganizationFactory, PartnerFactory,
     ProgramTypeFactory, SeatFactory, SourceFactory, SubjectFactory
@@ -406,6 +407,13 @@ class PopulateProductCatalogCommandTests(TestCase):
         product = self.degrees[0]
         command = Command()
         product_authoring_orgs = product.authoring_organizations.all()
+        subject_translations = Prefetch(
+            "active_subjects__translations",
+            queryset=SubjectTranslation.objects.filter(language_code="es"),
+            to_attr="spanish_translations",
+        )
+        prefetch_related_objects([product], subject_translations)
+
         transformed_prod_data = command.get_transformed_data(product, "degree")
         assert transformed_prod_data == {
             "UUID": str(product.uuid.hex),
@@ -418,7 +426,7 @@ class PopulateProductCatalogCommandTests(TestCase):
             "Languages": ", ".join(language.code for language in product.active_languages),
             "Subjects": ", ".join(subject.name for subject in product.active_subjects),
             "Subjects Spanish": ", ".join(
-                translation.name for subject in product.subjects
+                translation.name for subject in product.active_subjects
                 for translation in subject.spanish_translations
             ),
             "Marketing URL": product.marketing_url,

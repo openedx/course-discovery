@@ -116,7 +116,7 @@ class Command(BaseCommand):
             ).filter(Q(num_orgs__gt=0) & Q(card_image__isnull=False) & ~Q(card_image=''))
 
             subject_translations = Prefetch(
-                'courses__subjects__translations',
+                'active_subjects__translations',
                 queryset=SubjectTranslation.objects.filter(language_code='es'),
                 to_attr='spanish_translations'
             )
@@ -167,7 +167,7 @@ class Command(BaseCommand):
             data.update({
                 "Subjects": ", ".join(subject.name for subject in product.active_subjects),
                 "Subjects Spanish": ", ".join(
-                    translation.name for subject in product.subjects
+                    translation.name for subject in product.active_subjects
                     for translation in subject.spanish_translations
                 ),
                 "Languages": ", ".join(language.code for language in product.active_languages),
