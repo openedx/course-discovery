@@ -7,15 +7,17 @@ from tempfile import NamedTemporaryFile
 import factory
 import mock
 from django.core.management import CommandError, call_command
+from django.db.models import Prefetch, prefetch_related_objects
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.management.commands.populate_product_catalog import Command
-from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType, SubjectTranslation
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeFactory, OrganizationFactory, PartnerFactory,
-    ProgramTypeFactory, SeatFactory, SourceFactory
+    ProgramTypeFactory, SeatFactory, SourceFactory, SubjectFactory
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class PopulateProductCatalogCommandTests(TestCase):
@@ -281,6 +283,48 @@ class PopulateProductCatalogCommandTests(TestCase):
                 self.assertEqual(len(matching_rows), 1,
                                  f"Marketable degree '{marketable_degree.title}' should be in the CSV")
 
+    def test_populate_product_catalog_with_degrees_having_overrides(self):
+        """
+        Test that the populate_product_catalog command includes the overridden subjects and languages for degrees.
+        """
+        degree = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            primary_subject_override=SubjectFactory(name='Subject1'),
+            language_override=LanguageTag.objects.get(code='es'),
+        )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(degree.uuid.hex)
+                ]
+                self.assertEqual(len(matching_rows), 1)
+
+                row = matching_rows[0]
+                self.assertEqual(row["UUID"], str(degree.uuid.hex))
+                self.assertEqual(row["Title"], degree.title)
+                self.assertIn(degree.primary_subject_override.name, row["Subjects"])
+                self.assertEqual(row["Languages"], degree.language_override.code)
+
     @mock.patch(
         "course_discovery.apps.course_metadata.management.commands.populate_product_catalog.Command.get_products"
     )
@@ -363,6 +407,13 @@ class PopulateProductCatalogCommandTests(TestCase):
         product = self.degrees[0]
         command = Command()
         product_authoring_orgs = product.authoring_organizations.all()
+        subject_translations = Prefetch(
+            "active_subjects__translations",
+            queryset=SubjectTranslation.objects.filter(language_code="es"),
+            to_attr="spanish_translations",
+        )
+        prefetch_related_objects([product], subject_translations)
+
         transformed_prod_data = command.get_transformed_data(product, "degree")
         assert transformed_prod_data == {
             "UUID": str(product.uuid.hex),
@@ -372,10 +423,10 @@ class PopulateProductCatalogCommandTests(TestCase):
                 org.logo_image.url for org in product_authoring_orgs if org.logo_image
             ),
             "Organizations Abbr": ", ".join(org.key for org in product_authoring_orgs),
-            "Languages": ", ".join(language.code for language in product.languages),
-            "Subjects": ", ".join(subject.name for subject in product.subjects),
+            "Languages": ", ".join(language.code for language in product.active_languages),
+            "Subjects": ", ".join(subject.name for subject in product.active_subjects),
             "Subjects Spanish": ", ".join(
-                translation.name for subject in product.subjects
+                translation.name for subject in product.active_subjects
                 for translation in subject.spanish_translations
             ),
             "Marketing URL": product.marketing_url,

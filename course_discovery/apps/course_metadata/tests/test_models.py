@@ -3519,6 +3519,65 @@ class ProgramTests(TestCase):
         self.program.program_duration_override = ''
         assert self.program.program_duration_override is not None
 
+    def test_active_subjects_with_no_override(self):
+        """
+        Test that active_subjects returns the subjects from the associated courses
+        when no primary_subject_override is set.
+        """
+
+        subject1 = SubjectFactory.create(name='Subject 1')
+        subject2 = SubjectFactory.create(name='Subject 2')
+        course1 = CourseFactory.create(subjects=[subject1])
+        course2 = CourseFactory.create(subjects=[subject2])
+        program = ProgramFactory.create(primary_subject_override=None, courses=[course1, course2])
+
+        expected_subjects = [subject1, subject2]
+        self.assertEqual(program.active_subjects, expected_subjects)
+
+    def test_active_subjects_with_primary_subject_override(self):
+        """
+        Test that active_subjects includes the primary_subject_override at the beginning
+        when it is set.
+        """
+        primary_subject_override = SubjectFactory.create(name='Primary Subject')
+        other_subject = SubjectFactory.create(name='Other Subject')
+        course = CourseFactory.create(subjects=[other_subject])
+
+        program = ProgramFactory.create(primary_subject_override=primary_subject_override, courses=[course])
+
+        expected_subjects = [primary_subject_override, other_subject]
+        self.assertEqual(program.active_subjects, expected_subjects)
+
+    def test_active_languages_with_no_override(self):
+        """
+        Test that active_languages returns the languages from the associated courses
+        when no language_override is set.
+        """
+
+        language_en = LanguageTag.objects.create(code='en', name='English')
+        language_fr = LanguageTag.objects.get(code='fr')
+
+        course_run1 = CourseRunFactory.create(language=language_en)
+        course_run2 = CourseRunFactory.create(language=language_fr)
+
+        program = ProgramFactory.create(language_override=None, courses=[course_run1.course, course_run2.course])
+
+        expected_languages = {language_en, language_fr}
+        self.assertEqual(program.active_languages, expected_languages)
+
+    def test_active_languages_with_language_override(self):
+        """
+        Test that active_languages returns the language_override when it is set.
+        """
+
+        language_es = LanguageTag.objects.get(code='es')
+        language_de = LanguageTag.objects.get(code='de')
+        course_run = CourseRunFactory.create(language=language_de)
+        program = ProgramFactory.create(language_override=language_es, courses=[course_run.course])
+
+        expected_languages = {language_es}
+        self.assertEqual(program.active_languages, expected_languages)
+
 
 class ProgramSubscriptionTests(TestCase):
 
