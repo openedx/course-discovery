@@ -170,7 +170,7 @@ class Command(BaseCommand):
                     translation.name for subject in product.active_subjects
                     for translation in subject.spanish_translations
                 ),
-                "Languages": ", ".join(language.code for language in product.active_languages),
+                "Languages": ", ".join(language.code for language in product.active_languages) or 'en-us',
                 "Marketing Image": product.card_image.url if product.card_image else "",
             })
 

@@ -235,6 +235,18 @@ class PopulateProductCatalogCommandTests(TestCase):
             authoring_organizations=[self.organization],
             card_image=factory.django.ImageField()
         )
+        marketable_degree_with_no_language = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree - with empty language field",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            language_override=None,
+        )
 
         marketable_degree_2 = DegreeFactory.create(
             product_source=self.source,
@@ -282,6 +294,15 @@ class PopulateProductCatalogCommandTests(TestCase):
                 ]
                 self.assertEqual(len(matching_rows), 1,
                                  f"Marketable degree '{marketable_degree.title}' should be in the CSV")
+
+                # Check that the marketable degree with no language field is in the CSV
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree_with_no_language.uuid.hex)
+                ]
+                self.assertEqual(len(matching_rows), 1,
+                                 f"Marketable degree '{marketable_degree_with_no_language.title}' should be in the CSV")
+                # Check that the marketable degree with no language field has the default language populated
+                self.assertEqual(matching_rows[0].get("Languages"), 'en-us')
 
     def test_populate_product_catalog_with_degrees_having_overrides(self):
         """
