@@ -2,10 +2,14 @@ import csv
 import datetime
 import logging
 
+import snowflake.connector
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models import Count, Prefetch, Q
 
+from course_discovery.apps.course_metadata.constants import (
+    SNOWFLAKE_POPULATE_COURSE_LENGTH_QUERY, SNOWFLAKE_POPULATE_PRODUCT_CATALOG_QUERY, COURSE_TYPES
+)
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import Course, CourseType, Program, SubjectTranslation
 
@@ -63,6 +67,64 @@ class Command(BaseCommand):
             required=False,
             help='Flag to overwrite the existing data in Google Sheet tab'
         )
+        parser.add_argument(
+           '--use_snowflake',
+            dest='use_snowflake_flag',
+            type=bool,
+            default=False,
+            required=False,
+            help='Flag to use Snowflake for fetching data'
+        )
+    def get_products_via_snowflake(self, product_type='ocm_course', product_source=None):
+        """
+        Fetch products from Snowflake for product catalog
+        """
+        snowflake_client = snowflake.connector.connect(
+            user=settings.SNOWFLAKE_SERVICE_USER,
+            password=settings.SNOWFLAKE_SERVICE_USER_PASSWORD,
+            account='edx.us-east-1',
+            database='prod'
+        )
+        cs = snowflake_client.cursor()
+        course_types = ', '.join(f"'{ct}'" for ct in COURSE_TYPES.get(product_type, []))
+        product_source_list = product_source.split(',') if product_source else []
+        product_source_filter = (
+            f"AND product_source IN ({', '.join(map(repr, product_source_list))})" 
+            if product_source_list else ''
+        )
+        query_type = 'course' if product_type in ['executive_education', 'bootcamp', 'ocm_course'] else 'degree'
+        rows = []
+        try:
+            query = SNOWFLAKE_POPULATE_PRODUCT_CATALOG_QUERY[query_type].format(
+                course_types=course_types,
+                product_source_filter=product_source_filter
+            )
+            cs.execute(query)
+            rows = cs.fetchall()
+        except Exception as e:
+            logger.error('Error while fetching products from Snowflake for product catalog: %s', str(e))
+        finally:
+            cs.close()
+            snowflake_client.close()
+            return rows
+
+    def get_transformed_data_from_snowflake(self, product):
+        """
+        Transform data fetched from Snowflake for product catalog
+        """
+        transformed_data = {
+            'UUID': product[0],
+            'Title': product[1],
+            'Organizations Name': product[2],
+            'Organizations Logo': product[3],
+            'Organizations Abbr': product[4],
+            'Languages': product[5],
+            'Subjects': product[6],
+            'Subjects Spanish': product[7],
+            'Marketing URL': product[8],
+            'Marketing Image': product[9],
+        }
+        return transformed_data
 
     def get_products(self, product_type, product_source):
         """
@@ -182,6 +244,7 @@ class Command(BaseCommand):
         product_source = options.get('product_source')
         gspread_client_flag = options.get('gspread_client_flag')
         overwrite = options.get('overwrite_flag')
+        snowflake_flag = options.get('use_snowflake_flag')
         PRODUCT_CATALOG_CONFIG = {
             'SHEET_ID': settings.PRODUCT_CATALOG_SHEET_ID,
             'OUTPUT_TAB_ID': (
@@ -194,26 +257,45 @@ class Command(BaseCommand):
 
         try:
             product_type = product_type.lower()
-            products = self.get_products(product_type, product_source)
-            if not products.exists():
-                raise CommandError('No products found for the given criteria.')
-            products_count = products.count()
+
+            if snowflake_flag:
+                products = self.get_products_via_snowflake(product_type, product_source)
+                if not products:
+                    raise CommandError('No products found for the given criteria.')
+                products_count = len(products)
+
+            else:
+                products = self.get_products(product_type, product_source)
+                if not products.exists():
+                    raise CommandError('No products found for the given criteria.')
+                products_count = products.count()
 
             logger.info(f'Fetched {products_count} {product_type}s from the database')
+
             if output_csv:
                 with open(output_csv, 'w', newline='') as output_file:
                     output_writer = self.write_csv_header(output_file)
-                    for product in products:
-                        try:
-                            output_writer.writerow(self.get_transformed_data(product, product_type))
-                        except Exception as e:  # pylint: disable=broad-exception-caught
-                            logger.error(f"Error writing product {product.uuid} to CSV: {str(e)}")
-                            continue
+
+                    if snowflake_flag:
+                        for row in products:
+                            transformed_data = self.get_transformed_data_from_snowflake(row)
+                            output_writer.writerow(transformed_data)
+
+                    else:
+                        for product in products:
+                            try:
+                                output_writer.writerow(self.get_transformed_data(product, product_type))
+                            except Exception as e:  # pylint: disable=broad-exception-caught
+                                logger.error(f"Error writing product {product.uuid} to CSV: {str(e)}")
+                                continue
 
                     logger.info(f'Populated {products_count} {product_type}s to {output_csv}')
 
             elif gspread_client_flag:
-                csv_data = [self.get_transformed_data(product, product_type) for product in products]
+                if snowflake_flag:
+                    csv_data = [self.get_transformed_data_from_snowflake(row) for row in products]
+                else:
+                    csv_data = [self.get_transformed_data(product, product_type) for product in products]
                 gspread_client.write_data(
                     PRODUCT_CATALOG_CONFIG,
                     self.CATALOG_CSV_HEADERS,

@@ -151,3 +151,188 @@ SNOWFLAKE_REFRESH_COURSE_REVIEWS_QUERY = '''
     from
         prod.enterprise.course_reviews
 '''
+
+COURSE_TYPES = {
+    'ocm_course' : ['audit', 'verified-audit', 'verified', 'credit-verified-audit', 'spoc-verified-audit', 'professional'],
+    'executive_education' : ['executive-education-2u'],
+    'bootcamp' : ['bootcamp-2u'],
+}
+
+SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
+    WITH course_data AS (
+    SELECT 
+        c.id, c.uuid as COURSE_UUID, 
+        c.key as COURSE_KEY,
+        cr.key as COURSERUN_KEY,
+        c.title AS COURSE_TITLE,
+        coursetype.name AS COURSE_TYPE,
+        product_source.slug AS PRODUCT_SOURCE,
+        COUNT(DISTINCT org.id) AS ORGANIZATIONS_COUNT,
+        LISTAGG(DISTINCT org.key, ', ') AS ORGANISATION_ABBR,
+        LISTAGG(DISTINCT org.name, ', ') AS ORGANIZATION_NAME,
+        LISTAGG(DISTINCT CONCAT('https://prod-discovery.edx-cdn.org/', org.logo_image), ', ') AS ORGANIZATION_LOGO,
+        COUNT(DISTINCT cr.language_id) AS languagesCount,
+        LISTAGG(DISTINCT cr.language_id, ', ') AS Languages,
+        LISTAGG(DISTINCT CASE WHEN st.language_code <> 'es' THEN st.name ELSE NULL END, ', ') AS Subjects,
+        LISTAGG(DISTINCT CASE WHEN st.language_code = 'es' THEN st.name ELSE NULL END, ', ') AS Subject_Spanish,
+        LISTAGG(DISTINCT s.type, ', ') AS SEAT_TYPE, 
+        CONCAT(p.marketing_site_url_root, cslug.url_Slug) AS MARKETING_URL,
+        CASE
+            WHEN c.image IS NOT NULL THEN CONCAT('https://prod-discovery.edx-cdn.org/', c.image)
+            ELSE CONCAT('https://prod-discovery.edx-cdn.org/', c.card_image_url)
+        END AS MARKETING_IMAGE,
+        CASE
+            WHEN cr.RUN_START IS NOT NULL AND cr.RUN_START >= CURRENT_TIMESTAMP() THEN 'True'
+            ELSE 'False'
+        END AS is_upcoming,
+        CASE
+            WHEN (cr.enrollment_end IS NULL OR cr.enrollment_end >= CURRENT_TIMESTAMP()) AND (cr.enrollment_start IS NULL OR cr.enrollment_start <= CURRENT_TIMESTAMP()) THEN 'True'
+            ELSE 'False'
+        END AS is_enrollable,
+        CASE
+            WHEN crt.is_marketable = TRUE 
+                AND cr.draft = FALSE 
+                AND cr.status = 'published'
+                AND s.id IS NOT NULL  -- Checking if there are any seats
+                AND (cr.slug IS NOT NULL AND cr.slug != '' AND crt.is_marketable = TRUE) -- is_marketable 
+            THEN 'True'
+            ELSE 'False'
+        END AS is_marketable,
+        CASE
+            WHEN cr.RUN_END IS NOT NULL AND cr.RUN_END < CURRENT_TIMESTAMP() THEN 'True'
+            ELSE 'False'
+        END AS has_ended,
+        LISTAGG(DISTINCT 
+            CASE
+                WHEN cr.RUN_END < CURRENT_TIMESTAMP() THEN 'Archived'
+                WHEN cr.RUN_START <= CURRENT_TIMESTAMP() THEN 'Current'
+                WHEN cr.RUN_START < DATEADD(DAY, 60, CURRENT_TIMESTAMP()) THEN 'Starting Soon'
+                ELSE 'Upcoming'
+            END, ', ') AS availability_status,
+        LISTAGG(cr.pacing_type, ', ') AS pacing
+    FROM 
+        discovery.course_metadata_courserun AS cr
+    JOIN 
+        discovery.course_metadata_course AS c ON c.id = cr.course_id 
+    JOIN 
+        discovery.core_partner AS p ON c.partner_id = p.id
+    JOIN 
+        discovery.course_metadata_courseruntype AS crt ON crt.id = cr.type_id
+    JOIN
+        discovery.course_metadata_seat AS s ON cr.id = s.course_run_id
+    JOIN
+        discovery.course_metadata_coursetype AS coursetype ON coursetype.id = c.type_id
+    JOIN 
+        discovery.course_metadata_course_authoring_organizations AS cao ON c.id = cao.course_id
+    JOIN 
+        discovery.course_metadata_organization AS org ON cao.organization_id = org.id 
+    JOIN 
+        discovery.course_metadata_course_subjects AS cs ON c.id = cs.course_id
+    JOIN 
+        discovery.course_metadata_subject AS sb ON sb.id = cs.subject_id
+    JOIN 
+        discovery.course_metadata_subjecttranslation AS st ON st.master_id = sb.id 
+    JOIN
+        discovery.course_metadata_courseurlslug AS cslug ON c.id = cslug.course_id
+    JOIN
+        discovery.course_metadata_source as PRODUCT_SOURCE on c.product_source_id = PRODUCT_SOURCE.id
+    WHERE 
+        c.draft != 1 AND cr.hidden != 1 AND cr.status = 'published'
+        AND coursetype.slug IN ( {course_types} )
+        AND cslug.is_active = 1 {product_source_filter}
+    GROUP BY 
+        c.uuid, c.id, c.key, cr.key, c.title, coursetype.name, p.marketing_site_url_root, cslug.url_Slug, c.image, c.card_image_url, cr.RUN_START, cr.enrollment_end, cr.enrollment_start, cr.RUN_END, crt.is_marketable, cr.draft, cr.status, s.id, cr.slug, product_source.slug
+    ORDER BY 
+        c.id
+    )
+    SELECT DISTINCT COURSE_UUID, COURSE_TITLE, ORGANIZATION_NAME, ORGANIZATION_LOGO, ORGANISATION_ABBR, Languages, Subjects, Subject_Spanish, MARKETING_URL, MARKETING_IMAGE, COURSE_TYPE
+    FROM course_data
+    WHERE 
+        (is_upcoming = 'True') 
+        OR (is_enrollable = 'True' AND has_ended != 'True' AND is_marketable = 'True');
+"""
+
+SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
+    SELECT 
+        cmp.uuid,
+        cmp.title,
+        cmp.status,
+        cmp.marketing_slug,
+        cmpt.slug AS program_type_slug,
+        product_source.slug AS PRODUCT_SOURCE,
+        CASE
+            WHEN cmd.program_ptr_id IS NULL THEN 0
+            ELSE 1
+        END AS is_degree,
+        CASE
+            WHEN POSITION('/', cmp.marketing_slug) = 0 THEN CONCAT(
+                cp.marketing_site_url_root,
+                cmpt.slug,
+                '/',
+                cmp.marketing_slug
+            )
+            ELSE CONCAT(cp.marketing_site_url_root, cmp.marketing_slug)
+        END AS marketing_url,
+        COALESCE(
+            LISTAGG(DISTINCT cmo.name, ', ') WITHIN GROUP (ORDER BY cmo.name ASC),
+            ''
+        ) AS authoring_organizations,
+        
+        -- Concatenating primary subject with other subjects using LISTAGG
+        CONCAT_WS(
+            ', ',
+            cms_primary.slug,
+            LISTAGG(DISTINCT cms.slug, ', ') WITHIN GROUP (ORDER BY cms.slug ASC)
+        ) AS subjects,
+
+        CASE
+            WHEN cmlt_override.id IS NULL THEN COALESCE(
+                LISTAGG(DISTINCT cmlt.name, ', ') WITHIN GROUP (ORDER BY cmlt.name ASC),
+                ''
+            )
+            ELSE cmlt_override.name
+        END AS level_types,
+
+        COALESCE(
+            LISTAGG(DISTINCT ts.name, ', ') WITHIN GROUP (ORDER BY ts.name ASC),
+            ''
+        ) AS skills
+
+    FROM discovery.course_metadata_program cmp
+        INNER JOIN discovery.core_partner cp ON cp.id = cmp.partner_id
+        INNER JOIN discovery.course_metadata_programtype cmpt ON cmpt.id = cmp.type_id
+        LEFT JOIN discovery.course_metadata_degree cmd ON cmp.id = cmd.program_ptr_id
+        LEFT JOIN discovery.course_metadata_degreeadditionalmetadata cmdam ON cmd.program_ptr_id = cmdam.degree_id
+        LEFT JOIN discovery.course_metadata_program_authoring_organizations cmpao ON cmpao.program_id = cmp.id
+        LEFT JOIN discovery.course_metadata_organization cmo ON cmo.id = cmpao.organization_id
+        LEFT JOIN discovery.course_metadata_program_courses cmpc ON cmpc.program_id = cmp.id
+        LEFT JOIN discovery.course_metadata_course cmc ON cmc.id = cmpc.course_id
+        LEFT JOIN discovery.course_metadata_leveltype cmlt ON cmlt.id = cmc.level_type_id
+        LEFT JOIN discovery.course_metadata_course_subjects cmcs ON cmcs.course_id = cmc.id
+        LEFT JOIN discovery.course_metadata_subject cms ON cms.id = cmcs.subject_id
+        LEFT JOIN discovery.taxonomy_courseskills tcs ON tcs.course_key = cmc.key
+        LEFT JOIN discovery.taxonomy_skill ts ON ts.id = tcs.skill_id
+        LEFT JOIN discovery.course_metadata_subject cms_primary ON cms_primary.id = cmp.primary_subject_override_id
+        LEFT JOIN discovery.course_metadata_leveltype cmlt_override ON cmlt_override.id = cmp.level_type_override_id
+        join discovery.course_metadata_source as PRODUCT_SOURCE on cmp.product_source_id = PRODUCT_SOURCE.id
+    WHERE cmp.partner_id = 1 and status = 'active' {product_source_filter}
+    GROUP BY 
+        cmp.uuid,
+        cmp.title,
+        cmp.status,
+        cmp.marketing_slug,
+        cmpt.slug,
+        cp.name,
+        cmd.program_ptr_id,
+        cp.marketing_site_url_root,
+        CMLT_OVERRIDE.ID,
+        CMLT_OVERRIDE.NAME,
+        product_source.slug,
+        cms_primary.slug -- Added cms_primary.slug to the GROUP BY clause
+    HAVING 
+        IS_DEGREE = 1;
+"""
+SNOWFLAKE_POPULATE_PRODUCT_CATALOG_QUERY = {
+    'course' : SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY,
+    'degree': SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY,
+}
