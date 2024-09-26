@@ -46,7 +46,7 @@ class Command(BaseCommand):
             dest='product_source',
             type=str,
             required=False,
-            help='The product source to filter the products'
+            help='The comma-separated product source str to filter the products'
         )
         parser.add_argument(
             '--use_gspread_client',
@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 queryset = queryset.filter(type__slug=CourseType.BOOTCAMP_2U)
 
             if product_source:
-                queryset = queryset.filter(product_source__slug=product_source)
+                queryset = queryset.filter(product_source__slug__in=product_source.split(','))
 
             queryset = queryset.annotate(
                 num_orgs=Count('authoring_organizations')
@@ -109,7 +109,7 @@ class Command(BaseCommand):
                 .select_related('partner', 'type', 'primary_subject_override', 'language_override')
 
             if product_source:
-                queryset = queryset.filter(product_source__slug=product_source)
+                queryset = queryset.filter(product_source__slug__in=product_source.split(','))
 
             queryset = queryset.annotate(
                 num_orgs=Count('authoring_organizations')
