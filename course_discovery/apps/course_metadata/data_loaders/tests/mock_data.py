@@ -247,23 +247,6 @@ ECOMMERCE_API_BODIES = [
                     }
                 ]
             },
-            {
-                "structure": "child",
-                "expires": "2017-01-01T12:00:00Z",
-                "attribute_values": [
-                    {
-                        "name": "certificate_type",
-                        "value": "verified"
-                    }
-                ],
-                "stockrecords": [
-                    {
-                        "price_currency": "EUR",
-                        "price": "25.00",
-                        "partner_sku": "sku003",
-                    }
-                ]
-            },
             # Mobile seat which we will discarded since we arn't syncing mobile skus see decicion 0025
             {
                 "structure": "child",
