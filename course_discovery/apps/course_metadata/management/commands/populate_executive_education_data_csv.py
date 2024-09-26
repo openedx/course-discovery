@@ -10,7 +10,7 @@ will be removed in the future once it serves its purpose.
 import csv
 import json
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 import requests
 from django.conf import settings
@@ -292,7 +292,6 @@ class Command(BaseCommand):
             'start_time': '00:00:00',
             'end_time': '00:00:00',
             'reg_close_time': '00:00:00',
-            'publish_date': date.today().isoformat(),
             'course_level': 'Introductory',
             'course_pacing': 'Instructor-Paced',
             'content_language': language,
@@ -313,6 +312,10 @@ class Command(BaseCommand):
             'organization_short_code_override': product_dict[
                 'altUniversityAbbreviation'
             ],
+            'publish_date': (
+                (date.today() + timedelta(days=10)).isoformat()
+                if product_dict.get('status') == 'scheduled' else date.today().isoformat()
+            ),
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
