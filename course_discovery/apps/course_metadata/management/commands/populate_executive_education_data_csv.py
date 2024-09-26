@@ -152,8 +152,10 @@ class Command(BaseCommand):
                 if getsmarter_flag:
                     product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
-                if product.get('variants'):
+                if 'variants' in product:
                     variants = product.pop('variants')
+                    if not variants:
+                        logger.warning(f"Skipping product {product['name']} ingestion as it has no variants")
                     for variant in variants:
                         product.update({'variant': variant})
                         output_dict = self.get_transformed_data(row, product)
