@@ -455,7 +455,7 @@ packaging==24.1
     #   snowflake-connector-python
 pbr==6.1.0
     # via stevedore
-pillow==9.5.0
+pillow==10.0.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
