@@ -166,7 +166,6 @@ SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
         cr.key as COURSERUN_KEY,
         c.title AS COURSE_TITLE,
         coursetype.name AS COURSE_TYPE,
-        product_source.slug AS PRODUCT_SOURCE,
         COUNT(DISTINCT org.id) AS ORGANIZATIONS_COUNT,
         LISTAGG(DISTINCT org.key, ', ') AS ORGANISATION_ABBR,
         LISTAGG(DISTINCT org.name, ', ') AS ORGANIZATION_NAME,
@@ -235,7 +234,7 @@ SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
     JOIN
         discovery.course_metadata_courseurlslug AS cslug ON c.id = cslug.course_id
     JOIN
-        discovery.course_metadata_source as PRODUCT_SOURCE on c.product_source_id = PRODUCT_SOURCE.id
+        discovery.course_metadata_source as product_source on c.product_source_id = product_source.id
     WHERE 
         c.draft != 1 AND cr.hidden != 1 AND cr.status = 'published'
         AND coursetype.slug IN ( {course_types} )
@@ -256,14 +255,28 @@ SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
     SELECT 
         cmp.uuid,
         cmp.title,
-        cmp.status,
-        cmp.marketing_slug,
-        cmpt.slug AS program_type_slug,
-        product_source.slug AS PRODUCT_SOURCE,
+        COALESCE(
+            LISTAGG(DISTINCT cmo.name, ', '),
+            ''
+        ) AS authoring_organizations,
+        COALESCE(
+            LISTAGG(DISTINCT CONCAT('https://prod-discovery.edx-cdn.org/', cmo.logo_image), ', '), ''
+        ) AS authoring_organizations_logo,
+        COALESCE(
+            LISTAGG(DISTINCT cmo.key, ', '), ''
+        ) AS authoring_organizations_abbr,
         CASE
-            WHEN cmd.program_ptr_id IS NULL THEN 0
-            ELSE 1
-        END AS is_degree,
+            -- First, check if there is a language override and it's not empty
+            WHEN cmp.language_override_id IS NOT NULL AND cmp.language_override_id <> '' 
+            THEN cmp.language_override_id
+            -- If no override, check if there are course run languages
+            WHEN COUNT(DISTINCT cr.language_id) > 0 
+            THEN LISTAGG(DISTINCT cr.language_id, ', ')
+            -- Default value if no language is found
+            ELSE 'en-us'
+        END AS languages,
+        LISTAGG(DISTINCT CASE WHEN st.language_code <> 'es' THEN st.name ELSE NULL END, ', ') AS Primary_Subject,
+        LISTAGG(DISTINCT CASE WHEN st.language_code = 'es' THEN st.name ELSE NULL END, ', ') AS Primary_Subject_Spanish,
         CASE
             WHEN POSITION('/', cmp.marketing_slug) = 0 THEN CONCAT(
                 cp.marketing_site_url_root,
@@ -273,30 +286,21 @@ SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
             )
             ELSE CONCAT(cp.marketing_site_url_root, cmp.marketing_slug)
         END AS marketing_url,
-        COALESCE(
-            LISTAGG(DISTINCT cmo.name, ', ') WITHIN GROUP (ORDER BY cmo.name ASC),
-            ''
-        ) AS authoring_organizations,
-        
-        -- Concatenating primary subject with other subjects using LISTAGG
+        CASE 
+            WHEN cmp.card_image = '' OR cmp.card_image IS NULL 
+            THEN '' 
+            ELSE CONCAT('https://prod-discovery.edx-cdn.org/', cmp.card_image) 
+        END AS MARKETING_IMAGE,
         CONCAT_WS(
             ', ',
             cms_primary.slug,
-            LISTAGG(DISTINCT cms.slug, ', ') WITHIN GROUP (ORDER BY cms.slug ASC)
+            LISTAGG(DISTINCT cms.slug, ', ')
         ) AS subjects,
-
         CASE
-            WHEN cmlt_override.id IS NULL THEN COALESCE(
-                LISTAGG(DISTINCT cmlt.name, ', ') WITHIN GROUP (ORDER BY cmlt.name ASC),
-                ''
-            )
-            ELSE cmlt_override.name
-        END AS level_types,
-
-        COALESCE(
-            LISTAGG(DISTINCT ts.name, ', ') WITHIN GROUP (ORDER BY ts.name ASC),
-            ''
-        ) AS skills
+            WHEN cmd.program_ptr_id IS NULL THEN 0
+            ELSE 1
+        END AS is_degree,
+        cmp.status,
 
     FROM discovery.course_metadata_program cmp
         INNER JOIN discovery.core_partner cp ON cp.id = cmp.partner_id
@@ -307,30 +311,27 @@ SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
         LEFT JOIN discovery.course_metadata_organization cmo ON cmo.id = cmpao.organization_id
         LEFT JOIN discovery.course_metadata_program_courses cmpc ON cmpc.program_id = cmp.id
         LEFT JOIN discovery.course_metadata_course cmc ON cmc.id = cmpc.course_id
-        LEFT JOIN discovery.course_metadata_leveltype cmlt ON cmlt.id = cmc.level_type_id
+        LEFT JOIN COURSE_METADATA_courserun cr ON cr.course_id = cmc.id 
         LEFT JOIN discovery.course_metadata_course_subjects cmcs ON cmcs.course_id = cmc.id
         LEFT JOIN discovery.course_metadata_subject cms ON cms.id = cmcs.subject_id
-        LEFT JOIN discovery.taxonomy_courseskills tcs ON tcs.course_key = cmc.key
-        LEFT JOIN discovery.taxonomy_skill ts ON ts.id = tcs.skill_id
         LEFT JOIN discovery.course_metadata_subject cms_primary ON cms_primary.id = cmp.primary_subject_override_id
-        LEFT JOIN discovery.course_metadata_leveltype cmlt_override ON cmlt_override.id = cmp.level_type_override_id
-        join discovery.course_metadata_source as PRODUCT_SOURCE on cmp.product_source_id = PRODUCT_SOURCE.id
-    WHERE cmp.partner_id = 1 and status = 'active' {product_source_filter}
-    GROUP BY 
-        cmp.uuid,
-        cmp.title,
-        cmp.status,
-        cmp.marketing_slug,
-        cmpt.slug,
-        cp.name,
-        cmd.program_ptr_id,
-        cp.marketing_site_url_root,
-        CMLT_OVERRIDE.ID,
-        CMLT_OVERRIDE.NAME,
-        product_source.slug,
-        cms_primary.slug -- Added cms_primary.slug to the GROUP BY clause
-    HAVING 
-        IS_DEGREE = 1;
+        LEFT JOIN discovery.course_metadata_subjecttranslation AS st ON st.master_id = cmp.primary_subject_override_id or st.master_id = cmcs.subject_id
+        LEFT JOIN discovery.course_metadata_source as product_source on product_source.id = cmp.product_source_id
+        WHERE cmp.partner_id = 1 and cmp.status = 'active' {product_source_filter}
+        GROUP BY 
+            cmp.uuid,
+            cmp.title,
+            cmp.status,
+            cmp.marketing_slug,
+            cmpt.slug,
+            cp.name,
+            cmd.program_ptr_id,
+            cp.marketing_site_url_root,
+            cms_primary.slug, -- Added cms_primary.slug to the GROUP BY clause
+            cmp.language_override_id,
+            cmp.card_image
+        HAVING 
+            IS_DEGREE = 1;
 """
 SNOWFLAKE_POPULATE_PRODUCT_CATALOG_QUERY = {
     'course' : SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY,

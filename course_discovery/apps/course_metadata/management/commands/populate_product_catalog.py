@@ -89,7 +89,7 @@ class Command(BaseCommand):
         course_types = ', '.join(f"'{ct}'" for ct in COURSE_TYPES.get(product_type, []))
         product_source_list = product_source.split(',') if product_source else []
         product_source_filter = (
-            f"AND product_source IN ({', '.join(map(repr, product_source_list))})" 
+            f"AND product_source.slug in ({', '.join(map(repr, product_source_list))})"
             if product_source_list else ''
         )
         query_type = 'course' if product_type in ['executive_education', 'bootcamp', 'ocm_course'] else 'degree'
