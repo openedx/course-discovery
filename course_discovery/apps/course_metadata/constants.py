@@ -169,7 +169,7 @@ SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
         COUNT(DISTINCT org.id) AS ORGANIZATIONS_COUNT,
         LISTAGG(DISTINCT org.key, ', ') AS ORGANISATION_ABBR,
         LISTAGG(DISTINCT org.name, ', ') AS ORGANIZATION_NAME,
-        LISTAGG(DISTINCT CONCAT('https://prod-discovery.edx-cdn.org/', org.logo_image), ', ') AS ORGANIZATION_LOGO,
+        LISTAGG(DISTINCT CONCAT('{DISCOVERY_CDN_URL}', org.logo_image), ', ') AS ORGANIZATION_LOGO,
         COUNT(DISTINCT cr.language_id) AS languagesCount,
         LISTAGG(DISTINCT cr.language_id, ', ') AS Languages,
         LISTAGG(DISTINCT CASE WHEN st.language_code <> 'es' THEN st.name ELSE NULL END, ', ') AS Subjects,
@@ -177,8 +177,8 @@ SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
         LISTAGG(DISTINCT s.type, ', ') AS SEAT_TYPE, 
         CONCAT(p.marketing_site_url_root, cslug.url_Slug) AS MARKETING_URL,
         CASE
-            WHEN c.image IS NOT NULL THEN CONCAT('https://prod-discovery.edx-cdn.org/', c.image)
-            ELSE CONCAT('https://prod-discovery.edx-cdn.org/', c.card_image_url)
+            WHEN c.image IS NOT NULL THEN CONCAT('{DISCOVERY_CDN_URL}', c.image)
+            ELSE CONCAT('{DISCOVERY_CDN_URL}', c.card_image_url)
         END AS MARKETING_IMAGE,
         CASE
             WHEN cr.RUN_START IS NOT NULL AND cr.RUN_START >= CURRENT_TIMESTAMP() THEN 'True'
@@ -240,7 +240,7 @@ SNOWFLAKE_POPULATE_PRODUCT_COURSES_CATALOG_QUERY = """
         AND coursetype.slug IN ( {course_types} )
         AND cslug.is_active = 1 {product_source_filter}
     GROUP BY 
-        c.uuid, c.id, c.key, cr.key, c.title, coursetype.name, p.marketing_site_url_root, cslug.url_Slug, c.image, c.card_image_url, cr.RUN_START, cr.enrollment_end, cr.enrollment_start, cr.RUN_END, crt.is_marketable, cr.draft, cr.status, s.id, cr.slug, product_source.slug
+        c.uuid, c.id, c.key, cr.key, c.title, coursetype.name, p.marketing_site_url_root, cslug.url_Slug, c.image, c.card_image_url, cr.RUN_START, cr.enrollment_end, cr.enrollment_start, cr.RUN_END, crt.is_marketable, cr.draft, cr.status, s.id, cr.slug
     ORDER BY 
         c.id
     )
@@ -260,7 +260,7 @@ SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
             ''
         ) AS authoring_organizations,
         COALESCE(
-            LISTAGG(DISTINCT CONCAT('https://prod-discovery.edx-cdn.org/', cmo.logo_image), ', '), ''
+            LISTAGG(DISTINCT CONCAT('{DISCOVERY_CDN_URL}', cmo.logo_image), ', '), ''
         ) AS authoring_organizations_logo,
         COALESCE(
             LISTAGG(DISTINCT cmo.key, ', '), ''
@@ -289,7 +289,7 @@ SNOWFLAKE_POPULATE_PRODUCT_DEGREES_CATALOG_QUERY = """
         CASE 
             WHEN cmp.card_image = '' OR cmp.card_image IS NULL 
             THEN '' 
-            ELSE CONCAT('https://prod-discovery.edx-cdn.org/', cmp.card_image) 
+            ELSE CONCAT('{DISCOVERY_CDN_URL}', cmp.card_image) 
         END AS MARKETING_IMAGE,
         CONCAT_WS(
             ', ',

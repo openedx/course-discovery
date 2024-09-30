@@ -97,7 +97,8 @@ class Command(BaseCommand):
         try:
             query = SNOWFLAKE_POPULATE_PRODUCT_CATALOG_QUERY[query_type].format(
                 course_types=course_types,
-                product_source_filter=product_source_filter
+                product_source_filter=product_source_filter,
+                DISCOVERY_CDN_URL=settings.DISCOVERY_CDN_URL
             )
             cs.execute(query)
             rows = cs.fetchall()
