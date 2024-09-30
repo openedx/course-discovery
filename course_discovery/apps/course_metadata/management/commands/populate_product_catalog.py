@@ -249,8 +249,8 @@ class Command(BaseCommand):
         PRODUCT_CATALOG_CONFIG = {
             'SHEET_ID': settings.PRODUCT_CATALOG_SHEET_ID,
             'OUTPUT_TAB_ID': (
-                product_type.upper() + ('_' + datetime.datetime.now().strftime("%Y%m%d") if not overwrite else '')
-                if product_type else 'All'
+                product_type.upper() + ('_' + datetime.datetime.now().strftime("%Y%m%d") if not overwrite else '') +
+                ('__SNOWFLAKE' if snowflake_flag else '') if product_type else 'All'
             ),
         }
 
