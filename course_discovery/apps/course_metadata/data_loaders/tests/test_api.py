@@ -712,7 +712,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         stockrecord = {
             "price_currency": alt_currency if alt_currency else "USD",
-            "price_excl_tax": "10.00",
+            "price": "10.00",
         }
         if valid_stockrecord:
             stockrecord.update({"partner_sku": "sku132"})
@@ -799,7 +799,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for product in products:
             stock_record = product['stockrecords'][0]
             price_currency = stock_record['price_currency']
-            price = Decimal(stock_record['price_excl_tax'])
+            price = Decimal(stock_record['price'])
             sku = stock_record['partner_sku']
             certificate_type = Seat.AUDIT
             credit_provider = None
@@ -851,7 +851,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.objects.get(uuid=attributes['UUID'])
             stock_record = datum['stockrecords'][0]
             price_currency = stock_record['price_currency']
-            price = Decimal(stock_record['price_excl_tax'])
+            price = Decimal(stock_record['price'])
             sku = stock_record['partner_sku']
 
             mode_name = attributes['certificate_type']

@@ -572,7 +572,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def update_seat(self, course_run, product_body):
         stock_record = product_body['stockrecords'][0]
         currency_code = stock_record['price_currency']
-        price = Decimal(stock_record['price_excl_tax'])
+        price = Decimal(stock_record.get('price_excl_tax', stock_record['price']))
         sku = stock_record['partner_sku']
 
         # For more context see ADR docs/decisions/0025-dont-sync-mobile-skus-on-discovery.rst
@@ -643,9 +643,11 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def validate_stockrecord(self, stockrecords, title, product_class):
         """
         Argument:
-            body (dict): product data from ecommerce, either entitlement or enrollment code
+            sockrecords (list): a list of stock records to validate from ecommerce
+            title (str): product title
+            product_class (str): either entitlement or enrollment code
         Returns:
-            product sku if no exceptions, else None
+            True when all validation checks pass, else None
         """
         # Map product_class keys with how they should be displayed in the exception messages.
         product_classes = {
@@ -680,7 +682,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         try:
             currency_code = stock_record['price_currency']
-            Decimal(stock_record['price_excl_tax'])
+            Decimal(stock_record.get('price_excl_tax', stock_record['price']))
             sku = stock_record['partner_sku']
         except (KeyError, ValueError):
             msg = 'A necessary stockrecord field is missing or incorrectly set for {product} {title}'.format(
@@ -719,7 +721,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         stock_record = stockrecords[0]
         currency_code = stock_record['price_currency']
-        price = Decimal(stock_record['price_excl_tax'])
+        price = Decimal(stock_record.get('price_excl_tax', stock_record['price']))
         sku = stock_record['partner_sku']
 
         try:
