@@ -4,31 +4,37 @@ Unit tests for populate_product_catalog management command.
 import csv
 from tempfile import NamedTemporaryFile
 
+import factory
 import mock
 from django.core.management import CommandError, call_command
+from django.db.models import Prefetch, prefetch_related_objects
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.management.commands.populate_product_catalog import Command
-from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, ProgramType, SubjectTranslation
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeFactory, PartnerFactory, ProgramTypeFactory, SeatFactory,
-    SourceFactory
+    CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeFactory, OrganizationFactory, PartnerFactory,
+    ProgramTypeFactory, SeatFactory, SourceFactory, SubjectFactory
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class PopulateProductCatalogCommandTests(TestCase):
     def setUp(self):
         super().setUp()
         self.partner = PartnerFactory.create()
+        self.organization = OrganizationFactory(partner=self.partner)
         self.course_type = CourseTypeFactory(slug=CourseType.AUDIT)
         self.source = SourceFactory.create(slug="edx")
+        self.source_2 = SourceFactory.create(slug="test-source")
         self.courses = CourseFactory.create_batch(
             2,
             product_source=self.source,
             partner=self.partner,
             additional_metadata=None,
             type=self.course_type,
+            authoring_organizations=[self.organization]
         )
         self.course_run = CourseRunFactory(
             course=Course.objects.all()[0],
@@ -38,6 +44,12 @@ class PopulateProductCatalogCommandTests(TestCase):
         self.course_run_2 = CourseRunFactory.create_batch(
             2, course=Course.objects.all()[1]
         )
+        self.course_run_3 = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=True,
+        )
+        self.hidden_run_seat = SeatFactory.create(course_run=self.course_run_3)
         self.program_type = ProgramTypeFactory.create(slug=ProgramType.MICROMASTERS)
         self.degrees = DegreeFactory.create_batch(
             2,
@@ -45,34 +57,93 @@ class PopulateProductCatalogCommandTests(TestCase):
             partner=self.partner,
             additional_metadata=None,
             type=self.program_type,
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField()
         )
+
+    def _execute_populate_product_catalog(self, product_type, output_csv, product_source, gspread_client_flag=False):
+        """
+        Helper method to execute populate_product_catalog command
+        """
+        call_command(
+            "populate_product_catalog",
+            product_type=product_type,
+            output_csv=output_csv,
+            product_source=product_source,
+            gspread_client_flag=gspread_client_flag,
+        )
+        with open(output_csv, "r") as output_csv_file:
+            return list(csv.DictReader(output_csv_file))
+
+    def _assert_row_data(self, rows, expected_uuids, should_exist=True):
+        """
+        Helper method to assert row data in the CSV
+
+        Args:
+            rows (list): List of CSV rows
+            expected_uuids (list): List of Course UUIDs to be expected in the CSV
+            should_exist (bool, optional): Whether the expected UUIDs should exist in the CSV. Defaults to True.
+        """
+        for uuid in expected_uuids:
+            matching_rows = [row for row in rows if row["UUID"] == str(uuid.hex)]
+            if should_exist:
+                self.assertEqual(len(matching_rows), 1)
+            else:
+                self.assertEqual(len(matching_rows), 0, f"UUID {uuid} shouldn't be in the CSV")
 
     def test_populate_product_catalog(self):
         """
         Test populate_product_catalog command and verify data has been populated successfully
         """
         with NamedTemporaryFile() as output_csv:
-            call_command(
-                "populate_product_catalog",
-                product_type="ocm_course",
-                output_csv=output_csv.name,
-                product_source="edx",
-                gspread_client_flag=False,
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
             )
 
-            with open(output_csv.name, "r") as output_csv_file:
-                csv_reader = csv.DictReader(output_csv_file)
-                for row in csv_reader:
-                    self.assertIn("UUID", row)
-                    self.assertIn("Title", row)
-                    self.assertIn("Organizations Name", row)
-                    self.assertIn("Organizations Logo", row)
-                    self.assertIn("Organizations Abbr", row)
-                    self.assertIn("Languages", row)
-                    self.assertIn("Subjects", row)
-                    self.assertIn("Subjects Spanish", row)
-                    self.assertIn("Marketing URL", row)
-                    self.assertIn("Marketing Image", row)
+            for row in rows:
+                self.assertIn("UUID", row)
+                self.assertIn("Title", row)
+                self.assertIn("Organizations Name", row)
+                self.assertIn("Organizations Logo", row)
+                self.assertIn("Organizations Abbr", row)
+                self.assertIn("Languages", row)
+                self.assertIn("Subjects", row)
+                self.assertIn("Subjects Spanish", row)
+                self.assertIn("Marketing URL", row)
+                self.assertIn("Marketing Image", row)
+
+    def test_populate_product_catalog_for_courses_with_hidden_and_non_hidden_published_runs(self):
+        """
+        Test populate_product_catalog command for course having hidden and non-hidden published runs
+        and verify data has been populated successfully.
+        """
+        hidden_course_run = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=True,
+        )
+        SeatFactory.create(course_run=hidden_course_run)
+
+        with NamedTemporaryFile() as output_csv:
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
+            )
+            self._assert_row_data(rows, [self.courses[0].uuid], should_exist=True)
+            self._assert_row_data(rows, [self.courses[1].uuid], should_exist=False)
+
+        non_hidden_course_run = CourseRunFactory(
+            course=Course.objects.all()[1],
+            status=CourseRunStatus.Published,
+            hidden=False,
+        )
+        SeatFactory.create(course_run=non_hidden_course_run)
+
+        with NamedTemporaryFile() as output_csv:
+            rows = self._execute_populate_product_catalog(
+                product_source="edx", product_type="ocm_course", output_csv=output_csv.name
+            )
+            self._assert_row_data(rows, [self.courses[0].uuid], should_exist=True)
+            self._assert_row_data(rows, [self.courses[1].uuid], should_exist=True)
 
     def test_populate_product_catalog_for_degrees(self):
         """
@@ -94,11 +165,11 @@ class PopulateProductCatalogCommandTests(TestCase):
 
                 for degree in self.degrees:
                     with self.subTest(degree=degree):
-                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid)]
+                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid.hex)]
                         self.assertEqual(len(matching_rows), 1)
 
                         row = matching_rows[0]
-                        self.assertEqual(row["UUID"], str(degree.uuid))
+                        self.assertEqual(row["UUID"], str(degree.uuid.hex))
                         self.assertEqual(row["Title"], degree.title)
                         self.assertIn("Organizations Name", row)
                         self.assertIn("Organizations Logo", row)
@@ -161,7 +232,31 @@ class PopulateProductCatalogCommandTests(TestCase):
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
-            title="Marketable Degree"
+            title="Marketable Degree",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField()
+        )
+        marketable_degree_with_no_language = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree - with empty language field",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            language_override=None,
+        )
+
+        marketable_degree_2 = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree 2 - Without Authoring Orgs"
         )
 
         with NamedTemporaryFile() as output_csv:
@@ -180,18 +275,162 @@ class PopulateProductCatalogCommandTests(TestCase):
                 # Check that non-marketable degrees are not in the CSV
                 for degree in non_marketable_degrees:
                     with self.subTest(degree=degree):
-                        matching_rows = [
-                            row for row in rows if row["UUID"] == str(degree.uuid)
-                        ]
-                        self.assertEqual(len(matching_rows), 0,
-                                         f"Non-marketable degree '{degree.title}' should not be in the CSV")
+                        matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid.hex)]
+                        self.assertEqual(
+                            len(matching_rows), 0, f"Non-marketable degree '{degree.title}' should not be in the CSV"
+                        )
+
+                # Check that the marketable degree without authoring orgs is not in the CSV
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree_2.uuid.hex)
+                ]
+                self.assertEqual(
+                    len(matching_rows), 0,
+                    f"Marketable degree '{marketable_degree_2.title}' without authoring orgs should not be in the CSV"
+                )
 
                 # Check that the marketable degree is in the CSV
                 matching_rows = [
-                    row for row in rows if row["UUID"] == str(marketable_degree.uuid)
+                    row for row in rows if row["UUID"] == str(marketable_degree.uuid.hex)
                 ]
                 self.assertEqual(len(matching_rows), 1,
                                  f"Marketable degree '{marketable_degree.title}' should be in the CSV")
+
+                # Check that the marketable degree with no language field is in the CSV
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree_with_no_language.uuid.hex)
+                ]
+                self.assertEqual(len(matching_rows), 1,
+                                 f"Marketable degree '{marketable_degree_with_no_language.title}' should be in the CSV")
+                # Check that the marketable degree with no language field has the default language populated
+                self.assertEqual(matching_rows[0].get("Languages"), 'en-us')
+
+    def test_populate_product_catalog_with_degrees_having_overrides(self):
+        """
+        Test that the populate_product_catalog command includes the overridden subjects and languages for degrees.
+        """
+        degree = DegreeFactory.create(
+            product_source=self.source,
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            primary_subject_override=SubjectFactory(name='Subject1'),
+            language_override=LanguageTag.objects.get(code='es'),
+        )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(degree.uuid.hex)
+                ]
+                self.assertEqual(len(matching_rows), 1)
+
+                row = matching_rows[0]
+                self.assertEqual(row["UUID"], str(degree.uuid.hex))
+                self.assertEqual(row["Title"], degree.title)
+                self.assertIn(degree.primary_subject_override.name, row["Subjects"])
+                self.assertEqual(row["Languages"], degree.language_override.code)
+
+    def test_populate_product_catalog_supports_multiple_product_sources(self):
+        """
+        Test that the populate_product_catalog command supports multiple product sources.
+        """
+        marketable_degree = DegreeFactory.create(
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            product_source=self.source,
+        )
+        marketable_degree_2 = DegreeFactory.create(
+            partner=self.partner,
+            additional_metadata=None,
+            type=self.program_type,
+            status=ProgramStatus.Active,
+            marketing_slug="valid-marketing-slug",
+            title="Marketable Degree - with different product sources",
+            authoring_organizations=[self.organization],
+            card_image=factory.django.ImageField(),
+            language_override=None,
+            product_source=self.source_2,
+        )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+
+                # Check that the marketable degree is in the CSV for the specified product source
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree.uuid.hex)
+                ]
+                self.assertEqual(
+                    len(matching_rows), 1, f"Marketable degree '{marketable_degree.title}' should be in the CSV",
+                )
+
+                # Check that the marketable degree with different product sources is not in the CSV
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree_2.uuid.hex)
+                ]
+                self.assertEqual(
+                    len(matching_rows), 0,
+                    f"'{marketable_degree_2.title}' with different product sources should not be in the CSV",
+                )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_product_catalog",
+                product_type="degree",
+                output_csv=output_csv.name,
+                product_source="edx,test-source",
+                gspread_client_flag=False,
+            )
+
+            with open(output_csv.name, "r") as output_csv_file:
+                csv_reader = csv.DictReader(output_csv_file)
+                rows = list(csv_reader)
+
+                # Check that the marketable degree is in the CSV for the specified product sources
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree.uuid.hex)
+                ]
+                self.assertEqual(
+                    len(matching_rows), 1, f"Marketable degree '{marketable_degree.title}' should be in the CSV",
+                )
+                matching_rows = [
+                    row for row in rows if row["UUID"] == str(marketable_degree_2.uuid.hex)
+                ]
+                self.assertEqual(
+                    len(matching_rows), 1, f"'{marketable_degree_2.title}' should be in the CSV",
+                )
 
     @mock.patch(
         "course_discovery.apps.course_metadata.management.commands.populate_product_catalog.Command.get_products"
@@ -244,7 +483,7 @@ class PopulateProductCatalogCommandTests(TestCase):
         product_authoring_orgs = product.authoring_organizations.all()
         transformed_prod_data = command.get_transformed_data(product, "ocm_course")
         assert transformed_prod_data == {
-            "UUID": str(product.uuid),
+            "UUID": str(product.uuid.hex),
             "Title": product.title,
             "Organizations Name": ", ".join(
                 org.name for org in product_authoring_orgs
@@ -257,7 +496,7 @@ class PopulateProductCatalogCommandTests(TestCase):
             "Organizations Abbr": ", ".join(
                 org.key for org in product_authoring_orgs
             ),
-            "Languages": product.languages_codes,
+            "Languages": product.languages_codes(),
             "Subjects": ", ".join(subject.name for subject in product.subjects.all()),
             "Subjects Spanish": ", ".join(
                 translation.name
@@ -275,19 +514,26 @@ class PopulateProductCatalogCommandTests(TestCase):
         product = self.degrees[0]
         command = Command()
         product_authoring_orgs = product.authoring_organizations.all()
+        subject_translations = Prefetch(
+            "active_subjects__translations",
+            queryset=SubjectTranslation.objects.filter(language_code="es"),
+            to_attr="spanish_translations",
+        )
+        prefetch_related_objects([product], subject_translations)
+
         transformed_prod_data = command.get_transformed_data(product, "degree")
         assert transformed_prod_data == {
-            "UUID": str(product.uuid),
+            "UUID": str(product.uuid.hex),
             "Title": product.title,
             "Organizations Name": ", ".join(org.name for org in product_authoring_orgs),
             "Organizations Logo": ", ".join(
                 org.logo_image.url for org in product_authoring_orgs if org.logo_image
             ),
             "Organizations Abbr": ", ".join(org.key for org in product_authoring_orgs),
-            "Languages": ", ".join(language.code for language in product.languages),
-            "Subjects": ", ".join(subject.name for subject in product.subjects),
+            "Languages": ", ".join(language.code for language in product.active_languages),
+            "Subjects": ", ".join(subject.name for subject in product.active_subjects),
             "Subjects Spanish": ", ".join(
-                translation.name for subject in product.subjects
+                translation.name for subject in product.active_subjects
                 for translation in subject.spanish_translations
             ),
             "Marketing URL": product.marketing_url,

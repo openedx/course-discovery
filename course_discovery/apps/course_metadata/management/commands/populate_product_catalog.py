@@ -4,7 +4,7 @@ import logging
 
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Q
 
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import Course, CourseType, Program, SubjectTranslation
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             dest='product_source',
             type=str,
             required=False,
-            help='The product source to filter the products'
+            help='The comma-separated product source str to filter the products'
         )
         parser.add_argument(
             '--use_gspread_client',
@@ -74,7 +74,7 @@ class Command(BaseCommand):
         ]
 
         if product_type in ['executive_education', 'bootcamp', 'ocm_course']:
-            queryset = Course.objects.available()
+            queryset = Course.objects.available(exclude_hidden_runs=True).select_related('partner', 'type')
 
             if product_type == 'ocm_course':
                 queryset = queryset.filter(type__slug__in=ocm_course_catalog_types)
@@ -86,7 +86,11 @@ class Command(BaseCommand):
                 queryset = queryset.filter(type__slug=CourseType.BOOTCAMP_2U)
 
             if product_source:
-                queryset = queryset.filter(product_source__slug=product_source)
+                queryset = queryset.filter(product_source__slug__in=product_source.split(','))
+
+            queryset = queryset.annotate(
+                num_orgs=Count('authoring_organizations')
+            ).filter(Q(num_orgs__gt=0) & Q(image__isnull=False) & ~Q(image=''))
 
             # Prefetch Spanish translations of subjects
             subject_translations = Prefetch(
@@ -101,13 +105,18 @@ class Command(BaseCommand):
                 subject_translations
             )
         elif product_type == 'degree':
-            queryset = Program.objects.marketable().exclude(degree__isnull=True).select_related('partner', 'type')
+            queryset = Program.objects.marketable().exclude(degree__isnull=True) \
+                .select_related('partner', 'type', 'primary_subject_override', 'language_override')
 
             if product_source:
-                queryset = queryset.filter(product_source__slug=product_source)
+                queryset = queryset.filter(product_source__slug__in=product_source.split(','))
+
+            queryset = queryset.annotate(
+                num_orgs=Count('authoring_organizations')
+            ).filter(Q(num_orgs__gt=0) & Q(card_image__isnull=False) & ~Q(card_image=''))
 
             subject_translations = Prefetch(
-                'courses__subjects__translations',
+                'active_subjects__translations',
                 queryset=SubjectTranslation.objects.filter(language_code='es'),
                 to_attr='spanish_translations'
             )
@@ -137,7 +146,7 @@ class Command(BaseCommand):
         authoring_orgs = product.authoring_organizations.all()
 
         data = {
-            "UUID": str(product.uuid),
+            "UUID": str(product.uuid.hex),
             "Title": product.title,
             "Organizations Name": ", ".join(org.name for org in authoring_orgs),
             "Organizations Logo": ", ".join(org.logo_image.url for org in authoring_orgs if org.logo_image),
@@ -151,17 +160,17 @@ class Command(BaseCommand):
                     translation.name for subject in product.subjects.all()
                     for translation in subject.spanish_translations
                 ),
-                "Languages": product.languages_codes,
+                "Languages": product.languages_codes(),
                 "Marketing Image": product.image.url if product.image else "",
             })
         elif product_type == 'degree':
             data.update({
-                "Subjects": ", ".join(subject.name for subject in product.subjects),
+                "Subjects": ", ".join(subject.name for subject in product.active_subjects),
                 "Subjects Spanish": ", ".join(
-                    translation.name for subject in product.subjects
+                    translation.name for subject in product.active_subjects
                     for translation in subject.spanish_translations
                 ),
-                "Languages": ", ".join(language.code for language in product.languages),
+                "Languages": ", ".join(language.code for language in product.active_languages) or 'en-us',
                 "Marketing Image": product.card_image.url if product.card_image else "",
             })
 
@@ -190,7 +199,7 @@ class Command(BaseCommand):
                 raise CommandError('No products found for the given criteria.')
             products_count = products.count()
 
-            logger.info(f'Fetched {products_count} courses from the database')
+            logger.info(f'Fetched {products_count} {product_type}s from the database')
             if output_csv:
                 with open(output_csv, 'w', newline='') as output_file:
                     output_writer = self.write_csv_header(output_file)

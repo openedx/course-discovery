@@ -13,11 +13,11 @@ on:
 
 jobs:
   upgrade_requirements:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [ '3.8' ]
+        python-version: [ '3.12' ]
 
     steps:
     - name: setup target branch

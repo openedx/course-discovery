@@ -1709,14 +1709,28 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             if course_run.language is not None
         })
 
-    @property
-    def languages_codes(self):
+    def languages_codes(self, exclude_inactive_runs=False):
         """
         Returns a string of languages codes used in this course. The languages codes are separated by comma.
         This property will ignore restricted runs and course runs with no language set.
+
+        Arguments:
+            exclude_inactive_runs (bool): whether to exclude inactive runs
         """
-        filtered_course_runs = self.active_course_runs.filter(language__isnull=False, restricted_run__isnull=True)
-        return ','.join(course_run.language.code for course_run in filtered_course_runs)
+        if exclude_inactive_runs:
+            language_codes = set(
+                course_run.language.code for course_run in self.active_course_runs.filter(
+                    language__isnull=False, restricted_run__isnull=True
+                )
+            )
+        else:
+            language_codes = set(
+                course_run.language.code for course_run in self.course_runs.filter(
+                    language__isnull=False, restricted_run__isnull=True
+                )
+            )
+
+        return ", ".join(sorted(language_codes))
 
     @property
     def first_enrollable_paid_seat_price(self):
@@ -2370,7 +2384,9 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         now = datetime.datetime.now(pytz.UTC)
         two_weeks = datetime.timedelta(days=14)
         after_start = (not self.start) or self.start < now
-        ends_in_more_than_two_weeks = (not self.end) or (now.date() <= self.end.date() - two_weeks)
+        ends_in_more_than_two_weeks = (not self.end) or (
+            now.date() <= self.end.date() - two_weeks  # pylint: disable=no-member
+        )
         return after_start and ends_in_more_than_two_weeks
 
     def is_current_and_still_upgradeable(self):
@@ -3503,6 +3519,16 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         return {course_run.language for course_run in self.course_runs if course_run.language is not None}
 
     @property
+    def active_languages(self):
+        """
+        :return: The list of languages; It gives preference to the language_override over the languages
+        extracted from the course runs.
+        """
+        if self.language_override:
+            return {self.language_override}
+        return self.languages
+
+    @property
     def transcript_languages(self):
         languages = [course_run.transcript_languages.all() for course_run in self.course_runs]
         languages = itertools.chain.from_iterable(languages)
@@ -3523,6 +3549,25 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         common_primary = [s for s, _ in Counter(primary_subjects).most_common()][:1]
         common_others = [s for s, _ in Counter(course_subjects).most_common() if s not in common_primary]
         return common_primary + common_others
+
+    @property
+    def active_subjects(self):
+        """
+        :return: The list of subjects; the first subject should be the most common primary subjects of its courses,
+        other subjects should be collected and ranked by frequency among the courses.
+
+        Note: This method gives preference to the primary_subject_override over the primary subject of the courses.
+        """
+        subjects = self.subjects
+
+        if self.primary_subject_override:
+            if self.primary_subject_override not in subjects:
+                subjects = [self.primary_subject_override] + subjects
+            else:
+                subjects = [self.primary_subject_override] + \
+                    [subject for subject in subjects if subject != self.primary_subject_override]
+
+        return subjects
 
     @property
     def topics(self):
