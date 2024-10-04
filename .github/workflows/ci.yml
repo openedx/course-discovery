@@ -48,6 +48,7 @@ jobs:
         with:
           name: coverage${{ matrix.pytest-split-group }}
           path: .coverage
+          include-hidden-files: true
 
   # Combine and upload coverage reports.
   coverage:
