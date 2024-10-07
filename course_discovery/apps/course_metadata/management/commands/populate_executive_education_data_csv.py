@@ -42,7 +42,7 @@ class Command(BaseCommand):
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
         'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'restriction_type',
-        'fixed_price_usd',
+        'fixed_price_usd', 'taxi_form_id', 'post_submit_url'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -381,4 +381,6 @@ class Command(BaseCommand):
                 product_dict['logoUrl']
             ),
             'external_course_marketing_type': product_dict['productType'],
+            'taxi_form_id': product_dict['edxTaxiFormId'],
+            'post_submit_url': utils.format_base64_strings(product_dict['prospectusUrl']),
         }

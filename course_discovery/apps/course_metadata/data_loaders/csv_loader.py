@@ -863,6 +863,18 @@ class CSVDataLoader(AbstractDataLoader):
             'keywords': [keyword.strip() for keyword in meta_keywords.split(',')] if meta_keywords else []
         }
 
+    def process_taxi_form_information(self, form_id, post_submit_url):
+        """
+        Return a dict containing processed product taxi form information.
+        """
+        if not any([form_id, post_submit_url]):
+            return {}
+
+        return {
+            'form_id': form_id,
+            'post_submit_url': post_submit_url,
+        }
+
     def get_additional_metadata_dict(self, data, type_slug):
         """
         Return the appropriate additional metadata dict representation, skipping the keys that are not
@@ -871,6 +883,9 @@ class CSVDataLoader(AbstractDataLoader):
         if type_slug not in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]:
             return {}
 
+        taxi_form = self.process_taxi_form_information(
+            data.get('taxi_form_id', ''), data.get('post_submit_url', '')
+        )
         additional_metadata = {
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
@@ -915,4 +930,6 @@ class CSVDataLoader(AbstractDataLoader):
             )})
         if external_course_marketing_type in dict(ExternalCourseMarketingType.choices):
             additional_metadata.update({'external_course_marketing_type': external_course_marketing_type})
+        if taxi_form:
+            additional_metadata.update({'taxi_form': taxi_form})
         return additional_metadata
