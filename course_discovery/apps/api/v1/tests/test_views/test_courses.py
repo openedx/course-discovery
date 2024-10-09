@@ -15,6 +15,7 @@ from django.db.models.signals import m2m_changed, pre_save
 from edx_toggles.toggles.testutils import override_waffle_switch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
@@ -351,6 +352,21 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             response.data['results'],
             self.serialize_course(Course.objects.all(), many=True)
         )
+    
+    def test_no_repeated_cache_calls_for_utm_calculation(self):
+        CourseFactory(
+            partner=self.partner, title='Fake Test 1', key='edX+Fake102', type=self.audit_type
+        )
+        self.partner.lms_url = "http://localhost:8000"
+        self.partner.save()
+        with mock.patch('course_discovery.apps.core.api_client.lms.LMSAPIClient.get_api_access_request', return_value={
+                "company_name": "Example Inc",
+                "company_address": "Example Address",
+        }) as mocked_api_access_request:
+            with override_switch('use_company_name_as_utm_source_value', True):
+                url = reverse('api:v1:course-list')
+                response = self.client.get(url)
+                mocked_api_access_request.assert_called_once()
 
     @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")
     @responses.activate
