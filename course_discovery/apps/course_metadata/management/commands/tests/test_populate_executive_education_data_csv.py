@@ -433,6 +433,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         Assert the default API response in output CSV dict.
         """
+        # pylint: disable=too-many-statements
         assert data_row['Organization Short Code Override'] == 'altEdx'
         assert data_row['2U Organization Code'] == 'edX'
         assert data_row['Number'] == 'TC'

@@ -675,7 +675,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         )
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [{**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, "fixed_price_usd": "", "taxi_form_id": ""}])
+            csv = self._write_csv(csv, [{
+                **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+                "fixed_price_usd": "",
+                "taxi_form_id": ""
+            }])
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
