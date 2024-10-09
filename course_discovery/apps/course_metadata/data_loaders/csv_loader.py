@@ -867,7 +867,7 @@ class CSVDataLoader(AbstractDataLoader):
         """
         Return a dict containing processed product taxi form information.
         """
-        if not any([form_id, post_submit_url]):
+        if not all([form_id, post_submit_url]):
             return {}
 
         return {
