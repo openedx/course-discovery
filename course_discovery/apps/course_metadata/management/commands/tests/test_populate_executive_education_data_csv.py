@@ -56,6 +56,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "metaKeywords": "Keyword 1, Keyword 2",
                 "slug": "csv-course-slug",
                 "productType": "short_course",
+                "prospectusUrl": "aHR0cHM6Ly93d3cuZ2V0c21hcnRlci5jb20vYmxvZy9jYXJlZXItYWR2aWNl",
+                "edxTaxiFormId": "test-form-id",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
@@ -140,6 +142,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
     SUCCESS_API_RESPONSE_V2 = copy.deepcopy(SUCCESS_API_RESPONSE)
     SUCCESS_API_RESPONSE_V2['products'][0].pop('variant')
     SUCCESS_API_RESPONSE_V2["products"][0].update({"variants": [variant_1, variant_2,]})
+    SUCCESS_API_RESPONSE_V2["products"][0].update({"taxi_form_id": None})
 
     def mock_product_api_call(self, override_product_api_response=None):
         """
@@ -219,6 +222,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Verified Price'] == str(self.variant_1['finalPrice'])
                 assert data_row['Restriction Type'] == 'custom-b2b-enterprise'
                 assert data_row['Fixed Price Usd'] == '3510.0'
+                assert data_row['Taxi Form Id'] == ''
+                assert data_row['Post Submit Url'] == 'https://www.getsmarter.com/blog/career-advice'
 
                 data_row = next(reader)
                 assert data_row['Variant Id'] == self.variant_2['id']
@@ -231,6 +236,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Verified Price'] == str(self.variant_2['finalPrice'])
                 assert data_row['Restriction Type'] == 'None'
                 assert data_row['Fixed Price Usd'] == ''
+                assert data_row['Taxi Form Id'] == ''
+                assert data_row['Post Submit Url'] == 'https://www.getsmarter.com/blog/career-advice'
 
             log_capture.check_present(
                 (
@@ -478,3 +485,5 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Slug'] == 'csv-course-slug'
         assert data_row['External Course Marketing Type'] == "short_course"
         assert data_row['Fixed Price Usd'] == "333.3"
+        assert data_row['Taxi Form Id'] == 'test-form-id'
+        assert data_row['Post Submit Url'] == 'https://www.getsmarter.com/blog/career-advice'

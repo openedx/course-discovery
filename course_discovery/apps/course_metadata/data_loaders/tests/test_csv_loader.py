@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDat
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.models import (
-    AdditionalMetadata, Course, CourseEntitlement, CourseRun, CourseType, Seat, Source
+    AdditionalMetadata, Course, CourseEntitlement, CourseRun, CourseType, Seat, Source, TaxiForm
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, SourceFactory
@@ -278,6 +278,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course_run.seats.get().official_version == official_course_run.seats.get()
                     assert course.active_url_slug == expected_slug
                     assert course.official_version.active_url_slug == expected_slug
+
+                    assert TaxiForm.objects.count() == 1
 
                     assert loader.get_ingestion_stats() == {
                         'total_products_count': 1,
@@ -670,7 +672,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         )
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [{**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, "fixed_price_usd": ""}])
+            csv = self._write_csv(csv, [{**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, "fixed_price_usd": "", "taxi_form_id": ""}])
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
@@ -697,6 +699,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     # Verify the existence of draft and non-draft
                     assert Course.everything.count() == 2
                     assert CourseRun.everything.count() == 2
+                    assert TaxiForm.objects.count() == 0
 
                     course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
                     course_run = CourseRun.everything.get(course=course, draft=True)
