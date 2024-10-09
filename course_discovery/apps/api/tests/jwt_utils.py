@@ -5,11 +5,11 @@ import jwt
 from django.conf import settings
 
 
-def generate_jwt_payload(user):
+def generate_jwt_payload(user, payload=None):
     """Generate a valid JWT payload given a user."""
     now = int(time())
     ttl = 5
-    return {
+    jwt_payload = {
         'iss': settings.JWT_AUTH['JWT_ISSUER'],
         'aud': settings.JWT_AUTH['JWT_AUDIENCE'],
         'username': user.username,
@@ -17,6 +17,9 @@ def generate_jwt_payload(user):
         'iat': now,
         'exp': now + ttl
     }
+    if payload:
+        jwt_payload.update(payload)
+    return jwt_payload
 
 
 def generate_jwt_token(payload):
@@ -29,8 +32,8 @@ def generate_jwt_header(token):
     return f'JWT {token}'
 
 
-def generate_jwt_header_for_user(user):
-    payload = generate_jwt_payload(user)
+def generate_jwt_header_for_user(user, payload=None):
+    payload = generate_jwt_payload(user, payload)
     token = generate_jwt_token(payload)
 
     return generate_jwt_header(token)
