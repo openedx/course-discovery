@@ -526,8 +526,9 @@ class CSVLoaderMixin:
         ) == set(expected_data['meta_keywords'])
         assert course.additional_metadata.registration_deadline.isoformat() == expected_data['registration_deadline']
         assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
-        assert course.additional_metadata.taxi_form.form_id == expected_data['taxi_form_id']
-        assert course.additional_metadata.taxi_form.post_submit_url == expected_data['post_submit_url']
+        if not expected_data.get('taxi_form_is_none', ''):
+            assert course.additional_metadata.taxi_form.form_id == expected_data['taxi_form_id']
+            assert course.additional_metadata.taxi_form.post_submit_url == expected_data['post_submit_url']
         assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])
         assert sorted(

@@ -142,7 +142,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
     SUCCESS_API_RESPONSE_V2 = copy.deepcopy(SUCCESS_API_RESPONSE)
     SUCCESS_API_RESPONSE_V2['products'][0].pop('variant')
     SUCCESS_API_RESPONSE_V2["products"][0].update({"variants": [variant_1, variant_2,]})
-    SUCCESS_API_RESPONSE_V2["products"][0].update({"taxi_form_id": None})
+    SUCCESS_API_RESPONSE_V2["products"][0].update({"edxTaxiFormId": None})
 
     def mock_product_api_call(self, override_product_api_response=None):
         """

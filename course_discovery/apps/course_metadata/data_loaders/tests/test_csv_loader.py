@@ -661,7 +661,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_ecommerce_publication(self.partner)
         self.mock_image_response()
 
-        course = CourseFactory(key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True)
+        course = CourseFactory(
+            key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True,
+            additional_metadata=AdditionalMetadataFactory(taxi_form=None)
+        )
         CourseRunFactory(
             course=course,
             key=self.COURSE_RUN_KEY,
@@ -704,7 +707,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
                     course_run = CourseRun.everything.get(course=course, draft=True)
 
-                    self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
+                    self._assert_course_data(course, {**self.BASE_EXPECTED_COURSE_DATA, 'taxi_form_is_none': True})
                     self._assert_course_run_data(
                         course_run,
                         {**self.BASE_EXPECTED_COURSE_RUN_DATA, "fixed_price_usd": Decimal('111.11')}
