@@ -330,7 +330,8 @@ class CSVLoaderMixin:
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
         'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'fixed_price_usd'
+        'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'fixed_price_usd',
+        'post_submit_url', 'taxi_form_id'
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
@@ -374,6 +375,8 @@ class CSVLoaderMixin:
         "meta_title": "SEO Title",
         "meta_description": "SEO Description",
         "meta_keywords": ["Keyword 1", "Keyword 2"],
+        "taxi_form_id": "test-form-id",
+        "post_submit_url": "https://www.getsmarter.com/blog/career-advice"
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -523,6 +526,9 @@ class CSVLoaderMixin:
         ) == set(expected_data['meta_keywords'])
         assert course.additional_metadata.registration_deadline.isoformat() == expected_data['registration_deadline']
         assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
+        if not expected_data.get('taxi_form_is_none', ''):
+            assert course.additional_metadata.taxi_form.form_id == expected_data['taxi_form_id']
+            assert course.additional_metadata.taxi_form.post_submit_url == expected_data['post_submit_url']
         assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])
         assert sorted(
