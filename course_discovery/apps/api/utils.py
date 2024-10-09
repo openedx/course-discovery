@@ -7,6 +7,7 @@ from urllib.parse import parse_qsl, urlencode, urljoin
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
+from edx_django_utils.cache import RequestCache, get_cache_key
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField
@@ -352,3 +353,20 @@ class StudioAPI:
             self.create_course_run_in_studio(course_run, user=user)
         else:
             self.update_course_run_details_in_studio(course_run)
+
+def use_request_cache(cache_name, key_func):
+    def inner(fn):
+        @functools.wraps(fn)
+        def foo(*args, **kwargs):
+            cache = RequestCache(cache_name)
+            cache_key = key_func(*args, **kwargs)
+            cached_response = cache.get_cached_response(cache_key)
+            if cached_response.is_found:
+                return cached_response.value
+            
+            ret_val = fn(*args, **kwargs)
+
+            cache.set(cache_key, ret_val)
+            return ret_val
+        return foo
+    return inner
