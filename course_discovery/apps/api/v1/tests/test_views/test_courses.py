@@ -352,7 +352,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             response.data['results'],
             self.serialize_course(Course.objects.all(), many=True)
         )
-    
+
     def test_no_repeated_cache_calls_for_utm_calculation(self):
         """
         Test that utm source calculation is done only once per request, and not per
@@ -370,7 +370,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         }) as mocked_api_access_request:
             with override_switch('use_company_name_as_utm_source_value', True):
                 url = reverse('api:v1:course-list')
-                response = self.client.get(url)
+                self.client.get(url)
                 mocked_api_access_request.assert_called_once()
 
     @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")

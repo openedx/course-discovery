@@ -147,6 +147,7 @@ def get_lms_course_url_for_archived(partner, course_key):
 
     return f'{lms_url}/courses/{course_key}/course/'
 
+
 @use_request_cache("utm_source_cache", get_utm_source_request_cache_key)
 def get_utm_source_for_user(partner, user):
     """

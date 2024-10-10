@@ -167,5 +167,6 @@ class CompressedCacheResponseMixin():
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
+
 def get_utm_source_request_cache_key(partner, user):
     return get_cache_key(partner=partner.id, user=user.id)
