@@ -354,6 +354,11 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         )
     
     def test_no_repeated_cache_calls_for_utm_calculation(self):
+        """
+        Test that utm source calculation is done only once per request, and not per
+        serialized object on a listing endpoint. Since each utm source calculation
+        requires two cache calls, this reduces the number of calls to the django cache.
+        """
         CourseFactory(
             partner=self.partner, title='Fake Test 1', key='edX+Fake102', type=self.audit_type
         )

@@ -17,7 +17,6 @@ from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
-from edx_django_utils.cache import RequestCache, get_cache_key
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from opaque_keys.edx.locator import CourseLocator
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
