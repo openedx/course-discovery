@@ -354,6 +354,7 @@ class StudioAPI:
         else:
             self.update_course_run_details_in_studio(course_run)
 
+
 def use_request_cache(cache_name, key_func):
     def inner(fn):
         @functools.wraps(fn)
