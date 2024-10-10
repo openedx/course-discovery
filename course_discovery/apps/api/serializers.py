@@ -28,10 +28,11 @@ from taggit.serializers import TaggitSerializer, TagListSerializerField
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
+from course_discovery.apps.api.cache import get_utm_source_request_cache_key
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )
-from course_discovery.apps.api.utils import StudioAPI, get_excluded_restriction_types
+from course_discovery.apps.api.utils import StudioAPI, get_excluded_restriction_types, use_request_cache
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import update_instance
@@ -147,6 +148,7 @@ def get_lms_course_url_for_archived(partner, course_key):
     return f'{lms_url}/courses/{course_key}/course/'
 
 
+@use_request_cache("utm_source_cache", get_utm_source_request_cache_key)
 def get_utm_source_for_user(partner, user):
     """
     Return the utm source for the user.
