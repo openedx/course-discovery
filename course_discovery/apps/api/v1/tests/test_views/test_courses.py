@@ -371,7 +371,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             with override_switch('use_company_name_as_utm_source_value', True):
                 url = reverse('api:v1:course-list')
                 response = self.client.get(url)
-                assert response["count"] == 2
+                assert response.data["count"] == 2
                 mocked_api_access_request.assert_called_once()
 
     @pytest.mark.skip(reason="https://github.com/openedx/course-discovery/issues/4431")
