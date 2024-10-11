@@ -3234,7 +3234,9 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     "meta_keywords": "Keyword 1, Keyword 2",
     "slug": "",
     'external_course_marketing_type': "short_course",
-    "fixed_price_usd": "123.4"
+    "fixed_price_usd": "123.4",
+    "post_submit_url": "https://www.getsmarter.com/blog/career-advice",
+    "taxi_form_id": "test-form-id"
 }
 
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
