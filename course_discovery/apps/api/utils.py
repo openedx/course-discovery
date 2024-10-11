@@ -356,17 +356,38 @@ class StudioAPI:
 
 
 def use_request_cache(cache_name, key_func):
+    """
+    This decorator can be used to cache the result of a function per request.
+    It leverages the RequestCache from edx-django-utils for this purpose
+
+    Args:
+        cache_name (string): The identifier for the cache
+        key_func (callable): The function used for computing cache keys. This will be called
+                             with the same arguments as the function being decorated
+
+    Example:
+        @use_request_cache("find_factors_cache", lambda x: x)
+        def find_factors(x):
+            print("Looking for factors!")
+            # Some expensive calculation
+            print("Found the factors")
+
+        Over the course of a single request,
+        find_factors(12345)  # This will run the expensive calculation.
+        find_factors(12345)  # This will skip the expensive calculation and return cached value.
+    """
     def inner(fn):
         @functools.wraps(fn)
-        def wrapped(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             cache = RequestCache(cache_name)
             cache_key = key_func(*args, **kwargs)
             cached_response = cache.get_cached_response(cache_key)
             if cached_response.is_found:
                 return cached_response.value
 
-            ret_val = fn(*args, **kwargs)
-            cache.set(cache_key, ret_val)
-            return ret_val
-        return wrapped
+            result = fn(*args, **kwargs)
+
+            cache.set(cache_key, result)
+            return result
+        return wrapper
     return inner
