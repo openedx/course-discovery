@@ -7,6 +7,7 @@ from urllib.parse import parse_qsl, urlencode, urljoin
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
+from edx_django_utils.cache import RequestCache
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField
@@ -352,3 +353,41 @@ class StudioAPI:
             self.create_course_run_in_studio(course_run, user=user)
         else:
             self.update_course_run_details_in_studio(course_run)
+
+
+def use_request_cache(cache_name, key_func):
+    """
+    This decorator can be used to cache the result of a function per request.
+    It leverages the RequestCache from edx-django-utils for this purpose
+
+    Args:
+        cache_name (string): The identifier for the cache
+        key_func (callable): The function used for computing cache keys. This will be called
+                             with the same arguments as the function being decorated
+
+    Example:
+        @use_request_cache("find_factors_cache", lambda x: x)
+        def find_factors(x):
+            print("Looking for factors!")
+            # Some expensive calculation
+            print("Found the factors")
+
+        Over the course of a single request,
+        find_factors(12345)  # This will run the expensive calculation.
+        find_factors(12345)  # This will skip the expensive calculation and return cached value.
+    """
+    def inner(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            cache = RequestCache(cache_name)
+            cache_key = key_func(*args, **kwargs)
+            cached_response = cache.get_cached_response(cache_key)
+            if cached_response.is_found:
+                return cached_response.value
+
+            result = fn(*args, **kwargs)
+
+            cache.set(cache_key, result)
+            return result
+        return wrapper
+    return inner
