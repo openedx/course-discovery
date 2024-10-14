@@ -58,7 +58,7 @@ jobs:
         pip uninstall -y xmlsec
         pip install --no-binary xmlsec xmlsec==1.3.13
         pip uninstall -y pillow
-        pip install --no-binary pillow pillow==9.5.0
+        pip install --no-cache-dir --no-binary pillow pillow==9.5.0
 
 
     - name: Initiate Services
