@@ -1,10 +1,10 @@
 {
   "extends": [
-    "config:base",
+    "config:recommended",
     ":noUnscheduledUpdates",
     ":semanticCommits"
   ],
-  "rebaseStalePrs": true,
+  "rebaseWhen": "behind-base-branch",
   "schedule": [
     "every weekday"
   ],
