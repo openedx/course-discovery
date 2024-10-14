@@ -5,6 +5,7 @@ import zlib
 from django.conf import settings
 from django.core.cache import cache
 from django.http.response import HttpResponse
+from edx_django_utils.cache import get_cache_key
 from rest_framework.renderers import JSONRenderer
 from rest_framework_extensions.cache.decorators import CacheResponse
 from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
@@ -165,3 +166,7 @@ class CompressedCacheResponseMixin():
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+
+
+def get_utm_source_request_cache_key(partner, user):
+    return get_cache_key(partner=partner.id, user=user.id)
