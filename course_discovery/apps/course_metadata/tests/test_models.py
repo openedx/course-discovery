@@ -2528,6 +2528,16 @@ class AbstractHeadingBlurbModelTests(TestCase):
 class TaxiFormTests(TestCase):
     """ Tests for the `TaxiForm` model. """
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        disconnect_course_data_modified_timestamp_related_models()
+
+    @classmethod
+    def tearDownClass(cls):
+        connect_course_data_modified_timestamp_related_models()
+        super().tearDownClass()
+
     def setUp(self):
         super().setUp()
         self.taxi_form = factories.TaxiFormFactory()
@@ -2547,6 +2557,53 @@ class TaxiFormTests(TestCase):
         """ Verify Taxi Form can have an empty subtitle """
         self.taxi_form = factories.TaxiFormFactory(subtitle=None)
         assert self.taxi_form.subtitle is None
+
+    def test_update_product_data_modified_timestamp(self):
+        """ Verify updating TaxiForm updates data_modified_timestamp of related courses """
+        taxi_form = factories.TaxiFormFactory()
+        additional_metadata = AdditionalMetadataFactory(taxi_form=taxi_form)
+        course1 = CourseFactory(additional_metadata=additional_metadata)
+        course2 = CourseFactory(additional_metadata=additional_metadata)
+
+        course1_timestamp = course1.data_modified_timestamp
+        course2_timestamp = course2.data_modified_timestamp
+
+        taxi_form.title = "Updated Title"
+        taxi_form.update_product_data_modified_timestamp()
+        taxi_form.save()
+
+        course1.refresh_from_db()
+        course2.refresh_from_db()
+
+        assert course1_timestamp < course1.data_modified_timestamp
+        assert course2_timestamp < course2.data_modified_timestamp
+
+    def test_update_product_data_modified_timestamp_no_change(self):
+        """ Verify TaxiForm update doesn't change data_modified_timestamp if no fields changed """
+        taxi_form = factories.TaxiFormFactory()
+        additional_metadata = AdditionalMetadataFactory(taxi_form=taxi_form)
+        course = CourseFactory(additional_metadata=additional_metadata)
+
+        course_timestamp = course.data_modified_timestamp
+
+        taxi_form.update_product_data_modified_timestamp()
+        taxi_form.save()
+
+        course.refresh_from_db()
+
+        assert course.data_modified_timestamp == course_timestamp
+
+    def test_update_product_data_modified_timestamp_no_related_courses(self):
+        """ Verify TaxiForm update doesn't cause issues when there are no related courses """
+        taxi_form = factories.TaxiFormFactory()
+        AdditionalMetadataFactory(taxi_form=taxi_form)
+
+        taxi_form.title = "Updated Title"
+
+        taxi_form.update_product_data_modified_timestamp()
+        taxi_form.save()
+
+        assert Course.objects.filter(additional_metadata__taxi_form=taxi_form).count() == 0
 
 
 @ddt.ddt
