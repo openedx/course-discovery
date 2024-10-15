@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     CATALOG_CSV_HEADERS = [
         'UUID', 'Title', 'Organizations Name', 'Organizations Logo', 'Organizations Abbr', 'Languages',
-        'Subjects', 'Subjects Spanish', 'Marketing URL', 'Marketing Image'
+        'Subjects', 'Subjects Spanish', 'Marketing URL', 'Marketing Image', 'Short Description', 'Full Description'
     ]
 
     def add_arguments(self, parser):
@@ -162,6 +162,8 @@ class Command(BaseCommand):
                 ),
                 "Languages": product.languages_codes(),
                 "Marketing Image": product.image.url if product.image else "",
+                "Short Description": product.short_description,
+                "Full Description": product.full_description,
             })
         elif product_type == 'degree':
             data.update({
@@ -172,6 +174,8 @@ class Command(BaseCommand):
                 ),
                 "Languages": ", ".join(language.code for language in product.active_languages) or 'en-us',
                 "Marketing Image": product.card_image.url if product.card_image else "",
+                "Short Description": product.subtitle,
+                "Full Description": product.overview,
             })
 
         return data
