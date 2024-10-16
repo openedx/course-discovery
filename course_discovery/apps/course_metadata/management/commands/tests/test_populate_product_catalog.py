@@ -505,6 +505,8 @@ class PopulateProductCatalogCommandTests(TestCase):
             ),
             "Marketing URL": product.marketing_url,
             "Marketing Image": (product.image.url if product.image else ""),
+            "Short Description": product.short_description,
+            "Full Description": product.full_description,
         }
 
     def test_get_transformed_data_for_degree(self):
@@ -538,6 +540,8 @@ class PopulateProductCatalogCommandTests(TestCase):
             ),
             "Marketing URL": product.marketing_url,
             "Marketing Image": product.card_image.url if product.card_image else "",
+            "Short Description": product.subtitle,
+            "Full Description": product.overview,
         }
 
     @mock.patch('course_discovery.apps.course_metadata.management.commands.populate_product_catalog.GspreadClient')
