@@ -228,6 +228,128 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     reader = csv.DictReader(csv_file)
                     assert not any(reader)
 
+    @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
+    @ddt.data(
+        (
+            {
+                "future_variants": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000011",
+                        "status": "scheduled",
+                        "course": "Test Organisations Programme 2024-01-31",
+                        "currency": "USD",
+                        "normalPrice": 36991.0,
+                        "discount": 4000.0,
+                        "finalPrice": 32991.0,
+                        "regCloseDate": "2026-03-12",
+                        "startDate": "2026-03-20",
+                        "endDate": "2026-04-28",
+                        "finalRegCloseDate": "2026-03-26",
+                        "websiteVisibility": "public",
+                        "enterprisePriceUsd": 3510.0,
+                    }
+                ],
+                "custom_persentations": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000012",
+                        "status": "active",
+                        "course": "Test Organisations Programme 2024-01-31",
+                        "currency": "USD",
+                        "normalPrice": 36991.0,
+                        "discount": 4000.0,
+                        "finalPrice": 32991.0,
+                        "regCloseDate": "2024-03-12",
+                        "startDate": "2024-03-20",
+                        "endDate": "2024-04-28",
+                        "finalRegCloseDate": "2024-03-26",
+                        "websiteVisibility": "private",
+                        "enterprisePriceUsd": 3510.0,
+                    }
+                ],
+            },
+            3,
+        ),
+        (
+            {
+                "future_variants": [],
+                "custom_persentations": [
+                    {
+                        "id": "11111111-1111-1111-1111-111111111111",
+                        "status": "active",
+                        "course": "Test Organisations Programme 2024-01-31",
+                        "currency": "USD",
+                        "normalPrice": 36991.0,
+                        "discount": 4000.0,
+                        "finalPrice": 32991.0,
+                        "regCloseDate": "2024-03-12",
+                        "startDate": "2024-03-20",
+                        "endDate": "2024-04-28",
+                        "finalRegCloseDate": "2024-03-26",
+                        "websiteVisibility": "private",
+                        "enterprisePriceUsd": 3510.0,
+                    }
+                ],
+            },
+            2,
+        ),
+        (
+            {
+                "future_variants": [
+                    {
+                        "id": "11111111-1111-1111-1111-111111111111",
+                        "status": "scheduled",
+                        "course": "Test Organisations Programme 2024-01-31",
+                        "currency": "USD",
+                        "normalPrice": 36991.0,
+                        "discount": 4000.0,
+                        "finalPrice": 32991.0,
+                        "regCloseDate": "2026-03-12",
+                        "startDate": "2026-03-20",
+                        "endDate": "2026-04-28",
+                        "finalRegCloseDate": "2026-03-26",
+                        "websiteVisibility": "public",
+                        "enterprisePriceUsd": 3510.0,
+                    }
+                ],
+                "custom_persentations": [],
+            },
+            2,
+        ),
+        (
+            {
+                "future_variants": [],
+                "custom_persentations": [],
+            },
+            1,
+        ),
+    )
+    @ddt.unpack
+    def test_populate_executive_education_data_csv_with_new_variants_structure_changes(
+        self, variant_data, expected_csv_entries_count, mock_get_smarter_client
+    ):
+        """
+        Verify the successful population has data from API response if getsmarter flag is provided and
+        the product can have multiple variants
+        """
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE)
+        success_api_response["products"][0].update(variant_data)
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_executive_education_data_csv",
+                "--output_csv", output_csv.name,
+                "--use_getsmarter_api_client", True,
+            )
+
+            output_csv.seek(0)
+            with open(output_csv.name, "r") as csv_file:
+                reader = csv.DictReader(csv_file)
+                assert len(list(reader)) == expected_csv_entries_count
+
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
     def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
         """

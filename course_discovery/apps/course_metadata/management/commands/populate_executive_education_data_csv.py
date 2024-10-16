@@ -164,10 +164,10 @@ class Command(BaseCommand):
                     variants = []
                     if product.get('variant'):
                         variants.append(product.pop('variant'))
-                    if 'custom_presentations' in product and product['custom_presentation']:
-                        variants.extend(product['custom_presentation'])
                     if 'future_variants' in product and product['future_variants']:
                         variants.extend(product['future_variants'])
+                    if 'custom_persentations' in product and product['custom_persentations']:
+                        variants.extend(product['custom_persentations'])
                     for variant in variants:
                         product.update({'variant': variant})
                         output_dict = self.get_transformed_data(row, product)
