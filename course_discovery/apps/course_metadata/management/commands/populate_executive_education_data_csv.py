@@ -160,9 +160,18 @@ class Command(BaseCommand):
                         product.update({'variant': variant})
                         output_dict = self.get_transformed_data(row, product)
                         output_writer = self.write_csv_row(output_writer, output_dict)
-                else:
-                    output_dict = self.get_transformed_data(row, product)
-                    output_writer = self.write_csv_row(output_writer, output_dict)
+                elif 'variant' in product:
+                    variants = []
+                    if product.get('variant'):
+                        variants.append(product.pop('variant'))
+                    if 'custom_presentations' in product and product['custom_presentation']:
+                        variants.extend(product['custom_presentation'])
+                    if 'future_variants' in product and product['future_variants']:
+                        variants.extend(product['future_variants'])
+                    for variant in variants:
+                        product.update({'variant': variant})
+                        output_dict = self.get_transformed_data(row, product)
+                        output_writer = self.write_csv_row(output_writer, output_dict)
                 logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
