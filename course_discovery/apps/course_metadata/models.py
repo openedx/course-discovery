@@ -882,6 +882,17 @@ class TaxiForm(ManageHistoryMixin, TimeStampedModel):
             return False
         return self.has_model_changed()
 
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"TaxiForm update_product_data_modified_timestamp triggered for {self.form_id}."
+                f"Updating data modified timestamp for related courses."
+            )
+            if self.additional_metadata:
+                self.additional_metadata.related_courses.all().update(
+                    data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+                )
+
     def __str__(self):
         return f"{self.title}({self.form_id})"
 

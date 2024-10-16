@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDat
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
     Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Fact, GeoLocation, Organization, ProductMeta,
-    ProductValue, Program, Seat
+    ProductValue, Program, Seat, TaxiForm
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
@@ -508,6 +508,7 @@ def connect_course_data_modified_timestamp_related_models():
         ProductValue,
         Seat,
         Fact,
+        TaxiForm,
     ]:
         pre_save.connect(data_modified_timestamp_update, sender=model)
 
@@ -528,7 +529,8 @@ def disconnect_course_data_modified_timestamp_related_models():
         ProductMeta,
         ProductValue,
         Seat,
-        Fact
+        Fact,
+        TaxiForm
     ]:
         pre_save.disconnect(data_modified_timestamp_update, sender=model)
 
