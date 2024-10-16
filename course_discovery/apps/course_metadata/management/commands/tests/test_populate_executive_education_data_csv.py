@@ -285,14 +285,14 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             )
 
     @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
-    @ddt.data(("active", "scheduled", str(date.today().isoformat()), "2024-03-20"))
+    @ddt.data(
+        ("active", str(date.today().isoformat())), ("scheduled", "2024-03-20")
+    )
     @ddt.unpack
     def test_successful_file_data_population_with_getsmarter_flag_with_future_variants(
         self,
-        variant_1_status,
-        variant_2_status,
-        expected_variant_1_publish_date,
-        expected_variant_2_publish_date,
+        variant_status,
+        expected_publish_date,
         mock_get_smarter_client,
     ):
         """
@@ -301,8 +301,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         the publish date is set to the current date.
         """
         success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V2)
-        success_api_response["products"][0]["variants"][0]["status"] = variant_1_status
-        success_api_response["products"][0]["variants"][1]["status"] = variant_2_status
+        success_api_response["products"][0]["variants"][0]["status"] = variant_status
+        success_api_response["products"][0]["variants"][1]["status"] = variant_status
 
         mock_get_smarter_client.return_value.request.return_value.json.return_value = (
             self.mock_get_smarter_client_response(
@@ -322,10 +322,10 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 reader = csv.DictReader(csv_file)
 
                 data_row = next(reader)
-                assert data_row['Publish Date'] == expected_variant_1_publish_date
+                assert data_row['Publish Date'] == expected_publish_date
 
                 data_row = next(reader)
-                assert data_row['Publish Date'] == expected_variant_2_publish_date
+                assert data_row['Publish Date'] == expected_publish_date
 
     @responses.activate
     def test_successful_file_data_population_with_input_csv(self):
