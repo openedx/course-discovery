@@ -7,6 +7,7 @@ import json
 from datetime import date
 from tempfile import NamedTemporaryFile
 
+import ddt
 import mock
 import responses
 from django.conf import settings
@@ -20,6 +21,7 @@ from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVL
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.populate_executive_education_data_csv'
 
 
+@ddt.ddt
 class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
     """
     Test suite for populate_executive_education_data_csv management command.
@@ -144,6 +146,16 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
     SUCCESS_API_RESPONSE_V2["products"][0].update({"variants": [variant_1, variant_2,]})
     SUCCESS_API_RESPONSE_V2["products"][0].update({"edxTaxiFormId": None})
 
+    SUCCESS_API_RESPONSE_V3 = copy.deepcopy(SUCCESS_API_RESPONSE)
+    SUCCESS_API_RESPONSE_V3['products'][0].update({
+        'custom_persentations': [{**copy.deepcopy(variant_1), 'websiteVisibility': 'private', 'status': 'active'}],
+        'future_variants': [
+            {
+                **copy.deepcopy(variant_2), 'websiteVisibility': 'public', 'status': 'scheduled',
+                'startDate': '2026-03-20', 'endDate': '2026-04-28', 'finalRegCloseDate': '2026-03-26'
+            }
+        ]})
+
     def mock_product_api_call(self, override_product_api_response=None):
         """
         Mock product api with success response.
@@ -190,6 +202,70 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     'Data population and transformation completed for CSV row title CSV Course'
                 ),
             )
+
+    @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
+    def test_skip_products_ingestion_if_variants_data_empty(self, mock_get_smarter_client):
+        """
+        Verify that the command skips the product ingestion if the variants data is empty
+        """
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V2)
+        success_api_response["products"][0]["variants"] = []
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+        with NamedTemporaryFile() as output_csv:
+            with LogCapture(LOGGER_PATH) as log_capture:
+                call_command(
+                    "populate_executive_education_data_csv",
+                    "--output_csv",
+                    output_csv.name,
+                    "--use_getsmarter_api_client",
+                    True,
+                )
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        "WARNING",
+                        f"Skipping product {success_api_response['products'][0]['name']} "
+                        f"ingestion as it has no variants",
+                    ),
+                )
+
+                output_csv.seek(0)
+                with open(output_csv.name, "r") as csv_file:
+                    reader = csv.DictReader(csv_file)
+                    assert not any(reader)
+
+    @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
+    def test_populate_executive_education_data_csv_with_new_variants_structure_changes(self, mock_get_smarter_client):
+        """
+        Verify the successful population has data from API response if getsmarter flag is provided and
+        the product can have multiple variants
+        """
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V3)
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_executive_education_data_csv",
+                "--output_csv", output_csv.name,
+                "--use_getsmarter_api_client", True,
+            )
+
+            output_csv.seek(0)
+            with open(output_csv.name, "r") as csv_file:
+                reader = csv.DictReader(csv_file)
+                assert len(list(reader)) == (
+                    len(self.SUCCESS_API_RESPONSE_V3["products"][0]["custom_persentations"])
+                    + len(self.SUCCESS_API_RESPONSE_V3["products"][0]["future_variants"])
+                    + 1 if self.SUCCESS_API_RESPONSE_V3["products"][0]["variant"]
+                    else 0
+                )
 
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
     def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
@@ -246,6 +322,49 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     'Data population and transformation completed for CSV row title CSV Course'
                 ),
             )
+
+    @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
+    @ddt.data(
+        ("active", str(date.today().isoformat())), ("scheduled", "2024-03-20")
+    )
+    @ddt.unpack
+    def test_successful_file_data_population_with_getsmarter_flag_with_future_variants(
+        self,
+        variant_status,
+        expected_publish_date,
+        mock_get_smarter_client,
+    ):
+        """
+        Verify that data is correctly populated from the API response when the getsmarter flag is enabled.
+        If a variant is scheduled, its publish date is set to the start date. If the variant is active,
+        the publish date is set to the current date.
+        """
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V2)
+        success_api_response["products"][0]["variants"][0]["status"] = variant_status
+        success_api_response["products"][0]["variants"][1]["status"] = variant_status
+
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
+                '--use_getsmarter_api_client', True,
+            )
+
+            output_csv.seek(0)
+            with open(output_csv.name, 'r') as csv_file:
+                reader = csv.DictReader(csv_file)
+
+                data_row = next(reader)
+                assert data_row['Publish Date'] == expected_publish_date
+
+                data_row = next(reader)
+                assert data_row['Publish Date'] == expected_publish_date
 
     @responses.activate
     def test_successful_file_data_population_with_input_csv(self):
