@@ -148,38 +148,11 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
 
     SUCCESS_API_RESPONSE_V3 = copy.deepcopy(SUCCESS_API_RESPONSE)
     SUCCESS_API_RESPONSE_V3['products'][0].update({
-        'custom_persentations': [
-            {
-                'id': '00000000-0000-0000-0000-000000000012',
-                'status': 'active',
-                'course': 'Test Organisations Programme 2024-01-31',
-                'currency': 'USD',
-                'normalPrice': 36991.0,
-                'discount': 4000.0,
-                'finalPrice': 32991.0,
-                'regCloseDate': '2024-03-12',
-                'startDate': '2024-03-20',
-                'endDate': '2024-04-28',
-                'finalRegCloseDate': '2024-03-26',
-                'websiteVisibility': 'private',
-                'enterprisePriceUsd': 3510.0,
-            }
-        ],
+        'custom_persentations': [{**copy.deepcopy(variant_1), 'websiteVisibility': 'private', 'status': 'active'}],
         'future_variants': [
             {
-                'id': '00000000-0000-0000-0000-000000000011',
-                'status': 'scheduled',
-                'course': 'Test Organisations Programme 2024-01-31',
-                'currency': 'USD',
-                'normalPrice': 36991.0,
-                'discount': 4000.0,
-                'finalPrice': 32991.0,
-                'regCloseDate': '2026-03-12',
-                'startDate': '2026-03-20',
-                'endDate': '2026-04-28',
-                'finalRegCloseDate': '2026-03-26',
-                'websiteVisibility': 'public',
-                'enterprisePriceUsd': 3510.0,
+                **copy.deepcopy(variant_2), 'websiteVisibility': 'public', 'status': 'scheduled',
+                'startDate': '2026-03-20', 'endDate': '2026-04-28', 'finalRegCloseDate': '2026-03-26'
             }
         ]})
 
