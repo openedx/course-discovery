@@ -152,8 +152,10 @@ class Command(BaseCommand):
                 if getsmarter_flag:
                     product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
-                if product.get('variants'):
+                if 'variants' in product:
                     variants = product.pop('variants')
+                    if not variants:
+                        logger.warning(f"Skipping product {product['name']} ingestion as it has no variants")
                     for variant in variants:
                         product.update({'variant': variant})
                         output_dict = self.get_transformed_data(row, product)
@@ -292,7 +294,6 @@ class Command(BaseCommand):
             'start_time': '00:00:00',
             'end_time': '00:00:00',
             'reg_close_time': '00:00:00',
-            'publish_date': date.today().isoformat(),
             'course_level': 'Introductory',
             'course_pacing': 'Instructor-Paced',
             'content_language': language,
@@ -313,6 +314,10 @@ class Command(BaseCommand):
             'organization_short_code_override': product_dict[
                 'altUniversityAbbreviation'
             ],
+            'publish_date': (
+                partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate']
+                if product_dict['variant'].get('status') == 'scheduled' else date.today().isoformat()
+            ),
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],

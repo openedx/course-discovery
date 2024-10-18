@@ -2611,13 +2611,6 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         now = datetime.datetime.now(pytz.UTC)
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
-        # Use external course availability for ExecEd course run types
-        # Check additional_metadata existence as a fail safe for some unit tests
-        # where this flow is triggered via signals before AdditionalMetadata object can be persisted
-        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION] and \
-                self.course.additional_metadata:
-            return self.external_course_availability
-
         if self.has_ended(now):
             return _('Archived')
         elif self.start and (self.start <= now):

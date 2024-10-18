@@ -1109,7 +1109,10 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     )
     @ddt.unpack
     def test_external_course_availability(self, product_status, expected_availability):
-        """ Verify the property returns the appropriate availability string based on external product status """
+        """
+        Verify that the course availability is determined based on the start and end dates,
+        not on the product status, for a given course run.
+        """
         course_run = factories.CourseRunFactory(
             type=factories.CourseRunTypeFactory(
                 slug=CourseRunType.UNPAID_EXECUTIVE_EDUCATION
@@ -1118,7 +1121,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                 additional_metadata=AdditionalMetadataFactory(
                     product_status=product_status
                 )
-            )
+            ),
+            start=(datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=5)),
+            end=(
+                datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=100)
+                if product_status.value != "archived"
+                else datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10)
+            ),
         )
         assert course_run.availability == expected_availability
 
