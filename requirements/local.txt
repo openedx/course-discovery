@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.39
+boto3==1.35.44
     # via django-ses
-botocore==1.35.39
+botocore==1.35.44
     # via
     #   boto3
     #   s3transfer
@@ -136,11 +136,11 @@ colorama==0.4.6
     #   tox
 contentful==2.2.0
     # via -r requirements/base.in
-coverage[toml]==7.6.3
+coverage[toml]==7.6.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==43.0.1
+cryptography==43.0.3
     # via
     #   pyjwt
     #   pyopenssl
@@ -288,7 +288,7 @@ django-ses==4.2.0
     # via taxonomy-connector
 django-simple-history==3.7.0
     # via -r requirements/base.in
-django-solo==2.3.0
+django-solo==2.4.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -342,7 +342,7 @@ drf-flex-fields==1.0.2
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
-drf-yasg==1.21.7
+drf-yasg==1.21.8
     # via
     #   -r requirements/base.in
     #   edx-api-doc-tools
@@ -360,7 +360,7 @@ edx-django-release-util==1.4.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.2.0
     # via -r requirements/base.in
-edx-django-utils==6.0.0
+edx-django-utils==7.0.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -418,7 +418,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==30.3.0
+faker==30.6.0
     # via factory-boy
 fastavro==1.9.7
     # via openedx-events
@@ -456,7 +456,7 @@ google-auth-oauthlib==1.2.1
     # via gspread
 googleapis-common-protos==1.65.0
     # via google-api-core
-gspread==6.1.3
+gspread==6.1.4
     # via -r requirements/base.in
 h11==0.14.0
     # via wsproto
@@ -512,7 +512,7 @@ lxml-html-clean==0.3.1
     # via lxml
 markdown==3.7
     # via -r requirements/base.in
-markupsafe==3.0.1
+markupsafe==3.0.2
     # via jinja2
 mccabe==0.7.0
     # via pylint
@@ -524,9 +524,9 @@ multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
-mysqlclient==2.2.4
+mysqlclient==2.2.5
     # via -r requirements/test.in
-newrelic==10.1.0
+newrelic==10.2.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -561,7 +561,7 @@ path==16.16.0
     # via edx-i18n-tools
 pbr==6.1.0
     # via stevedore
-peewee==3.17.6
+peewee==3.17.7
     # via semgrep
 pillow==9.5.0
     # via
@@ -593,7 +593,7 @@ protobuf==5.28.2
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-psutil==6.0.0
+psutil==6.1.0
     # via edx-django-utils
 pyasn1==0.6.1
     # via
@@ -671,7 +671,7 @@ pytest-django==4.9.0
     # via -r requirements/test.in
 pytest-responses==0.5.1
     # via -r requirements/test.in
-pytest-split==0.9.0
+pytest-split==0.10.0
     # via -r requirements/local.in
 pytest-xdist==3.4.0
     # via
@@ -765,7 +765,7 @@ rsa==4.9
     # via google-auth
 ruamel-yaml==0.17.40
     # via semgrep
-ruamel-yaml-clib==0.2.8
+ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
 s3transfer==0.10.3
     # via boto3
@@ -903,7 +903,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.6
+virtualenv==20.27.0
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
@@ -919,9 +919,9 @@ wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.15.2
+yarl==1.15.5
     # via aiohttp
-zeep==4.3.0
+zeep==4.3.1
     # via simple-salesforce
 zipp==3.20.2
     # via importlib-metadata
