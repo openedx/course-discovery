@@ -152,15 +152,12 @@ class Command(BaseCommand):
                 if getsmarter_flag:
                     product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
-                if 'variants' in product:
-                    variants = product.pop('variants')
-                    if not variants:
-                        logger.warning(f"Skipping product {product['name']} ingestion as it has no variants")
-                    for variant in variants:
-                        product.update({'variant': variant})
-                        output_dict = self.get_transformed_data(row, product)
-                        output_writer = self.write_csv_row(output_writer, output_dict)
-                else:
+                variants = self.get_variants(product)
+                if not variants:
+                    logger.warning(f"Skipping product {product['name']} ingestion as it has no variants")
+                    continue
+                for variant in variants:
+                    product.update({'variant': variant})
                     output_dict = self.get_transformed_data(row, product)
                     output_writer = self.write_csv_row(output_writer, output_dict)
                 logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -168,6 +165,28 @@ class Command(BaseCommand):
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
             for message in self.messages_list:
                 logger.warning(message)
+
+    def get_variants(self, product):
+        """
+        Given a product, return all the variants from it.
+
+        Args:
+            product (dict): A dictionary containing product details.
+
+        Returns:
+            list: A list of variant dicts
+        """
+        variant_keys = ['variant', 'variants', 'future_variants', 'custom_presentations']
+        variants = []
+
+        for key in variant_keys:
+            if key in product and product[key]:
+                if isinstance(product[key], list):
+                    variants.extend(product[key])
+                else:
+                    variants.append(product[key])
+
+        return variants
 
     def transform_dict_keys(self, data):
         """

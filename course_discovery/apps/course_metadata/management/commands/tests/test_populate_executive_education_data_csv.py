@@ -141,10 +141,20 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         "websiteVisibility": "public",
     }
 
-    SUCCESS_API_RESPONSE_V2 = copy.deepcopy(SUCCESS_API_RESPONSE)
-    SUCCESS_API_RESPONSE_V2['products'][0].pop('variant')
-    SUCCESS_API_RESPONSE_V2["products"][0].update({"variants": [variant_1, variant_2,]})
-    SUCCESS_API_RESPONSE_V2["products"][0].update({"edxTaxiFormId": None})
+    SUCCESS_API_RESPONSE_MULTI_VARIANTS = copy.deepcopy(SUCCESS_API_RESPONSE)
+    SUCCESS_API_RESPONSE_MULTI_VARIANTS['products'][0].pop('variant')
+    SUCCESS_API_RESPONSE_MULTI_VARIANTS["products"][0].update({"variants": [variant_1, variant_2,]})
+    SUCCESS_API_RESPONSE_MULTI_VARIANTS["products"][0].update({"edxTaxiFormId": None})
+
+    SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS = copy.deepcopy(SUCCESS_API_RESPONSE)
+    SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS['products'][0].update({
+        'custom_presentations': [{**copy.deepcopy(variant_1), 'websiteVisibility': 'private', 'status': 'active'}],
+        'future_variants': [
+            {
+                **copy.deepcopy(variant_2), 'websiteVisibility': 'public', 'status': 'scheduled',
+                'startDate': '2026-03-20', 'endDate': '2026-04-28', 'finalRegCloseDate': '2026-03-26'
+            }
+        ]})
 
     def mock_product_api_call(self, override_product_api_response=None):
         """
@@ -198,7 +208,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         Verify that the command skips the product ingestion if the variants data is empty
         """
-        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V2)
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_MULTI_VARIANTS)
         success_api_response["products"][0]["variants"] = []
         mock_get_smarter_client.return_value.request.return_value.json.return_value = (
             self.mock_get_smarter_client_response(
@@ -228,6 +238,61 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     reader = csv.DictReader(csv_file)
                     assert not any(reader)
 
+    @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
+    def test_populate_executive_education_data_csv_with_new_variants_structure_changes(
+        self, mock_get_smarter_client
+    ):
+        """
+        Verify the successful population has data from API response if getsmarter flag is provided and
+        the product can have multiple variants
+        """
+        success_api_response = copy.deepcopy(
+            self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS
+        )
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                "populate_executive_education_data_csv",
+                "--output_csv",
+                output_csv.name,
+                "--use_getsmarter_api_client",
+                True,
+            )
+
+            simple_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS["products"][0]["variant"]
+            future_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS["products"][0]["future_variants"][0]
+            custom_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS[
+                "products"
+            ][0]["custom_presentations"][0]
+
+            with open(output_csv.name, "r") as csv_file:
+                reader = csv.DictReader(csv_file)
+
+                data_row = next(reader)
+                assert data_row["Variant Id"] == simple_variant["id"]
+                assert data_row["Start Date"] == simple_variant["startDate"]
+                assert data_row["End Date"] == simple_variant["endDate"]
+                assert data_row["Reg Close Date"] == simple_variant["finalRegCloseDate"]
+                assert data_row["Restriction Type"] == "None"
+
+                data_row = next(reader)
+                assert data_row["Variant Id"] == future_variant["id"]
+                assert data_row["Start Date"] == future_variant["startDate"]
+                assert data_row["End Date"] == future_variant["endDate"]
+                assert data_row["Reg Close Date"] == future_variant["finalRegCloseDate"]
+                assert data_row["Restriction Type"] == "None"
+
+                data_row = next(reader)
+                assert data_row["Variant Id"] == custom_variant["id"]
+                assert data_row["Start Date"] == custom_variant["startDate"]
+                assert data_row["End Date"] == custom_variant["endDate"]
+                assert data_row["Reg Close Date"] == custom_variant["finalRegCloseDate"]
+                assert data_row["Restriction Type"] == "custom-b2b-enterprise"
+
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
     def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
         """
@@ -235,7 +300,9 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         the product can have multiple variants
         """
         mock_get_smarter_client.return_value.request.return_value.json.return_value = (
-            self.mock_get_smarter_client_response(override_get_smarter_client_response=self.SUCCESS_API_RESPONSE_V2)
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=self.SUCCESS_API_RESPONSE_MULTI_VARIANTS
+            )
         )
         with NamedTemporaryFile() as output_csv:
             with LogCapture(LOGGER_PATH) as log_capture:
@@ -300,7 +367,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         If a variant is scheduled, its publish date is set to the start date. If the variant is active,
         the publish date is set to the current date.
         """
-        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_V2)
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE_MULTI_VARIANTS)
         success_api_response["products"][0]["variants"][0]["status"] = variant_status
         success_api_response["products"][0]["variants"][1]["status"] = variant_status
 
