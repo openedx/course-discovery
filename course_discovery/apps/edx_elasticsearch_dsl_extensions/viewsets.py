@@ -1,8 +1,10 @@
+import json
 from django_elasticsearch_dsl import Document as OriginDocument
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocumentViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from course_discovery.apps.api import mixins
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import MultiMatchSearchFilterBackend
@@ -99,10 +101,47 @@ class CustomPageNumberPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
+class CustomSearchAfterPagination(PageNumberPagination):
+    """
+    Custom paginator that supports Elasticsearch `search_after` pagination.
+    """
+
+    page_size_query_param = "page_size"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Paginate the Elasticsearch queryset using search_after.
+        """
+        page_size = self.get_page_size(request)
+
+        search_after = request.query_params.get("search_after", None)
+
+        if search_after:
+            queryset = queryset.extra(search_after=json.loads(search_after))
+
+        queryset = queryset[:page_size]
+        # queryset = queryset.sort('-start', 'aggregation_key')[:page_size + 1]
+
+        return list(queryset)
+
+    def get_paginated_response(self, data):
+        """
+        Get paginated response, including search_after value for the next page.
+        """
+        last_item = data[-1] if data else None
+        search_after = last_item.get("sort") if last_item else None
+
+        return Response(
+            {
+                "next": search_after,
+                "results": data,
+            }
+        )
+
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
     lookup_field = 'key'
     document_uid_field = 'key'
-    pagination_class = CustomPageNumberPagination
+    pagination_class = CustomSearchAfterPagination
     permission_classes = (IsAuthenticated,)
     ensure_published = True
     multi_match_search_fields = ('key', 'title', 'text')
