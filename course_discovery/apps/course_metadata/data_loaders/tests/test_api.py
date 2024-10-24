@@ -363,6 +363,34 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert run3.seats.first().upgrade_deadline is None
 
     @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
+    def test_not_pushed_to_ecomm_if_no_seats(self, mock_push_to_ecomm):
+        """
+        Verify that LMS data loader will skip pushing a course run to ecommerce
+        if it has no seats
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
+        api_data = self.mock_api()
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
+
+        self.loader.ingest()
+        self.assert_api_called(4)
+        runs = CourseRun.objects.all()
+
+        run = runs[0]
+        run.end = datetime.datetime.now(pytz.UTC)
+        run.save()
+
+        # Verify the CourseRuns were created correctly
+        expected_num_course_runs = len(api_data)
+        assert CourseRun.objects.count() == expected_num_course_runs
+
+        self.loader.ingest()
+        assert not mock_push_to_ecomm.called
+
+    @responses.activate
     def test_ingest_exception_handling(self):
         """ Verify the data loader properly handles exceptions during processing of the data from the API. """
         api_data = self.mock_api()
