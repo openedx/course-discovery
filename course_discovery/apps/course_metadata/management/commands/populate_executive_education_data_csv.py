@@ -176,7 +176,7 @@ class Command(BaseCommand):
         Returns:
             list: A list of variant dicts
         """
-        variant_keys = ['variant', 'variants', 'future_variants', 'custom_presentations']
+        variant_keys = ['variant', 'variants', 'futureVariants', 'customPresentations']
         variants = []
 
         for key in variant_keys:
