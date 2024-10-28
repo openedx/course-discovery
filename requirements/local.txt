@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.44
+boto3==1.35.49
     # via django-ses
-botocore==1.35.44
+botocore==1.35.49
     # via
     #   boto3
     #   s3transfer
@@ -372,9 +372,9 @@ edx-django-utils==7.0.0
     #   getsmarter-api-clients
     #   openedx-events
     #   taxonomy-connector
-edx-drf-extensions==10.4.0
+edx-drf-extensions==10.5.0
     # via -r requirements/base.in
-edx-event-bus-kafka==5.8.1
+edx-event-bus-kafka==6.0.0
     # via -r requirements/base.in
 edx-event-bus-redis==0.5.1
     # via -r requirements/base.in
@@ -418,7 +418,7 @@ face==22.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==30.6.0
+faker==30.8.1
     # via factory-boy
 fastavro==1.9.7
     # via openedx-events
@@ -429,7 +429,7 @@ filelock==3.16.1
     #   virtualenv
 freezegun==1.5.1
     # via -r requirements/test.in
-frozenlist==1.4.1
+frozenlist==1.5.0
     # via
     #   aiohttp
     #   aiosignal
@@ -586,9 +586,9 @@ prompt-toolkit==3.0.48
     # via click-repl
 propcache==0.2.0
     # via yarl
-proto-plus==1.24.0
+proto-plus==1.25.0
     # via google-api-core
-protobuf==5.28.2
+protobuf==5.28.3
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -719,7 +719,7 @@ pyyaml==6.0.2
     #   responses
 rcssmin==1.1.2
     # via django-compressor
-redis==5.1.1
+redis==5.2.0
     # via
     #   -r requirements/base.in
     #   walrus
@@ -798,7 +798,7 @@ sniffio==1.3.1
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.12.2
+snowflake-connector-python==3.12.3
     # via -r requirements/base.in
 social-auth-app-django==5.4.2
     # via
@@ -849,7 +849,7 @@ testfixtures==8.3.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
-tinycss2==1.3.0
+tinycss2==1.4.0
     # via
     #   cairosvg
     #   cssselect2
@@ -919,7 +919,7 @@ wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.15.5
+yarl==1.16.0
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
