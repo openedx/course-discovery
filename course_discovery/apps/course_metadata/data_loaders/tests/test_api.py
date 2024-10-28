@@ -382,6 +382,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         run = runs[0]
         run.end = datetime.datetime.now(pytz.UTC)
         run.save()
+        assert run.seats.count() == 0
 
         # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
