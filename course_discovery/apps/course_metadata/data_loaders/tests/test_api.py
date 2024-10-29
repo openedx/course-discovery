@@ -379,12 +379,14 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assert_api_called(4)
         runs = CourseRun.objects.all()
 
+        # Change a run's end date to make it different from the one in studio. This
+        # is needed to trigger the push_to_ecommerce flow in the the loader, which is only
+        # done in case the end dates differ or a certain waffle flag is set.
         run = runs[0]
         run.end = datetime.datetime.now(pytz.UTC)
         run.save()
         assert run.seats.count() == 0
 
-        # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
         assert CourseRun.objects.count() == expected_num_course_runs
 
