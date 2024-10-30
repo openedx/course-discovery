@@ -25,6 +25,10 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
     enrollment_end = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        return result.meta.sort._l_
 
     def get_start(self, obj):
         return self.handle_datetime_field(obj.start)
@@ -92,6 +96,7 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
             'weeks_to_complete',
             'restriction_type',
             'fixed_price_usd',
+            'sort'
         )
 
 

@@ -51,6 +51,10 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
     end_date = serializers.SerializerMethodField()
     course_ends = serializers.SerializerMethodField()
     languages = serializers.SerializerMethodField()
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        return result.meta.sort._l_
 
     def course_run_detail(self, request, detail_fields, course_run):
         course_run_detail = {
@@ -215,6 +219,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'enterprise_subscription_inclusion',
             'external_course_marketing_type',
             'product_source',
+            'sort'
         )
 
 

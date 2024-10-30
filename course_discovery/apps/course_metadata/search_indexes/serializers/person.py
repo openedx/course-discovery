@@ -17,6 +17,10 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
     """
 
     profile_image_url = serializers.SerializerMethodField()
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        return result.meta.sort._l_
 
     def get_profile_image_url(self, instance):
         return instance.get_profile_image_url
@@ -37,6 +41,7 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
             'profile_image_url',
             'position',
             'organizations',
+            'sort'
         )
 
 

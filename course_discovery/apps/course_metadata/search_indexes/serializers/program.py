@@ -24,6 +24,11 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
     authoring_organizations = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        return result.meta.sort._l_
+
 
     def get_authoring_organizations(self, program):
         organizations = program.authoring_organization_bodies
@@ -62,6 +67,7 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
                 'is_2u_degree_program',
                 'excluded_from_search',
                 'excluded_from_seo',
+                'sort'
             )
         )
 

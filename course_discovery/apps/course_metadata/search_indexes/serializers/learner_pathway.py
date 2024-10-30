@@ -42,6 +42,10 @@ class LearnerPathwaySearchDocumentSerializer(
     banner_image = StdImageSerializerField(source='object.banner_image')
     card_image = StdImageSerializerField(source='object.card_image')
     created = serializers.SerializerMethodField()
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        return result.meta.sort._l_
 
     def get_created(self, obj):
         return self.handle_datetime_field(obj.created)
@@ -57,7 +61,7 @@ class LearnerPathwaySearchDocumentSerializer(
         fields = (
             BASE_SEARCH_INDEX_FIELDS + (
                 'uuid', 'title', 'status', 'banner_image', 'card_image', 'overview', 'published', 'skills',
-                'skill_names', 'partner', 'steps', 'visible_via_association', 'created',
+                'skill_names', 'partner', 'steps', 'visible_via_association', 'created', 'sort'
             )
         )
 
