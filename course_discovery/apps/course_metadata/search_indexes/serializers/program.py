@@ -11,12 +11,12 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import B
 
 from ..constants import BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import ProgramDocument
-from .common import DocumentDSLSerializerMixin
+from .common import DocumentDSLSerializerMixin, SortFieldMixin
 
 __all__ = ('ProgramSearchDocumentSerializer',)
 
 
-class ProgramSearchDocumentSerializer(DocumentSerializer):
+class ProgramSearchDocumentSerializer(SortFieldMixin, DocumentSerializer):
     """
     Serializer for program elasticsearch document.
     """

@@ -10,7 +10,7 @@ from course_discovery.apps.learner_pathway.api.serializers import LearnerPathway
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import LearnerPathwayDocument
-from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin, SortFieldMixin
 
 __all__ = ('LearnerPathwaySearchDocumentSerializer',)
 
@@ -30,6 +30,7 @@ class LearnerPathwaySearchDocumentListSerializer(ModelObjectDocumentSerializerMi
 
 
 class LearnerPathwaySearchDocumentSerializer(
+    SortFieldMixin,
     ModelObjectDocumentSerializerMixin,
     DocumentSerializer,
     DateTimeSerializerMixin

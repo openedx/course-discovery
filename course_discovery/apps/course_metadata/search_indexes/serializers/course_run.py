@@ -9,12 +9,12 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import B
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseRunDocument
-from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, SortFieldMixin
 
 __all__ = ('CourseRunSearchDocumentSerializer',)
 
 
-class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSerializer):
+class CourseRunSearchDocumentSerializer(SortFieldMixin, DateTimeSerializerMixin, DocumentSerializer):
     """
     Serializer for course run elasticsearch document.
     """
