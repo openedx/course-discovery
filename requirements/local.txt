@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.49
+boto3==1.35.54
     # via django-ses
-botocore==1.35.49
+botocore==1.35.54
     # via
     #   boto3
     #   s3transfer
@@ -229,7 +229,7 @@ django-config-models==2.7.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
-django-cors-headers==4.5.0
+django-cors-headers==4.6.0
     # via -r requirements/base.in
 django-countries==7.6.1
     # via -r requirements/base.in
@@ -414,11 +414,11 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl-drf
 execnet==2.1.1
     # via pytest-xdist
-face==22.0.0
+face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==30.8.1
+faker==30.8.2
     # via factory-boy
 fastavro==1.9.7
     # via openedx-events
@@ -437,9 +437,9 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 glom==22.1.0
     # via semgrep
-google-api-core==2.21.0
+google-api-core==2.22.0
     # via google-api-python-client
-google-api-python-client==2.149.0
+google-api-python-client==2.151.0
     # via -r requirements/base.in
 google-auth==2.35.0
     # via
@@ -665,7 +665,7 @@ pytest==8.3.3
     #   pytest-responses
     #   pytest-split
     #   pytest-xdist
-pytest-cov==5.0.0
+pytest-cov==6.0.0
     # via -r requirements/test.in
 pytest-django==4.9.0
     # via -r requirements/test.in
@@ -859,7 +859,7 @@ tomlkit==0.13.2
     #   snowflake-connector-python
 tox==4.0.0
     # via -r requirements/test.in
-tqdm==4.66.5
+tqdm==4.66.6
     # via
     #   openai
     #   semgrep
@@ -903,7 +903,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.27.0
+virtualenv==20.27.1
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
@@ -919,7 +919,7 @@ wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.16.0
+yarl==1.17.1
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
