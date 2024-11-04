@@ -41,9 +41,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.35.49
+boto3==1.35.54
     # via django-ses
-botocore==1.35.49
+botocore==1.35.54
     # via
     #   boto3
     #   s3transfer
@@ -174,7 +174,7 @@ django-config-models==2.7.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
-django-cors-headers==4.5.0
+django-cors-headers==4.6.0
     # via -r requirements/base.in
 django-countries==7.6.1
     # via -r requirements/base.in
@@ -354,9 +354,9 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 gevent==24.10.3
     # via -r requirements/production.in
-google-api-core==2.21.0
+google-api-core==2.22.0
     # via google-api-python-client
-google-api-python-client==2.149.0
+google-api-python-client==2.151.0
     # via -r requirements/base.in
 google-auth==2.35.0
     # via
@@ -624,7 +624,7 @@ tinycss2==1.4.0
     #   cssselect2
 tomlkit==0.13.2
     # via snowflake-connector-python
-tqdm==4.66.5
+tqdm==4.66.6
     # via openai
 typing-extensions==4.12.2
     # via
@@ -662,7 +662,7 @@ webencodings==0.5.1
     #   tinycss2
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.16.0
+yarl==1.17.1
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
