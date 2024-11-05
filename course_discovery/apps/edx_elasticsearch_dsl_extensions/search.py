@@ -84,3 +84,15 @@ class FacetedSearch(OriginSearch):
             clone.aggs._params = {'aggs': self.aggs._params['aggs'].copy()}
 
         return clone
+
+    def to_dict(self, count=False, **kwargs):
+        query_dict = super().to_dict(count, **kwargs)
+        # print(f"before {query_dict=}")
+        try:
+            query_dict.pop('from')
+            # query_dict.pop('size')    
+        except Exception:
+            pass
+        
+        print(f"{query_dict=}")
+        return query_dict

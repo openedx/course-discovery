@@ -112,17 +112,19 @@ class CustomSearchAfterPagination(PageNumberPagination):
         """
         Paginate the Elasticsearch queryset using search_after.
         """
-        page_size = self.get_page_size(request)
 
-        search_after = request.query_params.get("search_after", None)
-
+        search_after = request.query_params.get("search_after")
+        print(f"{search_after=}")
         if search_after:
-            queryset = queryset.extra(search_after=json.loads(search_after))
+            try:
+                print("json.loads search_after=", json.loads(search_after))
+                queryset = queryset.extra(search_after=json.loads(search_after))
+            except json.JSONDecodeError:
+                raise ValueError("Invalid JSON format for search_after parameter")
 
-        queryset = queryset[:page_size]
-        # queryset = queryset.sort('-start', 'aggregation_key')[:page_size + 1]
+        queryset = super().paginate_queryset(queryset, request, view)
 
-        return list(queryset)
+        return queryset
 
     def get_paginated_response(self, data):
         """
@@ -133,10 +135,11 @@ class CustomSearchAfterPagination(PageNumberPagination):
 
         return Response(
             {
-                "next": search_after,
+                "next_search_after": search_after,
                 "results": data,
             }
         )
+
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
     lookup_field = 'key'
