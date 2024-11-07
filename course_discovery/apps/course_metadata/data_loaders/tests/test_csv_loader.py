@@ -222,7 +222,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         }
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [csv_data], headers=[**self.CSV_DATA_KEYS_ORDER, 'is_future_variant'])
+            csv = self._write_csv(csv, [csv_data], headers=[*self.CSV_DATA_KEYS_ORDER, 'is_future_variant'])
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
