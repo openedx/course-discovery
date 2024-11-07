@@ -588,8 +588,8 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Rerun</th></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>Yes</td></tr>",
+                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Future Variant</th><th style='padding: 5px;'>Rerun</th></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>No</td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
@@ -612,19 +612,22 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': 'sprint',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': True,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'course_stack',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': False,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'short_course',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': True,
                     },
                 ],
             }
@@ -639,10 +642,10 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Rerun</th></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>sprint</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>course_stack</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>short_course</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
+                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Future Variant</th><th style='padding: 5px;'>Rerun</th></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>Yes</td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>No</td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>Yes</td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
