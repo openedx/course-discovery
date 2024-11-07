@@ -218,7 +218,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         csv_data = {
             **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
             'slug': csv_slug,
-            'is_future_variant': True if is_future_variant else False
+            'is_future_variant': is_future_variant
         }
 
         with NamedTemporaryFile() as csv:

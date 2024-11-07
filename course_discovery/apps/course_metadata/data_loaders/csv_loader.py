@@ -174,7 +174,7 @@ class CSVDataLoader(AbstractDataLoader):
                 if row.get('restriction_type', None) == 'None'
                 else row.get('restriction_type', None)
             )
-            is_future_variant = (row.get('is_future_variant') == 'True')
+            is_future_variant = row.get('is_future_variant') == 'True'
 
             if course:
                 try:
