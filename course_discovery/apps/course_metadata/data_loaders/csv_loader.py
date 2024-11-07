@@ -174,11 +174,7 @@ class CSVDataLoader(AbstractDataLoader):
                 if row.get('restriction_type', None) == 'None'
                 else row.get('restriction_type', None)
             )
-            is_future_variant = (
-                True
-                if row.get('is_future_variant') == 'True'
-                else False
-            )
+            is_future_variant = (row.get('is_future_variant') == 'True')
 
             if course:
                 try:
@@ -281,8 +277,10 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
-                str(course.uuid), str(course_run.variant_id), is_course_created, is_course_run_created, is_future_variant,
-                course_run_restriction, course.active_url_slug, row.get('external_course_marketing_type', None))
+                str(course.uuid), str(course_run.variant_id), is_course_created, is_course_run_created,
+                is_future_variant, course_run_restriction, course.active_url_slug,
+                row.get('external_course_marketing_type', None)
+            )
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
