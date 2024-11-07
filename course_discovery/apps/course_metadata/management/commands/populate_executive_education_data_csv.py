@@ -183,8 +183,8 @@ class Command(BaseCommand):
         variants = (
             [product['variant']] if product['variant'] else []
         )
-        variants.extend(product['customPresentations'])
-        variants.extend([{**v, 'isFutureVariant': True} for v in product['futureVariants']])
+        variants.extend(product.get('customPresentations', []))
+        variants.extend([{**v, 'isFutureVariant': True} for v in product.get('futureVariants', [])])
 
         return variants
 
