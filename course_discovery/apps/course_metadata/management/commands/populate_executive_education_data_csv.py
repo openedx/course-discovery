@@ -177,14 +177,15 @@ class Command(BaseCommand):
             list: A list of variant dicts
         """
 
-        if 'variants' in product:
-            return product['variants']
+        variant_keys = ['variant', 'variants', 'futureVariants', 'customPresentations']
+        variants = []
 
-        variants = (
-            [product['variant']] if product['variant'] else []
-        )
-        variants.extend([{**v, 'isFutureVariant': True} for v in product.get('futureVariants', [])])
-        variants.extend(product.get('customPresentations', []))
+        for key in variant_keys:
+            if key in product and product[key]:
+                if isinstance(product[key], list):
+                    variants.extend(product[key])
+                else:
+                    variants.append(product[key])
 
         return variants
 
@@ -337,7 +338,7 @@ class Command(BaseCommand):
                 partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate']
                 if product_dict['variant'].get('status') == 'scheduled' else date.today().isoformat()
             ),
-            'is_future_variant': product_dict['variant'].get('isFutureVariant', False),
+            'is_future_variant': product_dict['variant'].get('status') == 'scheduled',
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
