@@ -135,7 +135,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     logger.info(f"Course created with uuid {course.uuid} and key {course.key}")
                     logger.info(f"Course run created with uuid {course_run.uuid} and key {course_run.key}")
                     course.canonical_course_run = course_run
-                    course.save()
+                    course.save(update_fields=['canonical_course_run'])
         except Exception:  # pylint: disable=broad-except
             if self.enable_api:
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
