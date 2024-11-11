@@ -278,6 +278,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row["End Date"] == simple_variant["endDate"]
                 assert data_row["Reg Close Date"] == simple_variant["finalRegCloseDate"]
                 assert data_row["Restriction Type"] == "None"
+                assert data_row["Is Future Variant"] == "False"
 
                 data_row = next(reader)
                 assert data_row["Variant Id"] == future_variant["id"]
@@ -286,6 +287,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row["Reg Close Date"] == future_variant["finalRegCloseDate"]
                 assert data_row["Publish Date"] == future_variant["startDate"]
                 assert data_row["Restriction Type"] == "None"
+                assert data_row["Is Future Variant"] == "True"
 
                 data_row = next(reader)
                 assert data_row["Variant Id"] == custom_variant["id"]
@@ -294,6 +296,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row["Reg Close Date"] == custom_variant["finalRegCloseDate"]
                 assert data_row["Publish Date"] == str(date.today().isoformat())
                 assert data_row["Restriction Type"] == "custom-b2b-enterprise"
+                assert data_row["Is Future Variant"] == "False"
 
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
     def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
@@ -637,3 +640,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Fixed Price Usd'] == "333.3"
         assert data_row['Taxi Form Id'] == 'test-form-id'
         assert data_row['Post Submit Url'] == 'https://www.getsmarter.com/blog/career-advice'
+        assert data_row['Is Future Variant'] == 'False'

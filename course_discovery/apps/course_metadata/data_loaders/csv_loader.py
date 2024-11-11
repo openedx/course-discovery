@@ -174,6 +174,7 @@ class CSVDataLoader(AbstractDataLoader):
                 if row.get('restriction_type', None) == 'None'
                 else row.get('restriction_type', None)
             )
+            is_future_variant = row.get('is_future_variant') == 'True'
 
             if course:
                 try:
@@ -277,7 +278,9 @@ class CSVDataLoader(AbstractDataLoader):
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(
                 str(course.uuid), str(course_run.variant_id), is_course_created, is_course_run_created,
-                course_run_restriction, course.active_url_slug, row.get('external_course_marketing_type', None))
+                is_future_variant, course_run_restriction, course.active_url_slug,
+                row.get('external_course_marketing_type', None)
+            )
 
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
@@ -417,6 +420,7 @@ class CSVDataLoader(AbstractDataLoader):
         course_run_variant_id,
         is_course_created,
         is_course_run_created,
+        is_future_variant,
         course_run_restriction='None',
         active_url_slug='',
         external_course_marketing_type=None
@@ -434,6 +438,7 @@ class CSVDataLoader(AbstractDataLoader):
                     'rerun': is_course_run_created,
                     'course_run_variant_id': course_run_variant_id,
                     'restriction_type': course_run_restriction,
+                    'is_future_variant': is_future_variant
                 }
             )
         else:

@@ -199,13 +199,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
 
     @data(
-        ('csv-course-custom-slug', 'executive-education/edx-csv-course'),
-        ('custom-slug-2', 'executive-education/edx-csv-course'),
-        ('', 'executive-education/edx-csv-course')
+        ('csv-course-custom-slug', 'executive-education/edx-csv-course', True),
+        ('custom-slug-2', 'executive-education/edx-csv-course', False),
+        ('', 'executive-education/edx-csv-course', True)
     )
     @unpack
     @responses.activate
-    def test_single_valid_row(self, csv_slug, expected_slug, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_single_valid_row(self, csv_slug, expected_slug, is_future_variant, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that for a single row of valid data for a non-existent course, the draft and non-draft
         entries are created.
@@ -217,11 +217,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         csv_data = {
             **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
-            'slug': csv_slug
+            'slug': csv_slug,
+            'is_future_variant': is_future_variant
         }
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [csv_data])
+            csv = self._write_csv(csv, [csv_data], headers=[*self.CSV_DATA_KEYS_ORDER, 'is_future_variant'])
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
@@ -293,6 +294,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'url_slug': expected_slug,
                             'rerun': True,
                             'course_run_variant_id': str(course.course_runs.last().variant_id),
+                            'is_future_variant': is_future_variant,
                             'restriction_type': None,
                         }],
                         'archived_products_count': 0,
@@ -378,6 +380,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'rerun': True,
                             'course_run_variant_id': str(course.course_runs.last().variant_id),
                             'restriction_type': None,
+                            'is_future_variant': False,
                         }],
                         'archived_products_count': 2,
                         'errors': loader.error_logs
@@ -589,6 +592,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                                 'rerun': True,
                                 'course_run_variant_id': str(course_run.variant_id),
                                 'restriction_type': None,
+                                'is_future_variant': False,
                             }],
                             'archived_products_count': 0,
                             'archived_products': [],

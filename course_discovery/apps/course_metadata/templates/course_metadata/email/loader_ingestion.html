@@ -65,6 +65,9 @@
                         Restriction Type
                     </th>
                     <th style="padding: 5px;">
+                        Future Variant
+                    </th>
+                    <th style="padding: 5px;">
                         Rerun
                     </th>
                 </tr>
@@ -94,6 +97,13 @@
                         <td style="padding: 5px;">
                             {% if new_product.restriction_type %}
                                 {{ new_product.restriction_type }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 5px;">
+                            {% if new_product.is_future_variant %}
+                                Yes
+                            {% else %}
+                                No
                             {% endif %}
                         </td>
                         <td style="padding: 5px;">
