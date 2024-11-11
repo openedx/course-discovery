@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.54
+boto3==1.35.57
     # via django-ses
-botocore==1.35.54
+botocore==1.35.57
     # via
     #   boto3
     #   s3transfer
@@ -441,7 +441,7 @@ google-api-core==2.22.0
     # via google-api-python-client
 google-api-python-client==2.151.0
     # via -r requirements/base.in
-google-auth==2.35.0
+google-auth==2.36.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -859,7 +859,7 @@ tomlkit==0.13.2
     #   snowflake-connector-python
 tox==4.0.0
     # via -r requirements/test.in
-tqdm==4.66.6
+tqdm==4.67.0
     # via
     #   openai
     #   semgrep
@@ -923,7 +923,7 @@ yarl==1.17.1
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
-zipp==3.20.2
+zipp==3.21.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
