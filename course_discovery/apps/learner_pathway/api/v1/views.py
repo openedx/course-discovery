@@ -1,7 +1,7 @@
 """
 API Views for learner_pathway app.
 """
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from course_discovery.apps.api.pagination import ProxiedPagination
+from course_discovery.apps.api.utils import get_excluded_restriction_types
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.learner_pathway import models
 from course_discovery.apps.learner_pathway.api import serializers
 from course_discovery.apps.learner_pathway.api.filters import PathwayUUIDFilter
@@ -81,11 +84,21 @@ class LearnerPathwayCourseViewSet(ReadOnlyModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwayCourseSerializer
-    queryset = models.LearnerPathwayCourse.objects.all()
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    def get_queryset(self):
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        return models.LearnerPathwayCourse.objects.prefetch_related(
+            Prefetch(
+                'course__course_runs',
+                queryset=CourseRun.objects.filter(status=CourseRunStatus.Published).exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ),
+            )
+        )
 
 
 class LearnerPathwayProgramViewSet(ReadOnlyModelViewSet):
@@ -95,11 +108,21 @@ class LearnerPathwayProgramViewSet(ReadOnlyModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwayProgramSerializer
-    queryset = models.LearnerPathwayProgram.objects.all()
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    def get_queryset(self):
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        return models.LearnerPathwayProgram.objects.prefetch_related(
+            Prefetch(
+                'program__courses__course_runs',
+                queryset=CourseRun.objects.filter(status=CourseRunStatus.Published).exclude(
+                    restricted_run__restriction_type__in=excluded_restriction_types
+                ),
+            )
+        )
 
 
 class LearnerPathwayBlocViewSet(ReadOnlyModelViewSet):

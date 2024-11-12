@@ -3,8 +3,6 @@ Serializers for learner_pathway app.
 """
 from rest_framework import serializers
 
-from course_discovery.apps.api.utils import get_excluded_restriction_types
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.learner_pathway import models
 
 
@@ -20,12 +18,7 @@ class LearnerPathwayCourseMinimalSerializer(serializers.ModelSerializer):
         fields = ('key', 'course_runs')
 
     def get_course_runs(self, obj):
-        excluded_restriction_types = get_excluded_restriction_types(self.context['request'])
-        return list(obj.course.course_runs.filter(
-            status=CourseRunStatus.Published
-        ).exclude(
-            restricted_run__restriction_type__in=excluded_restriction_types
-        ).values('key'))
+        return [{'key': course_run.key} for course_run in obj.course.course_runs.all()]
 
 
 class LearnerPathwayCourseSerializer(LearnerPathwayCourseMinimalSerializer):
@@ -87,8 +80,7 @@ class LearnerPathwayProgramSerializer(LearnerPathwayProgramMinimalSerializer):
         return program.card_image_url
 
     def get_courses(self, obj):
-        excluded_restriction_types = get_excluded_restriction_types(self.context['request'])
-        return obj.get_linked_courses_and_course_runs(excluded_restriction_types=excluded_restriction_types)
+        return obj.get_linked_courses_and_course_runs()
 
 
 class LearnerPathwayBlockSerializer(serializers.ModelSerializer):
