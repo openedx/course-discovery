@@ -67,11 +67,11 @@ class Command(BaseCommand):
                     if translation_data.get('feature_enabled', False)
                     else []
                 )
-                course_run.save()
+                course_run.save(update_fields=["translation_languages"])
 
                 if course_run.draft_version:
                     course_run.draft_version.translation_languages = course_run.translation_languages
-                    course_run.draft_version.save()
+                    course_run.draft_version.save(update_fields=["translation_languages"])
                     logger.info(f'Updated translations for {course_run.key} (both draft and non-draft versions)')
                 else:
                     logger.info(f'Updated translations for {course_run.key} (non-draft version only)')

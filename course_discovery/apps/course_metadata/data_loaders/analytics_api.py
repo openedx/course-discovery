@@ -91,7 +91,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         # update course count
         course.enrollment_count = count
         course.recent_enrollment_count = recent_count
-        course.save()
+        course.save(update_fields=['enrollment_count', 'recent_enrollment_count'])
 
         # Add course count to program dictionary for all programs
         for program in course.programs.all():
