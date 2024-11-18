@@ -86,13 +86,37 @@ class FacetedSearch(OriginSearch):
         return clone
 
     def to_dict(self, count=False, **kwargs):
-        query_dict = super().to_dict(count, **kwargs)
-        # print(f"before {query_dict=}")
-        try:
-            query_dict.pop('from')
-            # query_dict.pop('size')    
-        except Exception:
-            pass
-        
-        print(f"{query_dict=}")
+        query_dict = super().to_dict(count=count, **kwargs)
+        print('FacetedSearch::returned query_dict', query_dict)
+        return query_dict
+
+
+class SearchAfterSearch(FacetedSearch):
+
+    def __init__(self, *args, **kwargs):
+        self._search_after = kwargs.pop('search_after', None)
+        super().__init__(*args, **kwargs)
+
+    def _clone(self, klass=None, using=None, index=None, doc_type=None):
+        """
+        Override _clone to ensure search_after parameter is preserved when cloning.
+        """
+        clone = super()._clone(klass=klass, using=using, index=index, doc_type=doc_type)
+        clone._search_after = self._search_after
+        return clone
+
+    def search_after(self, values):
+        search_instance = self._clone()
+        search_instance._search_after = values
+        return search_instance
+
+    def to_dict(self, count=False, **kwargs):
+        query_dict = super().to_dict(count=count, **kwargs)
+
+        if not count and self._search_after is not None:
+            print('SearchAfterSearch::original query_dict', query_dict)
+            query_dict.pop('from', None)
+            query_dict['search_after'] = self._search_after
+
+        print('SearchAfterSearch::returned query_dict', query_dict)
         return query_dict

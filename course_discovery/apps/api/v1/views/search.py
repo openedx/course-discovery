@@ -27,8 +27,9 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH_PHRASE
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
-    BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
+    BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper, CustomSearchAfterPagination
 )
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import SearchAfterSearch
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 
 
@@ -313,6 +314,15 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
     @update_query_params_with_body_data
     def create(self, request):
         return self.list(request)
+
+
+class AggregateSearchV2ViewSet(AggregateSearchViewSet):
+
+    pagination_class = CustomSearchAfterPagination
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.search = SearchAfterSearch(using=self.client, index=self.index, doc_type=self.document._doc_type.name)
 
 
 class LimitedAggregateSearchView(BaseAggregateSearchViewSet):

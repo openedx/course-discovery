@@ -144,7 +144,7 @@ class CustomSearchAfterPagination(PageNumberPagination):
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
     lookup_field = 'key'
     document_uid_field = 'key'
-    pagination_class = CustomSearchAfterPagination
+    pagination_class = CustomPageNumberPagination
     permission_classes = (IsAuthenticated,)
     ensure_published = True
     multi_match_search_fields = ('key', 'title', 'text')
