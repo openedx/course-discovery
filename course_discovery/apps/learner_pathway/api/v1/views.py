@@ -27,16 +27,29 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
     filter_backends = (DjangoFilterBackend,)
-    queryset = models.LearnerPathway.objects.prefetch_related('steps').filter(status=PathwayStatus.Active.value)
     filterset_class = PathwayUUIDFilter
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
 
+    def get_queryset(self):
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        course_runs = CourseRun.objects.filter(
+            status=CourseRunStatus.Published
+        ).exclude(
+            restricted_run__restriction_type__in=excluded_restriction_types
+        )
+
+        return models.LearnerPathway.objects.filter(status=PathwayStatus.Active.value).prefetch_related(
+            'steps',
+            Prefetch('steps__learnerpathwaycourse_set__course__course_runs', queryset=course_runs),
+            Prefetch('steps__learnerpathwayprogram_set__program__courses__course_runs', queryset=course_runs),
+        )
+
     @action(detail=True)
     def snapshot(self, request, uuid):
-        pathway = get_object_or_404(self.queryset, uuid=uuid, status=PathwayStatus.Active.value)
+        pathway = get_object_or_404(self.get_queryset(), uuid=uuid, status=PathwayStatus.Active.value)
         serializer = serializers.LearnerPathwaySerializer(pathway, many=False, context={'request': self.request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
