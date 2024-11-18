@@ -83,11 +83,23 @@ class LearnerPathwayStepViewSet(ReadOnlyModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwayStepSerializer
-    queryset = models.LearnerPathwayStep.objects.all()
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    def get_queryset(self):
+        excluded_restriction_types = get_excluded_restriction_types(self.request)
+        course_runs = CourseRun.objects.filter(
+            status=CourseRunStatus.Published
+        ).exclude(
+            restricted_run__restriction_type__in=excluded_restriction_types
+        )
+
+        return models.LearnerPathwayStep.objects.prefetch_related(
+            Prefetch('learnerpathwaycourse_set__course__course_runs', queryset=course_runs),
+            Prefetch('learnerpathwayprogram_set__program__courses__course_runs', queryset=course_runs),
+        )
 
 
 class LearnerPathwayCourseViewSet(ReadOnlyModelViewSet):
