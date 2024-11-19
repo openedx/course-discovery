@@ -12,6 +12,7 @@ from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.db.models.query import Prefetch
 from django.db.models.signals import m2m_changed, pre_save
+from django.test import override_settings
 from edx_toggles.toggles.testutils import override_waffle_switch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
@@ -2666,6 +2667,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertContains(response, 'Invalid HTML received: h1 tag is not allowed', status_code=400)
 
     @responses.activate
+    @override_settings(USE_API_CACHING=True)
     def test_recommendations(self):
         courses_sharing_program = CourseFactory.create_batch(2)
         ProgramFactory(courses=[self.course, *courses_sharing_program])
@@ -2684,4 +2686,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         with self.assertNumQueries(19, threshold=3):
             url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
             response = self.client.get(url)
-        assert response.status_code == 200
+            assert response.status_code == 200
+
+        with self.assertNumQueries(0, threshold=3):
+            url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
+            response = self.client.get(url)
+            assert response.status_code == 200

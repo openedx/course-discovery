@@ -129,11 +129,19 @@ def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
     return changed_fields
 
 
-def conditional_decorator(condition, decorator):
+def conditional_decorator(condition_getter, decorator):
     """
-    Util decorator that allows for only using the given decorator arg if the condition passes
+    Util decorator that applies the given decorator only if the condition passes.
+    The condition is evaluated at runtime via the `condition_getter` callable, allowing dynamic condition checking.
+    If callable evaluates to `True`, the provided decorator is applied, otherwise, the function remains unmodified.
     """
-    return decorator if condition else lambda x: x
+    def wrapper(func):
+        def wrapped(*args, **kwargs):
+            if condition_getter():
+                return decorator(func)(*args, **kwargs)
+            return func(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 def decode_image_data(image_data):

@@ -530,7 +530,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
+class CourseRecommendationViewSet(CompressedCacheResponseMixin, RetrieveModelMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend, )
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX
