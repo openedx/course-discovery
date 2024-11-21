@@ -403,8 +403,8 @@ class CSVDataLoader(AbstractDataLoader):
         course.product_source = self.product_source
         if course.official_version:
             course.official_version.product_source = self.product_source
-            course.official_version.save()
-        course.save()
+            course.official_version.save(update_fields=['product_source'])
+        course.save(update_fields=['product_source'])
 
     def get_ingestion_stats(self):
         return {
