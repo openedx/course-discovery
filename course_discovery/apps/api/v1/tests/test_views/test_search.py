@@ -763,28 +763,28 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         assert expected == actual
 
-    @ddt.data(True, False)
-    def test_learner_pathway_feature_flag(self, include_learner_pathways):
+    @ddt.data((True, 10, 8), (False, 0, 4))
+    @ddt.unpack
+    def test_learner_pathway_feature_flag(self, include_learner_pathways, expected_result_count, expected_query_count):
         """ Verify the include_learner_pathways feature flag works as expected."""
-        LearnerPathwayStepFactory(pathway__partner=self.partner)
+        LearnerPathwayStepFactory.create_batch(10, pathway__partner=self.partner)
         pathways = LearnerPathway.objects.all()
-        assert pathways.count() == 1
+        assert pathways.count() == 10
         query = {
             'include_learner_pathways': include_learner_pathways,
         }
 
-        response = self.get_response(
-            query,
-            self.list_path
-        )
+        with self.assertNumQueries(expected_query_count):
+            response = self.get_response(query, self.list_path)
+
         assert response.status_code == 200
         response_data = response.json()
 
+        assert response_data['count'] == expected_result_count
+
         if include_learner_pathways:
-            assert response_data['count'] == 1
-            assert response_data['results'][0] == self.serialize_learner_pathway_search(pathways[0])
-        else:
-            assert response_data['count'] == 0
+            for pathway in pathways:
+                assert self.serialize_learner_pathway_search(pathway) in response.data['results']
 
 
 class LimitedAggregateSearchViewSetTests(
