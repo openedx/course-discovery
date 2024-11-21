@@ -703,15 +703,15 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     facts = FactSerializer(many=True)
     certificate_info = CertificateInfoSerializer()
     product_meta = ProductMetaSerializer(required=False, allow_null=True)
-    start_date = serializers.DateTimeField()
-    end_date = serializers.DateTimeField()
-    registration_deadline = serializers.DateTimeField(allow_null=True)
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
+    registration_deadline = serializers.SerializerMethodField()
     variant_id = serializers.UUIDField(allow_null=True)
     taxi_form = TaxiFormSerializer(required=False, allow_null=True)
 
     @classmethod
     def prefetch_queryset(cls):
-        return AdditionalMetadata.objects.select_related('facts', 'certificate_info', 'product_meta', 'taxi_form')
+        return AdditionalMetadata.objects.prefetch_related().select_related('facts', 'certificate_info', 'product_meta', 'taxi_form')
 
     class Meta:
         model = AdditionalMetadata
@@ -721,6 +721,38 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
             'product_meta', 'external_course_marketing_type', 'display_on_org_page', 'taxi_form',
         )
+
+    def get_related_course_data(self, obj, field_name):
+        """
+        Helper method to retrieve data (start_date, end_date, registration_deadline)
+        from the advertised course run or fallback to the object's field.
+
+        Args:
+            obj (AdditionalMetadata): The model instance.
+            field_name (str): Field name to fetch from the advertised course run.
+
+        Returns:
+            Value of the field from the advertised course run or object's fallback.
+        """
+        related_course = obj.related_courses.filter(draft=True).first()
+        advertised_course_run = getattr(related_course, 'advertised_course_run', None)
+
+        if related_course and advertised_course_run:
+            return getattr(advertised_course_run, field_name, None)
+
+        return getattr(obj, field_name, None)
+
+    def get_start_date(self, obj):
+        """ Retrieve the start date """
+        return self.get_related_course_data(obj, 'start')
+
+    def get_end_date(self, obj):
+        """ Retrieve the end date """
+        return self.get_related_course_data(obj, 'end')
+
+    def get_registration_deadline(self, obj):
+        """ Retrieve the registration deadline """
+        return self.get_related_course_data(obj, 'enrollment_end')
 
     def update_taxi_form(self, instance, taxi_form):
         if instance.taxi_form:
