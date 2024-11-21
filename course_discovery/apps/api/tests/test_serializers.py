@@ -42,7 +42,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview, CourseType
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -55,14 +55,14 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
     CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
-    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeCostFactory,
-    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramSubscriptionFactory,
-    ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
-    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CourseTypeFactory,
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
+    DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory,
+    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
+    SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -636,6 +636,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'external_key': course_run.external_key,
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
+            'is_marketable_for_enterprise': course_run.is_marketable_for_enterprise,
             'availability': course_run.availability,
             'variant_id': str(course_run.variant_id),
             'fixed_price_usd': str(course_run.fixed_price_usd),
@@ -655,6 +656,25 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
         assert serializer.data == expected
+    
+    def test_marketable_status(self):
+        # Test for executive education course with in-review status, not marketable, and future start date
+        exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course_run_exec_ed = CourseRunFactory(
+            course=CourseFactory(type=exec_ed_type),
+            status=CourseRunStatus.InternalReview,
+            start=datetime.datetime.now(tz=UTC) + datetime.timedelta(days=10)  # Future start date
+        )
+        course_run_exec_ed.seats.set([])  # No seats to ensure is_marketable is False
+        
+        assert course_run_exec_ed.is_marketable_for_enterprise is True
+
+        # Test for non-executive education course
+        non_exec_ed_type = CourseTypeFactory()
+        course_run_non_exec_ed = CourseRunFactory(
+            course=CourseFactory(type=non_exec_ed_type),
+        )
+        assert course_run_non_exec_ed.is_marketable_for_enterprise is False
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
