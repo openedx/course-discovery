@@ -711,7 +711,9 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return AdditionalMetadata.objects.prefetch_related().select_related('facts', 'certificate_info', 'product_meta', 'taxi_form')
+        return AdditionalMetadata.objects.prefetch_related(
+            
+        ).select_related('facts', 'certificate_info', 'product_meta', 'taxi_form')
 
     class Meta:
         model = AdditionalMetadata
@@ -722,7 +724,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'product_meta', 'external_course_marketing_type', 'display_on_org_page', 'taxi_form',
         )
 
-    def get_related_course_data(self, obj, field_name):
+    def get_related_course_data(self, obj, obj_field_name, field_name):
         """
         Helper method to retrieve data (start_date, end_date, registration_deadline)
         from the advertised course run or fallback to the object's field.
@@ -738,21 +740,21 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         advertised_course_run = getattr(related_course, 'advertised_course_run', None)
 
         if related_course and advertised_course_run:
-            return getattr(advertised_course_run, field_name, None)
+            return getattr(advertised_course_run, field_name, getattr(obj, obj_field_name))
 
-        return getattr(obj, field_name, None)
+        return getattr(obj, obj_field_name, None)
 
     def get_start_date(self, obj):
         """ Retrieve the start date """
-        return self.get_related_course_data(obj, 'start')
+        return self.get_related_course_data(obj, 'start_date', 'start')
 
     def get_end_date(self, obj):
         """ Retrieve the end date """
-        return self.get_related_course_data(obj, 'end')
+        return self.get_related_course_data(obj, 'end_date', 'end')
 
     def get_registration_deadline(self, obj):
         """ Retrieve the registration deadline """
-        return self.get_related_course_data(obj, 'enrollment_end')
+        return self.get_related_course_data(obj, 'registration_deadline', 'enrollment_end')
 
     def update_taxi_form(self, instance, taxi_form):
         if instance.taxi_form:
