@@ -130,15 +130,12 @@ class CustomSearchAfterPagination(PageNumberPagination):
         """
         Get paginated response, including search_after value for the next page.
         """
+        response = super().get_paginated_response(data)
         last_item = data[-1] if data else None
         search_after = last_item.get("sort") if last_item else None
-
-        return Response(
-            {
-                "next_search_after": search_after,
-                "results": data,
-            }
-        )
+        next_link = response.data.pop("next")
+        response.data["next_search_after"] = search_after if next_link else None
+        return response
 
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
