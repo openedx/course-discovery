@@ -973,7 +973,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         fields = ('key', 'uuid', 'title', 'external_key', 'fixed_price_usd', 'image', 'short_description',
                   'marketing_url', 'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
                   'weeks_to_complete', 'pacing_type', 'type', 'restriction_type', 'run_type', 'status', 'is_enrollable',
-                  'is_marketable','is_marketable_for_enterprise', 'term', 'availability', 'variant_id')
+                  'is_marketable', 'is_marketable_external', 'term', 'availability', 'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
