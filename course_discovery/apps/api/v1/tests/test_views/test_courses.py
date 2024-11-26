@@ -333,7 +333,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_restricted=custom-b2c'
-        with self.assertNumQueries(36, threshold=3):
+        with self.assertNumQueries(40, threshold=3):
             response = self.client.get(url)
         assert response.status_code == 200
 

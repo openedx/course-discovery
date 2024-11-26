@@ -648,6 +648,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
         }
 
 
+@ddt.ddt
 class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
 
     def test_data(self):
@@ -657,24 +658,32 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         expected = self.get_expected_data(course_run, request)
         assert serializer.data == expected
 
-    def test_marketable_status(self):
-        # Test for executive education course with in-review status, not marketable, and future start date
-        exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
-        course_run_exec_ed = CourseRunFactory(
-            course=CourseFactory(type=exec_ed_type),
-            status=CourseRunStatus.InternalReview,
-            start=datetime.datetime.now(tz=UTC) + datetime.timedelta(days=10)  # Future start date
+    @ddt.data(
+        # Exec-ed, in-review, not marketable, future start date, is_marketable_external
+        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.InternalReview, False, True, True),
+        # Exec-ed, in-review, not marketable, future start date, is_marketable_external
+        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.LegalReview, False, True, True),
+        # Exec-ed, unpublished, not marketable, future start date, is_marketable_external
+        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.Unpublished, False, True, False),
+        # Non-exec ed, in-review, not marketable, future start date, is_marketable_external
+        (CourseType.PROFESSIONAL, CourseRunStatus.InternalReview, False, True, False),
+        # Non-exec ed, published, marketable, future start date, is_marketable_external
+        (CourseType.VERIFIED_AUDIT, CourseRunStatus.Published, True, False, True),
+    )
+    @ddt.unpack
+    def test_is_marketable_external(self, course_type_slug, status, is_marketable, is_future, expected_result):
+        course_type = CourseTypeFactory(slug=course_type_slug)
+        course_run = CourseRunFactory(
+            course=CourseFactory(type=course_type),
+            status=status,
+            start=datetime.datetime.now(tz=UTC) + datetime.timedelta(
+                days=10) if is_future else datetime.datetime.now(tz=UTC) - datetime.timedelta(days=10)
         )
-        course_run_exec_ed.seats.set([])  # No seats to ensure is_marketable is False
+        seat = SeatFactory(course_run=course_run, type=SeatTypeFactory.verified())
+        course_run.seats.set([seat])
 
-        assert course_run_exec_ed.is_marketable_external is True
-
-        # Test for non-executive education course
-        non_exec_ed_type = CourseTypeFactory()
-        course_run_non_exec_ed = CourseRunFactory(
-            course=CourseFactory(type=non_exec_ed_type),
-        )
-        assert course_run_non_exec_ed.is_marketable_external is False
+        assert course_run.is_marketable == is_marketable
+        assert course_run.is_marketable_external is expected_result
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
