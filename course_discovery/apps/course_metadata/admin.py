@@ -3,6 +3,7 @@ from dal import autocomplete
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.utils import model_ngettext
+from django.db.models import Prefetch
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
@@ -85,6 +86,9 @@ class SeatInline(admin.TabularInline):
     readonly_fields = ('_upgrade_deadline', )
     raw_id_fields = ('draft_version', 'currency')
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('draft_version', 'currency')
+
 
 class PositionInline(admin.TabularInline):
     model = Position
@@ -134,6 +138,10 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('canonical_course_run').prefetch_related('location_restriction')
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
@@ -223,6 +231,8 @@ class CourseEditorAdmin(admin.ModelAdmin):
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(SimpleHistoryAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
+    raw_id_fields = ('course', 'draft_version',)
+    search_fields = ['course__title', 'course__key']
 
     @admin.display(
         description='Course key'
@@ -230,8 +240,9 @@ class CourseEntitlementAdmin(SimpleHistoryAdmin):
     def get_course_key(self, obj):
         return obj.course.key
 
-    raw_id_fields = ('course', 'draft_version',)
-    search_fields = ['course__title', 'course__key']
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('course', 'mode', 'partner')
 
 
 @admin.register(Mode)
@@ -242,6 +253,7 @@ class ModeAdmin(admin.ModelAdmin):
 @admin.register(Track)
 class TrackAdmin(admin.ModelAdmin):
     list_display = ['mode', 'seat_type']
+    list_select_related = ['seat_type', 'mode']
 
 
 @admin.register(CourseRunType)
@@ -286,6 +298,12 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
     save_error = False
     form = CourseRunAdminForm
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related(
+            'course', 'draft_version', 'language', 'type'
+        )
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -391,6 +409,30 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     save_error = False
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related(
+            'partner',
+            'type'
+        ).prefetch_related(
+            'courses',
+            'authoring_organizations',
+            'credit_backing_organizations',
+        )
+        return queryset
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Optimize ForeignKey dropdowns by customizing the queryset.
+        """
+        if db_field.name == 'primary_subject_override':
+            kwargs['queryset'] = Subject.objects.all()
+        if db_field.name == 'level_type_override':
+            kwargs['queryset'] = LevelType.objects.all()
+        if db_field.name == 'type':
+            kwargs['queryset'] = ProgramType.objects.all()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def get_readonly_fields(self, request, obj=None):
         """
         Make product_source field readonly if program obj is already created. In case a product without product_source
@@ -492,6 +534,15 @@ class PathwayAdmin(admin.ModelAdmin):
     def get_programs(self, obj):
         return [*obj.programs.all()]
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('partner').prefetch_related(
+            Prefetch('programs', queryset=Program.objects.prefetch_related(
+                'courses__course_runs',
+            ))
+        )
+        return queryset
+
 
 @admin.register(ProgramType)
 class ProgramTypeAdmin(TranslatableAdmin):
@@ -538,6 +589,10 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'courses')
     search_fields = ('description',)
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related('extra_description')
+
     def courses(self, obj):
         return ', '.join([
             course.key for course in obj.extra_description.all()
@@ -548,6 +603,17 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 class FactAdmin(admin.ModelAdmin):
     list_display = ('heading', 'blurb', 'courses')
     search_fields = ('heading', 'blurb',)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.prefetch_related(
+            Prefetch(
+                "related_course_additional_metadata",
+                queryset=AdditionalMetadata.objects.prefetch_related("related_courses"),
+            )
+        )
+
+        return queryset
 
     def courses(self, obj):
 
@@ -563,6 +629,9 @@ class FactAdmin(admin.ModelAdmin):
 class CertificateInfoAdmin(admin.ModelAdmin):
     list_display = ('heading', 'blurb', 'courses')
     search_fields = ('heading', 'blurb',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('related_course_additional_metadata__related_courses')
 
     def courses(self, obj):
 
@@ -582,6 +651,17 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
     )
     search_fields = ('external_identifier', 'external_url')
     list_filter = ('product_status', )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related(
+            'related_courses',
+            'facts',
+        ).select_related(
+            'taxi_form',
+            'product_meta',
+            'certificate_info',
+        )
 
     def courses(self, obj):
         return ', '.join([
@@ -643,6 +723,9 @@ class SubjectAdmin(TranslatableAdmin):
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'name', 'slug',)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('partner').prefetch_related('translations')
+
 
 @admin.register(Topic)
 class TopicAdmin(TranslatableAdmin):
@@ -660,6 +743,12 @@ class PersonAdmin(admin.ModelAdmin):
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'partner',
+            'bio_language',
+        )
 
 
 @admin.register(Position)
@@ -696,6 +785,14 @@ class LevelTypeAdmin(SortableAdminMixin, TranslatableAdmin):
     list_display = ('name_t', 'sort_value')
     search_fields = ('name_t',)
     fields = ('name_t',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related(
+            Prefetch('translations', queryset=LevelTypeTranslation.objects.all(), to_attr='translated_names')
+        )
+
+    def name_t(self, obj):
+        return obj.translated_names[0].name_t if obj.translated_names else obj.name
 
 
 class CurriculumProgramMembershipInline(admin.TabularInline):
@@ -782,10 +879,16 @@ class IconTextPairingInline(admin.StackedInline):
 class DegreeDeadlineAdmin(admin.ModelAdmin):
     list_display = ('degree', 'semester', 'name', 'date', 'time')
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
+
 
 @admin.register(DegreeCost)
 class DegreeCostAdmin(admin.ModelAdmin):
     list_display = ('degree', 'description', 'amount')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
 
 
 class DegreeDeadlineInlineAdmin(admin.StackedInline):
@@ -805,6 +908,9 @@ class DegreeAdditionalMetadataInlineAdmin(admin.StackedInline):
 @admin.register(DegreeAdditionalMetadata)
 class DegreeAdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = ('degree', 'external_url', 'external_identifier', 'organic_url')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
 
 
 @admin.register(Specialization)
@@ -842,6 +948,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'program_duration_override', 'display_on_org_page',
     )
     actions = ['publish_degrees', 'unpublish_degrees', 'display_degrees_on_org_page', 'hide_degrees_on_org_page']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('additional_metadata')
 
     def change_degree_status(self, request, queryset, status):
         """
@@ -1051,6 +1160,9 @@ class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
 class RestrictedCourseRunAdmin(admin.ModelAdmin):
     list_display = ['course_run', 'restriction_type']
     search_fields = ['course_run__key', 'restriction_type']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('course_run__course')
 
 
 class CourseReviewAdmin(admin.ModelAdmin):
