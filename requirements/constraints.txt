@@ -61,7 +61,7 @@ openai<=0.28.1
 # This is happening on some other open source repositories as well.
 # https://github.com/PrefectHQ/prefect/pull/11229/files
 # https://github.com/hyperspy/hyperspy/pull/3274
-pytest-xdist < 3.5.0
+# pytest-xdist < 3.5.0
 
 # 5.4.0 is breaking for Python 3.8 and 3.11 CI checks with error
 # importlib.resources' has no attribute 'files'
