@@ -37,7 +37,6 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
             'profile_image_url',
             'position',
             'organizations',
-            'partner'
         )
 
 

@@ -2593,7 +2593,6 @@ class PersonSearchDocumentSerializerTest(ElasticsearchTestMixin, TestCase):
             'profile_image_url': person.get_profile_image_url,
             'full_name': person.full_name,
             'organizations': [],
-            'partner': person.partner.short_code,
         }
 
     def test_data(self):
