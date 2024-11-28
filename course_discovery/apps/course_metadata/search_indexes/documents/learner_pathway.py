@@ -44,6 +44,9 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     def prepare_aggregation_key(self, obj):
         return 'learnerpathway:{}'.format(obj.uuid)
 
+    def prepare_aggregation_uuid(self, obj):
+        return 'learnerpathway:{}'.format(obj.uuid)
+
     def prepare_partner(self, obj):
         return obj.partner.short_code if obj.partner else ''
 

@@ -62,6 +62,9 @@ class CourseDocument(BaseCourseDocument):
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
 
+    def prepare_aggregation_uuid(self, obj):
+        return 'course:{}'.format(obj.uuid)
+
     def prepare_availability(self, obj):
         return [str(course_run.availability) for course_run in filter_visible_runs(obj.course_runs)]
 

@@ -116,6 +116,7 @@ class BaseDocument(Document, metaclass=DocumentMeta):
         self._object = None
 
     aggregation_key = fields.KeywordField()
+    aggregation_uuid = fields.KeywordField()
     content_type = fields.KeywordField()
     id = fields.KeywordField()
     organizations = fields.TextField(analyzer=html_strip, multi=True, fields={'raw': fields.KeywordField(multi=True)})

@@ -85,11 +85,6 @@ class FacetedSearch(OriginSearch):
 
         return clone
 
-    def to_dict(self, count=False, **kwargs):
-        query_dict = super().to_dict(count=count, **kwargs)
-        print('FacetedSearch::returned query_dict', query_dict)
-        return query_dict
-
 
 class SearchAfterSearch(FacetedSearch):
 
@@ -114,9 +109,7 @@ class SearchAfterSearch(FacetedSearch):
         query_dict = super().to_dict(count=count, **kwargs)
 
         if not count and self._search_after is not None:
-            print('SearchAfterSearch::original query_dict', query_dict)
             query_dict.pop('from', None)
             query_dict['search_after'] = self._search_after
 
-        print('SearchAfterSearch::returned query_dict', query_dict)
         return query_dict

@@ -1,4 +1,4 @@
-BASE_SEARCH_INDEX_FIELDS = ('aggregation_key', 'content_type', 'text', 'sort')
+BASE_SEARCH_INDEX_FIELDS = ('aggregation_key', 'aggregation_uuid', 'content_type', 'text', 'sort')
 
 BASE_PROGRAM_FIELDS = (
     'card_image_url',

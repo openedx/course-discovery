@@ -114,10 +114,8 @@ class CustomSearchAfterPagination(PageNumberPagination):
         """
 
         search_after = request.query_params.get("search_after")
-        print(f"{search_after=}")
         if search_after:
             try:
-                print("json.loads search_after=", json.loads(search_after))
                 queryset = queryset.extra(search_after=json.loads(search_after))
             except json.JSONDecodeError:
                 raise ValueError("Invalid JSON format for search_after parameter")

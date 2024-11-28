@@ -316,15 +316,6 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         return self.list(request)
 
 
-class AggregateSearchV2ViewSet(AggregateSearchViewSet):
-
-    pagination_class = CustomSearchAfterPagination
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.search = SearchAfterSearch(using=self.client, index=self.index, doc_type=self.document._doc_type.name)
-
-
 class LimitedAggregateSearchView(BaseAggregateSearchViewSet):
     """
     The purpose of this endpoint is to provide search data in the correct order to
