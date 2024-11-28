@@ -3192,7 +3192,7 @@ class FAQ(TimeStampedModel):
         ordering = ['created']
 
     def __str__(self):
-        return self.question
+        return f'{self.pk}: {self.question}'
 
 
 class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
