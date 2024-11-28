@@ -43,10 +43,6 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     marketing_url = fields.TextField()
     min_hours_effort_per_week = fields.IntegerField()
     max_hours_effort_per_week = fields.IntegerField()
-    partner = fields.TextField(
-        analyzer=html_strip,
-        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
-    )
     published = fields.BooleanField()
     subtitle = fields.TextField(analyzer=html_strip)
     status = fields.KeywordField()

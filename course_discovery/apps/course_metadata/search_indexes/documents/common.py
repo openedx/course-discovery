@@ -116,6 +116,10 @@ class BaseDocument(Document, metaclass=DocumentMeta):
         self._object = None
 
     aggregation_key = fields.KeywordField()
+    partner = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     content_type = fields.KeywordField()
     id = fields.KeywordField()
     organizations = fields.TextField(analyzer=html_strip, multi=True, fields={'raw': fields.KeywordField(multi=True)})
@@ -217,10 +221,6 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     image_url = fields.TextField()
     logo_image_urls = fields.TextField(multi=True)
     level_type = fields.TextField(
-        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
-    )
-    partner = fields.TextField(
-        analyzer=html_strip,
         fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
     )
     outcome = fields.TextField()
