@@ -1,11 +1,12 @@
 from course_discovery.apps.api.v1.views.search import AggregateSearchViewSet as AggregateSearchViewSetV1
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import SearchAfterSearch
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import CustomSearchAfterPagination
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import SearchAfterPagination
 
 
 class AggregateSearchViewSet(AggregateSearchViewSetV1):
-    pagination_class = CustomSearchAfterPagination
+    pagination_class = SearchAfterPagination
     ordering_fields = {"start": "start", "aggregation_uuid": "aggregation_uuid"}
+    ordering = ("-start", "aggregation_uuid")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

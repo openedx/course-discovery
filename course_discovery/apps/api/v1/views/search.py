@@ -27,9 +27,8 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH_PHRASE
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
-    BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper, CustomSearchAfterPagination
+    BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
 )
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import SearchAfterSearch
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 
 

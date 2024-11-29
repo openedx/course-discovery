@@ -101,7 +101,7 @@ class CustomPageNumberPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
-class CustomSearchAfterPagination(PageNumberPagination):
+class SearchAfterPagination(PageNumberPagination):
     """
     Custom paginator that supports Elasticsearch `search_after` pagination.
     """
