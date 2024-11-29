@@ -2981,11 +2981,10 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         For already marketable course runs, the suitability for marketing
         refers to the existing marketable flag.
         """
-
-        is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         if self.is_marketable:
             # Course run is already marketable; pass-thru regardless of course type
             return self.is_marketable
+        is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         if is_exec_ed_course:
             # Check whether external course run is marketable
             return self.in_review and self.is_upcoming()

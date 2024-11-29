@@ -659,31 +659,59 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         assert serializer.data == expected
 
     @ddt.data(
-        # Exec-ed, in-review, not marketable, future start date, is_marketable_external
-        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.InternalReview, False, True, True),
-        # Exec-ed, in-review, not marketable, future start date, is_marketable_external
-        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.LegalReview, False, True, True),
-        # Exec-ed, unpublished, not marketable, future start date, is_marketable_external
-        (CourseType.EXECUTIVE_EDUCATION_2U, CourseRunStatus.Unpublished, False, True, False),
-        # Non-exec ed, in-review, not marketable, future start date, is_marketable_external
-        (CourseType.PROFESSIONAL, CourseRunStatus.InternalReview, False, True, False),
-        # Non-exec ed, published, marketable, future start date, is_marketable_external
-        (CourseType.VERIFIED_AUDIT, CourseRunStatus.Published, True, False, True),
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': True
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.LegalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': True
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.Unpublished,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.PROFESSIONAL,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.VERIFIED_AUDIT,
+            'status': CourseRunStatus.Published,
+            'is_marketable': True,
+            'has_future_start_date': False,
+            'expected_is_marketable_external': True
+        },
     )
     @ddt.unpack
-    def test_is_marketable_external(self, course_type_slug, status, is_marketable, is_future, expected_result):
-        course_type = CourseTypeFactory(slug=course_type_slug)
+    def test_is_marketable_external(
+        self, course_type, status, is_marketable,
+        has_future_start_date, expected_is_marketable_external
+    ):
+        course_type_instance = CourseTypeFactory(slug=course_type)
         course_run = CourseRunFactory(
-            course=CourseFactory(type=course_type),
+            course=CourseFactory(type=course_type_instance),
             status=status,
             start=datetime.datetime.now(tz=UTC) + datetime.timedelta(
-                days=10) if is_future else datetime.datetime.now(tz=UTC) - datetime.timedelta(days=10)
+                days=10) if has_future_start_date else datetime.datetime.now(tz=UTC) - datetime.timedelta(days=10)
         )
         seat = SeatFactory(course_run=course_run, type=SeatTypeFactory.verified())
         course_run.seats.set([seat])
 
         assert course_run.is_marketable == is_marketable
-        assert course_run.is_marketable_external is expected_result
+        assert course_run.is_marketable_external == expected_is_marketable_external
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
