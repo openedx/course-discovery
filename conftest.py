@@ -108,3 +108,7 @@ def clear_es_indexes():
     conn = get_connection()
     for index_name in settings.ELASTICSEARCH_INDEX_NAMES.values():
         conn.indices.delete(index=index_name + '_*')
+
+# @pytest.fixture(scope='class', autouse=True)
+# def stupid_magic():
+#     pass

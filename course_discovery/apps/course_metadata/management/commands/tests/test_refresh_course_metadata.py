@@ -5,7 +5,7 @@ import ddt
 import pytest
 import responses
 from django.core.management import CommandError, call_command
-from django.test import TransactionTestCase, TestCase
+from django.test import TransactionTestCase, TestCase, SimpleTestCase
 from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
