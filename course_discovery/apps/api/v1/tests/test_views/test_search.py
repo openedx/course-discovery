@@ -763,6 +763,15 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         assert expected == actual
 
+    def test_results_include_person_objects(self):
+        """ Verify that a get against search/all includes person objects. """
+        person = PersonFactory(partner=self.partner)
+        response = self.client.get(self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["count"] == 1
+        assert response_data["results"] == [self.serialize_person_search(person)]
+
     @ddt.data((True, 10, 8), (False, 0, 4))
     @ddt.unpack
     def test_learner_pathway_feature_flag(self, include_learner_pathways, expected_result_count, expected_query_count):
