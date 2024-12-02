@@ -7,7 +7,7 @@ from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 
-from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
+from .analyzers import edge_ngram_completion, synonym_text
 from .common import BaseDocument, OrganizationsMixin
 
 __all__ = ('LearnerPathwayDocument',)

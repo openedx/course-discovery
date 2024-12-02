@@ -12,11 +12,11 @@ from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument, CourseRunDocument, LearnerPathwayDocument, ProgramDocument, PersonDocument
+    CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
     CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, LearnerPathwaySearchDocumentSerializer,
-    ProgramSearchDocumentSerializer, PersonSearchDocumentSerializer
+    PersonSearchDocumentSerializer, ProgramSearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.tests import factories
 
