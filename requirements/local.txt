@@ -6,9 +6,9 @@
 #
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
-aiohappyeyeballs==2.4.3
+aiohappyeyeballs==2.4.4
     # via aiohttp
-aiohttp==3.11.7
+aiohttp==3.11.9
     # via openai
 aiosignal==1.3.1
     # via aiohttp
@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.68
+boto3==1.35.71
     # via django-ses
-botocore==1.35.68
+botocore==1.35.71
     # via
     #   boto3
     #   s3transfer
@@ -126,7 +126,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-code-annotations==1.8.2
+code-annotations==2.0.0
     # via
     #   edx-lint
     #   edx-toggles
@@ -140,7 +140,7 @@ coverage[toml]==7.6.8
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==43.0.3
+cryptography==44.0.0
     # via
     #   pyjwt
     #   pyopenssl
@@ -284,7 +284,7 @@ django-object-actions==4.3.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==4.2.0
+django-ses==4.3.0
     # via taxonomy-connector
 django-simple-history==3.7.0
     # via -r requirements/base.in
@@ -418,7 +418,7 @@ face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==33.0.0
+faker==33.1.0
     # via factory-boy
 fastavro==1.9.7
     # via openedx-events
@@ -526,7 +526,7 @@ multidict==6.1.0
     #   yarl
 mysqlclient==2.2.6
     # via -r requirements/test.in
-newrelic==10.3.0
+newrelic==10.3.1
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -584,13 +584,13 @@ polib==1.2.0
     # via edx-i18n-tools
 prompt-toolkit==3.0.48
     # via click-repl
-propcache==0.2.0
+propcache==0.2.1
     # via
     #   aiohttp
     #   yarl
 proto-plus==1.25.0
     # via google-api-core
-protobuf==5.28.3
+protobuf==5.29.0
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -616,7 +616,7 @@ pygments==2.18.0
     #   accessible-pygments
     #   pydata-sphinx-theme
     #   sphinx
-pyjwt[crypto]==2.10.0
+pyjwt[crypto]==2.10.1
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -625,7 +625,7 @@ pyjwt[crypto]==2.10.0
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==3.3.1
+pylint==3.3.2
     # via
     #   edx-lint
     #   pylint-celery
@@ -647,7 +647,7 @@ pymongo==4.10.1
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pyopenssl==24.2.1
+pyopenssl==24.3.0
     # via snowflake-connector-python
 pyparsing==3.2.0
     # via
@@ -659,7 +659,7 @@ pyrsistent==0.20.0
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==8.3.3
+pytest==8.3.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -905,7 +905,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.27.1
+virtualenv==20.28.0
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
@@ -921,7 +921,7 @@ wsproto==1.2.0
     # via trio-websocket
 xss-utils==0.6.0
     # via -r requirements/base.in
-yarl==1.18.0
+yarl==1.18.3
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
