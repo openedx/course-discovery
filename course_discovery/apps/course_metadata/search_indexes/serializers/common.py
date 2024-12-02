@@ -3,11 +3,10 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from django_elasticsearch_dsl.registries import registry
+from rest_framework import serializers
 
 from course_discovery.apps.api.utils import get_excluded_restriction_types
 from course_discovery.apps.core.utils import ElasticsearchUtils, serialize_datetime
-
-from rest_framework import serializers
 
 log = logging.getLogger(__name__)
 

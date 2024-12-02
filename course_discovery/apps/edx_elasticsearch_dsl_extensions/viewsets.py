@@ -1,10 +1,10 @@
 import json
+
 from django_elasticsearch_dsl import Document as OriginDocument
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocumentViewSet
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from course_discovery.apps.api import mixins
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import MultiMatchSearchFilterBackend
@@ -132,7 +132,7 @@ class SearchAfterPagination(PageNumberPagination):
         last_item = data[-1] if data else None
         search_after = last_item.get("sort") if last_item else None
         next_link = response.data.pop("next")
-        response.data["next_search_after"] = search_after if next_link else None
+        response.data["next"] = search_after if next_link else None
         return response
 
 

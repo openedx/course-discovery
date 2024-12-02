@@ -88,7 +88,7 @@ class CourseRunDocument(BaseCourseDocument):
 
     def prepare_aggregation_uuid(self, obj):
         return 'courserun:{}'.format(obj.uuid)
-    
+
     def prepare_course_key(self, obj):
         return obj.course.key
 

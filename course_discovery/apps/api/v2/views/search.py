@@ -4,6 +4,10 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import Sear
 
 
 class AggregateSearchViewSet(AggregateSearchViewSetV1):
+    """
+    Search all elasticsearch documents using search_after pagination.
+    """
+
     pagination_class = SearchAfterPagination
     ordering_fields = {"start": "start", "aggregation_uuid": "aggregation_uuid"}
     ordering = ("-start", "aggregation_uuid")

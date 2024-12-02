@@ -16,7 +16,9 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import B
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument
-from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin, SortFieldMixin
+from .common import (
+    DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin, SortFieldMixin
+)
 
 __all__ = ('CourseSearchDocumentSerializer',)
 
@@ -39,7 +41,9 @@ class CourseSearchDocumentListSerializer(ModelObjectDocumentSerializerMixin, Lis
         return super().to_representation(result_tuples)
 
 
-class CourseSearchDocumentSerializer(SortFieldMixin, ModelObjectDocumentSerializerMixin, DateTimeSerializerMixin, DocumentSerializer):
+class CourseSearchDocumentSerializer(
+    SortFieldMixin, ModelObjectDocumentSerializerMixin, DateTimeSerializerMixin, DocumentSerializer
+):
     """
     Serializer for course elasticsearch document.
     """
