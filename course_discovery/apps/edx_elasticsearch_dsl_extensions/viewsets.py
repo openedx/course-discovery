@@ -117,8 +117,8 @@ class SearchAfterPagination(PageNumberPagination):
         if search_after:
             try:
                 queryset = queryset.extra(search_after=json.loads(search_after))
-            except json.JSONDecodeError:
-                raise ValueError("Invalid JSON format for search_after parameter")
+            except json.JSONDecodeError as exc:
+                raise ValueError("Invalid JSON format for search_after parameter") from exc
 
         queryset = super().paginate_queryset(queryset, request, view)
 
