@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from guardian.shortcuts import get_group_perms
 
@@ -13,7 +13,7 @@ from course_discovery.apps.publisher.tests import factories
 USER_PASSWORD = 'password'
 
 
-class OrganizationExtensionAdminTests(SiteMixin, TestCase):
+class OrganizationExtensionAdminTests(SiteMixin, TransactionTestCase):
     """ Tests for OrganizationExtensionAdmin."""
     serialized_rollback = True
     def setUp(self):

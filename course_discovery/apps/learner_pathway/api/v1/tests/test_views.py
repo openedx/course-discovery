@@ -459,10 +459,11 @@ class TestLearnerPathwayCourseViewSet(TestCase):
 
 
 @ddt.ddt
-class TestLearnerPathwayProgramViewSet(TestCase):
+class TestLearnerPathwayProgramViewSet(TransactionTestCase):
     """
     Tests for LearnerPathwayProgramViewSet.
     """
+    serialized_rollback = True
     def setUp(self):
         super().setUp()
         self.user = UserFactory.create(is_staff=True, is_active=True)

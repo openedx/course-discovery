@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, TransactionTestCase
 
 import pytest
 
@@ -8,7 +8,7 @@ from course_discovery.apps.taxonomy_support.api.v1.tests.factories import Course
 
 
 @pytest.mark.django_db
-class TestsCourseRecommendationsSerializer(TestCase):
+class TestsCourseRecommendationsSerializer(TransactionTestCase):
     """Test CourseRecommendationsSerializer"""
     serializer_class = CourseRecommendationsSerializer
     serialized_rollback = True

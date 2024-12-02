@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from course_discovery.apps.api.tests.test_utils import make_request
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
@@ -8,7 +8,7 @@ from course_discovery.apps.learner_pathway.tests.factories import (
 )
 
 
-class TestLearnerPathwaySerializer(TestCase):
+class TestLearnerPathwaySerializer(TransactionTestCase):
     serializer_class = LearnerPathwaySerializer
     serialized_rollback = True
     def create_pathway(self):
