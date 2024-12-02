@@ -11,7 +11,7 @@ from course_discovery.apps.taxonomy_support.api.v1.tests.factories import Course
 class TestsCourseRecommendationsSerializer(TestCase):
     """Test CourseRecommendationsSerializer"""
     serializer_class = CourseRecommendationsSerializer
-
+    serialized_rollback = True
     @classmethod
     def get_expected_data(cls, recommendation):
         """

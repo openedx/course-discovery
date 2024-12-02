@@ -10,7 +10,7 @@ from course_discovery.apps.learner_pathway.tests.factories import (
 
 class TestLearnerPathwaySerializer(TestCase):
     serializer_class = LearnerPathwaySerializer
-
+    serialized_rollback = True
     def create_pathway(self):
         learner_pathway = LearnerPathwayFactory()
         step = LearnerPathwayStepFactory(pathway=learner_pathway)

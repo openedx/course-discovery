@@ -14,7 +14,7 @@ class SerializeLanguageTest(TestCase):
     """
     Tests for serialize_language method
     """
-
+    serialized_rollback = True
     def setUp(self):
         super().setUp()
         self.language_1 = LanguageTag.objects.filter(code__startswith='zh').first()

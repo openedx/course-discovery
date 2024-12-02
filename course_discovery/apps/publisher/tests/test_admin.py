@@ -15,7 +15,7 @@ USER_PASSWORD = 'password'
 
 class OrganizationExtensionAdminTests(SiteMixin, TestCase):
     """ Tests for OrganizationExtensionAdmin."""
-
+    serialized_rollback = True
     def setUp(self):
         super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
