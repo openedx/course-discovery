@@ -29,9 +29,6 @@ class PersonDocument(BaseDocument):
     def prepare_aggregation_key(self, obj):
         return 'person:{}'.format(obj.uuid)
 
-    def prepare_partner(self, obj):
-        return obj.partner.short_code if obj.partner else ''
-
     def prepare_bio_language(self, obj):
         if obj.bio_language:
             return obj.bio_language.name

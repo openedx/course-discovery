@@ -117,9 +117,6 @@ class CourseDocument(BaseCourseDocument):
     def prepare_start(self, obj):
         return [course_run.start for course_run in filter_visible_runs(obj.course_runs)]
 
-    def prepare_partner(self, obj):
-        return obj.partner.short_code
-
     def prepare_prerequisites(self, obj):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
 

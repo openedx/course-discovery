@@ -86,9 +86,6 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
 
-    def prepare_partner(self, obj):
-        return obj.partner.short_code
-
     def prepare_published(self, obj):
         return obj.status == ProgramStatus.Active
 

@@ -167,6 +167,9 @@ class BaseDocument(Document, metaclass=DocumentMeta):
     def prepare_authoring_organization_uuids(self, obj):
         return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
 
+    def prepare_partner(self, obj):
+        return obj.partner.short_code if obj.partner else ''
+
     def prepare_content_type(self, obj):  # pylint: disable=unused-argument
         return self.Django.model.__name__.lower()
 
