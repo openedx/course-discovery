@@ -3802,7 +3802,7 @@ class FAQTests(TestCase):
     def test_str(self):
         question = 'test question'
         faq = FAQ.objects.create(question=question, answer='test')
-        assert str(faq) == question
+        assert str(faq) == f'{faq.id}: {faq.question}'
 
 
 class RankingTests(TestCase):
