@@ -148,8 +148,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
 
     SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS = copy.deepcopy(SUCCESS_API_RESPONSE)
     SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS['products'][0].update({
-        'custom_presentations': [{**copy.deepcopy(variant_1), 'websiteVisibility': 'private', 'status': 'active'}],
-        'future_variants': [
+        'customPresentations': [{**copy.deepcopy(variant_1), 'websiteVisibility': 'private', 'status': 'active'}],
+        'futureVariants': [
             {
                 **copy.deepcopy(variant_2), 'websiteVisibility': 'public', 'status': 'scheduled',
                 'startDate': '2026-03-20', 'endDate': '2026-04-28', 'finalRegCloseDate': '2026-03-26'
@@ -264,10 +264,10 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             )
 
             simple_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS["products"][0]["variant"]
-            future_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS["products"][0]["future_variants"][0]
+            future_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS["products"][0]["futureVariants"][0]
             custom_variant = self.SUCCESS_API_RESPONSE_CUSTOM_AND_FUTURE_VARIANTS[
                 "products"
-            ][0]["custom_presentations"][0]
+            ][0]["customPresentations"][0]
 
             with open(output_csv.name, "r") as csv_file:
                 reader = csv.DictReader(csv_file)
@@ -278,20 +278,25 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row["End Date"] == simple_variant["endDate"]
                 assert data_row["Reg Close Date"] == simple_variant["finalRegCloseDate"]
                 assert data_row["Restriction Type"] == "None"
+                assert data_row["Is Future Variant"] == "False"
 
                 data_row = next(reader)
                 assert data_row["Variant Id"] == future_variant["id"]
                 assert data_row["Start Date"] == future_variant["startDate"]
                 assert data_row["End Date"] == future_variant["endDate"]
                 assert data_row["Reg Close Date"] == future_variant["finalRegCloseDate"]
+                assert data_row["Publish Date"] == future_variant["startDate"]
                 assert data_row["Restriction Type"] == "None"
+                assert data_row["Is Future Variant"] == "True"
 
                 data_row = next(reader)
                 assert data_row["Variant Id"] == custom_variant["id"]
                 assert data_row["Start Date"] == custom_variant["startDate"]
                 assert data_row["End Date"] == custom_variant["endDate"]
                 assert data_row["Reg Close Date"] == custom_variant["finalRegCloseDate"]
+                assert data_row["Publish Date"] == str(date.today().isoformat())
                 assert data_row["Restriction Type"] == "custom-b2b-enterprise"
+                assert data_row["Is Future Variant"] == "False"
 
     @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
     def test_successful_file_data_population_with_getsmarter_flag_with_multiple_variants(self, mock_get_smarter_client):
@@ -635,3 +640,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Fixed Price Usd'] == "333.3"
         assert data_row['Taxi Form Id'] == 'test-form-id'
         assert data_row['Post Submit Url'] == 'https://www.getsmarter.com/blog/career-advice'
+        assert data_row['Is Future Variant'] == 'False'

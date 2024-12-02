@@ -40,6 +40,29 @@ class UpdateCourseAiTranslationsTests(TestCase):
             self.TRANSLATION_DATA['available_translation_languages']
         )
 
+    def test_update_course_run_translations_draft(self, mock_get_translations):
+        """
+        Test the command with both draft and non-draft course runs, ensuring that the both draft and non-draft
+        course runs are updated with the available translation languages.
+        """
+        mock_get_translations.return_value = self.TRANSLATION_DATA
+        draft_course_run = CourseRunFactory(
+            draft=True, end=now() + datetime.timedelta(days=10)
+        )
+        course_run = CourseRunFactory(draft=False, draft_version_id=draft_course_run.id)
+
+        call_command("update_course_ai_translations", partner=self.partner.name)
+
+        course_run.refresh_from_db()
+        self.assertListEqual(
+            course_run.translation_languages, self.TRANSLATION_DATA["available_translation_languages"],
+        )
+
+        draft_course_run.refresh_from_db()
+        self.assertListEqual(
+            draft_course_run.translation_languages, self.TRANSLATION_DATA["available_translation_languages"],
+        )
+
     def test_command_with_no_translations(self, mock_get_translations):
         """Test the command when no translations are returned for a course run."""
         mock_get_translations.return_value = {

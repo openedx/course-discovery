@@ -1,10 +1,13 @@
 from django.conf import settings
+from django.db.models import Prefetch
 from django_elasticsearch_dsl import Index, fields
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 
-from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
+from .analyzers import edge_ngram_completion, synonym_text
 from .common import BaseDocument, OrganizationsMixin
 
 __all__ = ('LearnerPathwayDocument',)
@@ -27,10 +30,6 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
             'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
         },
     )
-    partner = fields.TextField(
-        analyzer=html_strip,
-        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
-    )
     visible_via_association = fields.BooleanField()
     status = fields.TextField()
     overview = fields.TextField()
@@ -47,16 +46,29 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     def prepare_aggregation_uuid(self, obj):
         return 'learnerpathway:{}'.format(obj.uuid)
 
-    def prepare_partner(self, obj):
-        return obj.partner.short_code if obj.partner else ''
-
     def prepare_published(self, obj):
         return obj.status == PathwayStatus.Active
 
-    def get_queryset(self, excluded_restriction_types=None):  # pylint: disable=unused-argument
+    def get_queryset(self, excluded_restriction_types=None):
+        if excluded_restriction_types is None:
+            excluded_restriction_types = []
+
+        course_runs = CourseRun.objects.filter(
+            status=CourseRunStatus.Published
+        ).exclude(
+            restricted_run__restriction_type__in=excluded_restriction_types
+        )
+
         return super().get_queryset().prefetch_related(
-            'steps', 'steps__learnerpathwaycourse_set', 'steps__learnerpathwayprogram_set',
-            'steps__learnerpathwayblock_set',
+            'steps',
+            Prefetch(
+                'steps__learnerpathwaycourse_set__course__course_runs',
+                queryset=course_runs
+            ),
+            Prefetch(
+                'steps__learnerpathwayprogram_set__program__courses__course_runs',
+                queryset=course_runs
+            )
         )
 
     def prepare_skill_names(self, obj):

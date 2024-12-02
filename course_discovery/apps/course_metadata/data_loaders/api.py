@@ -135,7 +135,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     logger.info(f"Course created with uuid {course.uuid} and key {course.key}")
                     logger.info(f"Course run created with uuid {course_run.uuid} and key {course_run.key}")
                     course.canonical_course_run = course_run
-                    course.save()
+                    course.save(update_fields=['canonical_course_run'])
         except Exception:  # pylint: disable=broad-except
             if self.enable_api:
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
@@ -174,7 +174,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             self._update_verified_deadline_for_course_run(official_run)
             self._update_verified_deadline_for_course_run(draft_run)
             has_upgrade_deadline_override = run.seats.filter(upgrade_deadline_override__isnull=False)
-            if not has_upgrade_deadline_override and official_run:
+            if not has_upgrade_deadline_override and official_run and official_run.seats.count():
                 push_to_ecommerce_for_course_run(official_run)
 
         logger.info(f'Processed course run with UUID [{run.uuid}] and key [{run.key}].')

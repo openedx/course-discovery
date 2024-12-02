@@ -117,6 +117,10 @@ class BaseDocument(Document, metaclass=DocumentMeta):
 
     aggregation_key = fields.KeywordField()
     aggregation_uuid = fields.KeywordField()
+    partner = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     content_type = fields.KeywordField()
     id = fields.KeywordField()
     organizations = fields.TextField(analyzer=html_strip, multi=True, fields={'raw': fields.KeywordField(multi=True)})
@@ -163,6 +167,9 @@ class BaseDocument(Document, metaclass=DocumentMeta):
 
     def prepare_authoring_organization_uuids(self, obj):
         return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
+
+    def prepare_partner(self, obj):
+        return obj.partner.short_code if obj.partner else ''
 
     def prepare_content_type(self, obj):  # pylint: disable=unused-argument
         return self.Django.model.__name__.lower()
@@ -218,10 +225,6 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     image_url = fields.TextField()
     logo_image_urls = fields.TextField(multi=True)
     level_type = fields.TextField(
-        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
-    )
-    partner = fields.TextField(
-        analyzer=html_strip,
         fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
     )
     outcome = fields.TextField()

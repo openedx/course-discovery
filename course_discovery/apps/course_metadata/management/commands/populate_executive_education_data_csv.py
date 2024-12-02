@@ -35,7 +35,7 @@ class Command(BaseCommand):
         'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
         'frequently_asked_questions', 'additional_information', 'about_video_link', 'secondary_subject',
         'tertiary_subject', 'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'is_future_variant', 'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
         'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
@@ -176,7 +176,8 @@ class Command(BaseCommand):
         Returns:
             list: A list of variant dicts
         """
-        variant_keys = ['variant', 'variants', 'future_variants', 'custom_presentations']
+
+        variant_keys = ['variant', 'variants', 'futureVariants', 'customPresentations']
         variants = []
 
         for key in variant_keys:
@@ -337,6 +338,7 @@ class Command(BaseCommand):
                 partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate']
                 if product_dict['variant'].get('status') == 'scheduled' else date.today().isoformat()
             ),
+            'is_future_variant': product_dict['variant'].get('status') == 'scheduled',
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
