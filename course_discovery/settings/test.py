@@ -17,14 +17,14 @@ PASSWORD_HASHERS = [
 
 TEST_NON_SERIALIZED_APPS = [
     # Prevents the issue described at https://code.djangoproject.com/ticket/23727.
-    'django.contrib.contenttypes',
+    # 'django.contrib.contenttypes',
     # Because of the bug linked above, loading serialized data for this app in a
     # TransactionTestCase with serialized_rollback=True will cause IntegrityErrors
     # on databases that check foreign key constraints (e.g., MySQL, not SQLite).
     # The app's models contain foreign keys referencing content types that no longer
     # exist when serialized data is loaded. This is a variant of the issue described
     # at https://code.djangoproject.com/ticket/10827.
-    'django.contrib.auth',
+    # 'django.contrib.auth',
 ]
 
 CACHES = {
