@@ -24,7 +24,8 @@ JSON = 'application/json'
 
 
 @ddt.ddt
-class RefreshCourseMetadataCommandTests(OAuth2Mixin, TestCase):
+class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
+    serialized_rollback = True
     def setUp(self):
         super().setUp()
         self.partner = PartnerFactory()
