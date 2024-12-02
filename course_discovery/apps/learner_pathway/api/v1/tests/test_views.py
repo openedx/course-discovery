@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 
 import ddt
-from django.test import Client, TestCase
+from django.test import Client, TestCase, TransactionTestCase
 from pytest import mark
 from rest_framework import status
 
