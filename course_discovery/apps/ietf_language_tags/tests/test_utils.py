@@ -2,7 +2,7 @@
 
 import ddt
 import pytest
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -10,7 +10,7 @@ from course_discovery.apps.ietf_language_tags.utils import serialize_language
 
 @ddt.ddt
 @pytest.mark.django_db
-class SerializeLanguageTest(TestCase):
+class SerializeLanguageTest(TransactionTestCase):
     """
     Tests for serialize_language method
     """
