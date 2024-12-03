@@ -661,17 +661,24 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
     @ddt.data(
         {
             'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
-            'status': CourseRunStatus.InternalReview,
+            'status': CourseRunStatus.Reviewed,
             'is_marketable': False,
             'has_future_start_date': True,
             'expected_is_marketable_external': True
         },
         {
             'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
             'status': CourseRunStatus.LegalReview,
             'is_marketable': False,
             'has_future_start_date': True,
-            'expected_is_marketable_external': True
+            'expected_is_marketable_external': False
         },
         {
             'course_type': CourseType.EXECUTIVE_EDUCATION_2U,

@@ -2976,7 +2976,7 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         A course run is deemed suitable for marketing if it is an
         executive education (EE) course, the discovery service status is
-        'in-review', it is not currently marketable, and the course start date is in the future.
+        'Reviewed', it is not currently marketable, and the course start date is in the future.
 
         For already marketable course runs, the suitability for marketing
         refers to the existing marketable flag.
@@ -2987,7 +2987,7 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         if is_exec_ed_course:
             # Check whether external course run is marketable
-            return self.in_review and self.is_upcoming()
+            return self.status == CourseRunStatus.Reviewed and self.is_upcoming()
         return False
 
     @property
