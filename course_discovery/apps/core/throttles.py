@@ -1,6 +1,6 @@
 """Custom API throttles."""
-from django.core.cache import InvalidCacheBackendError, caches
 from django.conf import settings
+from django.core.cache import InvalidCacheBackendError, caches
 from edx_rest_framework_extensions.auth.jwt.decoder import configured_jwt_decode_handler
 from rest_framework.throttling import UserRateThrottle
 
