@@ -18,10 +18,10 @@ def throttling_cache():
         return caches['default']
 
 
-def is_enterprise_user(request):
+def is_priviledged_user_with_enhanced_throttle(request):
     """
-    Determine whether a JWT-authenticated user is an enterprise user based on the `roles` in
-    the decoded JWT token associated with the request (e.g., `enterprise_learner`).
+    Determine whether a JWT-authenticated user has increased throttling rates
+    based on the `roles` in the decoded JWT token associated with the request.
     """
     jwt_token = request.auth
     if not jwt_token:
@@ -52,8 +52,8 @@ class OverridableUserRateThrottle(UserRateThrottle):
                 if user.is_superuser or user.is_staff or is_publisher_user(user):
                     return True
 
-                # If the user is not a privileged user, increase throttling rate if they are an enterprise user
-                if is_enterprise_user(request):
+                # If the user has privileged throttling limits, increase the rate
+                if is_priviledged_user_with_enhanced_throttle(request):
                     self.rate = settings.ENHANCED_THROTTLE_LIMIT
 
         self.num_requests, self.duration = self.parse_rate(self.rate)

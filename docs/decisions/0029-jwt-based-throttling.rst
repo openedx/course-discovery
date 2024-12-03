@@ -21,6 +21,10 @@ Since these learners authenticate with Discovery by using JWT tokens issued by t
 in the JWT to identify them. Enterprise customers are guaranteed to have one of a small number of fixed roles assigned to them. 
 Once we identify that an incoming request's user has one of these roles in their JWT, we will enable higher rate limits for them.
 
+Two new settings, `ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS` AND `ENHANCED_THROTTLE_LIMIT` will be added. The `ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS`
+setting accepts a list of strings representing keywords that identify privileged JWT roles. Each keyword is matched against the
+roles in a JWT token; if a keyword is found in any role, the user's throttle limits are set to the value of `ENHANCED_THROTTLE_LIMIT`.  
+
 Consequences
 --------------
 - Some regular users (i.e without staff or any django group privileges) will have privileged rate limits
