@@ -1,5 +1,6 @@
 """Custom API throttles."""
 from django.core.cache import InvalidCacheBackendError, caches
+from django.conf import settings
 from edx_rest_framework_extensions.auth.jwt.decoder import configured_jwt_decode_handler
 from rest_framework.throttling import UserRateThrottle
 
@@ -49,7 +50,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
 
                 # If the user is not a privileged user, increase throttling rate if they are an enterprise user
                 if is_enterprise_user(request):
-                    self.rate = '300/hour'
+                    self.rate = '400/hour'
 
         self.num_requests, self.duration = self.parse_rate(self.rate)
 
