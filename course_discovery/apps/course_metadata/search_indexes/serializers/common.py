@@ -88,6 +88,7 @@ class DocumentDSLSerializerMixin(ModelObjectDocumentSerializerMixin):
         return super().to_representation(_object)
 
 
+# pylint: disable=abstract-method
 class SortFieldMixin(serializers.Serializer):
     """
     Mixin to enable a `sort` field on the response.
@@ -95,7 +96,7 @@ class SortFieldMixin(serializers.Serializer):
     This mixin provides a `sort` field in the serializer, which fetches
     sorting information from the Elasticsearch response metadata.
     """
-
+    _abstract = True
     sort = serializers.SerializerMethodField()
 
     def get_sort(self, result):

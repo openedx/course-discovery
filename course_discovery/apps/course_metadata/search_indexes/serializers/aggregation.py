@@ -9,8 +9,13 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
 )
 
 from .course import CourseSearchDocumentSerializer, CourseSearchDocumentSerializerV2, CourseSearchModelSerializer
-from .course_run import CourseRunSearchDocumentSerializer, CourseRunSearchDocumentSerializerV2, CourseRunSearchModelSerializer
-from .learner_pathway import LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchDocumentSerializerV2, LearnerPathwaySearchModelSerializer
+from .course_run import (
+    CourseRunSearchDocumentSerializer, CourseRunSearchDocumentSerializerV2, CourseRunSearchModelSerializer
+)
+from .learner_pathway import (
+    LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchDocumentSerializerV2,
+    LearnerPathwaySearchModelSerializer
+)
 from .person import PersonSearchDocumentSerializer, PersonSearchDocumentSerializerV2
 from .program import ProgramSearchDocumentSerializer, ProgramSearchDocumentSerializerV2, ProgramSearchModelSerializer
 

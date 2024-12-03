@@ -8,7 +8,7 @@ from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import ContentTypeSerializer
 from course_discovery.apps.learner_pathway.api.serializers import LearnerPathwaySerializer, LearnerPathwayStepSerializer
 
-from ..constants import BASE_SEARCH_INDEX_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2, COMMON_IGNORED_FIELDS
+from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 from ..documents import LearnerPathwayDocument
 from .common import (
     DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin, SortFieldMixin

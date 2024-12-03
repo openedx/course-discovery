@@ -7,7 +7,7 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseR
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
-from ..constants import BASE_SEARCH_INDEX_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2, COMMON_IGNORED_FIELDS
+from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 from ..documents import CourseRunDocument
 from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, SortFieldMixin
 

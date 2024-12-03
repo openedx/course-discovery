@@ -40,7 +40,7 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
         )
 
 
-class PersonSearchDocumentSerializerV2(PersonSearchDocumentSerializer):
+class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSerializer):
     class Meta(PersonSearchDocumentSerializer.Meta):
         document = PersonDocument
         fields = PersonSearchDocumentSerializer.Meta.fields
