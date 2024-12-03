@@ -24,7 +24,7 @@ JSON = 'application/json'
 
 
 @ddt.ddt
-@patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.connection.connect', new=lambda: True)
+@mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.connection.connect', new=lambda: True)
 class RefreshCourseMetadataCommandTests(OAuth2Mixin, TestCase):
     def setUp(self):
         super().setUp()
