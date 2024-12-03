@@ -8,11 +8,11 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
     BaseDjangoESDSLFacetSerializer, DummyDocument, MultiDocumentSerializerMixin
 )
 
-from .course import CourseSearchDocumentSerializer, CourseSearchModelSerializer
-from .course_run import CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer
-from .learner_pathway import LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchModelSerializer
-from .person import PersonSearchDocumentSerializer
-from .program import ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
+from .course import CourseSearchDocumentSerializer, CourseSearchDocumentSerializerV2, CourseSearchModelSerializer
+from .course_run import CourseRunSearchDocumentSerializer, CourseRunSearchDocumentSerializerV2, CourseRunSearchModelSerializer
+from .learner_pathway import LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchDocumentSerializerV2, LearnerPathwaySearchModelSerializer
+from .person import PersonSearchDocumentSerializer, PersonSearchDocumentSerializerV2
+from .program import ProgramSearchDocumentSerializer, ProgramSearchDocumentSerializerV2, ProgramSearchModelSerializer
 
 
 class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSerializer):
@@ -110,6 +110,20 @@ class AggregateSearchListSerializer(MultiDocumentSerializerMixin, ListSerializer
         }
 
 
+class AggregateSearchListSerializerV2(AggregateSearchListSerializer):
+    class Meta(AggregateSearchListSerializer.Meta):
+        """
+        Meta options.
+        """
+        serializers = {
+            documents.CourseRunDocument: CourseRunSearchDocumentSerializerV2,
+            documents.CourseDocument: CourseSearchDocumentSerializerV2,
+            documents.ProgramDocument: ProgramSearchDocumentSerializerV2,
+            documents.LearnerPathwayDocument: LearnerPathwaySearchDocumentSerializerV2,
+            documents.PersonDocument: PersonSearchDocumentSerializerV2,
+        }
+
+
 class AggregateSearchSerializer(DocumentSerializer):
     """
     Serializer for aggregated elasticsearch documents.
@@ -122,3 +136,16 @@ class AggregateSearchSerializer(DocumentSerializer):
         list_serializer_class = AggregateSearchListSerializer
         document = DummyDocument
         ignore_fields = COMMON_IGNORED_FIELDS
+
+
+class AggregateSearchSerializerV2(AggregateSearchSerializer):
+    """
+    Serializer for aggregated elasticsearch documents.
+    """
+
+    class Meta(AggregateSearchSerializer.Meta):
+        """
+        Meta options.
+        """
+        list_serializer_class = AggregateSearchListSerializerV2
+        document = DummyDocument

@@ -9,14 +9,14 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, Program
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
-from ..constants import BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
+from ..constants import BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2, COMMON_IGNORED_FIELDS
 from ..documents import ProgramDocument
 from .common import DocumentDSLSerializerMixin, SortFieldMixin
 
 __all__ = ('ProgramSearchDocumentSerializer',)
 
 
-class ProgramSearchDocumentSerializer(SortFieldMixin, DocumentSerializer):
+class ProgramSearchDocumentSerializer(DocumentSerializer):
     """
     Serializer for program elasticsearch document.
     """
@@ -64,6 +64,13 @@ class ProgramSearchDocumentSerializer(SortFieldMixin, DocumentSerializer):
                 'excluded_from_seo',
             )
         )
+
+
+class ProgramSearchDocumentSerializerV2(SortFieldMixin, ProgramSearchDocumentSerializer):
+    class Meta(ProgramSearchDocumentSerializer.Meta):
+        document = ProgramDocument
+        fields = ProgramSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
+
 
 
 # pylint: disable=abstract-method

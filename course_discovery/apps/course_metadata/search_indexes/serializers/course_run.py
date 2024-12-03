@@ -7,14 +7,14 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseR
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
-from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
+from ..constants import BASE_SEARCH_INDEX_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2, COMMON_IGNORED_FIELDS
 from ..documents import CourseRunDocument
 from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, SortFieldMixin
 
 __all__ = ('CourseRunSearchDocumentSerializer',)
 
 
-class CourseRunSearchDocumentSerializer(SortFieldMixin, DateTimeSerializerMixin, DocumentSerializer):
+class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSerializer):
     """
     Serializer for course run elasticsearch document.
     """
@@ -93,6 +93,12 @@ class CourseRunSearchDocumentSerializer(SortFieldMixin, DateTimeSerializerMixin,
             'restriction_type',
             'fixed_price_usd',
         )
+
+
+class CourseRunSearchDocumentSerializerV2(SortFieldMixin, CourseRunSearchDocumentSerializer):
+    class Meta(CourseRunSearchDocumentSerializer.Meta):
+        document = CourseRunDocument
+        fields = CourseRunSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
 # pylint: disable=abstract-method

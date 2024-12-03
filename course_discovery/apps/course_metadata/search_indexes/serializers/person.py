@@ -11,7 +11,7 @@ from .common import DocumentDSLSerializerMixin, SortFieldMixin
 __all__ = ('PersonSearchDocumentSerializer',)
 
 
-class PersonSearchDocumentSerializer(SortFieldMixin, DocumentSerializer):
+class PersonSearchDocumentSerializer(DocumentSerializer):
     """
     Serializer for a person elasticsearch document.
     """
@@ -38,6 +38,12 @@ class PersonSearchDocumentSerializer(SortFieldMixin, DocumentSerializer):
             'position',
             'organizations',
         )
+
+
+class PersonSearchDocumentSerializerV2(PersonSearchDocumentSerializer):
+    class Meta(PersonSearchDocumentSerializer.Meta):
+        document = PersonDocument
+        fields = PersonSearchDocumentSerializer.Meta.fields
 
 
 # pylint: disable=abstract-method
