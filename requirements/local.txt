@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.71
+boto3==1.35.72
     # via django-ses
-botocore==1.35.71
+botocore==1.35.72
     # via
     #   boto3
     #   s3transfer
@@ -352,7 +352,7 @@ edx-api-doc-tools==2.0.0
     # via -r requirements/base.in
 edx-auth-backends==4.4.0
     # via -r requirements/base.in
-edx-ccx-keys==1.3.0
+edx-ccx-keys==2.0.2
     # via
     #   -r requirements/base.in
     #   openedx-events
@@ -675,10 +675,8 @@ pytest-responses==0.5.1
     # via -r requirements/test.in
 pytest-split==0.10.0
     # via -r requirements/local.in
-pytest-xdist==3.4.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.in
+pytest-xdist==3.6.1
+    # via -r requirements/test.in
 python-dateutil==2.9.0.post0
     # via
     #   -r requirements/base.in
