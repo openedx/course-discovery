@@ -2974,19 +2974,17 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         """
         Determines if the course_run is suitable for marketing.
 
-        A course run is deemed suitable for marketing if it is an
+        If already marketable, simply return self.is_marketable.
+        
+        Else, a course run is deemed suitable for marketing if it is an
         executive education (EE) course, the discovery service status is
-        'Reviewed', it is not currently marketable, and the course start date is in the future.
+        'Reviewed', and the course start date is in the future.
 
-        For already marketable course runs, the suitability for marketing
-        refers to the existing marketable flag.
         """
         if self.is_marketable:
-            # Course run is already marketable; pass-thru regardless of course type
             return self.is_marketable
         is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         if is_exec_ed_course:
-            # Check whether external course run is marketable
             return self.status == CourseRunStatus.Reviewed and self.is_upcoming()
         return False
 
