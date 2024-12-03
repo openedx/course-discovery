@@ -524,7 +524,8 @@ class CorporateEndorsementAdmin(admin.ModelAdmin):
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ('question',)
+    list_display = ('id', 'question', 'answer')
+    search_fields = ('id', 'question',)
 
 
 @admin.register(Ranking)
