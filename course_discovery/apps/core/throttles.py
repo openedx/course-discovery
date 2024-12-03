@@ -28,7 +28,11 @@ def is_enterprise_user(request):
         return False
     decoded_jwt = configured_jwt_decode_handler(jwt_token)
     roles = decoded_jwt.get('roles', [])
-    return any('enterprise' in role for role in roles)
+    return any(
+        privileged_role_keyword in role
+        for privileged_role_keyword in settings.ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS
+        for role in roles
+    )
 
 
 class OverridableUserRateThrottle(UserRateThrottle):
@@ -50,7 +54,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
 
                 # If the user is not a privileged user, increase throttling rate if they are an enterprise user
                 if is_enterprise_user(request):
-                    self.rate = '400/hour'
+                    self.rate = settings.ENHANCED_THROTTLE_LIMIT
 
         self.num_requests, self.duration = self.parse_rate(self.rate)
 

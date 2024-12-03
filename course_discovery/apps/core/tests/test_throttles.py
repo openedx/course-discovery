@@ -112,4 +112,5 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
         if is_rate_limited:
             self.assert_rate_limited(**headers)
         else:
-            self.assert_rate_limit_successfully_exceeded(**headers)
+            self.assert_rate_limit_successfully_exceeded(count=395, **headers)
+            self.assert_rate_limited(**headers)
