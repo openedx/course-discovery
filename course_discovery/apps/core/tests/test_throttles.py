@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import ddt
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -103,6 +104,7 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
         (['enterprise_openedx_operator:*'], False),
     )
     @ddt.unpack
+    @override_settings(ENHANCED_THROTTLE_LIMIT='10/hour')
     def test_enterprise_user_throttling_with_jwt_authentication(self, jwt_roles, is_rate_limited):
         """ Verify enterprise users are throttled at a higher rate. """
         payload = {
@@ -112,5 +114,5 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
         if is_rate_limited:
             self.assert_rate_limited(**headers)
         else:
-            self.assert_rate_limit_successfully_exceeded(count=395, **headers)
+            self.assert_rate_limit_successfully_exceeded(count=5, **headers)
             self.assert_rate_limited(**headers)
