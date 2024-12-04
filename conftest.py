@@ -125,4 +125,4 @@ def clear_es_indexes():
         conn.indices.delete(index=index_name + '_*')
 
 def pytest_xdist_make_scheduler(config, log):
-  return LoadScopeSchedulingDjangofied(config, log)
+  return LoadScopeSchedulingDjangoOrdered(config, log)
