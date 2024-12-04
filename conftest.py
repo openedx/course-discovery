@@ -18,9 +18,10 @@ logger = logging.getLogger(__name__)
 TEST_DOMAIN = 'testserver.fake'
 
 # List of test classes that are backed by TransactionTestCase
-TTC = ['course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests',
-       'course_discovery/apps/course_metadata/management/commands/tests/test_refresh_course_metadata.py::'
-       'RefreshCourseMetadataCommandTests']
+TTC = ['course_discovery/apps/course_metadata/management/commands/tests/test_refresh_course_metadata.py::'
+       'RefreshCourseMetadataCommandTests',
+       'course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests']
+
 class LoadScopeSchedulingDjangoOrdered(LoadScopeScheduling):
     def _assign_work_unit(self, node) -> None:
         if not hasattr(self, 'django_ordered'):
