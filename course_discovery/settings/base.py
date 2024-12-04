@@ -790,3 +790,8 @@ CSRF_TRUSTED_ORIGINS = (
 )
 
 ENABLE_COURSE_REVIEWS_ADMIN = False
+
+# Keywords that will be searched for inside the `roles` key of the JWT in case a user uses JWT authentication.
+# If the keyword is found, the user has more lenient throttling limits.
+ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = []
+ENHANCED_THROTTLE_LIMIT = '400/hour'
