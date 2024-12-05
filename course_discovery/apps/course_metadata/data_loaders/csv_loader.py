@@ -167,6 +167,7 @@ class CSVDataLoader(AbstractDataLoader):
 
             course_key = self.get_course_key(org_key, row['number'])
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
+            is_course_already_ingested = course.uuid in self.course_uuids
             is_course_created = False
             is_course_run_created = False
             course_run_restriction = (
@@ -176,7 +177,7 @@ class CSVDataLoader(AbstractDataLoader):
             )
             is_future_variant = row.get('is_future_variant') == 'True'
 
-            if course:
+            if not is_course_already_ingested or course:
                 try:
                     logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                     course_run, is_course_run_created = self._get_or_create_course_run(
@@ -206,49 +207,50 @@ class CSVDataLoader(AbstractDataLoader):
                 is_course_created = True
                 is_course_run_created = True
 
-            is_downloaded = download_and_save_course_image(
-                course,
-                row['image'],
-                headers=self.REQUEST_USER_AGENT_HEADERS)
-            if not is_downloaded:
-                error_message = CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
-                logger.error(error_message)
-                self._register_ingestion_error(CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
-                continue
-            if not is_course_created:
-                self.add_product_source(course)
-
-            is_draft = self.get_draft_flag(course=course)
-            logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
-
-            try:
-                self._update_course(row, course, is_draft)
-            except Exception as exc:  # pylint: disable=broad-except
-                exception_message = exc
-                if hasattr(exc, 'response'):
-                    exception_message = exc.response.content.decode('utf-8')
-                error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
-                    course_title=course_title,
-                    exception_message=exception_message
-                )
-                logger.exception(error_message)
-                self._register_ingestion_error(CSVIngestionErrors.COURSE_UPDATE_ERROR, error_message)
-                continue
-
-            if row.get('organization_logo_override'):
-                course.refresh_from_db()
-                is_logo_downloaded = download_and_save_course_image(
+            if not is_course_already_ingested:
+                is_downloaded = download_and_save_course_image(
                     course,
-                    row['organization_logo_override'],
-                    'organization_logo_override',
-                    headers=self.REQUEST_USER_AGENT_HEADERS
-                )
-                if not is_logo_downloaded:
-                    error_message = CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
-                        course_title=course_title
-                    )
+                    row['image'],
+                    headers=self.REQUEST_USER_AGENT_HEADERS)
+                if not is_downloaded:
+                    error_message = CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
                     logger.error(error_message)
-                    self._register_ingestion_error(CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, error_message)
+                    self._register_ingestion_error(CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
+                    continue
+                if not is_course_created:
+                    self.add_product_source(course)
+
+                is_draft = self.get_draft_flag(course=course)
+                logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
+
+                try:
+                    self._update_course(row, course, is_draft)
+                except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
+                    error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                        course_title=course_title,
+                        exception_message=exception_message
+                    )
+                    logger.exception(error_message)
+                    self._register_ingestion_error(CSVIngestionErrors.COURSE_UPDATE_ERROR, error_message)
+                    continue
+
+                if row.get('organization_logo_override'):
+                    course.refresh_from_db()
+                    is_logo_downloaded = download_and_save_course_image(
+                        course,
+                        row['organization_logo_override'],
+                        'organization_logo_override',
+                        headers=self.REQUEST_USER_AGENT_HEADERS
+                    )
+                    if not is_logo_downloaded:
+                        error_message = CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
+                            course_title=course_title
+                        )
+                        logger.error(error_message)
+                        self._register_ingestion_error(CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, error_message)
 
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
