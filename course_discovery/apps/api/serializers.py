@@ -1080,6 +1080,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
         return queryset.select_related(
             'course__level_type',
+            'course__type',
             'course__video__image',
             'course__additional_metadata',
             'language',
