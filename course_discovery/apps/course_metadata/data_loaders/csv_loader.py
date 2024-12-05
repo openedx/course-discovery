@@ -177,7 +177,7 @@ class CSVDataLoader(AbstractDataLoader):
             )
             is_future_variant = row.get('is_future_variant') == 'True'
 
-            if not is_course_already_ingested or course:
+            if course:
                 try:
                     logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                     course_run, is_course_run_created = self._get_or_create_course_run(
