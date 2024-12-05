@@ -77,6 +77,11 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         course_run.enrollment_count = course_run_count
         course_run.recent_enrollment_count = course_run_recent_count
         course_run.save(update_fields=['enrollment_count', 'recent_enrollment_count'], suppress_publication=True)
+        draft_run = course_run.draft_version
+        if draft_run:
+            draft_run.enrollment_count = course_run_count
+            draft_run.recent_enrollment_count = course_run_recent_count
+            draft_run.save(update_fields=['enrollment_count', 'recent_enrollment_count'], suppress_publication=True)
 
         # Add course run total to course total in dictionary
         if course.uuid in self.course_dictionary:
@@ -92,7 +97,11 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         course.enrollment_count = count
         course.recent_enrollment_count = recent_count
         course.save(update_fields=['enrollment_count', 'recent_enrollment_count'])
-
+        draft_course = course.draft_version
+        if draft_course:
+            draft_course.enrollment_count = count
+            draft_course.recent_enrollment_count = recent_count
+            draft_course.save(update_fields=['enrollment_count', 'recent_enrollment_count'])
         # Add course count to program dictionary for all programs
         for program in course.programs.all():
             # add course total to program total in dictionary
