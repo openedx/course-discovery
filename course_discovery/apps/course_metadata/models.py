@@ -2972,11 +2972,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     @property
     def is_marketable_external(self):
         """
-        Determines if the course_run is suitable for marketing.
+        Determines if the course_run is suitable for external marketing.
 
         If already marketable, simply return self.is_marketable.
-        
-        Else, a course run is deemed suitable for marketing if it is an
+
+        Else, a course run is deemed suitable for external marketing if it is an
         executive education (EE) course, the discovery service status is
         'Reviewed', and the course start date is in the future.
 

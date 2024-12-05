@@ -961,7 +961,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course', 'type').prefetch_related(
+        return queryset.select_related('course', 'type', 'course__type').prefetch_related(
             '_official_version',
             'course__partner',
             'restricted_run',
