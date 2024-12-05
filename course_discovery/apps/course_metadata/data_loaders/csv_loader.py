@@ -167,7 +167,7 @@ class CSVDataLoader(AbstractDataLoader):
 
             course_key = self.get_course_key(org_key, row['number'])
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
-            is_course_already_ingested = course.uuid in self.course_uuids
+            is_course_already_ingested = bool(course) and course.uuid in self.course_uuids
             is_course_created = False
             is_course_run_created = False
             course_run_restriction = (
