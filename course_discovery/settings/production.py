@@ -24,6 +24,8 @@ LOGGING['handlers']['local']['level'] = 'INFO'
 # the values read from disk should UPDATE the pre-configured dicts.
 DICT_UPDATE_KEYS = ('JWT_AUTH',)
 
+LOGGING_FORMAT_STRING = ''
+
 # This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 

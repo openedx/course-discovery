@@ -25,8 +25,8 @@ def get_docker_logger_config():
         'disable_existing_loggers': False,
         'formatters': {
             'standard': {
-                'format': '%(asctime)s %(levelname)s %(process)d '
-                          '[%(name)s] %(filename)s:%(lineno)d - %(message)s',
+                'format': LOGGING_FORMAT_STRING  or '%(asctime)s %(levelname)s %(process)d '
+                                                    '[%(name)s] %(filename)s:%(lineno)d - %(message)s'
             },
             'syslog_format': {'format': syslog_format},
             'raw': {'format': '%(message)s'},
