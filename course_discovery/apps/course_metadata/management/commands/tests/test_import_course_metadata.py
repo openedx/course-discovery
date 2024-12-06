@@ -18,7 +18,8 @@ from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVL
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CSVDataLoaderConfigurationFactory
 from course_discovery.apps.course_metadata.toggles import (
-    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED,
+    IS_COURSE_RUN_VARIANT_ID_EDITABLE
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.import_course_metadata'
@@ -39,9 +40,41 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         csv_file_content = ','.join(list(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)) + '\n'
         csv_file_content += ','.join(f'"{key}"' for key in list(
-            mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT.values()))
+            mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT.values())) + '\n'
         self.csv_file = SimpleUploadedFile(
             name='test.csv',
+            content=csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        mocked_data = mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT
+        mocked_data.update(
+            {
+                "publish_date": "01/26/2022",
+                "start_date": "01/25/2022",
+                "start_time": "00:00",
+                "end_date": "02/25/2055",
+                "end_time": "00:00",
+                "reg_close_date": "01/25/2055",
+                "reg_close_time": "00:00",
+                "course_pacing": "self-paced",
+                "course_run_enrollment_track": "Paid Executive Education",
+                "staff": "staff_1,staff_2",
+                "minimum_effort": "4",
+                "maximum_effort": "10",
+                "length": "10",
+                "content_language": "English - United States",
+                "transcript_language": "English - Great Britain",
+                "expected_program_type": "professional-certificate",
+                "expected_program_name": "New Program for all",
+                "upgrade_deadline_override_date": "01/25/2024",
+                "upgrade_deadline_override_time": "00:00",
+                'variant_id': "00000000-0000-0000-0000-000000000011",
+            }
+        )
+        csv_file_content += ','.join(f'"{key}"' for key in list(
+            mocked_data.values()))
+        self.csv_file_1 = SimpleUploadedFile(
+            name='test1.csv',
             content=csv_file_content.encode('utf-8'),
             content_type='text/csv'
         )
@@ -170,6 +203,51 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                         self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
                         email_patch.assert_called_once()
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
+    def test_success_flow_2(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
+        self.mock_ecommerce_publication(self.partner)
+        _, image_content = self.mock_image_response()
+
+        _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file_1)
+
+        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+                with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED, active=True):
+                    with LogCapture(LOGGER_PATH) as log_capture:
+                        with mock.patch.object(
+                                CSVDataLoader,
+                                '_call_course_api',
+                                self.mock_call_course_api
+                        ):
+                            call_command(
+                                'import_course_metadata',
+                                '--partner_code', self.partner.short_code,
+                                '--product_type', 'EXECUTIVE_EDUCATION',
+                                '--product_source', self.source.slug,
+                            )
+                            log_capture.check_present(
+                                (
+                                    LOGGER_PATH,
+                                    'INFO',
+                                    'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
+                                )
+                            )
+                            log_capture.check_present(
+                                (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
+                            )
+
+                            assert Course.everything.count() == 2
+                            assert CourseRun.everything.count() == 4
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
