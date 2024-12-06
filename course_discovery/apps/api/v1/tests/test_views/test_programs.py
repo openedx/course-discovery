@@ -217,7 +217,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
 
-        self.assert_list_results(self.list_path, expected, 26)
+        self.assert_list_results(self.list_path, expected, 27)
 
     @pytest.mark.parametrize("include_restriction_param", [True, False])
     def test_list_restricted_runs(self, include_restriction_param):
@@ -393,13 +393,13 @@ class TestProgramViewSet(SerializationMixin):
         program.marketing_slug = SLUG
         program.save()
 
-        self.assert_list_results(url, [program], 24)
+        self.assert_list_results(url, [program], 25)
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = self.list_path + '?exclude_utm=1'
         program = self.create_program()
-        self.assert_list_results(url, [program], 23, extra_context={'exclude_utm': 1})
+        self.assert_list_results(url, [program], 24, extra_context={'exclude_utm': 1})
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
