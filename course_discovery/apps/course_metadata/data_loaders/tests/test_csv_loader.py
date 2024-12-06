@@ -148,6 +148,30 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 )
                 assert Course.objects.count() == 0
                 assert CourseRun.objects.count() == 0
+    
+    def test_update_course_method_throwing_exception(self, exception):
+        """
+        Verify that the loader logs an error when the update_course method throws an exception.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_studio_calls(self.partner)
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_update_course',
+                            side_effect=exception
+                    ):
+                        loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                        loader.ingest()
+                        self._assert_default_logs(log_capture)
 
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument
