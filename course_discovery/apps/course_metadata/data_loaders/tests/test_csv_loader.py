@@ -148,7 +148,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 )
                 assert Course.objects.count() == 0
                 assert CourseRun.objects.count() == 0
-    
+
     def test_update_course_method_throwing_exception(self, exception):
         """
         Verify that the loader logs an error when the update_course method throws an exception.
