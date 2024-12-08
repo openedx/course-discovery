@@ -252,6 +252,9 @@ class CSVDataLoader(AbstractDataLoader):
                         logger.error(error_message)
                         self._register_ingestion_error(CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, error_message)
 
+            else:
+                self._update_course_entitlement_price(data=row, course_uuid=course.uuid, course_type=course_type)
+
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
                 try:
@@ -682,6 +685,29 @@ class CSVDataLoader(AbstractDataLoader):
         response = self._call_course_api('POST', url, request_data)
         if response.status_code not in (200, 201):
             logger.info("Course creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        return response.json()
+
+    def _update_course_entitlement_price(self, data, course_uuid, course_type):
+        """
+        Update the course entitlement price through course api.
+        """
+        course_api_url = reverse('api:v1:course-detail', kwargs={'key': course_uuid})
+        url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}"
+        pricing = (
+            self.get_pricing_representation(data['verified_price'], course_type)
+            if data.get('restriction_type', 'None') != CourseRunRestrictionType.CustomB2BEnterprise.value else {}
+        )
+
+        request_data = {
+            'org': data['organization'],
+            'title': data['title'],
+            'number': data['number'],
+            'prices': pricing,
+        }
+        response = self._call_course_api('PATCH', url, request_data)
+        if response.status_code not in (200, 201):
+            logger.info("Course creation response: {}".format(response.content))
+            logger.info("Course Price has been updated to {}".format(pricing))
         return response.json()
 
     def _create_course_run(self, data, course, course_type, course_run_type_uuid, rerun=None):

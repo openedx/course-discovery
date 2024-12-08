@@ -206,51 +206,6 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
-    def test_success_flow_2(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
-        """
-        Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
-        """
-        self._setup_prerequisites(self.partner)
-        self.mock_studio_calls(self.partner)
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
-        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
-        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
-        self.mock_ecommerce_publication(self.partner)
-        _, image_content = self.mock_image_response()
-
-        _ = CSVDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file_1)
-
-        with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
-            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
-                with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED, active=True):
-                    with LogCapture(LOGGER_PATH) as log_capture:
-                        with mock.patch.object(
-                                CSVDataLoader,
-                                '_call_course_api',
-                                self.mock_call_course_api
-                        ):
-                            call_command(
-                                'import_course_metadata',
-                                '--partner_code', self.partner.short_code,
-                                '--product_type', 'EXECUTIVE_EDUCATION',
-                                '--product_source', self.source.slug,
-                            )
-                            log_capture.check_present(
-                                (
-                                    LOGGER_PATH,
-                                    'INFO',
-                                    'Starting CSV loader import flow for partner {}'.format(self.partner.short_code)
-                                )
-                            )
-                            log_capture.check_present(
-                                (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
-                            )
-
-                            assert Course.everything.count() == 2
-                            assert CourseRun.everything.count() == 4
-
-    @responses.activate
-    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
     def test_exec_ed_slug__disabled_switch(self, _email_patch, _jwt_decode_patch):
         """
         Verify that if IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED switch is disable url slug will not follow

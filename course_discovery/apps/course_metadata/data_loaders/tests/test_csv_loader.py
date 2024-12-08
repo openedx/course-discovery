@@ -1,10 +1,13 @@
 """
 Unit tests for CSV Data loader.
 """
+import copy
 import datetime
 from decimal import Decimal
 from tempfile import NamedTemporaryFile
 from unittest import mock
+from unittest.mock import patch
+from course_discovery.apps.course_metadata.tests.factories import CSVDataLoaderConfigurationFactory
 
 import responses
 from ddt import data, ddt, unpack
@@ -598,6 +601,78 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'archived_products': [],
                             'errors': loader.error_logs
                         }
+
+    @responses.activate
+    def test_success_flow_course_with_multiple_variants(self, jwt_decode_patch):
+        """
+        Verify that the loader correctly ingests multiple variants of a course.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
+        self.mock_ecommerce_publication(self.partner)
+        _, image_content = self.mock_image_response()
+        
+        course = CourseFactory(
+            key=self.COURSE_KEY,
+            partner=self.partner,
+            type=self.course_type,
+            draft=True,
+            key_for_reruns=''
+        )
+
+        CourseRunFactory(
+            course=course,
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
+            end=datetime.datetime(2040, 3, 1, tzinfo=UTC),
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+        )
+
+        mocked_data = copy.deepcopy(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)
+        mocked_data.update(
+            {
+                "publish_date": "01/26/2022",
+                "start_date": "01/25/2022",
+                "start_time": "00:00",
+                "end_date": "02/25/2055",
+                "end_time": "00:00",
+                "reg_close_date": "01/25/2055",
+                "reg_close_time": "00:00",
+                "course_pacing": "self-paced",
+                "course_run_enrollment_track": "Paid Executive Education",
+                "staff": "staff_1,staff_2",
+                "minimum_effort": "4",
+                "maximum_effort": "10",
+                "length": "10",
+                "content_language": "English - United States",
+                "transcript_language": "English - Great Britain",
+                "expected_program_type": "professional-certificate",
+                "expected_program_name": "New Program for all",
+                "upgrade_deadline_override_date": "01/25/2024",
+                "upgrade_deadline_override_time": "00:00",
+                'variant_id': "00000000-0000-0000-0000-000000000011",
+            }
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, mocked_data])
+            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+                with LogCapture(LOGGER_PATH) as log_capture:
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_call_course_api',
+                            self.mock_call_course_api
+                    ):
+                        loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                        loader.ingest()
+
+                assert Course.everything.count() == 2
+                assert CourseRun.everything.count() == 4
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument
