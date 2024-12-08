@@ -328,6 +328,7 @@ PLATFORM_NAME = 'Your Platform Name Here'
 # Set up logging for development use (logging to stdout)
 level = 'DEBUG' if DEBUG else 'INFO'
 hostname = platform.node().split(".")[0]
+LOGGING_FORMAT_STRING = ''
 
 # Use a different address for Mac OS X
 syslog_address = '/var/run/syslog' if platform.system().lower() == 'darwin' else '/dev/log'
