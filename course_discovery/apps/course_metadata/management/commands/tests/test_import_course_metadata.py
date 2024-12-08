@@ -18,8 +18,7 @@ from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVL
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CSVDataLoaderConfigurationFactory
 from course_discovery.apps.course_metadata.toggles import (
-    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED,
-    IS_COURSE_RUN_VARIANT_ID_EDITABLE
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.import_course_metadata'
@@ -40,41 +39,9 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         csv_file_content = ','.join(list(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)) + '\n'
         csv_file_content += ','.join(f'"{key}"' for key in list(
-            mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT.values())) + '\n'
+            mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT.values()))
         self.csv_file = SimpleUploadedFile(
             name='test.csv',
-            content=csv_file_content.encode('utf-8'),
-            content_type='text/csv'
-        )
-        mocked_data = mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT
-        mocked_data.update(
-            {
-                "publish_date": "01/26/2022",
-                "start_date": "01/25/2022",
-                "start_time": "00:00",
-                "end_date": "02/25/2055",
-                "end_time": "00:00",
-                "reg_close_date": "01/25/2055",
-                "reg_close_time": "00:00",
-                "course_pacing": "self-paced",
-                "course_run_enrollment_track": "Paid Executive Education",
-                "staff": "staff_1,staff_2",
-                "minimum_effort": "4",
-                "maximum_effort": "10",
-                "length": "10",
-                "content_language": "English - United States",
-                "transcript_language": "English - Great Britain",
-                "expected_program_type": "professional-certificate",
-                "expected_program_name": "New Program for all",
-                "upgrade_deadline_override_date": "01/25/2024",
-                "upgrade_deadline_override_time": "00:00",
-                'variant_id': "00000000-0000-0000-0000-000000000011",
-            }
-        )
-        csv_file_content += ','.join(f'"{key}"' for key in list(
-            mocked_data.values()))
-        self.csv_file_1 = SimpleUploadedFile(
-            name='test1.csv',
             content=csv_file_content.encode('utf-8'),
             content_type='text/csv'
         )
