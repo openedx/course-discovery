@@ -16,6 +16,7 @@ metadata:
     # names that might be interested in changes to the architecture of this
     # component.
     openedx.org/arch-interest-groups: ""
+    openedx.org/release: "master" 
 spec:
   owner: group:course-discovery-admins
   type: 'service'
