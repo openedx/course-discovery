@@ -6,7 +6,7 @@
 #
 aiohappyeyeballs==2.4.4
     # via aiohttp
-aiohttp==3.11.9
+aiohttp==3.11.10
     # via openai
 aiosignal==1.3.1
     # via aiohttp
@@ -41,9 +41,9 @@ beautifulsoup4==4.12.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.35.71
+boto3==1.35.76
     # via django-ses
-botocore==1.35.71
+botocore==1.35.76
     # via
     #   boto3
     #   s3transfer
@@ -107,7 +107,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.16
+django==4.2.17
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -288,7 +288,7 @@ edx-api-doc-tools==2.0.0
     # via -r requirements/base.in
 edx-auth-backends==4.4.0
     # via -r requirements/base.in
-edx-ccx-keys==1.3.0
+edx-ccx-keys==2.0.2
     # via
     #   -r requirements/base.in
     #   openedx-events
@@ -296,7 +296,7 @@ edx-django-release-util==1.4.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.2.0
     # via -r requirements/base.in
-edx-django-utils==7.0.1
+edx-django-utils==7.1.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -473,7 +473,7 @@ propcache==0.2.1
     #   yarl
 proto-plus==1.25.0
     # via google-api-core
-protobuf==5.29.0
+protobuf==5.29.1
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -544,7 +544,7 @@ pyyaml==6.0.2
     #   edx-django-release-util
 rcssmin==1.1.2
     # via django-compressor
-redis==5.2.0
+redis==5.2.1
     # via
     #   -r requirements/base.in
     #   walrus
@@ -586,7 +586,7 @@ semantic-version==2.10.0
     # via edx-drf-extensions
 simple-salesforce==1.12.6
     # via -r requirements/base.in
-six==1.16.0
+six==1.17.0
     # via
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
@@ -595,7 +595,7 @@ six==1.16.0
     #   edx-django-release-util
     #   elasticsearch-dsl
     #   python-dateutil
-snowflake-connector-python==3.12.3
+snowflake-connector-python==3.12.4
     # via -r requirements/base.in
 social-auth-app-django==5.4.2
     # via

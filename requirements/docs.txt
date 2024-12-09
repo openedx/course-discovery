@@ -58,7 +58,7 @@ python-dateutil==2.9.0.post0
     # via elasticsearch-dsl
 requests==2.32.3
     # via sphinx
-six==1.16.0
+six==1.17.0
     # via
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
