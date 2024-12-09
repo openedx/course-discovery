@@ -268,7 +268,8 @@ class CSVDataLoader(AbstractDataLoader):
 
             course_run.refresh_from_db()
 
-            if course_run.status in [CourseRunStatus.Unpublished, CourseRunStatus.LegalReview]:
+            if course_run.status in [CourseRunStatus.Unpublished, CourseRunStatus.LegalReview,
+                                     CourseRunStatus.InternalReview]:
                 if course_run.status == CourseRunStatus.Unpublished:
                     # Pushing the run into LegalReview is necessary to ensure that the
                     # url slug is correctly generated in subdirectory format
