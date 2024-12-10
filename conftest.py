@@ -22,17 +22,20 @@ TTC = ['course_discovery/apps/course_metadata/management/commands/tests/test_ref
        'RefreshCourseMetadataCommandTests',
        'course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests']
 
-# Recent versions of pytest-xdist change the order of test execution such that TransactionTestCases may
-# be run before TestCases. Since TransactionTestCase based tests do not restore the data created
-# in data migrations during cleanup, this can cause TestCases which rely on that data to fail.
-# pytest-xdist has an open issue for this regression at `https://github.com/pytest-dev/pytest-xdist/issues/1083`
 
-# We extend the LoadScopeScheduling class used by pytest-xdist to push the TransactionTestCases (in our test suites)
-# to the end of the workqueue. This ensures the proper ordering of TransactionTestCases
 class LoadScopeSchedulingDjangoOrdered(LoadScopeScheduling):
+    # pylint: disable=abstract-method
+
+    # Recent versions of pytest-xdist change the order of test execution such that TransactionTestCases may
+    # be run before TestCases. Since TransactionTestCase based tests do not restore the data created
+    # in data migrations during cleanup, this can cause TestCases which rely on that data to fail.
+    # pytest-xdist has an open issue for this regression at `https://github.com/pytest-dev/pytest-xdist/issues/1083`
+
+    # We extend the LoadScopeScheduling class used by pytest-xdist to push the TransactionTestCases (in our test suites)
+    # to the end of the workqueue. This ensures the proper ordering of TransactionTestCases
     def _assign_work_unit(self, node) -> None:
         if not hasattr(self, 'django_ordered'):
-            self.django_ordered = True
+            self.django_ordered = True # pylint: disable=attribute-defined-outside-init
             for test_class in TTC:
                 if test_class in self.workqueue:
                     self.workqueue.move_to_end(test_class)
