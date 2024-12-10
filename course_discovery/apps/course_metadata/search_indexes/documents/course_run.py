@@ -148,6 +148,7 @@ class CourseRunDocument(BaseCourseDocument):
         return filter_visible_runs(
             super().get_queryset()
                    .select_related('course')
+                   .select_related('course__type')
                    .prefetch_related('seats__type')
                    .prefetch_related('transcript_languages')
         )

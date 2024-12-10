@@ -207,10 +207,10 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 22),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 23),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 22),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,

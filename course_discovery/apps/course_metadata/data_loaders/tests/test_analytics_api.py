@@ -8,6 +8,7 @@ from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
 
 class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
@@ -48,18 +49,20 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
         program = ProgramFactory()
         program.courses.set(courses.values())
 
-    @responses.activate
-    def test_ingest(self):
-        self._define_course_metadata()
-
+    def _mock_course_summaries(self, data):
         url = f'{self.api_url}course_summaries/'
         responses.add(
             method=responses.GET,
             url=url,
-            body=json.dumps(self.mocked_data),
+            body=json.dumps(data),
             match_querystring=False,
             content_type=JSON
         )
+
+    @responses.activate
+    def test_ingest(self):
+        self._define_course_metadata()
+        self._mock_course_summaries(self.mocked_data)
         self.loader.ingest()
 
         # For runs, let's just confirm that enrollment counts were recorded and add up counts for courses
@@ -92,3 +95,21 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
         programs = Program.objects.all()
         assert programs[0].enrollment_count == expected_program_enrollment_count
         assert programs[0].recent_enrollment_count == expected_program_recent_enrollment_count
+
+    @responses.activate
+    def test_draft_versions_updated(self):
+        course = CourseFactory(key='OrgX+CS100')
+        course_run = CourseRunFactory(key='course-v1:OrgX+CS100+Y', course=course)
+        ensure_draft_world(course_run)
+
+        analytics_api_response = [{
+            'course_id': 'course-v1:OrgX+CS100+Y',
+            'count': '528',
+            'recent_count_change': '87'
+        }]
+        self._mock_course_summaries(analytics_api_response)
+        self.loader.ingest()
+
+        for obj in [Course.objects.first(), CourseRun.objects.first()]:
+            assert obj.draft_version.enrollment_count == 528
+            assert obj.draft_version.recent_enrollment_count == 87

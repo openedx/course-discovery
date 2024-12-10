@@ -1168,7 +1168,7 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('course').prefetch_related(
+        return queryset.select_related('course', 'course__type').prefetch_related(
             Prefetch('course__programs', queryset=(
                 Program.objects.select_related('type', 'partner').prefetch_related('excluded_course_runs', 'courses')
             ))

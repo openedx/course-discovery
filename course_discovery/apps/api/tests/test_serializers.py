@@ -708,11 +708,16 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         has_future_start_date, expected_is_marketable_external
     ):
         course_type_instance = CourseTypeFactory(slug=course_type)
+        current_time = datetime.datetime.now(tz=UTC)
+        start_date = current_time + datetime.timedelta(
+            days=10) if has_future_start_date else current_time - datetime.timedelta(days=10)
+        go_live_date = current_time + datetime.timedelta(days=5)  # Assuming go_live_date is 5 days in the future
+
         course_run = CourseRunFactory(
             course=CourseFactory(type=course_type_instance),
             status=status,
-            start=datetime.datetime.now(tz=UTC) + datetime.timedelta(
-                days=10) if has_future_start_date else datetime.datetime.now(tz=UTC) - datetime.timedelta(days=10)
+            start=start_date,
+            go_live_date=go_live_date
         )
         seat = SeatFactory(course_run=course_run, type=SeatTypeFactory.verified())
         course_run.seats.set([seat])

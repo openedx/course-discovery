@@ -2978,14 +2978,16 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         Else, a course run is deemed suitable for external marketing if it is an
         executive education (EE) course, the discovery service status is
-        'Reviewed', and the course start date is in the future.
-
+        'Reviewed', and the course go_live_date & start_date is in the future.
         """
         if self.is_marketable:
             return self.is_marketable
         is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
         if is_exec_ed_course:
-            return self.status == CourseRunStatus.Reviewed and self.is_upcoming()
+            current_time = datetime.datetime.now(pytz.UTC)
+            is_reviewed = self.status == CourseRunStatus.Reviewed
+            has_future_go_live_date = self.go_live_date and self.go_live_date > current_time
+            return is_reviewed and self.is_upcoming() and has_future_go_live_date
         return False
 
     @property
