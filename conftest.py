@@ -22,7 +22,7 @@ TTC = ['course_discovery/apps/course_metadata/management/commands/tests/test_ref
        'RefreshCourseMetadataCommandTests',
        'course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests']
 
-# Recent versions of pytest-xdist change the order of test execution such that TransactionTestCases may 
+# Recent versions of pytest-xdist change the order of test execution such that TransactionTestCases may
 # be run before TestCases. Since TransactionTestCase based tests do not restore the data created
 # in data migrations during cleanup, this can cause TestCases which rely on that data to fail.
 # pytest-xdist has an open issue for this regression at `https://github.com/pytest-dev/pytest-xdist/issues/1083`
@@ -132,5 +132,6 @@ def clear_es_indexes():
     for index_name in settings.ELASTICSEARCH_INDEX_NAMES.values():
         conn.indices.delete(index=index_name + '_*')
 
+
 def pytest_xdist_make_scheduler(config, log):
-  return LoadScopeSchedulingDjangoOrdered(config, log)
+    return LoadScopeSchedulingDjangoOrdered(config, log)
