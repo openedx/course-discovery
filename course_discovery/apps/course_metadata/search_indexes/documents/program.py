@@ -77,6 +77,9 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)
 
+    def prepare_aggregation_uuid(self, obj):
+        return 'program:{}'.format(obj.uuid)
+
     def prepare_credit_backing_organizations(self, obj):
         return self._prepare_organizations(obj.credit_backing_organizations.all())
 

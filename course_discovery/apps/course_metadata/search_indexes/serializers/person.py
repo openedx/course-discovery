@@ -6,7 +6,7 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import B
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import PersonDocument
-from .common import DocumentDSLSerializerMixin
+from .common import DocumentDSLSerializerMixin, SortFieldMixin
 
 __all__ = ('PersonSearchDocumentSerializer',)
 
@@ -39,6 +39,12 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
             'organizations',
             'partner'
         )
+
+
+class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSerializer):
+    class Meta(PersonSearchDocumentSerializer.Meta):
+        document = PersonDocument
+        fields = PersonSearchDocumentSerializer.Meta.fields
 
 
 # pylint: disable=abstract-method

@@ -43,6 +43,9 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     def prepare_aggregation_key(self, obj):
         return 'learnerpathway:{}'.format(obj.uuid)
 
+    def prepare_aggregation_uuid(self, obj):
+        return 'learnerpathway:{}'.format(obj.uuid)
+
     def prepare_published(self, obj):
         return obj.status == PathwayStatus.Active
 
