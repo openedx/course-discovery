@@ -35,7 +35,7 @@ class LoadScopeSchedulingDjangoOrdered(LoadScopeScheduling):
     # to the end of the workqueue. This ensures the proper ordering of TransactionTestCases
     def _assign_work_unit(self, node) -> None:
         if not hasattr(self, 'django_ordered'):
-            self.django_ordered = True # pylint: disable=attribute-defined-outside-init
+            self.django_ordered = True  # pylint: disable=attribute-defined-outside-init
             for test_class in TTC:
                 if test_class in self.workqueue:
                     self.workqueue.move_to_end(test_class)
