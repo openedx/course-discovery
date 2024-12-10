@@ -724,8 +724,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
 
     @responses.activate
-    def test_ingest_flow_for_preexisting_course_having_run_in_legal_review_status(
-        self, jwt_decode_patch
+    @data(CourseRunStatus.LegalReview, CourseRunStatus.InternalReview)
+    def test_ingest_flow_for_preexisting_course_having_run_in_review_statuses(
+        self, status, jwt_decode_patch
     ):  # pylint: disable=unused-argument
         """
         Verify that the course run will be reviewed if csv loader updates data for a course having a run in legal
@@ -744,7 +745,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             course=course,
             key=self.COURSE_RUN_KEY,
             type=self.course_run_type,
-            status=CourseRunStatus.LegalReview,
+            status=status,
             go_live_date=datetime.datetime.now(UTC) - datetime.timedelta(days=5),
             draft=True,
             fixed_price_usd=111.11
