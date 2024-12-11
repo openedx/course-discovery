@@ -42,7 +42,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview, CourseType
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -55,14 +55,14 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
     CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
-    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeCostFactory,
-    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramSubscriptionFactory,
-    ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
-    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CourseTypeFactory,
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
+    DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory,
+    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
+    SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -636,6 +636,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'external_key': course_run.external_key,
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
+            'is_marketable_external': course_run.is_marketable_external,
             'availability': course_run.availability,
             'variant_id': str(course_run.variant_id),
             'fixed_price_usd': str(course_run.fixed_price_usd),
@@ -647,6 +648,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
         }
 
 
+@ddt.ddt
 class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
 
     def test_data(self):
@@ -655,6 +657,73 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
         assert serializer.data == expected
+
+    @ddt.data(
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.Reviewed,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': True
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.LegalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.Unpublished,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.PROFESSIONAL,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.VERIFIED_AUDIT,
+            'status': CourseRunStatus.Published,
+            'is_marketable': True,
+            'has_future_start_date': False,
+            'expected_is_marketable_external': True
+        },
+    )
+    @ddt.unpack
+    def test_is_marketable_external(
+        self, course_type, status, is_marketable,
+        has_future_start_date, expected_is_marketable_external
+    ):
+        course_type_instance = CourseTypeFactory(slug=course_type)
+        current_time = datetime.datetime.now(tz=UTC)
+        start_date = current_time + datetime.timedelta(
+            days=10) if has_future_start_date else current_time - datetime.timedelta(days=10)
+        go_live_date = current_time + datetime.timedelta(days=5)  # Assuming go_live_date is 5 days in the future
+
+        course_run = CourseRunFactory(
+            course=CourseFactory(type=course_type_instance),
+            status=status,
+            start=start_date,
+            go_live_date=go_live_date
+        )
+        seat = SeatFactory(course_run=course_run, type=SeatTypeFactory.verified())
+        course_run.seats.set([seat])
+
+        assert course_run.is_marketable == is_marketable
+        assert course_run.is_marketable_external == expected_is_marketable_external
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
