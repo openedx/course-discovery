@@ -1,3 +1,5 @@
+"""API v2 Search"""
+
 from course_discovery.apps.api.v1.views.search import AggregateSearchViewSet as AggregateSearchViewSetV1
 from course_discovery.apps.course_metadata.search_indexes import serializers as search_indexes_serializers
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import SearchAfterSearch
@@ -6,7 +8,11 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import Sear
 
 class AggregateSearchViewSet(AggregateSearchViewSetV1):
     """
-    Search all elasticsearch documents using search_after pagination.
+    Viewset for searching Elasticsearch documents using search_after pagination.
+
+    This viewset extends the functionality of the original AggregateSearchViewSet
+    by implementing search_after pagination, which allows for efficient pagination 
+    through large datasets in Elasticsearch.
     """
 
     serializer_class = search_indexes_serializers.AggregateSearchSerializerV2

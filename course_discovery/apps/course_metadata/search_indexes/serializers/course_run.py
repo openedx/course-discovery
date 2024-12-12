@@ -96,6 +96,15 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
 
 
 class CourseRunSearchDocumentSerializerV2(SortFieldMixin, CourseRunSearchDocumentSerializer):
+    """
+    Serializer for Course Run documents, extending the base `CourseRunSearchDocumentSerializer`
+    to include additional fields for enhanced search functionality, as well as a `sort` field
+    to provide sorting information from the Elasticsearch response.
+
+    This serializer expands the `fields` attribute in the `Meta` class to include additional
+    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
+    """
+
     class Meta(CourseRunSearchDocumentSerializer.Meta):
         document = CourseRunDocument
         fields = CourseRunSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2

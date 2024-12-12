@@ -41,6 +41,15 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
 
 
 class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSerializer):
+    """
+    Serializer for Person documents, extending the base `PersonSearchDocumentSerializer`
+    to include additional fields for enhanced search functionality, as well as a `sort` field
+    to provide sorting information from the Elasticsearch response.
+
+    This serializer expands the `fields` attribute in the `Meta` class to include additional
+    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
+    """
+
     class Meta(PersonSearchDocumentSerializer.Meta):
         document = PersonDocument
         fields = PersonSearchDocumentSerializer.Meta.fields

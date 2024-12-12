@@ -82,6 +82,15 @@ class LearnerPathwaySearchDocumentSerializer(
 
 
 class LearnerPathwaySearchDocumentSerializerV2(SortFieldMixin, LearnerPathwaySearchDocumentSerializer):
+    """
+    Serializer for Learner Pathway documents, extending the base `LearnerPathwaySearchDocumentSerializer`
+    to include additional fields for enhanced search functionality, as well as a `sort` field
+    to provide sorting information from the Elasticsearch response.
+
+    This serializer expands the `fields` attribute in the `Meta` class to include additional
+    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
+    """
+
     class Meta(LearnerPathwaySearchDocumentSerializer.Meta):
         document = LearnerPathwayDocument
         fields = LearnerPathwaySearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2

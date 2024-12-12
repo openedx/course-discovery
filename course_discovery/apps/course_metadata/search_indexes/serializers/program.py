@@ -69,6 +69,15 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
 
 
 class ProgramSearchDocumentSerializerV2(SortFieldMixin, ProgramSearchDocumentSerializer):
+    """
+    Serializer for Program documents, extending the base `ProgramSearchDocumentSerializer`
+    to include additional fields for enhanced search functionality, as well as a `sort` field
+    to provide sorting information from the Elasticsearch response.
+
+    This serializer expands the `fields` attribute in the `Meta` class to include additional
+    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
+    """
+
     class Meta(ProgramSearchDocumentSerializer.Meta):
         document = ProgramDocument
         fields = ProgramSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2

@@ -116,6 +116,13 @@ class AggregateSearchListSerializer(MultiDocumentSerializerMixin, ListSerializer
 
 
 class AggregateSearchListSerializerV2(AggregateSearchListSerializer):
+    """
+    Extended version of the AggregateSearchListSerializer with updated serializers that support search_after pagination.
+
+    This subclass allows for the use of newer serializer versions for the same document types,
+    which include additional search index fields specifically for version 2.
+    """
+
     class Meta(AggregateSearchListSerializer.Meta):
         """
         Meta options.

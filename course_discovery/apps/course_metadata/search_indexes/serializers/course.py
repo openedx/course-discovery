@@ -221,6 +221,15 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
 
 
 class CourseSearchDocumentSerializerV2(SortFieldMixin, CourseSearchDocumentSerializer):
+    """
+    Serializer for Course documents, extending the base `CourseSearchDocumentSerializer`
+    to include additional fields for enhanced search functionality, as well as a `sort` field
+    to provide sorting information from the Elasticsearch response.
+
+    This serializer expands the `fields` attribute in the `Meta` class to include additional
+    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
+    """
+
     class Meta(CourseSearchDocumentSerializer.Meta):
         document = CourseDocument
         fields = CourseSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
