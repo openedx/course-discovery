@@ -1,23 +1,18 @@
 from course_discovery.apps.course_metadata.search_indexes import documents
 from course_discovery.apps.course_metadata.search_indexes.constants import SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument,
-    CourseRunDocument,
-    LearnerPathwayDocument,
-    PersonDocument,
-    ProgramDocument,
+    CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers.aggregation import (
-    AggregateSearchListSerializer,
-    AggregateSearchSerializer,
+    AggregateSearchListSerializer, AggregateSearchSerializer
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers.common import SortFieldMixin
 from course_discovery.apps.course_metadata.search_indexes.serializers.course import CourseSearchDocumentSerializer
 from course_discovery.apps.course_metadata.search_indexes.serializers.course_run import (
-    CourseRunSearchDocumentSerializer,
+    CourseRunSearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers.learner_pathway import (
-    LearnerPathwaySearchDocumentSerializer,
+    LearnerPathwaySearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers.person import PersonSearchDocumentSerializer
 from course_discovery.apps.course_metadata.search_indexes.serializers.program import ProgramSearchDocumentSerializer

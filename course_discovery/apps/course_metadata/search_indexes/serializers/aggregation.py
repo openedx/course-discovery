@@ -5,9 +5,7 @@ from rest_framework.serializers import ListSerializer
 from course_discovery.apps.api.serializers import COMMON_IGNORED_FIELDS
 from course_discovery.apps.course_metadata.search_indexes import documents
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
-    BaseDjangoESDSLFacetSerializer,
-    DummyDocument,
-    MultiDocumentSerializerMixin,
+    BaseDjangoESDSLFacetSerializer, DummyDocument, MultiDocumentSerializerMixin
 )
 
 from .course import CourseSearchDocumentSerializer, CourseSearchModelSerializer
@@ -124,5 +122,3 @@ class AggregateSearchSerializer(DocumentSerializer):
         list_serializer_class = AggregateSearchListSerializer
         document = DummyDocument
         ignore_fields = COMMON_IGNORED_FIELDS
-
-
