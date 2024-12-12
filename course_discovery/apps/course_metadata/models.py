@@ -2970,6 +2970,27 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
     @property
+    def is_marketable_external(self):
+        """
+        Determines if the course_run is suitable for external marketing.
+
+        If already marketable, simply return self.is_marketable.
+
+        Else, a course run is deemed suitable for external marketing if it is an
+        executive education (EE) course, the discovery service status is
+        'Reviewed', and the course go_live_date & start_date is in the future.
+        """
+        if self.is_marketable:
+            return self.is_marketable
+        is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        if is_exec_ed_course:
+            current_time = datetime.datetime.now(pytz.UTC)
+            is_reviewed = self.status == CourseRunStatus.Reviewed
+            has_future_go_live_date = self.go_live_date and self.go_live_date > current_time
+            return is_reviewed and self.is_upcoming() and has_future_go_live_date
+        return False
+
+    @property
     def is_active(self):
         """
         Returns True if the course run is active, meaning it is both enrollable, marketable and has not ended.

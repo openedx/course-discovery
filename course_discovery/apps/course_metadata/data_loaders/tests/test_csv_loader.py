@@ -14,7 +14,9 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.choices import ExternalCourseMarketingType, ExternalProductStatus
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus
+)
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
@@ -720,6 +722,71 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         course_run,
                         {**self.BASE_EXPECTED_COURSE_RUN_DATA, "fixed_price_usd": Decimal('111.11')}
                     )
+
+    @responses.activate
+    @data(CourseRunStatus.LegalReview, CourseRunStatus.InternalReview)
+    def test_ingest_flow_for_preexisting_course_having_run_in_review_statuses(
+        self, status, jwt_decode_patch
+    ):  # pylint: disable=unused-argument
+        """
+        Verify that the course run will be reviewed if csv loader updates data for a course having a run in legal
+        review status.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        course = CourseFactory(
+            key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True,
+            additional_metadata=AdditionalMetadataFactory(taxi_form=None)
+        )
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status=status,
+            go_live_date=datetime.datetime.now(UTC) - datetime.timedelta(days=5),
+            draft=True,
+            fixed_price_usd=111.11
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [{
+                **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            }])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                    loader.ingest()
+
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course edx+csv_123 is located in the database.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
+                        )
+                    )
+
+                    # Verify the existence of draft and non-draft
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
+
+                course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner, draft=True)
+                course_run = CourseRun.everything.get(course=course, draft=True)
+
+                self._assert_course_data(course, {**self.BASE_EXPECTED_COURSE_DATA})
+                assert course_run.status == CourseRunStatus.Published
 
     @responses.activate
     def test_active_slug(self, jwt_decode_patch):  # pylint: disable=unused-argument

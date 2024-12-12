@@ -961,7 +961,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course', 'type').prefetch_related(
+        return queryset.select_related('course', 'type', 'course__type').prefetch_related(
             '_official_version',
             'course__partner',
             'restricted_run',
@@ -973,7 +973,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         fields = ('key', 'uuid', 'title', 'external_key', 'fixed_price_usd', 'image', 'short_description',
                   'marketing_url', 'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
                   'weeks_to_complete', 'pacing_type', 'type', 'restriction_type', 'run_type', 'status', 'is_enrollable',
-                  'is_marketable', 'term', 'availability', 'variant_id')
+                  'is_marketable', 'is_marketable_external', 'term', 'availability', 'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -1080,6 +1080,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
         return queryset.select_related(
             'course__level_type',
+            'course__type',
             'course__video__image',
             'course__additional_metadata',
             'language',
@@ -1167,7 +1168,7 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('course').prefetch_related(
+        return queryset.select_related('course', 'course__type').prefetch_related(
             Prefetch('course__programs', queryset=(
                 Program.objects.select_related('type', 'partner').prefetch_related('excluded_course_runs', 'courses')
             ))

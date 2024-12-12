@@ -9,12 +9,38 @@ from django.test.client import Client
 from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl.connections import get_connection
 from pytest_django.lazy_django import skip_if_no_django
+from xdist.scheduler import LoadScopeScheduling
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 
 logger = logging.getLogger(__name__)
 
 TEST_DOMAIN = 'testserver.fake'
+
+# List of test classes that are backed by TransactionTestCase
+TTC = ['course_discovery/apps/course_metadata/management/commands/tests/test_refresh_course_metadata.py::'
+       'RefreshCourseMetadataCommandTests',
+       'course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests']
+
+
+class LoadScopeSchedulingDjangoOrdered(LoadScopeScheduling):
+    # pylint: disable=abstract-method
+
+    # Recent versions of pytest-xdist change the order of test execution such that TransactionTestCases may
+    # be run before TestCases. Since TransactionTestCase based tests do not restore the data created
+    # in data migrations during cleanup, this can cause TestCases which rely on that data to fail.
+    # pytest-xdist has an open issue for this regression at `https://github.com/pytest-dev/pytest-xdist/issues/1083`
+
+    # We extend the LoadScopeScheduling class used by pytest-xdist to push the TransactionTestCases (in our test suites)
+    # to the end of the workqueue. This ensures the proper ordering of TransactionTestCases
+    def _assign_work_unit(self, node) -> None:
+        if not hasattr(self, 'django_ordered'):
+            self.django_ordered = True  # pylint: disable=attribute-defined-outside-init
+            for test_class in TTC:
+                if test_class in self.workqueue:
+                    self.workqueue.move_to_end(test_class)
+
+        return super()._assign_work_unit(node)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -108,3 +134,7 @@ def clear_es_indexes():
     conn = get_connection()
     for index_name in settings.ELASTICSEARCH_INDEX_NAMES.values():
         conn.indices.delete(index=index_name + '_*')
+
+
+def pytest_xdist_make_scheduler(config, log):
+    return LoadScopeSchedulingDjangoOrdered(config, log)
