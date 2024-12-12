@@ -10,10 +10,10 @@ from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import (
-    BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2
+    BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 )
 from ..documents import ProgramDocument
-from .common import DocumentDSLSerializerMixin, SortFieldMixin
+from .common import DocumentDSLSerializerMixin
 
 __all__ = ('ProgramSearchDocumentSerializer',)
 
@@ -66,21 +66,6 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
                 'excluded_from_seo',
             )
         )
-
-
-class ProgramSearchDocumentSerializerV2(SortFieldMixin, ProgramSearchDocumentSerializer):
-    """
-    Serializer for Program documents, extending the base `ProgramSearchDocumentSerializer`
-    to include additional fields for enhanced search functionality, as well as a `sort` field
-    to provide sorting information from the Elasticsearch response.
-
-    This serializer expands the `fields` attribute in the `Meta` class to include additional
-    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
-    """
-
-    class Meta(ProgramSearchDocumentSerializer.Meta):
-        document = ProgramDocument
-        fields = ProgramSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
 # pylint: disable=abstract-method

@@ -7,9 +7,9 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseR
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
-from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS, SEARCH_INDEX_ADDITIONAL_FIELDS_V2
+from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseRunDocument
-from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, SortFieldMixin
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin
 
 __all__ = ('CourseRunSearchDocumentSerializer',)
 
@@ -93,21 +93,6 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
             'restriction_type',
             'fixed_price_usd',
         )
-
-
-class CourseRunSearchDocumentSerializerV2(SortFieldMixin, CourseRunSearchDocumentSerializer):
-    """
-    Serializer for Course Run documents, extending the base `CourseRunSearchDocumentSerializer`
-    to include additional fields for enhanced search functionality, as well as a `sort` field
-    to provide sorting information from the Elasticsearch response.
-
-    This serializer expands the `fields` attribute in the `Meta` class to include additional
-    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
-    """
-
-    class Meta(CourseRunSearchDocumentSerializer.Meta):
-        document = CourseRunDocument
-        fields = CourseRunSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
 # pylint: disable=abstract-method

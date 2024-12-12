@@ -1,6 +1,6 @@
 from .aggregation import (
     AggregateFacetSearchSerializer, AggregateSearchModelSerializer, AggregateSearchSerializer,
-    AggregateSearchSerializerV2, LimitedAggregateSearchSerializer
+    LimitedAggregateSearchSerializer
 )
 from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from .course import CourseFacetSerializer, CourseSearchDocumentSerializer, CourseSearchModelSerializer
@@ -14,7 +14,6 @@ __all__ = (
     'AggregateFacetSearchSerializer',
     'LimitedAggregateSearchSerializer',
     'AggregateSearchSerializer',
-    'AggregateSearchSerializerV2',
     'CourseSearchDocumentSerializer',
     'CourseFacetSerializer',
     'CourseSearchModelSerializer',

@@ -6,7 +6,7 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import B
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import PersonDocument
-from .common import DocumentDSLSerializerMixin, SortFieldMixin
+from .common import DocumentDSLSerializerMixin
 
 __all__ = ('PersonSearchDocumentSerializer',)
 
@@ -39,21 +39,6 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
             'organizations',
             'partner'
         )
-
-
-class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSerializer):
-    """
-    Serializer for Person documents, extending the base `PersonSearchDocumentSerializer`
-    to include additional fields for enhanced search functionality, as well as a `sort` field
-    to provide sorting information from the Elasticsearch response.
-
-    This serializer expands the `fields` attribute in the `Meta` class to include additional
-    fields specified in `SEARCH_INDEX_ADDITIONAL_FIELDS_V2`.
-    """
-
-    class Meta(PersonSearchDocumentSerializer.Meta):
-        document = PersonDocument
-        fields = PersonSearchDocumentSerializer.Meta.fields
 
 
 # pylint: disable=abstract-method
