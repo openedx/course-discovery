@@ -14,7 +14,7 @@ babel==2.16.0
     #   sphinx
 beautifulsoup4==4.12.3
     # via pydata-sphinx-theme
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   elasticsearch
     #   requests
@@ -58,7 +58,7 @@ python-dateutil==2.9.0.post0
     # via elasticsearch-dsl
 requests==2.32.3
     # via sphinx
-six==1.16.0
+six==1.17.0
     # via
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
