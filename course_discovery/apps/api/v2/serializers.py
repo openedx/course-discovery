@@ -94,6 +94,7 @@ class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSeria
         fields = PersonSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
+# pylint: disable=abstract-method
 class AggregateSearchListSerializerV2(AggregateSearchListSerializer):
     """
     Extended version of the AggregateSearchListSerializer with updated serializers that support search_after pagination.

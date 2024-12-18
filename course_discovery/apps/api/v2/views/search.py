@@ -1,4 +1,4 @@
-"""API v2 Search"""
+"""API v2 search module for efficient Elasticsearch document searching with search_after pagination."""
 
 from course_discovery.apps.api.v1.views.search import AggregateSearchViewSet as AggregateSearchViewSetV1
 from course_discovery.apps.api.v2.serializers import AggregateSearchSerializerV2

@@ -120,9 +120,7 @@ class SearchAfterPagination(PageNumberPagination):
             except json.JSONDecodeError as exc:
                 raise ValueError("Invalid JSON format for search_after parameter") from exc
 
-        queryset = super().paginate_queryset(queryset, request, view)
-
-        return queryset
+        return super().paginate_queryset(queryset, request, view)
 
     def get_paginated_response(self, data):
         """
@@ -131,7 +129,7 @@ class SearchAfterPagination(PageNumberPagination):
         response = super().get_paginated_response(data)
         last_item = data[-1] if data else None
         search_after = last_item.get("sort") if last_item else None
-        next_link = response.data.pop("next")
+        next_link = response.data.pop("next", None)
         response.data["next"] = search_after if next_link else None
         return response
 
