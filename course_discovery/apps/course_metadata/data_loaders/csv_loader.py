@@ -166,7 +166,7 @@ class CSVDataLoader(AbstractDataLoader):
                 continue
 
             course_key = self.get_course_key(org_key, row['number'])
-            course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
+            course = Course.objects.filter_drafts(key=course_key, partner=self.partner).select_related('type').first()
             is_course_created = False
             is_course_run_created = False
             course_run_restriction = (
@@ -201,8 +201,8 @@ class CSVDataLoader(AbstractDataLoader):
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_CREATE_ERROR, error_message)
                     continue
 
-                course = Course.everything.get(key=course_key, partner=self.partner)
-                course_run = CourseRun.everything.filter(course=course).first()
+                course = Course.everything.select_related('type').get(key=course_key, partner=self.partner)
+                course_run = CourseRun.everything.select_related('type').filter(course=course).first()
                 is_course_created = True
                 is_course_run_created = True
 
