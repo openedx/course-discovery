@@ -1,6 +1,7 @@
 """
 Unit tests for CSV Data loader.
 """
+import copy
 import datetime
 from decimal import Decimal
 from tempfile import NamedTemporaryFile
@@ -17,6 +18,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.choices import (
     CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus
 )
+from course_discovery.apps.course_metadata.data_loaders.constants import CSVIngestionErrorMessages, CSVIngestionErrors
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
@@ -32,6 +34,11 @@ from course_discovery.apps.course_metadata.toggles import (
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
+
+
+class MockExceptionWithResponse(Exception):
+    def __init__(self, response_content):
+        self.response = mock.Mock(content=response_content)
 
 
 @ddt
@@ -600,6 +607,296 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             'archived_products': [],
                             'errors': loader.error_logs
                         }
+
+    @responses.activate
+    def test_success_flow_course_with_multiple_variants(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader correctly ingests multiple variants of a course.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
+        self.mock_ecommerce_publication(self.partner)
+        _, _ = self.mock_image_response()
+
+        course = CourseFactory(
+            key=self.COURSE_KEY,
+            partner=self.partner,
+            type=self.course_type,
+            draft=True,
+            key_for_reruns=''
+        )
+
+        CourseRunFactory(
+            course=course,
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
+            end=datetime.datetime(2040, 3, 1, tzinfo=UTC),
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+        )
+
+        mocked_data = copy.deepcopy(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)
+        mocked_data.update(
+            {
+                "publish_date": "01/26/2022",
+                "start_date": "01/25/2022",
+                "start_time": "00:00",
+                "end_date": "02/25/2055",
+                "end_time": "00:00",
+                "reg_close_date": "01/25/2055",
+                "reg_close_time": "00:00",
+                "variant_id": "11111111-1111-1111-1111-111111111111",
+            }
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, mocked_data])
+            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+                with LogCapture(LOGGER_PATH):
+                    with mock.patch.object(
+                            CSVDataLoader,
+                            '_call_course_api',
+                            self.mock_call_course_api
+                    ):
+                        loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
+                        loader.ingest()
+
+                assert Course.everything.count() == 2
+                assert CourseRun.everything.count() == 4
+
+    @responses.activate
+    def test_exception_flow_for_update_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the course update fails if an exception is raised while updating the course.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        _ = self.mock_image_response()
+
+        course = CourseFactory(key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True)
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+            variant_id='00000000-0000-0000-0000-000000000000'
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with mock.patch.object(
+                CSVDataLoader, "_call_course_api", self.mock_call_course_api
+            ):
+                loader = CSVDataLoader(
+                    self.partner, csv_path=csv.name, product_source=self.source.slug
+                )
+                # pylint: disable=protected-access
+                loader._register_ingestion_error = mock.MagicMock()
+                loader._update_course = mock.MagicMock()
+
+                # pylint: disable=protected-access
+                loader._update_course.side_effect = MockExceptionWithResponse(b"Update course error")
+
+                with LogCapture(LOGGER_PATH):
+                    loader.ingest()
+
+                    expected_error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                        course_title=mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT["title"],
+                        exception_message="Update course error",
+                    )
+                    # pylint: disable=protected-access
+                    loader._register_ingestion_error.assert_called_once_with(
+                        CSVIngestionErrors.COURSE_UPDATE_ERROR, expected_error_message
+                    )
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
+
+    @responses.activate
+    def test_exception_flow_for_update_course_entitlement_price(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the course update fails if an exception is raised while updating the course.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, f'{studio_url}{self.COURSE_RUN_KEY}/rerun/', status=200)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv_123+1T2020a')
+        self.mock_ecommerce_publication(self.partner)
+        _, _ = self.mock_image_response()
+
+        course = CourseFactory(
+            key=self.COURSE_KEY,
+            partner=self.partner,
+            type=self.course_type,
+            draft=True,
+            key_for_reruns=''
+        )
+
+        CourseRunFactory(
+            course=course,
+            start=datetime.datetime(2014, 3, 1, tzinfo=UTC),
+            end=datetime.datetime(2040, 3, 1, tzinfo=UTC),
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+        )
+
+        mocked_data = copy.deepcopy(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)
+        mocked_data.update(
+            {
+                "publish_date": "01/26/2022",
+                "start_date": "01/25/2022",
+                "start_time": "00:00",
+                "end_date": "02/25/2055",
+                "end_time": "00:00",
+                "reg_close_date": "01/25/2055",
+                "reg_close_time": "00:00",
+                "variant_id": "11111111-1111-1111-1111-111111111111",
+            }
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, mocked_data])
+            with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+                with mock.patch.object(
+                    CSVDataLoader, "_call_course_api", self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(
+                        self.partner, csv_path=csv.name, product_source=self.source.slug
+                    )
+                    # pylint: disable=protected-access
+                    loader._register_ingestion_error = mock.MagicMock()
+                    loader._update_course_entitlement_price = mock.MagicMock()
+
+                    # pylint: disable=protected-access
+                    loader._update_course_entitlement_price.side_effect = (
+                        MockExceptionWithResponse('Entitlement Price Update Error')
+                    )
+
+                    with LogCapture(LOGGER_PATH):
+                        loader.ingest()
+
+                        expected_error_message = CSVIngestionErrorMessages.COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR.format(
+                            course_title=mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT["title"],
+                            exception_message="Entitlement Price Update Error",
+                        )
+                        # pylint: disable=protected-access
+                        loader._register_ingestion_error.assert_called_once_with(
+                            CSVIngestionErrors.COURSE_UPDATE_ERROR, expected_error_message
+                        )
+
+    @responses.activate
+    @mock.patch("course_discovery.apps.course_metadata.data_loaders.csv_loader.reverse")
+    @mock.patch("course_discovery.apps.course_metadata.data_loaders.csv_loader.settings")
+    def test_update_course_entitlement_price_failure(
+        self, mock_settings, mock_reverse, jwt_decode_patch
+    ):  # pylint: disable=unused-argument
+        """
+        Verify that the course entitlement price update fails if an exception is raised while updating the course.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        course = CourseFactory(
+            key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True
+        )
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status="published",
+            draft=True,
+            variant_id="00000000-0000-0000-0000-000000000000",
+        )
+        mock_settings.DISCOVERY_BASE_URL = "http://localhost:18381"
+        mock_reverse.return_value = f"/api/v1/course/{course.uuid}"
+
+        entitlement_price_url = f"http://localhost:18381/api/v1/course/{course.uuid}"
+        responses.add(
+            responses.PATCH,
+            entitlement_price_url,
+            json={"detail": "Error occurred"},
+            status=204,
+        )
+
+        req_data = {
+            "verified_price": "200",
+            "restriction_type": "None",
+            "title": "Test Course",
+        }
+        course_uuid = course.uuid
+        course_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = CSVDataLoader(self.partner, product_source=self.source.slug, csv_path=csv.name)
+                # pylint: disable=protected-access
+                response = loader._update_course_entitlement_price(req_data, course_uuid, course_type, is_draft=False)
+                mock_reverse.assert_called_once_with("api:v1:course-detail", kwargs={"key": course_uuid})
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        "INFO",
+                        "Entitlement price update response: b'{\"detail\": \"Error occurred\"}'",
+                    ),
+                )
+                assert response == {"detail": "Error occurred"}
+
+    @responses.activate
+    @mock.patch("course_discovery.apps.course_metadata.data_loaders.csv_loader.download_and_save_course_image")
+    def test_is_logo_downloaded_failure(self, mock_download_image, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Test case to verify that organization_logo_override image download failure is handled properly.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        _ = self.mock_image_response()
+        course = CourseFactory(
+            key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True
+        )
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status="published",
+            draft=True,
+            variant_id="00000000-0000-0000-0000-000000000000",
+        )
+
+        def download_side_effect(*args, **kwargs):
+            if 'organization_logo_override' in args:
+                return False  # fail for organization_logo_override
+            return True  # Succeed for course_image
+
+        mock_download_image.side_effect = download_side_effect
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with mock.patch.object(
+                CSVDataLoader,
+                '_call_course_api',
+                self.mock_call_course_api
+            ):
+                with mock.patch.object(CSVDataLoader, '_register_ingestion_error') as mock_register_error:
+                    loader = CSVDataLoader(self.partner, product_source=self.source.slug, csv_path=csv.name)
+                    loader.ingest()
+
+                    expected_error_message = CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
+                        course_title=mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT['title']
+                    )
+                    mock_register_error.assert_any_call(
+                        CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, expected_error_message
+                    )
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument
