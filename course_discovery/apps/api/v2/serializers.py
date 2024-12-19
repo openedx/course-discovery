@@ -1,3 +1,5 @@
+""" Serializers for api/v2/search/all """
+
 from course_discovery.apps.course_metadata.search_indexes import documents
 from course_discovery.apps.course_metadata.search_indexes.constants import SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 from course_discovery.apps.course_metadata.search_indexes.documents import (
