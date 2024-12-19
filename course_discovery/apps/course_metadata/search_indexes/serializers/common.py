@@ -105,6 +105,6 @@ class SortFieldMixin(serializers.Serializer):
         Returns None if sort metadata is not available.
         """
         try:
-            return list(result.meta.sort) if hasattr(result.meta, 'sort') else None
+            return list(result.meta.sort) if hasattr(result.meta, 'sort') else []
         except AttributeError:
-            return None
+            return []
