@@ -78,3 +78,15 @@ IS_COURSE_RUN_VARIANT_ID_EDITABLE = WaffleSwitch(
 IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE = WaffleSwitch(
     'course_metadata.is_course_run_variant_id_ecommerce_consumable', __name__
 )
+# .. toggle_name: course_metadata.is_disable_price_updates_for_published_runs
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Temporary toggle to disable price updates for published course runs.
+# .. toggle_use_cases: open_edx
+# .. toggle_type: temporary
+# .. toggle_creation_date: 2024-12-20
+# .. toggle_target_removal_date: 2025-01-05
+# .. toggle_tickets: PROD-4264
+IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS = WaffleSwitch(
+    'course_metadata.is_disable_price_updates_for_published_runs', __name__
+)
