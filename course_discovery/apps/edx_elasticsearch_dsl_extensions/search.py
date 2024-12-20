@@ -84,3 +84,19 @@ class FacetedSearch(OriginSearch):
             clone.aggs._params = {'aggs': self.aggs._params['aggs'].copy()}
 
         return clone
+
+
+class SearchAfterSearch(FacetedSearch):
+    """
+    SearchAfterSearch Class.
+
+    Extends the `FacetedSearch` class to provide an implementation
+    that supports search-after pagination. This class ensures that the `from`
+    parameter is removed from the query, as it is incompatible with
+    the search-after feature.
+    """
+
+    def to_dict(self, count=False, **kwargs):
+        query_dict = super().to_dict(count=count, **kwargs)
+        query_dict.pop('from', None)
+        return query_dict
