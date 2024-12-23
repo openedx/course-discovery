@@ -78,11 +78,11 @@ class CourseVerticalFiltersAdmin(admin.ModelAdmin):
                     reader = csv.reader(decoded_file)
                     next(reader)  # Skip the header row
                     for row in reader:
-                        course_uuid = row[0]
+                        course_key = row[0]
                         vertical_name = row[1]
                         sub_vertical_name = row[2]
 
-                        course = Course.objects.get(uuid=course_uuid)
+                        course = Course.objects.get(key=course_key)
                         vertical, _ = VerticalFilter.objects.get_or_create(name=vertical_name)
                         sub_vertical, _ = SubVericalFilter.objects.get_or_create(
                             name=sub_vertical_name, vertical_filters=vertical
