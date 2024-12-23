@@ -37,7 +37,11 @@ class SubVericalFilter(TimeStampedModel):
 class CourseVerticalFilters(TimeStampedModel):
     course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='vertical_filters')
     vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='course_vertical_filters')
-    sub_vertical = models.ForeignKey(SubVericalFilter, on_delete=models.CASCADE, related_name='course_sub_vertical_filters')
+    sub_vertical = models.ForeignKey(
+        SubVericalFilter,
+        on_delete=models.CASCADE,
+        related_name="course_sub_vertical_filters",
+    )
 
     def __str__(self):
         return self.course.title
@@ -46,16 +50,3 @@ class CourseVerticalFilters(TimeStampedModel):
         verbose_name_plural = 'Course Vertical Filters'
         ordering = ['course__title']
         unique_together = ['course']
-
-class ProgramVerticalFilters(TimeStampedModel):
-    program = models.OneToOneField(Program, on_delete=models.CASCADE, related_name='vertical_filters')
-    vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='program_vertical_filters')
-    sub_vertical = models.ForeignKey(SubVericalFilter, on_delete=models.CASCADE, related_name='program_sub_vertical_filters')
-
-    def __str__(self):
-        return self.program.title
-
-    class Meta:
-        verbose_name_plural = 'Program Vertical Filters'
-        ordering = ['program__title']
-        unique_together = ['program']

@@ -6,9 +6,7 @@ from django.urls import reverse
 
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.tagging.forms import CSVUploadForm
-from course_discovery.apps.tagging.models import (
-    CourseVerticalFilters, ProgramVerticalFilters, SubVericalFilter, VerticalFilter
-)
+from course_discovery.apps.tagging.models import CourseVerticalFilters, SubVericalFilter, VerticalFilter
 
 
 @admin.register(VerticalFilter)
@@ -95,11 +93,3 @@ class CourseVerticalFiltersAdmin(admin.ModelAdmin):
             'admin/tagging/courseverticalfilters/upload_csv_form.html',
             context={'form': form}
         )
-
-
-@admin.register(ProgramVerticalFilters)
-class ProgramVerticalFiltersAdmin(admin.ModelAdmin):
-    list_display = ('program', 'vertical', 'sub_vertical')
-    list_filter = ('vertical', 'sub_vertical')
-    search_fields = ('program__title', 'vertical__name', 'sub_vertical__name')
-    ordering = ('program__title',)
