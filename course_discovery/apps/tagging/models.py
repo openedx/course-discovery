@@ -5,7 +5,6 @@ from model_utils.models import TimeStampedModel
 from course_discovery.apps.course_metadata.models import Course, Program
 
 
-# Create your models here.
 class VerticalFilter(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(populate_from='name', max_length=255, unique=True)

@@ -1,9 +1,7 @@
 import csv
-from io import TextIOWrapper
 
 from django.contrib import admin, messages
 from django.shortcuts import redirect, render
-from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from course_discovery.apps.course_metadata.models import Course
@@ -17,60 +15,6 @@ from course_discovery.apps.tagging.models import (
 class VerticalFilterAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'description', 'slug',)
     search_fields = ('name',)
-
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['upload_csv_url'] = reverse('admin:verticalfilter_upload_csv')
-        return super().changelist_view(request, extra_context=extra_context)
-
-    def get_urls(self):
-        from django.urls import path
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                'upload-csv/',
-                self.admin_site.admin_view(self.upload_csv),
-                name='verticalfilter_upload_csv',
-            ),
-        ]
-        return custom_urls + urls
-
-    def upload_csv(self, request):
-        from django.shortcuts import redirect
-        if request.method == 'POST' and request.FILES.get('csv_file'):
-            csv_file = request.FILES['csv_file']
-            file_data = TextIOWrapper(csv_file, encoding='utf-8')
-            csv_reader = csv.reader(file_data)
-
-            # Skipping the header row
-            next(csv_reader)
-
-            created_count = 0
-            for row in csv_reader:
-                # Assuming the CSV structure is [name, description, is_active]
-                if row:  # Skip empty rows
-                    name, description, is_active = row
-                    try:
-                        # Create a VerticalFilter instance for each row
-                        VerticalFilter.objects.create(
-                            name=name,
-                            description=description,
-                            is_active=(is_active.lower() == 'true'),  # Assuming 'true' or 'false' in CSV
-                        )
-                        created_count += 1
-                    except Exception as e:
-                        # Log the error or handle invalid rows
-                        messages.error(request, f"Error processing row: {row}. Error: {e}")
-            
-            messages.success(request, f"{created_count} VerticalFilter instances created successfully!")
-            return redirect('admin:tagging_verticalfilter_changelist')
-
-        return TemplateResponse(
-            request,
-            "admin/tagging/verticalfilter/upload_csv_form.html",
-            context={'opts': self.model._meta},
-        )
-
 
 @admin.register(SubVericalFilter)
 class SubVericalFilterAdmin(admin.ModelAdmin):
