@@ -143,7 +143,7 @@ class CourseVerticalFiltersAdmin(admin.ModelAdmin):
 
         return render(
             request,
-            'admin/upload_csv_form.html',  # You can create a custom template for the upload form
+            'admin/tagging/courseverticalfilters/upload_csv_form.html',  # You can create a custom template for the upload form
             context={'form': form}
         )
 
