@@ -39,16 +39,25 @@ class CourseVerticalFiltersAdmin(admin.ModelAdmin):
     ordering = ('course__title',)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Override the formfield_for_foreignkey method to filter the course field based on draft status.
+        """
         if db_field.name == 'course':
             kwargs['queryset'] = Course.objects.filter(draft=False)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def changelist_view(self, request, extra_context=None):
+        """
+        Override the changelist_view method to add a custom upload CSV button.
+        """
         extra_context = extra_context or {}
         extra_context['upload_csv_url'] = reverse('admin:courseverticalfilters_upload_csv')
         return super().changelist_view(request, extra_context=extra_context)
 
     def get_urls(self):
+        """
+        Override the get_urls method to add a custom upload CSV URL.
+        """
         from django.urls import path
         urls = super().get_urls()
         custom_urls = [
@@ -57,6 +66,9 @@ class CourseVerticalFiltersAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def upload_csv(self, request):
+        """
+        Custom view to upload a CSV file and process it to update the course vertical filters to support bulk updates.
+        """
         if request.method == 'POST' and request.FILES.get('csv_file'):
             form = CSVUploadForm(request.POST, request.FILES)
             if form.is_valid():
