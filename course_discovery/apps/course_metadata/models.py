@@ -4707,3 +4707,18 @@ class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
 
     def __str__(self):
         return f"{self.course_run.key}: <{self.restriction_type}>"
+
+class ArchiveBootcampsConfig(SingletonModel):
+    """
+    Configuration for management command archive_bootcamps.
+    """
+    bootcamp_uuids = models.TextField(
+        default=None,
+        null=True,
+        blank=False,
+        verbose_name=_('Bootcamp UUIDs'),
+        help_text=_('Comma-separated UUIDs of bootcamps to archive')
+    )
+
+    def __str__(self):
+        return _('Archive Bootcamps Config')
