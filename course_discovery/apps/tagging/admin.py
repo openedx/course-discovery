@@ -14,7 +14,7 @@ from course_discovery.apps.tagging.models import (
 @admin.register(VerticalFilter)
 class VerticalFilterAdmin(admin.ModelAdmin):
     """
-    Admin class for VerticalFilter model admin.
+    Admin class for VerticalFilter model.
     """
     list_display = ('name', 'is_active', 'description', 'slug',)
     search_fields = ('name',)
@@ -22,7 +22,7 @@ class VerticalFilterAdmin(admin.ModelAdmin):
 @admin.register(SubVericalFilter)
 class SubVericalFilterAdmin(admin.ModelAdmin):
     """
-    Admin class for SubVerticalFilter model admin.
+    Admin class for SubVerticalFilter model.
     """
     list_display = ('name', 'is_active', 'slug', 'description', 'vertical_filters')
     list_filter = ('vertical_filters', )
@@ -32,6 +32,9 @@ class SubVericalFilterAdmin(admin.ModelAdmin):
 
 @admin.register(CourseVerticalFilters)
 class CourseVerticalFiltersAdmin(admin.ModelAdmin):
+    """
+    Admin class for CourseVerticalFilters model.
+    """
     list_display = ('course', 'vertical', 'sub_vertical')
     list_filter = ('vertical', 'sub_vertical')
     search_fields = ('course__title', 'vertical__name', 'sub_vertical__name')
