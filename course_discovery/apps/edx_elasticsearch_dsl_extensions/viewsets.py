@@ -1,3 +1,5 @@
+import json
+
 from django_elasticsearch_dsl import Document as OriginDocument
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
@@ -97,6 +99,39 @@ class CustomPageNumberPagination(PageNumberPagination):
     """
 
     page_size_query_param = 'page_size'
+
+
+class SearchAfterPagination(PageNumberPagination):
+    """
+    Custom paginator that supports Elasticsearch `search_after` pagination.
+    """
+
+    page_size_query_param = "page_size"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Paginate the Elasticsearch queryset using search_after.
+        """
+
+        search_after = request.query_params.get("search_after")
+        if search_after:
+            try:
+                queryset = queryset.extra(search_after=json.loads(search_after))
+            except json.JSONDecodeError as exc:
+                raise ValueError("Invalid JSON format for search_after parameter") from exc
+
+        return super().paginate_queryset(queryset, request, view)
+
+    def get_paginated_response(self, data):
+        """
+        Get paginated response, including search_after value for the next page.
+        """
+        response = super().get_paginated_response(data)
+        last_item = data[-1] if data else None
+        search_after = last_item.get("sort") if last_item else None
+        next_link = response.data.pop("next", None)
+        response.data["next"] = search_after if next_link else None
+        return response
 
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):

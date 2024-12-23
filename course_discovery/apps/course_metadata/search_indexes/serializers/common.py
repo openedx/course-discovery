@@ -3,6 +3,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from django_elasticsearch_dsl.registries import registry
+from rest_framework import serializers
 
 from course_discovery.apps.api.utils import get_excluded_restriction_types
 from course_discovery.apps.core.utils import ElasticsearchUtils, serialize_datetime
@@ -85,3 +86,25 @@ class DocumentDSLSerializerMixin(ModelObjectDocumentSerializerMixin):
     def to_representation(self, instance):
         _object = self.get_model_object_by_instances(instance).get()
         return super().to_representation(_object)
+
+
+# pylint: disable=abstract-method
+class SortFieldMixin(serializers.Serializer):
+    """
+    Mixin to enable a `sort` field on the response.
+
+    This mixin provides a `sort` field in the serializer, which fetches
+    sorting information from the Elasticsearch response metadata.
+    """
+    _abstract = True
+    sort = serializers.SerializerMethodField()
+
+    def get_sort(self, result):
+        """
+        Retrieve the sort metadata from the Elasticsearch response.
+        Returns None if sort metadata is not available.
+        """
+        try:
+            return list(result.meta.sort) if hasattr(result.meta, 'sort') else []
+        except AttributeError:
+            return []
