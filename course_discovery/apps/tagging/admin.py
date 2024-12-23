@@ -1,13 +1,16 @@
 import csv
-from django.contrib import admin
-from django.contrib import messages
-from django.urls import reverse
+from io import TextIOWrapper
+
+from django.contrib import admin, messages
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
-from io import TextIOWrapper
-from course_discovery.apps.tagging.forms import CSVUploadForm
+from django.urls import reverse
+
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.tagging.models import VerticalFilter, SubVericalFilter, CourseVerticalFilters, ProgramVerticalFilters
+from course_discovery.apps.tagging.forms import CSVUploadForm
+from course_discovery.apps.tagging.models import (
+    CourseVerticalFilters, ProgramVerticalFilters, SubVericalFilter, VerticalFilter
+)
 
 
 @admin.register(VerticalFilter)

@@ -1,6 +1,7 @@
 from django.db import models
-from model_utils.models import TimeStampedModel
 from django_extensions.db.fields import AutoSlugField
+from model_utils.models import TimeStampedModel
+
 from course_discovery.apps.course_metadata.models import Course, Program
 
 
