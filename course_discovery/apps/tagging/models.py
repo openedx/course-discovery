@@ -6,6 +6,9 @@ from course_discovery.apps.course_metadata.models import Course, Program
 
 
 class VerticalFilter(TimeStampedModel):
+    """
+    This model is used to store the vertical mapping for the courses.
+    """
     name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(populate_from='name', max_length=255, unique=True)
     description = models.TextField(blank=True)
@@ -20,6 +23,9 @@ class VerticalFilter(TimeStampedModel):
         unique_together = ['name']
 
 class SubVericalFilter(TimeStampedModel):
+    """
+    This model is used to store the sub vertical mapping for the courses.
+    """
     name = models.CharField(max_length=255, unique=True)
     slug = AutoSlugField(populate_from='name', max_length=255, unique=True)
     description = models.TextField(blank=True)
@@ -35,6 +41,9 @@ class SubVericalFilter(TimeStampedModel):
         unique_together = ['name']
 
 class CourseVerticalFilters(TimeStampedModel):
+    """
+    Model used to assign vertical and sub vertical filters to course.
+    """
     course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='vertical_filters')
     vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='course_vertical_filters')
     sub_vertical = models.ForeignKey(
