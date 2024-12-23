@@ -22,6 +22,7 @@ class VerticalFilter(TimeStampedModel):
         ordering = ['name']
         unique_together = ['name']
 
+
 class SubVericalFilter(TimeStampedModel):
     """
     This model is used to store the sub vertical mapping for the courses.
@@ -39,6 +40,7 @@ class SubVericalFilter(TimeStampedModel):
         verbose_name_plural = 'Sub Vertical Filters'
         ordering = ['name']
         unique_together = ['name']
+
 
 class CourseVerticalFilters(TimeStampedModel):
     """

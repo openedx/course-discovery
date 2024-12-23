@@ -17,6 +17,7 @@ class VerticalFilterAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'description', 'slug',)
     search_fields = ('name',)
 
+
 @admin.register(SubVericalFilter)
 class SubVericalFilterAdmin(admin.ModelAdmin):
     """
