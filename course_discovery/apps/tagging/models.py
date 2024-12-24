@@ -4,7 +4,6 @@ from model_utils.models import TimeStampedModel
 
 from course_discovery.apps.course_metadata.models import Course, Program, Degree
 
-
 class VerticalFilter(TimeStampedModel):
     """
     This model is used to store the vertical mapping for the courses.
@@ -41,47 +40,54 @@ class SubVericalFilter(TimeStampedModel):
         ordering = ['name']
         unique_together = ['name']
 
-
-class CourseVerticalFilters(TimeStampedModel):
+class BaseVerticalFilter(TimeStampedModel):
     """
-    Model used to assign vertical and sub vertical filters to course.
+    Abstract base model for vertical and sub-vertical filters with timestamps.
     """
-    course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='vertical_filters')
-    vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='course_vertical_filters')
+    vertical = models.ForeignKey(
+        VerticalFilter, on_delete=models.CASCADE, related_name="%(class)s_vertical_filters"
+    )
     sub_vertical = models.ForeignKey(
-        SubVericalFilter,
-        on_delete=models.CASCADE,
-        related_name="course_sub_vertical_filters",
+        SubVericalFilter, on_delete=models.CASCADE, related_name="%(class)s_sub_vertical_filters"
     )
 
-    def __str__(self):
-        return f'{self.course.title} - {self.vertical.name} - {self.sub_vertical.name}'
-
     class Meta:
-        verbose_name_plural = 'Course Vertical Filters'
-        ordering = ['course__title']
-        unique_together = ['course']
+        abstract = True
+        ordering = ["vertical", "sub_vertical"]
 
+    def __str__(self):
+        return f'{self.get_object_title()} - {self.vertical.name} - {self.sub_vertical.name}'
 
-class ProgramVericalFilters(TimeStampedModel):
-    """
-    Model used to assign verticals to program.
-    """
-    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='program_verticals')
-    vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='program_vertical_filters')
-    sub_vertical = models.ForeignKey(
-        SubVericalFilter,
-        on_delete=models.CASCADE,
-        related_name='program_sub_vertical_filters',
+    def get_object_title(self):
+        """
+        Should be implemented in the derived models to return the object's title.
+        """
+        raise NotImplementedError("Subclasses must implement `get_object_title`.")
+
+class CourseVerticalFilters(BaseVerticalFilter):
+    course = models.OneToOneField(
+        Course, on_delete=models.CASCADE, related_name="vertical_filters"
     )
 
-    def __str__(self):
-        return f'{self.program.title} - {self.vertical.name} - {self.sub_vertical.name}'
+    class Meta(BaseVerticalFilter.Meta):
+        verbose_name_plural = "Course Vertical Filters"
+        unique_together = ["course"]
 
-    class Meta:
-        verbose_name_plural = 'Program Verticals'
-        ordering = ['program__title']
-        unique_together = ['program', 'vertical']
+    def get_object_title(self):
+        return self.course.title
+
+
+class ProgramVerticalFilters(BaseVerticalFilter):
+    program = models.ForeignKey(
+        Program, on_delete=models.CASCADE, related_name="program_vertical_filters"
+    )
+
+    class Meta(BaseVerticalFilter.Meta):
+        verbose_name_plural = "Program Vertical Filters"
+        unique_together = ["program"]
+
+    def get_object_title(self):
+        return self.program.title
 
 class VerticalFilterTags(TimeStampedModel):
     """
