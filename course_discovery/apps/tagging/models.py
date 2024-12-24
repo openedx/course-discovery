@@ -2,7 +2,7 @@ from django.db import models
 from django_extensions.db.fields import AutoSlugField
 from model_utils.models import TimeStampedModel
 
-from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.course_metadata.models import Course, Program, Degree
 
 
 class VerticalFilter(TimeStampedModel):
@@ -62,6 +62,7 @@ class CourseVerticalFilters(TimeStampedModel):
         ordering = ['course__title']
         unique_together = ['course']
 
+
 class ProgramVericalFilters(TimeStampedModel):
     """
     Model used to assign verticals to program.
@@ -81,3 +82,44 @@ class ProgramVericalFilters(TimeStampedModel):
         verbose_name_plural = 'Program Verticals'
         ordering = ['program__title']
         unique_together = ['program', 'vertical']
+
+class VerticalFilterTags(TimeStampedModel):
+    """
+    Model used to assign vertical and sub-vertical filters to Course, Program, or Degree.
+    """
+    CONTENT_TYPE_CHOICES = [
+        ('course', 'Course'),
+        ('program', 'Program'),
+        ('degree', 'Degree'),
+    ]
+
+    content_type = models.CharField(max_length=10, choices=CONTENT_TYPE_CHOICES)
+    object_id = models.UUIDField()
+
+    vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='vertical_filters')
+    sub_vertical = models.ForeignKey(
+        SubVericalFilter,
+        on_delete=models.CASCADE,
+        related_name='sub_vertical_filters',
+    )
+
+    def __str__(self):
+        return f'{self.get_object_title()} - {self.vertical.name} - {self.sub_vertical.name}'
+
+    def get_object_title(self):
+        """
+        Retrieve the title of the related object based on its type.
+        """
+        if self.content_type == 'course':
+            return Course.objects.filter(uuid=self.object_id).first().title
+        elif self.content_type == 'program':
+            return Program.objects.filter(uuid=self.object_id).first().title
+        elif self.content_type == 'degree':
+            return Degree.objects.filter(uuid=self.object_id).first().title
+        else:
+            return None 
+
+    class Meta:
+        verbose_name_plural = 'Vertical Filter Tags'
+        ordering = ['content_type', 'object_id']
+        unique_together = ['content_type', 'object_id', 'vertical']
