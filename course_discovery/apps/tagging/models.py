@@ -55,9 +55,29 @@ class CourseVerticalFilters(TimeStampedModel):
     )
 
     def __str__(self):
-        return self.course.title
+        return f'{self.course.title} - {self.vertical.name} - {self.sub_vertical.name}'
 
     class Meta:
         verbose_name_plural = 'Course Vertical Filters'
         ordering = ['course__title']
         unique_together = ['course']
+
+class ProgramVericalFilters(TimeStampedModel):
+    """
+    Model used to assign verticals to program.
+    """
+    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='program_verticals')
+    vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='program_vertical_filters')
+    sub_vertical = models.ForeignKey(
+        SubVericalFilter,
+        on_delete=models.CASCADE,
+        related_name='program_sub_vertical_filters',
+    )
+
+    def __str__(self):
+        return f'{self.program.title} - {self.vertical.name} - {self.sub_vertical.name}'
+
+    class Meta:
+        verbose_name_plural = 'Program Verticals'
+        ordering = ['program__title']
+        unique_together = ['program', 'vertical']
