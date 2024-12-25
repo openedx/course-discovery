@@ -935,6 +935,10 @@ class BulkUploadTagsConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BulkUploadTagsConfig
 
+class ArchiveCoursesConfigFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ArchiveCoursesConfig
+
 
 class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
