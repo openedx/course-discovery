@@ -420,10 +420,9 @@ def send_email_for_slug_updates(stats, to_users, subject=None):
 
 
 def send_email_for_course_archival(report, to_users):
-    """ 
+    """
     Send an overall report of a archive_courses mgmt command run
     """
-
     success_count = len(report['successes'])
     failure_count = len(report['failures'])
     context = {

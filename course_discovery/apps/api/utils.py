@@ -361,7 +361,7 @@ class StudioAPI:
             self.create_course_run_in_studio(course_run, user=user)
         else:
             self.update_course_run_details_in_studio(course_run)
-    
+
     def _update_end_date_in_studio(self, course_run):
         """
         We do not update end dates in studio after creation. However, while archiving a course, we

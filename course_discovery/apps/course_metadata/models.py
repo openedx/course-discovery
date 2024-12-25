@@ -4441,6 +4441,7 @@ class BulkUploadTagsConfig(ConfigurationModel):
         help_text=_("It expects the data will be provided in a csv file format ")
     )
 
+
 class ArchiveCoursesConfig(ConfigurationModel):
     """
     Configuration to store a csv file for the archive_courses command

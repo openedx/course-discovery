@@ -1126,6 +1126,7 @@ class BulkUploadTagsConfigurationAdmin(admin.ModelAdmin):
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
+
 @admin.register(ArchiveCoursesConfig)
 class ArchiveCoursesConfigurationAdmin(admin.ModelAdmin):
     """
