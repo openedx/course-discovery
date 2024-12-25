@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime, timezone
 from functools import reduce
 
 import unicodecsv
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
+from django.utils import timezone
 
 from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus
@@ -95,8 +95,8 @@ class Command(BaseCommand):
             course_run.status = CourseRunStatus.Unpublished
             course_run.save(update_fields=['status'])
 
-            if mangle_end_date and course_run.end and course_run.end.astimezone(timezone.utc)>datetime.now(timezone.utc):
-                course_run.end = datetime.now(timezone.utc)
+            if mangle_end_date and course_run.end and course_run.end>timezone.now():
+                course_run.end = timezone.now()
                 course_run.save(update_fields=['end'])
 
                 # Push to studio to prevent RCM rewrite
@@ -106,8 +106,8 @@ class Command(BaseCommand):
 
         if course.additional_metadata:
             course.additional_metadata.product_status = ExternalProductStatus.Archived
-            if course.additional_metadata.end_date and course.additional_metadata.end_date.astimezone(timezone.utc)>datetime.now(timezone.utc):
-                course.additional_metadata.end_date = datetime.now(timezone.utc)
+            if course.additional_metadata.end_date and course.additional_metadata.end_date>timezone.now():
+                course.additional_metadata.end_date = timezone.now()
             course.additional_metadata.save(update_fields=['product_status', 'end_date'])
 
 
