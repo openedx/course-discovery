@@ -4,12 +4,12 @@ from unittest import mock
 
 import ddt
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.management import CommandError, call_command
+from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, ArchiveCoursesConfigFactory, CourseFactory, CourseRunFactory
 )
@@ -24,7 +24,7 @@ class ArchiveCoursesCommandTests(TestCase):
     def setUp(self):
         super().setUp()
 
-        end = timezone.now()+timedelta(days=5)
+        end = timezone.now() + timedelta(days=5)
         self.course1 = CourseFactory(additional_metadata=AdditionalMetadataFactory(end_date=end))
         self.course2 = CourseFactory(additional_metadata=AdditionalMetadataFactory(end_date=end))
         self.courserun1 = CourseRunFactory(course=self.course1, end=end)
@@ -46,9 +46,11 @@ class ArchiveCoursesCommandTests(TestCase):
     )
     @ddt.unpack
     def test(self, from_db, mangle_title, mangle_end_date):
-        ## Some sanity checks on counts
+        # Some sanity checks on counts
+        for model in [Course, CourseRun]:
+            assert model.objects.count() == 1
+            assert model.everything.count() == 2
 
-        ##
         args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
         with mock.patch('course_discovery.apps.api.utils.StudioAPI._update_end_date_in_studio') as mock_studio_call:
             call_command('archive_courses', *args)
@@ -80,7 +82,7 @@ class ArchiveCoursesCommandTests(TestCase):
 
             is_title_mangled = c.title.startswith('DELETED')
             assert is_title_mangled if mangle_title else not is_title_mangled
-            
+
             is_end_date_mangled = c.course_runs.first().end < timezone.now() + timedelta(minutes=1)
             assert is_end_date_mangled if mangle_end_date else not is_end_date_mangled
 

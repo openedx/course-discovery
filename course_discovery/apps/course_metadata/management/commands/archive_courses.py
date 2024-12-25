@@ -61,10 +61,12 @@ class Command(BaseCommand):
         if from_db:
             courses = Course.objects.filter(uuid__in=self.get_uuids_from_database())
         elif course_type:
-            courses = Course.objects.filter(type__in=[CourseType.objects.get(slug__in=[course_type, course_type.lower()])])
+            courses = Course.objects.filter(
+                type__in=[CourseType.objects.get(slug__in=[course_type, course_type.lower()])]
+            )
         else:
             raise CommandError("Please provide one of --type or --from-db")
-        
+
         self.report['total_count'] = courses.count()
 
         for course in courses:
@@ -72,7 +74,7 @@ class Command(BaseCommand):
                 self.archive(course, mangle_end_date, mangle_title)
                 if course.draft_version:
                     self.archive(course.draft_version, mangle_end_date, mangle_title)
-            except Exception as exc:
+            except Exception as exc: # pylint: disable=broad-exception-caught
                 self.report['failures'].append(
                     {
                         'uuid': course.uuid,
@@ -89,27 +91,26 @@ class Command(BaseCommand):
                 logger.info(f"Successfully archived course with uuid: {course.uuid}")
 
         send_email_for_course_archival(self.report, settings.COURSE_ARCHIVAL_MAIL_RECIPIENTS)
-    
+
     def archive(self, course, mangle_end_date, mangle_title):
         for course_run in course.course_runs.all():
             course_run.status = CourseRunStatus.Unpublished
             course_run.save(update_fields=['status'])
 
-            if mangle_end_date and course_run.end and course_run.end>timezone.now():
+            if mangle_end_date and course_run.end and course_run.end > timezone.now():
                 course_run.end = timezone.now()
                 course_run.save(update_fields=['end'])
 
                 # Push to studio to prevent RCM rewrite
                 if not course_run.draft:
                     api = StudioAPI(course_run.course.partner)
-                    api._update_end_date_in_studio(course_run)
+                    api._update_end_date_in_studio(course_run) # pylint: disable=protected-access
 
         if course.additional_metadata:
             course.additional_metadata.product_status = ExternalProductStatus.Archived
-            if course.additional_metadata.end_date and course.additional_metadata.end_date>timezone.now():
+            if course.additional_metadata.end_date and course.additional_metadata.end_date > timezone.now():
                 course.additional_metadata.end_date = timezone.now()
             course.additional_metadata.save(update_fields=['product_status', 'end_date'])
-
 
         if mangle_title and not course.title.startswith('DELETED'):
             course.title = f"DELETED - {course.title}"
