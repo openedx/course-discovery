@@ -48,8 +48,8 @@ class ArchiveCoursesCommandTests(TestCase):
     def test(self, from_db, mangle_title, mangle_end_date):
         # Some sanity checks on counts
         for model in [Course, CourseRun]:
-            assert model.objects.count() == 1
-            assert model.everything.count() == 2
+            assert model.objects.count() == 2
+            assert model.everything.count() == 4
 
         args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
         with mock.patch('course_discovery.apps.api.utils.StudioAPI._update_end_date_in_studio') as mock_studio_call:
