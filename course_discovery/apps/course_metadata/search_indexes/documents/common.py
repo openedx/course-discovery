@@ -116,6 +116,7 @@ class BaseDocument(Document, metaclass=DocumentMeta):
         self._object = None
 
     aggregation_key = fields.KeywordField()
+    aggregation_uuid = fields.KeywordField()
     partner = fields.TextField(
         analyzer=html_strip,
         fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
