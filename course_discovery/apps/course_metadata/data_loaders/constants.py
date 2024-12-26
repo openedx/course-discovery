@@ -45,6 +45,10 @@ class CSVIngestionErrorMessages:
     COURSE_UPDATE_ERROR = '[COURSE_UPDATE_ERROR] Unable to update course {course_title} in the system. The update ' \
                           'failed with the exception: {exception_message}'
 
+    COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR = '[COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR] Unable to update ' \
+                                            'course entitlement price for the course {course_title} in the system. ' \
+                                            'The update failed with the exception: {exception_message}'
+
     COURSE_RUN_UPDATE_ERROR = '[COURSE_RUN_UPDATE_ERROR] Unable to update course run of the course {course_title} ' \
                               'in the system. The update failed with the exception: {exception_message}'
 
