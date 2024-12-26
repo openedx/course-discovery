@@ -796,3 +796,6 @@ ENABLE_COURSE_REVIEWS_ADMIN = False
 # If the keyword is found, the user has more lenient throttling limits.
 ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = []
 ENHANCED_THROTTLE_LIMIT = '400/hour'
+
+RETIRED_RUN_TYPES = []
+RETIRED_COURSE_TYPES = []
