@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.http.response import Http404
@@ -27,7 +28,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -110,6 +111,9 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             )
         else:
             queryset = queryset.filter(course__partner=partner)
+
+            retired_type_ids = list(map(lambda ct: ct.id, CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES)))
+            queryset = queryset.exclude(type_id__in=retired_type_ids)
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
