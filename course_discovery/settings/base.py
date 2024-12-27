@@ -797,5 +797,5 @@ ENABLE_COURSE_REVIEWS_ADMIN = False
 ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = []
 ENHANCED_THROTTLE_LIMIT = '400/hour'
 
-RETIRED_RUN_TYPES = ['retired_runtype']
-RETIRED_COURSE_TYPES = ['retired_type']
+RETIRED_RUN_TYPES = ['paid-bootcamp', 'unpaid-bootcamp']
+RETIRED_COURSE_TYPES = ['bootcamp-2u']
