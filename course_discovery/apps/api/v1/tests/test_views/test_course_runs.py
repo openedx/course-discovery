@@ -119,7 +119,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
             context = self.assertNumQueries(15, threshold=3) if include_retired else contextlib.nullcontext(0)
-            with self.assertNumQueries(15, threshold=3):
+            with context:
                 response = self.client.get(url)
 
         assert response.status_code == status_code
