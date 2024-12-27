@@ -39,7 +39,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
     RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, HIDE_RETIRED_COURSE_AND_COURSE_RUNS
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -109,6 +109,23 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
+
+    @ddt.data(
+        [True, 200],
+        [False, 404]
+    )
+    @ddt.unpack
+    def test_get_filters_retired(self, include_retired, status_code):
+        """ Verify that retired courses do not appear by default """
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+        bootcamp = CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+        url = reverse('api:v1:course-detail', kwargs={'key': bootcamp.key})
+        if include_retired:
+            url += '?include_retired=1'
+
+        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
+            response = self.client.get(url)
+        assert response.status_code == status_code
 
     def test_get_uuid(self):
         """ Verify the endpoint returns the details for a single course with UUID. """
@@ -354,6 +371,25 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             self.serialize_course(Course.objects.all(), many=True)
         )
 
+    @ddt.data(
+        [True, 2],
+        [False, 1]
+    )
+    @ddt.unpack
+    def test_list_filters_retired(self, include_retired, expected_length):
+        """ Verify that retired courses do not appear by default """
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+
+        url = reverse('api:v1:course-list')
+        if include_retired:
+            url += '?include_retired=1'
+
+        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
+            response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
+
     def test_no_repeated_cache_calls_for_utm_calculation(self):
         """
         Test that utm source calculation is done only once per request, and not per
@@ -507,7 +543,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
 
-        url = reverse('api:v1:course-list') + '?editable=1&course_type={}&include_retired=1'.format(course_type)
+        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
 
         response = self.client.get(url)
         assert response.status_code == 200

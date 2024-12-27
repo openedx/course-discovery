@@ -32,7 +32,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     PersonFactory, ProgramFactory, RestrictedCourseRunFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
 )
 from course_discovery.apps.course_metadata.toggles import (
-    IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+    HIDE_RETIRED_COURSE_AND_COURSE_RUNS, IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, is_valid_slug_format
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -102,6 +102,25 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         assert response.status_code == 200
         assert response.data == self.serialize_course_run(self.course_run)
+
+    @ddt.data(
+        [True, 200],
+        [False, 404]
+    )
+    @ddt.unpack
+    def test_get_filters_retired(self, include_retired, status_code):
+        """ Verify the endpoint excludes retired courses by default. """
+        bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
+        run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': run.key})
+        if include_retired:
+            url += '?include_retired=1'
+
+        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
+            with self.assertNumQueries(15, threshold=3):
+                response = self.client.get(url)
+
+        assert response.status_code == status_code
 
     def test_get_exclude_deleted_programs(self):
         """ Verify the endpoint returns no associated deleted programs """
@@ -1207,6 +1226,25 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
+
+    @ddt.data(
+        [True, 3],
+        [False, 2]
+    )
+    @ddt.unpack
+    def test_list_filters_retired(self, include_retired, expected_length):
+        """ Verify the endpoint excludes retired courses by default. """
+        bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
+        run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
+        url = reverse('api:v1:course_run-list')
+        if include_retired:
+            url += '?include_retired=1'
+
+        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
+            response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
 
     def test_list_sorted_by_course_start_date(self):
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
