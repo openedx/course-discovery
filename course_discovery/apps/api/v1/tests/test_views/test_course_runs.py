@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import urllib
 import uuid
@@ -117,6 +118,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             url += '?include_retired=1'
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
+            context = self.assertNumQueries(15, threshold=3) if include_restricted else contextlib.nullcontext(0)
             with self.assertNumQueries(15, threshold=3):
                 response = self.client.get(url)
 
