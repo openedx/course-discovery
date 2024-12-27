@@ -507,7 +507,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
 
-        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
+        url = reverse('api:v1:course-list') + '?editable=1&course_type={}&include_retired=1'.format(course_type)
 
         response = self.client.get(url)
         assert response.status_code == 200

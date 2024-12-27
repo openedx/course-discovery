@@ -111,7 +111,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             )
         else:
             queryset = queryset.filter(course__partner=partner)
-            if self.request.method == "GET":
+            if self.request.method == "GET" and not get_query_param(self.request, 'include_retired'):
                 retired_type_ids = list(map(lambda ct: ct.id, CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES)))
                 queryset = queryset.exclude(type_id__in=retired_type_ids)
 
