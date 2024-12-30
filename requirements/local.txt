@@ -32,7 +32,7 @@ asgiref==3.8.1
     #   django-countries
 asn1crypto==1.5.1
     # via snowflake-connector-python
-astroid==3.3.7
+astroid==3.3.8
     # via
     #   pylint
     #   pylint-celery
@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.86
+boto3==1.35.90
     # via django-ses
-botocore==1.35.86
+botocore==1.35.90
     # via
     #   boto3
     #   s3transfer
@@ -100,7 +100,7 @@ cffi==1.17.1
     #   snowflake-connector-python
 chardet==5.2.0
     # via tox
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   requests
     #   snowflake-connector-python
@@ -136,7 +136,7 @@ colorama==0.4.6
     #   tox
 contentful==2.2.0
     # via -r requirements/base.in
-coverage[toml]==7.6.9
+coverage[toml]==7.6.10
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -625,7 +625,7 @@ pyjwt[crypto]==2.10.1
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==3.3.2
+pylint==3.3.3
     # via
     #   edx-lint
     #   pylint-celery
