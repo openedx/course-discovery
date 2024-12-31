@@ -87,6 +87,7 @@ PROJECT_APPS = [
     'course_discovery.apps.publisher_comments',
     'course_discovery.apps.learner_pathway',
     'course_discovery.apps.taxonomy_support',
+    'course_discovery.apps.tagging',
 ]
 
 ES_APPS = [
