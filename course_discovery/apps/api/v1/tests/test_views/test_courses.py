@@ -39,7 +39,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseTypeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory,
     RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
 )
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, HIDE_RETIRED_COURSE_AND_COURSE_RUNS
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -123,8 +123,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         if include_retired:
             url += '?include_retired_course_types=1'
 
-        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
-            response = self.client.get(url)
+        response = self.client.get(url)
         assert response.status_code == status_code
 
     def test_get_uuid(self):
@@ -385,8 +384,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         if include_retired:
             url += '?include_retired_course_types=1'
 
-        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
-            response = self.client.get(url)
+        response = self.client.get(url)
         assert response.status_code == 200
         assert len(response.data['results']) == expected_length
 
