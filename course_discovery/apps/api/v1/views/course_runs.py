@@ -29,7 +29,6 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, CourseRunType
-from course_discovery.apps.course_metadata.toggles import HIDE_RETIRED_COURSE_AND_COURSE_RUNS
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -112,7 +111,7 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             )
         else:
             queryset = queryset.filter(course__partner=partner)
-            if self.request.method == "GET" and HIDE_RETIRED_COURSE_AND_COURSE_RUNS.is_enabled() and not get_query_param(self.request, 'include_retired_run_types'):
+            if self.request.method == "GET" and not get_query_param(self.request, 'include_retired_run_types'):
                 retired_type_ids = list(map(lambda ct: ct.id, CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES)))
                 queryset = queryset.exclude(type_id__in=retired_type_ids)
 

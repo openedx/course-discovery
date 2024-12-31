@@ -90,12 +90,3 @@ IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE = WaffleSwitch(
 IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS = WaffleSwitch(
     'course_metadata.is_disable_price_updates_for_published_runs', __name__
 )
-# .. toggle_name: course_metadata.is_disable_price_updates_for_published_runs
-# .. toggle_implementation: WaffleSwitch
-# .. toggle_default: False
-# .. toggle_description: Hide retired courses and courseruns from apis.
-# .. toggle_creation_date: 2024-12-27
-# .. toggle_tickets: PROD-4259
-HIDE_RETIRED_COURSE_AND_COURSE_RUNS = WaffleSwitch(
-    'course_metadata.hide_retired_course_and_course_runs', __name__
-)

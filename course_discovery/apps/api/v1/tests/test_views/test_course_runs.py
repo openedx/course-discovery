@@ -33,7 +33,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     PersonFactory, ProgramFactory, RestrictedCourseRunFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
 )
 from course_discovery.apps.course_metadata.toggles import (
-    HIDE_RETIRED_COURSE_AND_COURSE_RUNS, IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+    IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, is_valid_slug_format
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -117,10 +117,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         if include_retired:
             url += '?include_retired_run_types=1'
 
-        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
-            context = self.assertNumQueries(15, threshold=3) if include_retired else contextlib.nullcontext(0)
-            with context:
-                response = self.client.get(url)
+        context = self.assertNumQueries(15, threshold=3) if include_retired else contextlib.nullcontext(0)
+        with context:
+            response = self.client.get(url)
 
         assert response.status_code == status_code
 
@@ -1242,8 +1241,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         if include_retired:
             url += '?include_retired_run_types=1'
 
-        with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
-            response = self.client.get(url)
+        response = self.client.get(url)
 
         assert response.status_code == 200
         assert len(response.data['results']) == expected_length
