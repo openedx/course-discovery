@@ -2624,14 +2624,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
     @responses.activate
     @ddt.data(
-        [['bootcamp-2u'], False],
+        [['audit'], False],
         [[], True]
     )
     @ddt.unpack
-    def test_options(self, retired_course_types, is_bootcamp_in_result):
+    def test_options(self, retired_course_types, is_audit_type_in_result):
         SubjectFactory(name='Subject1')
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
-        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+        audit_type, _ = CourseType.objects.get_or_create(slug=CourseType.AUDIT)
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         with override_settings(RETIRED_COURSE_TYPES=retired_course_types):
@@ -2663,7 +2663,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
                 break
         # Assert that retired course types do not appear in the result
         type_uuids = [typ['uuid'] for typ in data['type']['type_options']]
-        assert (str(bootcamp_type.uuid) in type_uuids) == is_bootcamp_in_result
+        assert (str(audit_type.uuid) in type_uuids) == is_audit_type_in_result
         assert credit_options is not None
         assert {t['mode']['slug'] for t in credit_options['tracks']} == {'verified', 'credit', 'audit'}
 
