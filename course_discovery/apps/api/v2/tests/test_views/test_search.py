@@ -1,6 +1,7 @@
-""" Test cases for api/v2/search/all """
+""" Test cases for api/v2/search/all endpoint """
 
 import json
+from urllib.parse import parse_qs, urlparse
 
 import ddt
 from django.urls import reverse
@@ -17,11 +18,16 @@ from course_discovery.apps.learner_pathway.tests.factories import LearnerPathway
 class AggregateSearchViewSetV2Tests(mixins.LoginMixin, ElasticsearchTestMixin, mixins.APITestCase):
     list_path = reverse("api:v2:search-all-list")
 
-    def fetch_page_data(self, page_size, search_after=None):
-        query_params = {"page_size": page_size}
-        if search_after:
-            query_params["search_after"] = search_after
-        response = self.client.get(self.list_path, data=query_params)
+    def fetch_page_data(self, page_size, next_url=None):
+        """
+        Fetch a page of data using the provided page size and next_url.
+        If next_url is not provided, fetch the first page.
+        """
+        if next_url:
+            response = self.client.get(next_url)
+        else:
+            query_params = {"page_size": page_size}
+            response = self.client.get(self.list_path, data=query_params)
         assert response.status_code == 200
         return response.json()
 
@@ -96,20 +102,27 @@ class AggregateSearchViewSetV2Tests(mixins.LoginMixin, ElasticsearchTestMixin, m
         self.validate_page_data(response_data, page_size)
 
         all_results = response_data["results"]
-        next_token = response_data.get("next")
+        next_url = response_data.get("next")
 
-        while next_token:
-            response_data = self.fetch_page_data(page_size, search_after=json.dumps(next_token))
+        while next_url:
+            # Parse the `search_after` value from the next_url query params
+            parsed_url = urlparse(next_url)
+            query_params = parse_qs(parsed_url.query)
+            search_after = query_params.get("search_after", [None])[0]
+            assert search_after is not None, "'search_after' parameter is missing in the next_url"
+
+            last_sort_value = all_results[-1]["sort"]
+            assert (
+                json.loads(search_after) == last_sort_value
+            ), "The 'search_after' value in the next_url does not match the 'sort' field of the last result"
+
+            response_data = self.fetch_page_data(page_size, next_url=next_url)
 
             expected_size = min(page_size, 75 - len(all_results))
             self.validate_page_data(response_data, expected_size)
 
             all_results.extend(response_data["results"])
-            next_token = response_data.get("next")
-
-            if next_token:
-                last_sort_value = response_data["results"][-1]["sort"]
-                assert last_sort_value == next_token
+            next_url = response_data.get("next")
 
         assert len(all_results) == 75, "The total number of results does not match the expected count"
 
