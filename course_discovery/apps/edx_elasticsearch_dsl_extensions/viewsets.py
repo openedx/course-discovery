@@ -5,6 +5,7 @@ from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBa
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocumentViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.utils.urls import replace_query_param
 
 from course_discovery.apps.api import mixins
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import MultiMatchSearchFilterBackend
@@ -107,13 +108,14 @@ class SearchAfterPagination(PageNumberPagination):
     """
 
     page_size_query_param = "page_size"
+    search_after_param = "search_after"
 
     def paginate_queryset(self, queryset, request, view=None):
         """
         Paginate the Elasticsearch queryset using search_after.
         """
 
-        search_after = request.query_params.get("search_after")
+        search_after = request.query_params.get(self.search_after_param)
         if search_after:
             try:
                 queryset = queryset.extra(search_after=json.loads(search_after))
@@ -122,16 +124,20 @@ class SearchAfterPagination(PageNumberPagination):
 
         return super().paginate_queryset(queryset, request, view)
 
-    def get_paginated_response(self, data):
-        """
-        Get paginated response, including search_after value for the next page.
-        """
-        response = super().get_paginated_response(data)
-        last_item = data[-1] if data else None
-        search_after = last_item.get("sort") if last_item else None
-        next_link = response.data.pop("next", None)
-        response.data["next"] = search_after if next_link else None
-        return response
+    def get_next_link(self):
+        if not self.page.has_next():
+            return None
+
+        last_item_sort = self._get_last_item_sort()
+        if not last_item_sort:
+            return None
+
+        url = self.request.build_absolute_uri()
+        return replace_query_param(url, self.search_after_param, json.dumps(last_item_sort))
+
+    def _get_last_item_sort(self):
+        last_item = self.page.object_list[-1] if self.page.object_list else None
+        return list(last_item.meta.sort) if last_item else None
 
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
