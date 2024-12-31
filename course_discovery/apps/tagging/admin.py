@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.tagging.forms import CSVUploadForm
-from course_discovery.apps.tagging.models import CourseVerticalFilters, SubVericalFilter, VerticalFilter, ProgramVerticalFilters, VerticalFilterTags
+from course_discovery.apps.tagging.models import CourseVerticalFilters, SubVerticalFilter, VerticalFilter, ProgramVerticalFilters, VerticalFilterTags
 
 
 @admin.register(VerticalFilter)
@@ -18,7 +18,7 @@ class VerticalFilterAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-@admin.register(SubVericalFilter)
+@admin.register(SubVerticalFilter)
 class SubVericalFilterAdmin(admin.ModelAdmin):
     """
     Admin class for SubVerticalFilter model.

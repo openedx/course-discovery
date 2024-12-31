@@ -22,7 +22,7 @@ class VerticalFilter(TimeStampedModel):
         unique_together = ['name']
 
 
-class SubVericalFilter(TimeStampedModel):
+class SubVerticalFilter(TimeStampedModel):
     """
     This model is used to store the sub vertical mapping for the courses.
     """
@@ -48,7 +48,7 @@ class BaseVerticalFilter(TimeStampedModel):
         VerticalFilter, on_delete=models.CASCADE, related_name="%(class)s_vertical_filters"
     )
     sub_vertical = models.ForeignKey(
-        SubVericalFilter, on_delete=models.CASCADE, related_name="%(class)s_sub_vertical_filters"
+        SubVerticalFilter, on_delete=models.CASCADE, related_name="%(class)s_sub_vertical_filters"
     )
 
     class Meta:
@@ -104,7 +104,7 @@ class VerticalFilterTags(TimeStampedModel):
 
     vertical = models.ForeignKey(VerticalFilter, on_delete=models.CASCADE, related_name='vertical_filters')
     sub_vertical = models.ForeignKey(
-        SubVericalFilter,
+        SubVerticalFilter,
         on_delete=models.CASCADE,
         related_name='sub_vertical_filters',
     )
