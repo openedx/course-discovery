@@ -541,7 +541,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
 
-        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
+        url = reverse('api:v1:course-list') + '?editable=1&include_retired_course_types=1&course_type={}'.format(course_type)
 
         response = self.client.get(url)
         assert response.status_code == 200
@@ -2623,13 +2623,20 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert GeoLocation.objects.count() == 1
 
     @responses.activate
-    def test_options(self):
+    @ddt.data(
+        [['bootcamp-2u'], False],
+        [[], True]
+    )
+    @ddt.unpack
+    def test_options(self, retired_course_types, is_bootcamp_in_result):
         SubjectFactory(name='Subject1')
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(46, threshold=0):
-            response = self.client.options(url)
+        with override_settings(RETIRED_COURSE_TYPES=retired_course_types):
+            with self.assertNumQueries(46, threshold=1):
+                response = self.client.options(url)
         assert response.status_code == 200
 
         data = response.json()['actions']['PUT']
@@ -2649,14 +2656,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         # Check that tracks come out alright
         credit_type = CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT)
-        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
         credit_options = None
         for options in data['type']['type_options']:
             if options['uuid'] == str(credit_type.uuid):
                 credit_options = options
                 break
         # Assert that retired course types do not appear in the result
-        assert not list(filter(lambda typ: type['uuid'] == str(bootcamp_type.uuid), data['type']['type_options']))
+        type_uuids = [typ['uuid'] for typ in data['type']['type_options']]
+        assert (str(bootcamp_type.uuid) in type_uuids) == is_bootcamp_in_result
         assert credit_options is not None
         assert {t['mode']['slug'] for t in credit_options['tracks']} == {'verified', 'credit', 'audit'}
 
