@@ -110,12 +110,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     )
     @ddt.unpack
     def test_get_filters_retired(self, include_retired, status_code):
-        """ Verify the endpoint excludes retired courses by default. """
+        """ Verify the endpoint excludes retired run types by default. """
         bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
         run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
         url = reverse('api:v1:course_run-detail', kwargs={'key': run.key})
         if include_retired:
-            url += '?include_retired=1'
+            url += '?include_retired_run_types=1'
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
             context = self.assertNumQueries(15, threshold=3) if include_retired else contextlib.nullcontext(0)
@@ -1235,12 +1235,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     )
     @ddt.unpack
     def test_list_filters_retired(self, include_retired, expected_length):
-        """ Verify the endpoint excludes retired courses by default. """
+        """ Verify the endpoint excludes retired types by default. """
         bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
         run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
         url = reverse('api:v1:course_run-list')
         if include_retired:
-            url += '?include_retired=1'
+            url += '?include_retired_run_types=1'
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
             response = self.client.get(url)

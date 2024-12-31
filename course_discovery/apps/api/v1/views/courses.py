@@ -162,7 +162,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 partner=partner,
                 programs=programs,
             )
-        if self.request.method == 'GET' and HIDE_RETIRED_COURSE_AND_COURSE_RUNS.is_enabled() and not get_query_param(self.request, 'include_retired'):
+        if self.request.method == 'GET' and HIDE_RETIRED_COURSE_AND_COURSE_RUNS.is_enabled() and not get_query_param(self.request, 'include_retired_course_types'):
             retired_type_ids = list(map(lambda ct: ct.id, CourseType.objects.filter(slug__in=settings.RETIRED_COURSE_TYPES)))
             queryset = queryset.exclude(type_id__in=retired_type_ids)
         if pub_q and edit_mode:

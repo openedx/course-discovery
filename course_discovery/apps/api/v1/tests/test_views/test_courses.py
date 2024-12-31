@@ -116,12 +116,12 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     )
     @ddt.unpack
     def test_get_filters_retired(self, include_retired, status_code):
-        """ Verify that retired courses do not appear by default """
+        """ Verify that retired courses types do not appear by default """
         bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
         bootcamp = CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
         url = reverse('api:v1:course-detail', kwargs={'key': bootcamp.key})
         if include_retired:
-            url += '?include_retired=1'
+            url += '?include_retired_course_types=1'
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
             response = self.client.get(url)
@@ -377,13 +377,13 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     )
     @ddt.unpack
     def test_list_filters_retired(self, include_retired, expected_length):
-        """ Verify that retired courses do not appear by default """
+        """ Verify that retired course types do not appear by default """
         bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
 
         url = reverse('api:v1:course-list')
         if include_retired:
-            url += '?include_retired=1'
+            url += '?include_retired_course_types=1'
 
         with override_waffle_switch(HIDE_RETIRED_COURSE_AND_COURSE_RUNS, True):
             response = self.client.get(url)
