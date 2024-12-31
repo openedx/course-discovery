@@ -1,4 +1,15 @@
+"""
+Management command for archiving courses in bulk
+
+Example usage:
+    $ ./manage.py archive_courses --from-db
+
+Use ./manage.py archive_courses --help for more information on the available arguments and their behavior
+"""
+import csv
+import io
 import logging
+from datetime import timedelta
 from functools import reduce
 
 import unicodecsv
@@ -28,7 +39,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--from-db',
-            help='Query the db for list of uuids to archive',
+            help='Query the db for the uuids to archive. The uuids are fetched from the ArchiveCoursesConfig model',
             default=False,
             action='store_true'
         )
@@ -41,7 +52,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--mangle-end-date',
-            help="Set the end date for the archived courses' runs in the past",
+            help="Set the end date and enrollment end date for the archived courses' runs in the past",
             default=False,
             action='store_true'
         )
@@ -70,6 +81,8 @@ class Command(BaseCommand):
         self.report['total_count'] = courses.count()
 
         for course in courses:
+            # Store the original title in case we mangle it
+            course_title = course.title
             try:
                 self.archive(course, mangle_end_date, mangle_title)
                 if course.draft_version:
@@ -78,6 +91,7 @@ class Command(BaseCommand):
                 self.report['failures'].append(
                     {
                         'uuid': course.uuid,
+                        'title': course_title,
                         'reason': repr(exc)
                     }
                 )
@@ -86,11 +100,12 @@ class Command(BaseCommand):
                 self.report['successes'].append(
                     {
                         'uuid': course.uuid,
+                        'title': course_title
                     }
                 )
                 logger.info(f"Successfully archived course with uuid: {course.uuid}")
 
-        send_email_for_course_archival(self.report, settings.COURSE_ARCHIVAL_MAIL_RECIPIENTS)
+        send_email_for_course_archival(self.report, self.get_csv_report(), settings.COURSE_ARCHIVAL_MAIL_RECIPIENTS)
 
     def archive(self, course, mangle_end_date, mangle_title):
         for course_run in course.course_runs.all():
@@ -99,12 +114,14 @@ class Command(BaseCommand):
 
             if mangle_end_date and course_run.end and course_run.end > timezone.now():
                 course_run.end = timezone.now()
-                course_run.save(update_fields=['end'])
+            if mangle_end_date and course_run.enrollment_end and course_run.enrollment_end > timezone.now():
+                course_run.enrollment_end = timezone.now() - timedelta(days=1)
+            course_run.save(update_fields=['end', 'enrollment_end'])
 
-                # Push to studio to prevent RCM rewrite
-                if not course_run.draft:
-                    api = StudioAPI(course_run.course.partner)
-                    api._update_end_date_in_studio(course_run) # pylint: disable=protected-access
+            # Push to studio to prevent RCM rewrite
+            if mangle_end_date and not course_run.draft:
+                api = StudioAPI(course_run.course.partner)
+                api._update_end_date_in_studio(course_run) # pylint: disable=protected-access
 
         if course.additional_metadata:
             course.additional_metadata.product_status = ExternalProductStatus.Archived
@@ -127,3 +144,14 @@ class Command(BaseCommand):
         reader = unicodecsv.DictReader(config.csv_file)
         uuid_list = reduce(lambda uuid_list, row: uuid_list + list(row.values()), reader, [])
         return uuid_list
+
+    def get_csv_report(self):
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['course_uuid', 'title', 'status'])
+        for record in self.report['successes']:
+            writer.writerow([record['uuid'], record['title'], 'success'])
+        for record in self.report['failures']:
+            writer.writerow([record['uuid'], record['title'], 'failure'])
+
+        return output.getvalue()

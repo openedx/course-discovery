@@ -369,10 +369,10 @@ class StudioAPI:
         """
         data = self.generate_data_for_studio_api(course_run, creating=False)
         data.setdefault('schedule', {})
-        data['schedule'] = {
-            **data['schedule'],
-            'end': serialize_datetime(course_run.end)
-        }
+        for attr in ['end', 'enrollment_end']:
+            attr_val = getattr(course_run, attr)
+            if attr_val:
+                data['schedule'][attr] = serialize_datetime(attr_val)
         self._request('patch', f'course_runs/{course_run.key}/', json=data)
 
 

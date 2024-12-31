@@ -419,7 +419,7 @@ def send_email_for_slug_updates(stats, to_users, subject=None):
     email_msg.send()
 
 
-def send_email_for_course_archival(report, to_users):
+def send_email_for_course_archival(report, csv_report, to_users):
     """
     Send an overall report of a archive_courses mgmt command run
     """
@@ -441,5 +441,6 @@ def send_email_for_course_archival(report, to_users):
         settings.PUBLISHER_FROM_EMAIL,
         to_users,
     )
+    email.attach("report.csv", csv_report, "text/csv")
     email.content_subtype = "html"
     email.send()
