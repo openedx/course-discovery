@@ -2649,11 +2649,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         # Check that tracks come out alright
         credit_type = CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT)
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
         credit_options = None
         for options in data['type']['type_options']:
             if options['uuid'] == str(credit_type.uuid):
                 credit_options = options
                 break
+        # Assert that retired course types do not appear in the result
+        assert not list(filter(lambda typ: type['uuid'] == str(bootcamp_type.uuid), data['type']['type_options']))
         assert credit_options is not None
         assert {t['mode']['slug'] for t in credit_options['tracks']} == {'verified', 'credit', 'audit'}
 
