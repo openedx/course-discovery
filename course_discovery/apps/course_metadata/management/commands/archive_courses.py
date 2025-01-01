@@ -13,9 +13,9 @@ from datetime import timedelta
 from functools import reduce
 
 import unicodecsv
-from django.db import transaction
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
+from django.db import transaction
 from django.utils import timezone
 
 from course_discovery.apps.api.utils import StudioAPI
@@ -40,7 +40,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--from-db',
-            help='Query the db for the uuids and command args. The uuids and config is fetched from the ArchiveCoursesConfig model',
+            help='Query the db for the uuids and command args. '
+                 'The uuids and config is fetched from the ArchiveCoursesConfig model',
             default=False,
             action='store_true'
         )
@@ -91,7 +92,7 @@ class Command(BaseCommand):
                 self.archive(course, mangle_end_date, mangle_title)
                 if course.draft_version:
                     self.archive(course.draft_version, mangle_end_date, mangle_title)
-            except Exception as exc: # pylint: disable=broad-exception-caught
+            except Exception as exc:  # pylint: disable=broad-exception-caught
                 self.report['failures'].append(
                     {
                         'uuid': course.uuid,
@@ -126,7 +127,7 @@ class Command(BaseCommand):
             # Push to studio to prevent RCM rewrite
             if mangle_end_date and not course_run.draft:
                 api = StudioAPI(course_run.course.partner)
-                api._update_end_date_in_studio(course_run) # pylint: disable=protected-access
+                api._update_end_date_in_studio(course_run)  # pylint: disable=protected-access
 
         if course.additional_metadata:
             course.additional_metadata.product_status = ExternalProductStatus.Archived
