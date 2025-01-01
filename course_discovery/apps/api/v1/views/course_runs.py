@@ -112,7 +112,9 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         else:
             queryset = queryset.filter(course__partner=partner)
             if self.request.method == "GET" and not get_query_param(self.request, 'include_retired_run_types'):
-                retired_type_ids = list(CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True))
+                retired_type_ids = list(
+                    CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True)
+                )
                 queryset = queryset.exclude(type_id__in=retired_type_ids)
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset)
