@@ -1,13 +1,12 @@
 from datetime import timedelta
 from itertools import product
-from unittest import mock
 from urllib.parse import urljoin
 
 import ddt
 import pytest
 import responses
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.management import call_command, CommandError
+from django.core.management import CommandError, call_command
 from django.test import TestCase
 from django.utils import timezone
 
@@ -34,8 +33,14 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         self.course2 = CourseFactory(additional_metadata=AdditionalMetadataFactory(end_date=end))
         self.courserun1 = CourseRunFactory(course=self.course1, end=end)
         self.courserun2 = CourseRunFactory(course=self.course2, end=end)
-        self.courserun1_studio_url = urljoin(self.course1.partner.studio_url, f"api/v1/course_runs/{self.courserun1.key}/")
-        self.courserun2_studio_url = urljoin(self.course2.partner.studio_url, f"api/v1/course_runs/{self.courserun2.key}/")
+        self.courserun1_studio_url = urljoin(
+            self.course1.partner.studio_url,
+            f"api/v1/course_runs/{self.courserun1.key}/"
+        )
+        self.courserun2_studio_url = urljoin(
+            self.course2.partner.studio_url,
+            f"api/v1/course_runs/{self.courserun2.key}/"
+        )
 
         ensure_draft_world(Course.objects.get(pk=self.course1.pk))
         ensure_draft_world(Course.objects.get(pk=self.course2.pk))
@@ -58,9 +63,14 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         for model in [Course, CourseRun]:
             assert model.objects.count() == 2
             assert model.everything.count() == 4
-        
+
         if from_db:
-            ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True, mangle_end_date=mangle_end_date, mangle_title=mangle_title)
+            ArchiveCoursesConfigFactory.create(
+                csv_file=self.csv_file,
+                enabled=True,
+                mangle_end_date=mangle_end_date,
+                mangle_title=mangle_title
+            )
 
         responses.add(responses.PATCH, self.courserun1_studio_url, status=200)
         responses.add(responses.PATCH, self.courserun2_studio_url, status=200)
@@ -68,7 +78,7 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         if not from_db:
             args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
         else:
-            args=['--from-db']
+            args = ['--from-db']
         call_command('archive_courses', *args)
 
         self.course1.refresh_from_db()
@@ -96,7 +106,12 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             content=self.csv_file_content.encode('utf-8'),
             content_type='text/csv'
         )
-        ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True, mangle_end_date=True, mangle_title=True)
+        ArchiveCoursesConfigFactory.create(
+            csv_file=self.csv_file,
+            enabled=True,
+            mangle_end_date=True,
+            mangle_title=True
+        )
 
         call_command('archive_courses', '--from-db')
 
