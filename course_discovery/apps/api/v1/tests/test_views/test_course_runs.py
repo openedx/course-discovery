@@ -1236,7 +1236,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_list_filters_retired(self, include_retired, expected_length):
         """ Verify the endpoint excludes retired types by default. """
         bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
-        run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
+        CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
         url = reverse('api:v1:course_run-list')
         if include_retired:
             url += '?include_retired_run_types=1'
