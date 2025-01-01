@@ -58,11 +58,17 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         for model in [Course, CourseRun]:
             assert model.objects.count() == 2
             assert model.everything.count() == 4
+        
+        if from_db:
+            ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True, mangle_end_date=mangle_end_date, mangle_title=mangle_title)
 
         responses.add(responses.PATCH, self.courserun1_studio_url, status=200)
         responses.add(responses.PATCH, self.courserun2_studio_url, status=200)
 
-        args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
+        if not from_db:
+            args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
+        else:
+            args=['--from-db']
         call_command('archive_courses', *args)
 
         self.course1.refresh_from_db()
@@ -90,10 +96,9 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             content=self.csv_file_content.encode('utf-8'),
             content_type='text/csv'
         )
-        ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True)
+        ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True, mangle_end_date=True, mangle_title=True)
 
-        args = self.prepare_cmd_args(True, True, True)
-        call_command('archive_courses', *args)
+        call_command('archive_courses', '--from-db')
 
         self.course1.refresh_from_db()
         self.course2.refresh_from_db()

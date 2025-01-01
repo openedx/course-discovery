@@ -40,7 +40,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--from-db',
-            help='Query the db for the uuids to archive. The uuids are fetched from the ArchiveCoursesConfig model',
+            help='Query the db for the uuids and command args. The uuids and config is fetched from the ArchiveCoursesConfig model',
             default=False,
             action='store_true'
         )
@@ -71,6 +71,9 @@ class Command(BaseCommand):
         mangle_title = options.get('mangle_title')
 
         if from_db:
+            conf = ArchiveCoursesConfig.current()
+            mangle_end_date = conf.mangle_end_date
+            mangle_title = conf.mangle_title
             courses = Course.objects.filter(uuid__in=self.get_uuids_from_database())
         elif course_type:
             courses = Course.objects.filter(

@@ -4452,6 +4452,8 @@ class ArchiveCoursesConfig(ConfigurationModel):
         validators=[FileExtensionValidator(allowed_extensions=['csv'])],
         help_text=_("A csv file containing uuid of the courses to be archived")
     )
+    mangle_end_date = models.BooleanField(default=False)
+    mangle_title = models.BooleanField(default=False)
 
 
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
