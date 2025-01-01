@@ -13,6 +13,7 @@ from datetime import timedelta
 from functools import reduce
 
 import unicodecsv
+from django.db import transaction
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.utils import timezone
@@ -107,6 +108,7 @@ class Command(BaseCommand):
 
         send_email_for_course_archival(self.report, self.get_csv_report(), settings.COURSE_ARCHIVAL_MAIL_RECIPIENTS)
 
+    @transaction.atomic
     def archive(self, course, mangle_end_date, mangle_title):
         for course_run in course.course_runs.all():
             course_run.status = CourseRunStatus.Unpublished
