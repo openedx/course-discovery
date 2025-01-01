@@ -110,11 +110,27 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
 
+    @ddt.data(
+        [True, 200],
+        [False, 404]
+    )
+    @ddt.unpack
+    def test_get_filters_retired(self, include_retired, status_code):
+        """ Verify that retired courses types do not appear by default """
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+        bootcamp = CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+        url = reverse('api:v1:course-detail', kwargs={'key': bootcamp.key})
+        if include_retired:
+            url += '?include_retired_course_types=1'
+
+        response = self.client.get(url)
+        assert response.status_code == status_code
+
     def test_get_uuid(self):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(27):
+        with self.assertNumQueries(28):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -354,6 +370,24 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             self.serialize_course(Course.objects.all(), many=True)
         )
 
+    @ddt.data(
+        [True, 2],
+        [False, 1]
+    )
+    @ddt.unpack
+    def test_list_filters_retired(self, include_retired, expected_length):
+        """ Verify that retired course types do not appear by default """
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+
+        url = reverse('api:v1:course-list')
+        if include_retired:
+            url += '?include_retired_course_types=1'
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
+
     def test_no_repeated_cache_calls_for_utm_calculation(self):
         """
         Test that utm source calculation is done only once per request, and not per
@@ -507,7 +541,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
         CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
 
-        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
+        query_params = '?editable=1&include_retired_course_types=1&course_type={}'.format(course_type)
+        url = reverse('api:v1:course-list') + query_params
 
         response = self.client.get(url)
         assert response.status_code == 200
@@ -2589,13 +2624,20 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         assert GeoLocation.objects.count() == 1
 
     @responses.activate
-    def test_options(self):
+    @ddt.data(
+        [['audit'], False],
+        [[], True]
+    )
+    @ddt.unpack
+    def test_options(self, retired_course_types, is_retired_type_in_result):
         SubjectFactory(name='Subject1')
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
+        audit_type, _ = CourseType.objects.get_or_create(slug=CourseType.AUDIT)
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(46, threshold=0):
-            response = self.client.options(url)
+        with override_settings(RETIRED_COURSE_TYPES=retired_course_types):
+            with self.assertNumQueries(46, threshold=1):
+                response = self.client.options(url)
         assert response.status_code == 200
 
         data = response.json()['actions']['PUT']
@@ -2620,6 +2662,9 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             if options['uuid'] == str(credit_type.uuid):
                 credit_options = options
                 break
+        # Assert that retired course types do not appear in the result
+        type_uuids = [typ['uuid'] for typ in data['type']['type_options']]
+        assert (str(audit_type.uuid) in type_uuids) == is_retired_type_in_result
         assert credit_options is not None
         assert {t['mode']['slug'] for t in credit_options['tracks']} == {'verified', 'credit', 'audit'}
 
