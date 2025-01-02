@@ -80,7 +80,7 @@ class CSVDataLoader(AbstractDataLoader):
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         self.obj_cache = {
             'org': {}, 'course_type': {}, 'course_run_type': {}
-        } #  cache for organization, course type and course run type objects to avoid redundant queries
+        } # cache for organization, course type and course run type objects to avoid redundant queries
         self.product_type = product_type
         self.product_source = self._get_product_source(product_source)
         self.reader = self._initialize_csv_reader(csv_path, csv_file, use_gspread_client)
@@ -381,11 +381,11 @@ class CSVDataLoader(AbstractDataLoader):
         def validate_course_and_course_run_types(row, course_title):
             """
             Helper method to validate course and course run types.
-            
+
             Args:
                 row (dict): Course data row
                 course_title (str): Course title
-            
+
             Returns:
                 bool: True if course and course run types are valid, False otherwise
                 CourseType: CourseType object
