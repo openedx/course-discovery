@@ -168,7 +168,7 @@ class CSVDataLoader(AbstractDataLoader):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_and_register_ingestion_error(
+                    self._log_ingestion_error(
                         CSVIngestionErrors.COURSE_CREATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_CREATE_ERROR.format(
                             course_title=course_title,
@@ -191,7 +191,7 @@ class CSVDataLoader(AbstractDataLoader):
                     row['image'],
                     headers=self.REQUEST_USER_AGENT_HEADERS)
                 if not is_downloaded:
-                    self._log_and_register_ingestion_error(
+                    self._log_ingestion_error(
                         CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE,
                         CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
                     )
@@ -205,7 +205,7 @@ class CSVDataLoader(AbstractDataLoader):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_and_register_ingestion_error(
+                    self._log_ingestion_error(
                         CSVIngestionErrors.COURSE_UPDATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
                             course_title=course_title, exception_message=exception_message
@@ -222,7 +222,7 @@ class CSVDataLoader(AbstractDataLoader):
                         headers=self.REQUEST_USER_AGENT_HEADERS
                     )
                     if not is_logo_downloaded:
-                        self._log_and_register_ingestion_error(
+                        self._log_ingestion_error(
                             CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE,
                             CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
                                 course_title=course_title
@@ -237,7 +237,7 @@ class CSVDataLoader(AbstractDataLoader):
                 except Exception as exc:  # pylint: disable=broad-except
                     exception_message = exc
                     if hasattr(exc, 'response'):
-                        self._log_and_register_ingestion_error(
+                        self._log_ingestion_error(
                             CSVIngestionErrors.COURSE_UPDATE_ERROR,
                             CSVIngestionErrorMessages.COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR.format(
                                 course_title=course_title, exception_message=exception_message
@@ -253,7 +253,7 @@ class CSVDataLoader(AbstractDataLoader):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_and_register_ingestion_error(
+                    self._log_ingestion_error(
                         CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
                             course_title=course_title, exception_message=exception_message
@@ -320,7 +320,7 @@ class CSVDataLoader(AbstractDataLoader):
         if org_key not in self.obj_cache['org']:
             self.obj_cache['org'][org_key] = Organization.objects.filter(key=org_key).exists()
         if not self.obj_cache['org'][org_key]:
-            self._log_and_register_ingestion_error(
+            self._log_ingestion_error(
                 CSVIngestionErrors.MISSING_ORGANIZATION,
                 CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
                     org_key=org_key, course_title=course_title
@@ -392,7 +392,7 @@ class CSVDataLoader(AbstractDataLoader):
             """
             course_type = self.get_course_type(row["course_enrollment_track"])
             if not course_type:
-                self._log_and_register_ingestion_error(
+                self._log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
                         course_title=course_title, course_type=row["course_enrollment_track"]
@@ -402,7 +402,7 @@ class CSVDataLoader(AbstractDataLoader):
 
             course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
             if not course_run_type:
-                self._log_and_register_ingestion_error(
+                self._log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
                         course_title=course_title, course_run_type=row["course_run_enrollment_track"]
@@ -418,7 +418,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         missing_fields = self.validate_course_data(course_type, row)
         if missing_fields:
-            self._log_and_register_ingestion_error(
+            self._log_ingestion_error(
                 CSVIngestionErrors.MISSING_REQUIRED_DATA,
                 CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
                     course_title=course_title, missing_data=missing_fields
@@ -428,7 +428,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         return True, course_type, course_run_type
 
-    def _log_and_register_ingestion_error(self, error_code, message):
+    def _log_ingestion_error(self, error_code, message):
         """
         Log the error message and continue the ingestion process.
 
