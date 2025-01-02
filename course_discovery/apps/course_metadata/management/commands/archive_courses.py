@@ -125,7 +125,8 @@ class Command(BaseCommand):
             course_run.save(update_fields=['end', 'enrollment_end'])
 
             # Push to studio to prevent RCM rewrite
-            if mangle_end_date and not course_run.draft:
+            if mangle_end_date:
+                self.verify_date_order(course_run)
                 api = StudioAPI(course_run.course.partner)
                 api._update_end_date_in_studio(course_run)  # pylint: disable=protected-access
 
@@ -161,3 +162,14 @@ class Command(BaseCommand):
             writer.writerow([record['uuid'], record['title'], 'failure'])
 
         return output.getvalue()
+
+    def verify_date_order(self, run):
+        # Start date is <= End date
+        date_list = list(filter(bool, [run.start, run.end]))
+        if not sorted(date_list) == date_list:
+            raise ValueError(f"Start date is greater than end date for {run.key}")
+
+        # Enrollment start <= enrollment end
+        date_list = list(filter(bool, [run.enrollment_start, run.enrollment_end]))
+        if not sorted(date_list) == date_list:
+            raise ValueError(f"Enrollment end date is greater than start date for {run.key}")
