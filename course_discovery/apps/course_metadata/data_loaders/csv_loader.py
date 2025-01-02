@@ -78,9 +78,9 @@ class CSVDataLoader(AbstractDataLoader):
         self.error_logs = {key: [] for key in CSV_LOADER_ERROR_LOG_SEQUENCE}
         self.ingestion_summary = self._initialize_ingestion_summary()
         self.course_uuids = {}  # to show the discovery course ids for each processed course
-        self.org_cache = {}
-        self.course_type_cache = {}
-        self.course_run_type_cache = {}
+        self.obj_cache = {
+            'org': {}, 'course_type': {}, 'course_run_type': {}
+        } #  cache for organization, course type and course run type objects to avoid redundant queries
         self.product_type = product_type
         self.product_source = self._get_product_source(product_source)
         self.reader = self._initialize_csv_reader(csv_path, csv_file, use_gspread_client)
@@ -307,21 +307,20 @@ class CSVDataLoader(AbstractDataLoader):
     def _get_course_run_restriction(self, row):
         return None if row.get('restriction_type', None) == 'None' else row.get('restriction_type', None)
 
-    def _validate_organization(self, org_key, course_title, org_cache):
+    def _validate_organization(self, org_key, course_title):
         """
         Validate the organization key and log an error if the organization is not found.
 
         Args:
             org_key (str): Organization key
             course_title (str): Course title
-            org_cache (dict): Cache to store organization object
 
         Returns:
             bool: True if the organization exists, False otherwise
         """
-        if org_key not in org_cache:
-            org_cache[org_key] = Organization.objects.filter(key=org_key).exists()
-        if not org_cache[org_key]:
+        if org_key not in self.obj_cache['org']:
+            self.obj_cache['org'][org_key] = Organization.objects.filter(key=org_key).exists()
+        if not self.obj_cache['org'][org_key]:
             self._log_and_register_ingestion_error(
                 CSVIngestionErrors.MISSING_ORGANIZATION,
                 CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
@@ -341,12 +340,12 @@ class CSVDataLoader(AbstractDataLoader):
         Returns:
             CourseType: CourseType object
         """
-        if course_type_name not in self.course_type_cache:
+        if course_type_name not in self.obj_cache['course_type']:
             try:
-                self.course_type_cache[course_type_name] = CourseType.objects.get(name=course_type_name)
+                self.obj_cache['course_type'][course_type_name] = CourseType.objects.get(name=course_type_name)
             except CourseType.DoesNotExist:
-                self.course_type_cache[course_type_name] = None
-        return self.course_type_cache[course_type_name]
+                self.self.obj_cache['course_type'][course_type_name] = None
+        return self.self.obj_cache['course_type'][course_type_name]
 
     def get_course_run_type(self, course_run_type_name):
         """
@@ -355,12 +354,12 @@ class CSVDataLoader(AbstractDataLoader):
         Args:
             course_run_type_name (str): Course run type name
         """
-        if course_run_type_name not in self.course_run_type_cache:
+        if course_run_type_name not in self.self.obj_cache['course_run_type']:
             try:
-                self.course_run_type_cache[course_run_type_name] = CourseRunType.objects.get(name=course_run_type_name)
+                self.self.obj_cache['course_run_type'][course_run_type_name] = CourseRunType.objects.get(name=course_run_type_name)
             except CourseRunType.DoesNotExist:
-                self.course_run_type_cache[course_run_type_name] = None
-        return self.course_run_type_cache[course_run_type_name]
+                self.self.obj_cache['course_run_type'][course_run_type_name] = None
+        return self.self.obj_cache['course_run_type'][course_run_type_name]
 
     def _validate_and_process_row(self, row, course_title, org_key):
         """
@@ -376,7 +375,7 @@ class CSVDataLoader(AbstractDataLoader):
             CourseType: CourseType object
             CourseRunType: CourseRunType object
         """
-        if not self._validate_organization(org_key, course_title, self.org_cache):
+        if not self._validate_organization(org_key, course_title):
             return False, None, None
 
         def validate_course_and_course_run_types(row, course_title):
