@@ -29,10 +29,11 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         self.mock_access_token()
 
         end = timezone.now() + timedelta(days=5)
+        start = timezone.now() - timedelta(days=5)
         self.course1 = CourseFactory(additional_metadata=AdditionalMetadataFactory(end_date=end))
         self.course2 = CourseFactory(additional_metadata=AdditionalMetadataFactory(end_date=end))
-        self.courserun1 = CourseRunFactory(course=self.course1, end=end)
-        self.courserun2 = CourseRunFactory(course=self.course2, end=end)
+        self.courserun1 = CourseRunFactory(course=self.course1, end=end, enrollment_start=start)
+        self.courserun2 = CourseRunFactory(course=self.course2, end=end, enrollment_start=start)
         self.courserun1_studio_url = urljoin(
             self.course1.partner.studio_url,
             f"api/v1/course_runs/{self.courserun1.key}/"
@@ -52,79 +53,6 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             content_type='text/csv'
         )
         ArchiveCoursesConfigFactory.create(csv_file=self.csv_file, enabled=True)
-
-    @ddt.data(
-        *list(product([0, 1], repeat=3))
-    )
-    @ddt.unpack
-    @responses.activate
-    def test(self, from_db, mangle_title, mangle_end_date):
-        # Some sanity checks on counts
-        for model in [Course, CourseRun]:
-            assert model.objects.count() == 2
-            assert model.everything.count() == 4
-
-        if from_db:
-            ArchiveCoursesConfigFactory.create(
-                csv_file=self.csv_file,
-                enabled=True,
-                mangle_end_date=mangle_end_date,
-                mangle_title=mangle_title
-            )
-
-        responses.add(responses.PATCH, self.courserun1_studio_url, status=200)
-        responses.add(responses.PATCH, self.courserun2_studio_url, status=200)
-
-        if not from_db:
-            args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
-        else:
-            args = ['--from-db']
-        call_command('archive_courses', *args)
-
-        self.course1.refresh_from_db()
-        self.course2.refresh_from_db()
-        self.verify_archived(self.course1, mangle_title, mangle_end_date)
-        self.verify_not_archived(self.course2)
-
-        if mangle_end_date:
-            assert responses.assert_call_count(self.courserun1_studio_url, 1) is True
-        else:
-            assert responses.assert_call_count(self.courserun1_studio_url, 0) is True
-
-    @ddt.data(
-        True,
-        False
-    )
-    @responses.activate
-    def test_some_failures(self, is_course1_archived):
-        "Test for the case when some courses are archived successfully and some are not"
-        responses.add(responses.PATCH, self.courserun1_studio_url, status=200 if is_course1_archived else 500)
-        responses.add(responses.PATCH, self.courserun2_studio_url, status=500 if is_course1_archived else 200)
-        self.csv_file_content = f"Uuids\n{self.course1.uuid}\n{self.course2.uuid}"
-        self.csv_file = SimpleUploadedFile(
-            name='test.csv',
-            content=self.csv_file_content.encode('utf-8'),
-            content_type='text/csv'
-        )
-        ArchiveCoursesConfigFactory.create(
-            csv_file=self.csv_file,
-            enabled=True,
-            mangle_end_date=True,
-            mangle_title=True
-        )
-
-        call_command('archive_courses', '--from-db')
-
-        self.course1.refresh_from_db()
-        self.course2.refresh_from_db()
-        archived_course = self.course1 if is_course1_archived else self.course2
-        not_archived_course = self.course2 if is_course1_archived else self.course1
-        self.verify_archived(archived_course, True, True)
-        self.verify_not_archived(not_archived_course)
-
-    def test_raises_error_if_not_enough_arguments(self):
-        with pytest.raises(CommandError):
-            call_command("archive_courses")
 
     def prepare_cmd_args(self, from_db, mangle_title, mangle_end_date):
         args = []
@@ -155,3 +83,76 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
 
             assert not c.title.startswith('DELETED')
             assert not c.course_runs.first().end < timezone.now() + timedelta(minutes=1)
+
+    @ddt.data(
+        *list(product([0, 1], repeat=3))
+    )
+    @ddt.unpack
+    @responses.activate
+    def test_success(self, from_db, mangle_title, mangle_end_date):
+        # Some sanity checks on counts
+        for model in [Course, CourseRun]:
+            assert model.objects.count() == 2
+            assert model.everything.count() == 4
+
+        if from_db:
+            ArchiveCoursesConfigFactory.create(
+                csv_file=self.csv_file,
+                enabled=True,
+                mangle_end_date=mangle_end_date,
+                mangle_title=mangle_title
+            )
+
+        responses.add(responses.PATCH, self.courserun1_studio_url, status=200)
+        responses.add(responses.PATCH, self.courserun2_studio_url, status=200)
+
+        if not from_db:
+            args = self.prepare_cmd_args(from_db, mangle_title, mangle_end_date)
+        else:
+            args = ['--from-db']
+        call_command('archive_courses', *args)
+
+        self.course1.refresh_from_db()
+        self.course2.refresh_from_db()
+        self.verify_archived(self.course1, mangle_title, mangle_end_date)
+        self.verify_not_archived(self.course2)
+
+        if mangle_end_date:
+            assert responses.assert_call_count(self.courserun1_studio_url, 2) is True
+        else:
+            assert responses.assert_call_count(self.courserun1_studio_url, 0) is True
+
+    @ddt.data(
+        True,
+        False
+    )
+    @responses.activate
+    def test_failures(self, is_course1_archived):
+        "Test for the case when some courses are archived successfully and some are not"
+        responses.add(responses.PATCH, self.courserun1_studio_url, status=200 if is_course1_archived else 500)
+        responses.add(responses.PATCH, self.courserun2_studio_url, status=500 if is_course1_archived else 200)
+        self.csv_file_content = f"Uuids\n{self.course1.uuid}\n{self.course2.uuid}"
+        self.csv_file = SimpleUploadedFile(
+            name='test.csv',
+            content=self.csv_file_content.encode('utf-8'),
+            content_type='text/csv'
+        )
+        ArchiveCoursesConfigFactory.create(
+            csv_file=self.csv_file,
+            enabled=True,
+            mangle_end_date=True,
+            mangle_title=True
+        )
+
+        call_command('archive_courses', '--from-db')
+
+        self.course1.refresh_from_db()
+        self.course2.refresh_from_db()
+        archived_course = self.course1 if is_course1_archived else self.course2
+        not_archived_course = self.course2 if is_course1_archived else self.course1
+        self.verify_archived(archived_course, True, True)
+        self.verify_not_archived(not_archived_course)
+
+    def test_raises_error_if_not_enough_arguments(self):
+        with pytest.raises(CommandError):
+            call_command("archive_courses")
