@@ -18,6 +18,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
+from course_discovery.apps.course_metadata.data_loaders.utils import instance_cache
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization,
@@ -306,6 +307,7 @@ class CSVDataLoader(AbstractDataLoader):
     def _get_course_run_restriction(self, row):
         return None if row.get('restriction_type', None) == 'None' else row.get('restriction_type', None)
 
+    @instance_cache('org')
     def _validate_organization(self, org_key, course_title):
         """
         Validate the organization key and log an error if the organization is not found.
@@ -317,9 +319,9 @@ class CSVDataLoader(AbstractDataLoader):
         Returns:
             bool: True if the organization exists, False otherwise
         """
-        if org_key not in self.obj_cache['org']:
-            self.obj_cache['org'][org_key] = Organization.objects.filter(key=org_key).exists()
-        if not self.obj_cache['org'][org_key]:
+        if Organization.objects.filter(key=org_key).exists():
+            return True
+        else:
             self._log_ingestion_error(
                 CSVIngestionErrors.MISSING_ORGANIZATION,
                 CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
@@ -327,8 +329,8 @@ class CSVDataLoader(AbstractDataLoader):
                 ),
             )
             return False
-        return True
 
+    @instance_cache('course_type')
     def get_course_type(self, course_type_name):
         """
         Retrieve a CourseType object, using a cache to avoid redundant queries.
@@ -339,13 +341,12 @@ class CSVDataLoader(AbstractDataLoader):
         Returns:
             CourseType: CourseType object
         """
-        if course_type_name not in self.obj_cache['course_type']:
-            try:
-                self.obj_cache['course_type'][course_type_name] = CourseType.objects.get(name=course_type_name)
-            except CourseType.DoesNotExist:
-                self.obj_cache['course_type'][course_type_name] = None
-        return self.obj_cache['course_type'][course_type_name]
+        try:
+            return CourseType.objects.get(name=course_type_name)
+        except CourseType.DoesNotExist:
+            return None
 
+    @instance_cache('course_run_type')
     def get_course_run_type(self, course_run_type_name):
         """
         Retrieve a CourseRunType object, using a cache to avoid redundant queries.
@@ -353,12 +354,10 @@ class CSVDataLoader(AbstractDataLoader):
         Args:
             course_run_type_name (str): Course run type name
         """
-        if course_run_type_name not in self.obj_cache['course_run_type']:
-            try:
-                self.obj_cache['course_run_type'][course_run_type_name] = CourseRunType.objects.get(name=course_run_type_name)
-            except CourseRunType.DoesNotExist:
-                self.obj_cache['course_run_type'][course_run_type_name] = None
-        return self.obj_cache['course_run_type'][course_run_type_name]
+        try:
+            return CourseRunType.objects.get(name=course_run_type_name)
+        except CourseRunType.DoesNotExist:
+            return None
 
     def _validate_and_process_row(self, row, course_title, org_key):
         """
