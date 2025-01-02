@@ -379,7 +379,42 @@ class CSVDataLoader(AbstractDataLoader):
         if not self._validate_organization(org_key, course_title, self.org_cache):
             return False, None, None
 
-        is_valid, course_type, course_run_type = self._validate_course_and_course_run_types(row, course_title)
+        def validate_course_and_course_run_types(row, course_title):
+            """
+            Helper method to validate course and course run types.
+            
+            Args:
+                row (dict): Course data row
+                course_title (str): Course title
+            
+            Returns:
+                bool: True if course and course run types are valid, False otherwise
+                CourseType: CourseType object
+                CourseRunType: CourseRunType object
+            """
+            course_type = self.get_course_type(row["course_enrollment_track"])
+            if not course_type:
+                self._log_and_register_ingestion_error(
+                    CSVIngestionErrors.MISSING_COURSE_TYPE,
+                    CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
+                        course_title=course_title, course_type=row["course_enrollment_track"]
+                    ),
+                )
+                return False, None, None
+
+            course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
+            if not course_run_type:
+                self._log_and_register_ingestion_error(
+                    CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
+                    CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
+                        course_title=course_title, course_run_type=row["course_run_enrollment_track"]
+                    ),
+                )
+                return False, None, None
+
+            return True, course_type, course_run_type
+
+        is_valid, course_type, course_run_type = validate_course_and_course_run_types(row, course_title)
         if not is_valid:
             return False, course_type, course_run_type
 
@@ -392,41 +427,6 @@ class CSVDataLoader(AbstractDataLoader):
                 )
             )
             return False, course_type, course_run_type
-
-        return True, course_type, course_run_type
-
-    def _validate_course_and_course_run_types(self, row, course_title):
-        """
-        Validate and retrieve course_type and course_run_type objects.
-
-        Args:
-            row (dict): course data row
-            course_title (str): Course title
-
-        Returns:
-            bool: True if the course and course run types are valid, False otherwise
-            CourseType: CourseType object
-            CourseRunType: CourseRunType object
-        """
-        course_type = self.get_course_type(row["course_enrollment_track"])
-        if not course_type:
-            self._log_and_register_ingestion_error(
-                CSVIngestionErrors.MISSING_COURSE_TYPE,
-                CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
-                    course_title=course_title, course_type=row["course_enrollment_track"]
-                ),
-            )
-            return False, None, None
-
-        course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
-        if not course_run_type:
-            self._log_and_register_ingestion_error(
-                CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
-                CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
-                    course_title=course_title, course_run_type=row["course_run_enrollment_track"]
-                ),
-            )
-            return False, None, None
 
         return True, course_type, course_run_type
 
