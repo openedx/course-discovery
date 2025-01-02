@@ -344,8 +344,8 @@ class CSVDataLoader(AbstractDataLoader):
             try:
                 self.obj_cache['course_type'][course_type_name] = CourseType.objects.get(name=course_type_name)
             except CourseType.DoesNotExist:
-                self.self.obj_cache['course_type'][course_type_name] = None
-        return self.self.obj_cache['course_type'][course_type_name]
+                self.obj_cache['course_type'][course_type_name] = None
+        return self.obj_cache['course_type'][course_type_name]
 
     def get_course_run_type(self, course_run_type_name):
         """
@@ -354,12 +354,12 @@ class CSVDataLoader(AbstractDataLoader):
         Args:
             course_run_type_name (str): Course run type name
         """
-        if course_run_type_name not in self.self.obj_cache['course_run_type']:
+        if course_run_type_name not in self.obj_cache['course_run_type']:
             try:
-                self.self.obj_cache['course_run_type'][course_run_type_name] = CourseRunType.objects.get(name=course_run_type_name)
+                self.obj_cache['course_run_type'][course_run_type_name] = CourseRunType.objects.get(name=course_run_type_name)
             except CourseRunType.DoesNotExist:
-                self.self.obj_cache['course_run_type'][course_run_type_name] = None
-        return self.self.obj_cache['course_run_type'][course_run_type_name]
+                self.obj_cache['course_run_type'][course_run_type_name] = None
+        return self.obj_cache['course_run_type'][course_run_type_name]
 
     def _validate_and_process_row(self, row, course_title, org_key):
         """
