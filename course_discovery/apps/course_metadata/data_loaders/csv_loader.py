@@ -4,7 +4,7 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 """
 import csv
 import logging
-from functools import lru_cache
+from functools import cache
 
 import unicodecsv
 from django.conf import settings
@@ -307,7 +307,7 @@ class CSVDataLoader(AbstractDataLoader):
         return None if row.get('restriction_type', None) == 'None' else row.get('restriction_type', None)
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def _validate_organization(org_key):
         """
         Helper method to validate the organization key
@@ -342,7 +342,7 @@ class CSVDataLoader(AbstractDataLoader):
         return True
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def get_course_type(course_type_name):
         """
         Retrieve a CourseType object, using a cache to avoid redundant queries.
@@ -359,7 +359,7 @@ class CSVDataLoader(AbstractDataLoader):
             return None
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def get_course_run_type(course_run_type_name):
         """
         Retrieve a CourseRunType object, using a cache to avoid redundant queries.
