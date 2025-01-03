@@ -122,11 +122,11 @@ class Command(BaseCommand):
                 course_run.end = timezone.now()
             if mangle_end_date and course_run.enrollment_end and course_run.enrollment_end > timezone.now():
                 course_run.enrollment_end = timezone.now() - timedelta(days=1)
+            self.verify_date_order(course_run)
             course_run.save(update_fields=['end', 'enrollment_end'])
 
             # Push to studio to prevent RCM rewrite
             if mangle_end_date:
-                self.verify_date_order(course_run)
                 api = StudioAPI(course_run.course.partner)
                 api._update_end_date_in_studio(course_run)  # pylint: disable=protected-access
 
