@@ -4,7 +4,6 @@ Utils for loaders to format or transform field values.
 import base64
 import logging
 import re
-from functools import wraps
 
 from lxml.html import clean
 
@@ -140,25 +139,3 @@ def map_external_org_code_to_internal_org_code(external_org_code, product_source
             f'product_source {product_source}'
         )
         return external_org_code
-
-
-def instance_cache(cache_key):
-    """
-    Decorator to cache results of a method in an instance-level cache.
-
-    Args:
-        cache_key (str): The key in the instance's `obj_cache` dictionary.
-    """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            key = args[0]
-            if cache_key not in self.obj_cache:
-                self.obj_cache[cache_key] = {}
-            if key in self.obj_cache[cache_key]:
-                return self.obj_cache[cache_key][key]
-            result = func(self, *args, **kwargs)
-            self.obj_cache[cache_key][key] = result
-            return result
-        return wrapper
-    return decorator

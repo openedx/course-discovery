@@ -4,6 +4,7 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 """
 import csv
 import logging
+from functools import lru_cache
 
 import unicodecsv
 from django.conf import settings
@@ -18,7 +19,6 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
-from course_discovery.apps.course_metadata.data_loaders.utils import instance_cache
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization,
@@ -288,6 +288,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         self._render_error_logs()
         self._render_course_uuids()
+        self.clear_caches()
 
     def _get_course_price(self, row, course):
         """
@@ -307,10 +308,23 @@ class CSVDataLoader(AbstractDataLoader):
     def _get_course_run_restriction(self, row):
         return None if row.get('restriction_type', None) == 'None' else row.get('restriction_type', None)
 
-    @instance_cache('org')
-    def _validate_organization(self, org_key, course_title):
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def _validate_organization(org_key):
         """
-        Validate the organization key and log an error if the organization is not found.
+        Helper method to validate the organization key
+
+        Args:
+            org_key (str): Organization key
+
+        Returns:
+            bool: True if the organization exists, False otherwise
+        """
+        return Organization.objects.filter(key=org_key).exists()
+
+    def validate_organization(self, org_key, course_title):
+        """
+        Wrapper method to validate the organization key and log an error if the organization does not exist.
 
         Args:
             org_key (str): Organization key
@@ -319,19 +333,19 @@ class CSVDataLoader(AbstractDataLoader):
         Returns:
             bool: True if the organization exists, False otherwise
         """
-        if Organization.objects.filter(key=org_key).exists():
-            return True
-        else:
+        if not self._validate_organization(org_key):
             self._log_ingestion_error(
                 CSVIngestionErrors.MISSING_ORGANIZATION,
                 CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
-                    org_key=org_key, course_title=course_title
-                ),
+                    course_title=course_title, org_key=org_key
+                )
             )
             return False
+        return True
 
-    @instance_cache('course_type')
-    def get_course_type(self, course_type_name):
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def get_course_type(course_type_name):
         """
         Retrieve a CourseType object, using a cache to avoid redundant queries.
 
@@ -346,8 +360,9 @@ class CSVDataLoader(AbstractDataLoader):
         except CourseType.DoesNotExist:
             return None
 
-    @instance_cache('course_run_type')
-    def get_course_run_type(self, course_run_type_name):
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def get_course_run_type(course_run_type_name):
         """
         Retrieve a CourseRunType object, using a cache to avoid redundant queries.
 
@@ -373,7 +388,7 @@ class CSVDataLoader(AbstractDataLoader):
             CourseType: CourseType object
             CourseRunType: CourseRunType object
         """
-        if not self._validate_organization(org_key, course_title):
+        if not self.validate_organization(org_key, course_title):
             return False, None, None
 
         def validate_course_and_course_run_types(row, course_title):
@@ -437,6 +452,16 @@ class CSVDataLoader(AbstractDataLoader):
         """
         logger.error(message)
         self._register_ingestion_error(error_code, message)
+
+    @classmethod
+    def clear_caches(cls):
+        """
+        Clears all LRU caches associated with the class.
+        """
+        cls.get_course_type.cache_clear()
+        cls.get_course_run_type.cache_clear()
+        cls._validate_organization.cache_clear()
+
 
     def _get_or_create_course_run(self, data, course, course_type, course_run_type_uuid):
         """
