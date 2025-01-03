@@ -5,7 +5,7 @@ from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword, html_strip
@@ -148,8 +148,12 @@ class CourseRunDocument(BaseCourseDocument):
         ]
 
     def get_queryset(self, excluded_restriction_types=None):  # pylint: disable=unused-argument
+        retired_type_ids = list(
+            CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True)
+        )
         return filter_visible_runs(
             super().get_queryset()
+                   .exclude(type_id__in=retired_type_ids)
                    .select_related('course')
                    .select_related('course__type')
                    .prefetch_related('seats__type')
