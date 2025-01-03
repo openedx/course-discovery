@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 
 import dateutil.parser
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.utils.translation import gettext as _
@@ -416,3 +417,30 @@ def send_email_for_slug_updates(stats, to_users, subject=None):
     attachment.add_header('Content-Disposition', 'attachment', filename='slugs_update_summary.csv')
     email_msg.attach(attachment)
     email_msg.send()
+
+
+def send_email_for_course_archival(report, csv_report, to_users):
+    """
+    Send an overall report of a archive_courses mgmt command run
+    """
+    success_count = len(report['successes'])
+    failure_count = len(report['failures'])
+    context = {
+        'total_count': report['total_count'],
+        'failure_count': failure_count,
+        'success_count': success_count,
+        'failures': report['failures']
+    }
+    html_template = 'course_metadata/email/course_archival.html'
+    template = get_template(html_template)
+    html_content = template.render(context)
+
+    email = EmailMessage(
+        "Course Archival Command Summary",
+        html_content,
+        settings.PUBLISHER_FROM_EMAIL,
+        to_users,
+    )
+    email.attach("report.csv", csv_report, "text/csv")
+    email.content_subtype = "html"
+    email.send()

@@ -362,6 +362,19 @@ class StudioAPI:
         else:
             self.update_course_run_details_in_studio(course_run)
 
+    def _update_end_date_in_studio(self, course_run):
+        """
+        We do not update end dates in studio after creation. However, while archiving a course, we
+        may wish to set the end date in the past. This method serves that purpose.
+        """
+        data = self.generate_data_for_studio_api(course_run, creating=False)
+        data.setdefault('schedule', {})
+        for attr in ['end', 'enrollment_end']:
+            attr_val = getattr(course_run, attr)
+            if attr_val:
+                data['schedule'][attr] = serialize_datetime(attr_val)
+        self._request('patch', f'course_runs/{course_run.key}/', json=data)
+
 
 def use_request_cache(cache_name, key_func):
     """
