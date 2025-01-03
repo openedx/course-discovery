@@ -79,8 +79,6 @@ class CSVDataLoader(AbstractDataLoader):
         self.error_logs = {key: [] for key in CSV_LOADER_ERROR_LOG_SEQUENCE}
         self.ingestion_summary = self._initialize_ingestion_summary()
         self.course_uuids = {}  # to show the discovery course ids for each processed course
-        # cache for organization, course type and course run type objects to avoid redundant queries
-        self.obj_cache = {'org': {}, 'course_type': {}, 'course_run_type': {}}
         self.product_type = product_type
         self.product_source = self._get_product_source(product_source)
         self.reader = self._initialize_csv_reader(csv_path, csv_file, use_gspread_client)
@@ -461,7 +459,6 @@ class CSVDataLoader(AbstractDataLoader):
         cls.get_course_type.cache_clear()
         cls.get_course_run_type.cache_clear()
         cls._validate_organization.cache_clear()
-
 
     def _get_or_create_course_run(self, data, course, course_type, course_run_type_uuid):
         """
