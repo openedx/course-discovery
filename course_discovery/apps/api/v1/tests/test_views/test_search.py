@@ -700,7 +700,6 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert set(actual_course_run_keys) == set(expected_course_run_keys)
 
     @ddt.data("course", "courserun")
-    @pytest.mark.foo
     def test_retired_courses_and_runs_not_indexed(self, content_type):
         """ Verify that courses and runs corresponding to retired types are not indexed. """
 
