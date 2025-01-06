@@ -162,6 +162,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 partner=partner,
                 programs=programs,
             )
+        if self.request.method == 'GET' and not get_query_param(self.request, 'include_retired_course_types'):
+            retired_type_ids = list(
+                CourseType.objects.filter(slug__in=settings.RETIRED_COURSE_TYPES).values_list('id', flat=True)
+            )
+            queryset = queryset.exclude(type_id__in=retired_type_ids)
         if pub_q and edit_mode:
             return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by('key')
 

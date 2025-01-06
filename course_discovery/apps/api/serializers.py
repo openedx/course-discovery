@@ -11,6 +11,7 @@ from uuid import uuid4
 
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.query import Prefetch
@@ -2742,7 +2743,9 @@ class MetadataWithType(MetadataWithRelatedChoices):
             ],
         } for course_type in CourseType.objects.prefetch_related(
             'course_run_types__tracks__mode', 'entitlement_types', 'white_listed_orgs'
-        ).exclude(slug=CourseType.EMPTY) if not course_type.white_listed_orgs.exists() or user.is_staff or
+        ).exclude(
+            slug__in=[CourseType.EMPTY, *settings.RETIRED_COURSE_TYPES]
+        ) if not course_type.white_listed_orgs.exists() or user.is_staff or
             user.groups.filter(organization_extension__organization__in=course_type.white_listed_orgs.all()).exists()]
         return info
 
