@@ -716,7 +716,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         else:
             expected = [self.serialize_course_run_search(run2), self.serialize_course_run_search(run3)]
 
-        assert sorted(response_data['results'], key = itemgetter('key')) == sorted(expected, key = itemgetter('key'))
+        assert sorted(response_data['results'], key=itemgetter('key')) == sorted(expected, key=itemgetter('key'))
 
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
