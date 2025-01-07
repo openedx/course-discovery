@@ -4,6 +4,7 @@ import logging
 import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
