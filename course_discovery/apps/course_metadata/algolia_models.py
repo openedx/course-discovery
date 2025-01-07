@@ -421,7 +421,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and \
                 self.product_external_status == ExternalProductStatus.Archived:
             return False
-        
+
         if self.type.slug in settings.RETIRED_COURSE_TYPES:
             return False
 

@@ -399,7 +399,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         course.type = CourseTypeFactory(slug='audit')
-        assert course.should_index == False
+        assert not course.should_index
 
     @ddt.data(
         (None, True),

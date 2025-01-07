@@ -6,7 +6,7 @@ from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.utils import get_retired_run_type_ids
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType
+from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
 from .analyzers import case_insensitive_keyword, html_strip
