@@ -4436,6 +4436,20 @@ class BulkUploadTagsConfig(ConfigurationModel):
     )
 
 
+class ArchiveCoursesConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file for the archive_courses command
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("A csv file containing uuid of the courses to be archived")
+    )
+    mangle_end_date = models.BooleanField(default=False)
+    mangle_title = models.BooleanField(default=False)
+
+
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_geotargeting_data.

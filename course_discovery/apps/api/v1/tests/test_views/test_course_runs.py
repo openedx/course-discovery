@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import urllib
 import uuid
@@ -102,6 +103,25 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         assert response.status_code == 200
         assert response.data == self.serialize_course_run(self.course_run)
+
+    @ddt.data(
+        [True, 200],
+        [False, 404]
+    )
+    @ddt.unpack
+    def test_get_filters_retired(self, include_retired, status_code):
+        """ Verify the endpoint excludes retired run types by default. """
+        bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
+        run = CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': run.key})
+        if include_retired:
+            url += '?include_retired_run_types=1'
+
+        context = self.assertNumQueries(15, threshold=3) if include_retired else contextlib.nullcontext(0)
+        with context:
+            response = self.client.get(url)
+
+        assert response.status_code == status_code
 
     def test_get_exclude_deleted_programs(self):
         """ Verify the endpoint returns no associated deleted programs """
@@ -1207,6 +1227,24 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response.data['results'],
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
+
+    @ddt.data(
+        [True, 3],
+        [False, 2]
+    )
+    @ddt.unpack
+    def test_list_filters_retired(self, include_retired, expected_length):
+        """ Verify the endpoint excludes retired types by default. """
+        bootcamp_type, _ = CourseRunType.objects.get_or_create(slug=CourseRunType.PAID_BOOTCAMP)
+        CourseRunFactory(course__partner=self.partner, type=bootcamp_type)
+        url = reverse('api:v1:course_run-list')
+        if include_retired:
+            url += '?include_retired_run_types=1'
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
 
     def test_list_sorted_by_course_start_date(self):
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
