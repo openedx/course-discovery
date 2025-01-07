@@ -232,7 +232,6 @@ class AdminTests(SiteMixin, TestCase):
         [{}, True, CourseRunType]
     )
     @ddt.unpack
-    @pytest.mark.doo
     def test_retired_product_types_not_in_options(self, custom_settings, audit_in_options, type_model):
         """ Verify that new objects (courses/courseruns) can not have a retired type"""
         audit_type = type_model.objects.get(slug='audit')
@@ -258,7 +257,6 @@ class AdminTests(SiteMixin, TestCase):
         [{}, CourseRunType]
     )
     @ddt.unpack
-    @pytest.mark.doo
     def test_retired_product_types_in_options(self, custom_settings, type_model):
         """ Verify that objects associated to retired types keep showing it in the type dropdown """
         audit_type = type_model.objects.get(slug='audit')
@@ -269,9 +267,9 @@ class AdminTests(SiteMixin, TestCase):
             else "admin:course_metadata_courserun_change"
         )
         product = (
-            CourseFactory(type__slug='audit')
+            factories.CourseFactory(type=audit_type)
             if type_model is CourseType
-            else CourseRunFactory(type__slug='audit')
+            else factories.CourseRunFactory(type=audit_type)
         )
 
         url = reverse(url_name, args=(product.id,))
