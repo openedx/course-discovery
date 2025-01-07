@@ -4,6 +4,7 @@ import logging
 import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
@@ -15,7 +16,7 @@ from sortedm2m.fields import SortedManyToManyField
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, CourseType
 
 logger = logging.getLogger(__name__)
 
@@ -412,3 +413,17 @@ def use_request_cache(cache_name, key_func):
             return result
         return wrapper
     return inner
+
+
+@use_request_cache("retired_run_types_cache", lambda: "retired_run_types")
+def get_retired_run_type_ids():
+    return list(
+        CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True)
+    )
+
+
+@use_request_cache("retired_course_types_cache", lambda: "retired_course_types")
+def get_retired_course_type_ids():
+    return list(
+        CourseType.objects.filter(slug__in=settings.RETIRED_COURSE_TYPES).values_list('id', flat=True)
+    )

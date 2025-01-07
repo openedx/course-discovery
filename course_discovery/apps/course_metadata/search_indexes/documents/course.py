@@ -5,6 +5,7 @@ from opaque_keys.edx.keys import CourseKey
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
+from course_discovery.apps.api.utils import get_retired_course_type_ids
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.utils import get_product_skill_names
 
@@ -126,8 +127,9 @@ class CourseDocument(BaseCourseDocument):
     def get_queryset(self, excluded_restriction_types=None):
         if excluded_restriction_types is None:
             excluded_restriction_types = []
+        retired_type_ids = get_retired_course_type_ids()
 
-        return super().get_queryset().prefetch_related(
+        return super().get_queryset().exclude(type_id__in=retired_type_ids).prefetch_related(
             Prefetch('course_runs', queryset=CourseRun.objects.exclude(
                 restricted_run__restriction_type__in=excluded_restriction_types
             ).prefetch_related(
