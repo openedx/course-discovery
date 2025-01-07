@@ -388,6 +388,10 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         'enterprise_subscription_inclusion', 'ofac_comment', 'data_modified_timestamp'
     )
     raw_id_fields = ('video',)
+    autocomplete_fields = (
+        'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items',
+        'expected_learning_items',
+    )
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
 
@@ -566,11 +570,14 @@ class SeatTypeAdmin(admin.ModelAdmin):
 @admin.register(Endorsement)
 class EndorsementAdmin(admin.ModelAdmin):
     list_display = ('endorser',)
+    search_fields = ('quote', 'endorser__given_name', 'endorser__family_name')
+    list_select_related = ['endorser', ]
 
 
 @admin.register(CorporateEndorsement)
 class CorporateEndorsementAdmin(admin.ModelAdmin):
     list_display = ('corporation_name',)
+    search_fields = ('corporation_name', 'statement',)
 
 
 @admin.register(FAQ)
