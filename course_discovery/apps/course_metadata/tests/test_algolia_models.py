@@ -392,7 +392,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course.should_index == should_index
 
     @pytest.mark.foo
-    @override_settings(RETIRED_COURSE_TYPES=['audi'])
+    @override_settings(RETIRED_COURSE_TYPES=['audit'])
     def test_retired_course_indexing(self):
         """
         Test that retired courses are not indexed
