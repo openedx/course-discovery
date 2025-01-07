@@ -34,7 +34,6 @@ from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
     Seat, Source, Video
 )
-from course_discovery.apps.course_metadata.toggles import IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format
 )
@@ -344,36 +343,28 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         self.log_request_subjects_and_prices(data, course)
 
         # First, update course entitlements
-        is_price_update_disabled = IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS.is_enabled()
-        has_no_published_runs = not any(
-            course_run.status == CourseRunStatus.Published for course_run in course.active_course_runs
-        )
-        if (
-            course.is_external_course or not is_price_update_disabled or
-            (is_price_update_disabled and has_no_published_runs)
-        ):
-            if data.get('type') or data.get('prices'):
-                entitlements = []
-                prices = data.get('prices', {})
-                course_type = CourseType.objects.get(uuid=data.get('type')) if data.get('type') else course.type
-                entitlement_types = course_type.entitlement_types.all()
-                for entitlement_type in entitlement_types:
-                    price = prices.get(entitlement_type.slug)
-                    if price is None:
-                        continue
-                    entitlement, did_change = self.update_entitlement(course, entitlement_type, price, partial=partial)
-                    entitlements.append(entitlement)
-                    changed = changed or did_change
-                # Deleting entitlements here since they would be orphaned otherwise.
-                # One example of how this situation can happen is if a course team is switching between
-                # "Verified and Audit" and "Audit Only" before actually publishing their course run.
-                course.entitlements.exclude(mode__in=entitlement_types).delete()
-                course.entitlements.set(entitlements)
+        if data.get('type') or data.get('prices'):
+            entitlements = []
+            prices = data.get('prices', {})
+            course_type = CourseType.objects.get(uuid=data.get('type')) if data.get('type') else course.type
+            entitlement_types = course_type.entitlement_types.all()
+            for entitlement_type in entitlement_types:
+                price = prices.get(entitlement_type.slug)
+                if price is None:
+                    continue
+                entitlement, did_change = self.update_entitlement(course, entitlement_type, price, partial=partial)
+                entitlements.append(entitlement)
+                changed = changed or did_change
+            # Deleting entitlements here since they would be orphaned otherwise.
+            # One example of how this situation can happen is if a course team is switching between
+            # "Verified and Audit" and "Audit Only" before actually publishing their course run.
+            course.entitlements.exclude(mode__in=entitlement_types).delete()
+            course.entitlements.set(entitlements)
 
-                # If entitlement has changed, get updated course object from DB that has new value for
-                # data modified timestamp.
-                if changed:
-                    course.refresh_from_db()
+            # If entitlement has changed, get updated course object from DB that has new value for
+            # data modified timestamp.
+            if changed:
+                course.refresh_from_db()
 
         # Save video if a new video source is provided, also allow removing the video from course
         if video_data:
