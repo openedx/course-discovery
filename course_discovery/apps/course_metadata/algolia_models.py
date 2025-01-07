@@ -421,6 +421,9 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and \
                 self.product_external_status == ExternalProductStatus.Archived:
             return False
+        
+        if self.type.slug in settings.RETIRED_COURSE_TYPES:
+            return False
 
         # WS-3723, Emeritus courses should be hidden until all features finished.
         if self.product_source and is_excluded_product_sources_check(self.product_source.slug):
