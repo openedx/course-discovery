@@ -1,10 +1,11 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType, CourseType, Pathway, Program
 from course_discovery.apps.course_metadata.widgets import SortedModelSelect2Multiple
 
 
@@ -121,6 +122,8 @@ class CourseAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.fields.get('product_source'):
             self.fields['product_source'].required = True
+        if not self.instance.pk:
+            self.fields['type'].queryset = CourseType.objects.exclude(slug__in=settings.RETIRED_COURSE_TYPES)
 
 
 class CourseRunAdminForm(forms.ModelForm):
@@ -150,6 +153,11 @@ class CourseRunAdminForm(forms.ModelForm):
                 },
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['type'].queryset = CourseRunType.objects.exclude(slug__in=settings.RETIRED_RUN_TYPES)
 
 
 class PathwayAdminForm(forms.ModelForm):

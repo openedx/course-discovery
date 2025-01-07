@@ -7,6 +7,7 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.test import LiveServerTestCase, TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK
 from selenium import webdriver
@@ -25,7 +26,9 @@ from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdm
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Degree, Person, Position, Program, ProgramType, Source
+from course_discovery.apps.course_metadata.models import (
+    CourseRunType, CourseType, Degree, Person, Position, Program, ProgramType, Source
+)
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -221,6 +224,63 @@ class AdminTests(SiteMixin, TestCase):
         assert 0 == program.courses.all().count()
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
         assert response.status_code == 200
+
+    @ddt.data(
+        [{'RETIRED_COURSE_TYPES': ['audit']}, False, CourseType],
+        [{'RETIRED_RUN_TYPES': ['audit']}, False, CourseRunType],
+        [{}, True, CourseType],
+        [{}, True, CourseRunType]
+    )
+    @ddt.unpack
+    def test_retired_product_types_not_in_options(self, custom_settings, audit_in_options, type_model):
+        """ Verify that new objects (courses/courseruns) can not have a retired type"""
+        audit_type = type_model.objects.get(slug='audit')
+        url_name = (
+            "admin:course_metadata_course_add"
+            if type_model is CourseType
+            else "admin:course_metadata_courserun_add"
+        )
+        url = reverse(url_name)
+        with override_settings(**custom_settings):
+            response = self.client.get(url)
+            assert response.status_code == 200
+
+        soup = BeautifulSoup(response.content)
+        type_options = soup.find('select', {'name': 'type'}).find_all('option')
+        type_option_names = map(lambda opt: opt.get_text(), type_options)
+        assert (audit_type.name in type_option_names) == audit_in_options
+
+    @ddt.data(
+        [{'RETIRED_COURSE_TYPES': ['audit']}, CourseType],
+        [{'RETIRED_RUN_TYPES': ['audit']}, CourseRunType],
+        [{}, CourseType],
+        [{}, CourseRunType]
+    )
+    @ddt.unpack
+    def test_retired_product_types_in_options(self, custom_settings, type_model):
+        """ Verify that objects associated to retired types keep showing it in the type dropdown """
+        audit_type = type_model.objects.get(slug='audit')
+
+        url_name = (
+            "admin:course_metadata_course_change"
+            if type_model is CourseType
+            else "admin:course_metadata_courserun_change"
+        )
+        product = (
+            factories.CourseFactory(type=audit_type)
+            if type_model is CourseType
+            else factories.CourseRunFactory(type=audit_type)
+        )
+
+        url = reverse(url_name, args=(product.id,))
+        with override_settings(**custom_settings):
+            response = self.client.get(url)
+            assert response.status_code == 200
+
+        soup = BeautifulSoup(response.content)
+        type_options = soup.find('select', {'name': 'type'}).find_all('option')
+        type_option_names = map(lambda opt: opt.get_text(), type_options)
+        assert audit_type.name in type_option_names
 
 
 class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
