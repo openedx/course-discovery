@@ -251,6 +251,39 @@ class AdminTests(SiteMixin, TestCase):
         type_option_names = map(lambda opt: opt.get_text(), type_options)
         assert (audit_type.name in type_option_names) == audit_in_options
 
+    @ddt.data(
+        [{'RETIRED_COURSE_TYPES': ['audit']}, CourseType],
+        [{'RETIRED_RUN_TYPES': ['audit']}, CourseRunType],
+        [{}, CourseType],
+        [{}, CourseRunType]
+    )
+    @ddt.unpack
+    @pytest.mark.doo
+    def test_retired_product_types_in_options(self, custom_settings, type_model):
+        """ Verify that objects associated to retired types keep showing it in the type dropdown """
+        audit_type = type_model.objects.get(slug='audit')
+
+        url_name = (
+            "admin:course_metadata_course_change"
+            if type_model is CourseType
+            else "admin:course_metadata_courserun_change"
+        )
+        product = (
+            CourseFactory(type__slug='audit')
+            if type_model is CourseType
+            else CourseRunFactory(type__slug='audit')
+        )
+
+        url = reverse(url_name, args=(product.id,))
+        with override_settings(**custom_settings):
+            response = self.client.get(url)
+            assert response.status_code == 200
+
+        soup = BeautifulSoup(response.content)
+        type_options = soup.find('select', {'name': 'type'}).find_all('option')
+        type_option_names = map(lambda opt: opt.get_text(), type_options)
+        assert audit_type.name in type_option_names
+
 
 class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     """ Functional Tests for Admin page."""
