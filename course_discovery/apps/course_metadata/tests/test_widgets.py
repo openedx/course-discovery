@@ -7,9 +7,9 @@ from course_discovery.apps.course_metadata.widgets import SortedModelSelect2Mult
 @ddt.ddt
 class SortedModelSelect2MultipleTests(TestCase):
     @ddt.data(
-        (['1', '2'], [1, 2, 3]),
-        (['2', '1'], [2, 1, 3]),
-        (['3'], [3, 1, 2]),
+        (['1', '2'], [1, 2]),
+        (['2', '1'], [2, 1]),
+        (['3'], [3,]),
     )
     @ddt.unpack
     def test_optgroups_are_sorted(self, value, result_order):
