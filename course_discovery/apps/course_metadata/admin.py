@@ -128,6 +128,7 @@ class ProductValueAdmin(admin.ModelAdmin):
     ]
     search_fields = ('id',)
 
+
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     form = CourseAdminForm
