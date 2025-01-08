@@ -30,6 +30,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import (
     CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus, ProgramStatus
@@ -44,13 +45,15 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
+from course_discovery.apps.course_metadata.search_indexes.documents import CourseDocument
 from course_discovery.apps.course_metadata.signals import (
     connect_course_data_modified_timestamp_related_models, disconnect_course_data_modified_timestamp_related_models
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, CourseUrlSlugFactory, ImageFactory,
-    OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
+    AdditionalMetadataFactory, CourseFactory, CourseProxy, CourseRunFactory, CourseTypeFactory, CourseUrlSlugFactory,
+    ImageFactory, OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory,
+    SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.toggles import (
@@ -4192,3 +4195,23 @@ class RestrictedCourseRunTests(TestCase):
         self.assertEqual(course_run.restricted_run, restricted_course_run)
         self.assertEqual(restricted_course_run.restriction_type, 'custom-b2b-enterprise')
         self.assertEqual(str(restricted_course_run), "course-v1:SC+BreadX+3T2015: <custom-b2b-enterprise>")
+
+
+class TestSearchAfterMixin(ElasticsearchTestMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.total_courses = 5
+        for _ in range(self.total_courses):
+            CourseFactory()
+
+    @patch("course_discovery.apps.course_metadata.models.registry.get_documents")
+    def test_fetch_all_courses(self, mock_get_documents):
+        query = "Course*"
+        mock_get_documents.return_value = [CourseDocument]
+
+        queryset = CourseProxy.search(query=query, page_size=2)
+
+        unique_items = set(queryset)
+        self.assertEqual(len(queryset), len(unique_items), "Queryset contains duplicate entries.")
+        self.assertEqual(len(queryset), self.total_courses)
