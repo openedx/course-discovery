@@ -29,4 +29,4 @@ class SortedModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
                     ordered.append(item)
                     break
 
-        return ordered + unselected
+        return ordered

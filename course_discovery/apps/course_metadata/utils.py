@@ -17,7 +17,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import models, transaction
+from django.templatetags.static import static
 from django.utils.functional import cached_property
+from django.utils.html import html_safe
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
 from edx_django_utils.cache import RequestCache, get_cache_key
@@ -1264,3 +1266,10 @@ def get_course_run_statuses(statuses, course_runs):
         else:
             statuses.add(course_run.status)
     return statuses
+
+
+@html_safe
+class SortableSelectJSPath:
+    def __str__(self):
+        abs_path = static('js/sortable_select.js')
+        return f'<script src="{abs_path}" defer></script>'

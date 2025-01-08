@@ -28,6 +28,7 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
+from course_discovery.apps.course_metadata.utils import SortableSelectJSPath
 from course_discovery.apps.course_metadata.views import (
     CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
 )
@@ -125,7 +126,7 @@ class ProductValueAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'per_click_usa', 'per_click_international', 'per_lead_usa', 'per_lead_international'
     ]
-
+    search_fields = ('id',)
 
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
@@ -390,7 +391,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     raw_id_fields = ('video',)
     autocomplete_fields = (
         'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items',
-        'expected_learning_items',
+        'expected_learning_items', 'in_year_value'
     )
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
@@ -523,7 +524,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         js = (
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
             'bower_components/jquery/dist/jquery.min.js',
-            'js/sortable_select.js'
+            SortableSelectJSPath()
         )
 
 
