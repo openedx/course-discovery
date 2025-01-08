@@ -1151,6 +1151,85 @@ class PkSearchableMixin:
         return filtered_queryset
 
 
+class SearchAfterMixin:
+    """
+    Represents objects to query Elasticsearch with `search_after` pagination and load by primary key.
+    """
+
+    @classmethod
+    def search(
+        cls,
+        query,
+        queryset=None,
+        page_size=settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION,
+        partner=None,
+        identifiers=None,
+        document=None,
+        sort_field="id",
+    ):
+        """
+        Queries the Elasticsearch index with optional pagination using `search_after`.
+
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+            queryset (models.QuerySet) -- base queryset to search, defaults to objects.all()
+            page_size (int) -- Number of results per page.
+            partner (object) -- To be included in the ES query.
+            identifiers (object) -- UUID or key of a product.
+            document (object) -- ES Document for the given model.
+            sort_field (str) -- Field to sort results by. Defaults to 'id'.
+
+        Returns:
+            QuerySet
+        """
+        query = clean_query(query)
+        queryset = queryset or cls.objects.all()
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            return queryset
+
+        logger.info(f"Attempting Elasticsearch document search against query: {query}")
+        es_document = document or next(iter(registry.get_documents(models=(cls,))), None)
+
+        must_queries = [ESDSLQ('query_string', query=query, analyze_wildcard=True)]
+        if partner:
+            must_queries.append(partner)
+        if identifiers:
+            must_queries.append(identifiers)
+
+        dsl_query = ESDSLQ('bool', must=must_queries)
+
+        all_ids = set()
+        search_after = None
+
+        while True:
+            search = (
+                es_document.search()
+                .query(dsl_query)
+                .sort(sort_field)
+                .extra(size=page_size)
+            )
+
+            search = search.extra(search_after=search_after) if search_after else search
+
+            results = search.execute()
+
+            ids = {result.pk for result in results}
+            if not ids:
+                logger.info("No more results found.")
+                break
+
+            all_ids.update(ids)
+            search_after = results[-1].meta.sort if results[-1] else None
+            logger.info(f"Fetched {len(ids)} records; total so far: {len(all_ids)}")
+
+        filtered_queryset = queryset.filter(pk__in=all_ids)
+        logger.info(f"Filtered queryset of size {len(filtered_queryset)} for query: {query}")
+        return filtered_queryset
+
+
 class Collaborator(TimeStampedModel):
     """
     Collaborator model, defining any collaborators who helped write course content.
