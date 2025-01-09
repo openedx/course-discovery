@@ -2,6 +2,7 @@ import datetime
 import json
 import urllib.parse
 import uuid
+from operator import itemgetter
 
 import ddt
 import factory
@@ -9,6 +10,7 @@ import pytz
 from django.core.management import call_command
 from django.db.models import signals
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
@@ -207,10 +209,10 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 22),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 22),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 23),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -597,7 +599,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 9), (False, 9))
+    @ddt.data((True, 10), (False, 10))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -696,6 +698,25 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         actual_course_run_keys = [course_run['key'] for course_run in actual_course_runs]
         expected_course_run_keys = [course_run.key for course_run in expected_course_runs]
         assert set(actual_course_run_keys) == set(expected_course_run_keys)
+
+    @ddt.data("course", "courserun")
+    def test_retired_courses_and_runs_not_indexed(self, content_type):
+        """ Verify that courses and runs corresponding to retired types are not indexed. """
+
+        run1, run2, run3 = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        with override_settings(RETIRED_RUN_TYPES=[run1.type.slug], RETIRED_COURSE_TYPES=[run1.course.type.slug]):
+            call_command('search_index', '--rebuild', '-f')
+
+        response = self.get_response(query={"content_type": content_type}, endpoint=self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['count'] == 2
+        if content_type == "course":
+            expected = [self.serialize_course_search(run2.course), self.serialize_course_search(run3.course)]
+        else:
+            expected = [self.serialize_course_run_search(run2), self.serialize_course_run_search(run3)]
+
+        assert sorted(response_data['results'], key=itemgetter('key')) == sorted(expected, key=itemgetter('key'))
 
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter

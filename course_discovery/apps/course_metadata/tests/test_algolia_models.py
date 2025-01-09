@@ -391,6 +391,16 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.additional_metadata = AdditionalMetadataFactory(product_status=external_status)
         assert course.should_index == should_index
 
+    @override_settings(RETIRED_COURSE_TYPES=['audit'])
+    def test_retired_course_indexing(self):
+        """
+        Test that retired courses are not indexed
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        course.type = CourseTypeFactory(slug='audit')
+        assert not course.should_index
+
     @ddt.data(
         (None, True),
         (CourseType.BOOTCAMP_2U, True),

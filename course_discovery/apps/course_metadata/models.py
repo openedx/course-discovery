@@ -55,8 +55,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
-    IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED,
-    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
@@ -2681,17 +2681,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         return deadline
 
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
-        is_price_update_disabled = IS_DISABLE_PRICE_UPDATES_FOR_PUBLISHED_RUNS.is_enabled()
         defaults = {
             'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
         }
         if seat_type.slug in prices:
-            if (
-                self.course.is_external_course or not is_price_update_disabled or (
-                    self.status != CourseRunStatus.Published and is_price_update_disabled
-                )
-            ):
-                defaults['price'] = prices[seat_type.slug]
+            defaults['price'] = prices[seat_type.slug]
 
         if upgrade_deadline_override and seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
@@ -4440,6 +4434,20 @@ class BulkUploadTagsConfig(ConfigurationModel):
         validators=[FileExtensionValidator(allowed_extensions=['csv'])],
         help_text=_("It expects the data will be provided in a csv file format ")
     )
+
+
+class ArchiveCoursesConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file for the archive_courses command
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("A csv file containing uuid of the courses to be archived")
+    )
+    mangle_end_date = models.BooleanField(default=False)
+    mangle_title = models.BooleanField(default=False)
 
 
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):

@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.90
+boto3==1.35.92
     # via django-ses
-botocore==1.35.90
+botocore==1.35.92
     # via
     #   boto3
     #   s3transfer
@@ -418,7 +418,7 @@ face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==33.1.0
+faker==33.3.0
     # via factory-boy
 fastavro==1.10.0
     # via openedx-events
@@ -439,7 +439,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.24.0
     # via google-api-python-client
-google-api-python-client==2.156.0
+google-api-python-client==2.157.0
     # via -r requirements/base.in
 google-auth==2.37.0
     # via
@@ -611,7 +611,7 @@ pycparser==2.22
     # via cffi
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
-pygments==2.18.0
+pygments==2.19.0
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -649,7 +649,7 @@ pynacl==1.5.0
     # via edx-django-utils
 pyopenssl==24.3.0
     # via snowflake-connector-python
-pyparsing==3.2.0
+pyparsing==3.2.1
     # via
     #   httplib2
     #   packaging
@@ -843,7 +843,7 @@ stevedore==5.4.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.54.0
+taxonomy-connector==2.0.0
     # via -r requirements/base.in
 testfixtures==8.3.0
     # via -r requirements/test.in
@@ -903,7 +903,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
