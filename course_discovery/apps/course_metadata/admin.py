@@ -7,8 +7,9 @@ from django.db.models import Prefetch
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
+from django.templatetags.static import static
 from django.urls import re_path, reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, html_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
@@ -28,7 +29,6 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.utils import SortableSelectJSPath
 from course_discovery.apps.course_metadata.views import (
     CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
 )
@@ -52,6 +52,13 @@ class CurriculumCourseMembershipForm(ModelForm):
         widgets = {
             'course': autocomplete.ModelSelect2(url='admin_metadata:course-autocomplete')
         }
+
+
+@html_safe
+class SortableSelectJSPath:
+    def __str__(self):
+        abs_path = static('js/sortable_select.js')
+        return f'<script src="{abs_path}" defer></script>'
 
 
 class ProgramEligibilityFilter(admin.SimpleListFilter):
