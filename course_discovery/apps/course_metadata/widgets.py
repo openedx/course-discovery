@@ -12,15 +12,12 @@ class SortedModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
         only support one main group (because that's all we need right now).
         """
         selected = []
-        unselected = []
         for index, (option_value, option_label) in enumerate(chain(self.choices)):
             is_selected = str(option_value) in value
-            subgroup = [self.create_option(name, option_value, option_label, is_selected, index, attrs=attrs)]
-            item = (None, subgroup, index)
             if is_selected:
+                subgroup = [self.create_option(name, option_value, option_label, is_selected, index, attrs=attrs)]
+                item = (None, subgroup, index)
                 selected.append(item)
-            else:
-                unselected.append(item)
 
         ordered = []
         for value_id in value:
@@ -28,5 +25,4 @@ class SortedModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
                 if value_id == str(item[1][0]['value']):
                     ordered.append(item)
                     break
-
         return ordered
