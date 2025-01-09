@@ -7,8 +7,9 @@ from django.db.models import Prefetch
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
+from django.templatetags.static import static
 from django.urls import re_path, reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, html_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
@@ -51,6 +52,13 @@ class CurriculumCourseMembershipForm(ModelForm):
         widgets = {
             'course': autocomplete.ModelSelect2(url='admin_metadata:course-autocomplete')
         }
+
+
+@html_safe
+class SortableSelectJSPath:
+    def __str__(self):
+        abs_path = static('js/sortable_select.js')
+        return f'<script src="{abs_path}" defer></script>'
 
 
 class ProgramEligibilityFilter(admin.SimpleListFilter):
@@ -125,6 +133,7 @@ class ProductValueAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'per_click_usa', 'per_click_international', 'per_lead_usa', 'per_lead_international'
     ]
+    search_fields = ('id',)
 
 
 @admin.register(Course)
@@ -390,7 +399,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     raw_id_fields = ('video',)
     autocomplete_fields = (
         'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items',
-        'expected_learning_items',
+        'expected_learning_items', 'in_year_value'
     )
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
@@ -523,7 +532,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         js = (
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
             'bower_components/jquery/dist/jquery.min.js',
-            'js/sortable_select.js'
+            SortableSelectJSPath()
         )
 
 
