@@ -8,8 +8,7 @@ class SortedModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
         """
         Return a sorted list of optgroups for this widget.
 
-        This is a simplified version of Django's version. The big difference is that we keep the results sorted and
-        only support one main group (because that's all we need right now).
+        This is a simplified version of Django's version. The big difference is that we keep the results sorted.
         """
         selected = super().optgroups(name, value, attrs)
 
