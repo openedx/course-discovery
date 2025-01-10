@@ -1,5 +1,3 @@
-from itertools import chain
-
 from dal import autocomplete
 
 
