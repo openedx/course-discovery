@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.92
+boto3==1.35.97
     # via django-ses
-botocore==1.35.92
+botocore==1.35.97
     # via
     #   boto3
     #   s3transfer
@@ -418,7 +418,7 @@ face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==33.3.0
+faker==33.3.1
     # via factory-boy
 fastavro==1.10.0
     # via openedx-events
@@ -439,7 +439,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.24.0
     # via google-api-python-client
-google-api-python-client==2.157.0
+google-api-python-client==2.158.0
     # via -r requirements/base.in
 google-auth==2.37.0
     # via
@@ -524,7 +524,7 @@ multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
-mysqlclient==2.2.6
+mysqlclient==2.2.7
     # via -r requirements/test.in
 newrelic==10.4.0
     # via edx-django-utils
@@ -590,7 +590,7 @@ propcache==0.2.1
     #   yarl
 proto-plus==1.25.0
     # via google-api-core
-protobuf==5.29.2
+protobuf==5.29.3
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -611,7 +611,7 @@ pycparser==2.22
     # via cffi
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
-pygments==2.19.0
+pygments==2.19.1
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -755,7 +755,7 @@ requests-toolbelt==0.10.1
     # via
     #   -c requirements/constraints.txt
     #   zeep
-responses==0.25.3
+responses==0.25.5
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -892,6 +892,7 @@ uritemplate==4.1.1
     #   google-api-python-client
 urllib3[socks]==1.26.20
     # via
+    #   -c requirements/common_constraints.txt
     #   botocore
     #   elasticsearch
     #   requests
