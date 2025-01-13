@@ -49,7 +49,7 @@ packaging==24.2
     #   sphinx
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
-pygments==2.19.0
+pygments==2.19.1
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -91,5 +91,6 @@ typing-extensions==4.12.2
     # via pydata-sphinx-theme
 urllib3==1.26.20
     # via
+    #   -c requirements/common_constraints.txt
     #   elasticsearch
     #   requests
