@@ -1,5 +1,3 @@
-from itertools import chain
-
 from dal import autocomplete
 
 
@@ -8,16 +6,9 @@ class SortedModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
         """
         Return a sorted list of optgroups for this widget.
 
-        This is a simplified version of Django's version. The big difference is that we keep the results sorted and
-        only support one main group (because that's all we need right now).
+        This is a simplified version of Django's version. The big difference is that we keep the results sorted.
         """
-        selected = []
-        for index, (option_value, option_label) in enumerate(chain(self.choices)):
-            is_selected = str(option_value) in value
-            if is_selected:
-                subgroup = [self.create_option(name, option_value, option_label, is_selected, index, attrs=attrs)]
-                item = (None, subgroup, index)
-                selected.append(item)
+        selected = super().optgroups(name, value, attrs)
 
         ordered = []
         for value_id in value:
