@@ -230,8 +230,9 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
             ),
         ]
         return additional_urls + super().get_urls()
-    
+
     course_skills.label = "view course skills"
+
     class Media:
         js = (
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',

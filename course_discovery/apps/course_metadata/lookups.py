@@ -5,8 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
 from .models import (
-    Collaborator, CorporateEndorsement, Course, CourseRun, Endorsement, ExpectedLearningItem, FAQ, JobOutlookItem,
-    Organization, Person, Program,
+    FAQ, Collaborator, CorporateEndorsement, Course, CourseRun, Endorsement, ExpectedLearningItem, JobOutlookItem,
+    Organization, Person, Program
 )
 
 
