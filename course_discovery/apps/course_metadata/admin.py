@@ -307,6 +307,9 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
     save_error = False
     form = CourseRunAdminForm
+    autocomplete_fields = (
+        'video',
+    )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
