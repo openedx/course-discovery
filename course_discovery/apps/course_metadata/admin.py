@@ -126,6 +126,7 @@ class AdditionalMetadataInline(admin.TabularInline):
 @admin.register(GeoLocation)
 class GeoLocationAdmin(admin.ModelAdmin):
     """Admin for GeoLocation model."""
+    search_fields = ('location_name', )
 
 
 @admin.register(ProductValue)
@@ -145,7 +146,10 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     readonly_fields = ['enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number']
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
-    autocomplete_fields = ['canonical_course_run']
+    autocomplete_fields = [
+        'canonical_course_run', 'geolocation', 'in_year_value', 'video', 'extra_description',
+        'additional_metadata'
+    ]
     change_actions = ('course_skills', 'refresh_course_skills')
 
     def get_queryset(self, request):
@@ -229,6 +233,13 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     course_skills.label = "view course skills"
 
+    class Media:
+        js = (
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            SortableSelectJSPath()
+        )
+
 
 @admin.register(CourseEditor)
 class CourseEditorAdmin(admin.ModelAdmin):
@@ -307,6 +318,9 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
     save_error = False
     form = CourseRunAdminForm
+    autocomplete_fields = (
+        'video',
+    )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -398,8 +412,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     )
     raw_id_fields = ('video',)
     autocomplete_fields = (
-        'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items',
-        'expected_learning_items', 'in_year_value'
+        'in_year_value',
     )
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
@@ -603,7 +616,7 @@ class RankingAdmin(admin.ModelAdmin):
 @admin.register(AdditionalPromoArea)
 class AdditionalPromoAreaAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'courses')
-    search_fields = ('description',)
+    search_fields = ('description', 'title')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

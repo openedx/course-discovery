@@ -1,4 +1,5 @@
 import json
+from itertools import cycle
 from urllib.parse import quote, urlencode
 
 import pytest
@@ -8,7 +9,9 @@ from django.urls import reverse
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
+    CollaboratorFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, FAQFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory,
+    ProgramFactory
 )
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -91,7 +94,13 @@ class TestAutocomplete:
         self.assert_valid_query_result(admin_client, path, organization.key[:3], organization)
         self.assert_valid_query_result(admin_client, path, organization.name[:5], organization)
 
-    @pytest.mark.parametrize('view_prefix', ['organisation', 'course', 'course-run'])
+    @pytest.mark.parametrize(
+        'view_prefix',
+        [
+            'collaborator', 'corporate-endorsement', 'course', 'course-run', 'endorsement',
+            'expected-learning-item', 'faq', 'job-outlook-item', 'organisation'
+        ]
+    )
     def test_autocomplete_requires_staff_permission(self, view_prefix, client):
         """ Verify autocomplete returns empty list for non-staff users. """
 
@@ -101,6 +110,31 @@ class TestAutocomplete:
         data = json.loads(response.content.decode('utf-8'))
         assert response.status_code == 200
         assert data['results'] == []
+
+    @pytest.mark.parametrize(
+        'model_factory, autocomplete_path, lookup_attrs',
+        [
+            (CollaboratorFactory, 'collaborator-autocomplete', ['name', 'uuid']),
+            (CorporateEndorsementFactory, 'corporate-endorsement-autocomplete', ['corporation_name', 'statement']),
+            (EndorsementFactory, 'endorsement-autocomplete', ['quote']),
+            (ExpectedLearningItemFactory, 'expected-learning-item-autocomplete', ['value']),
+            (FAQFactory, 'faq-autocomplete', ['question', 'answer']),
+            (JobOutlookItemFactory, 'job-outlook-item-autocomplete', ['value']),
+        ]
+    )
+    def test_models_autocomplete(self, admin_client, model_factory, autocomplete_path, lookup_attrs):
+        objects = model_factory.create_batch(3)
+        path = reverse(f'admin_metadata:{autocomplete_path}')
+        response = admin_client.get(path)
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 3
+
+        # Search based on attributes
+        cycle_objects = cycle(objects)
+        for attr in lookup_attrs:
+            obj = next(cycle_objects)
+            self.assert_valid_query_result(admin_client, path, str(getattr(obj, attr))[:4], obj)
 
 
 class AutoCompletePersonTests(SiteMixin, TestCase):

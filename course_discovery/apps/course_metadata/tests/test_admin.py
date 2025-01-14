@@ -130,8 +130,7 @@ class AdminTests(SiteMixin, TestCase):
 
         course = factories.CourseFactory(authoring_organizations=[org1, org2, org3])
 
-        new_ordering = (',').join(map(lambda org: str(org.id), [org2, org3, org1]))
-        params = {'authoring_organizations': new_ordering}
+        params = {'authoring_organizations': [org2.id, org3.id, org1.id]}
 
         post_url = reverse('admin:course_metadata_course_change', args=(course.id,))
         response = self.client.post(post_url, params)
