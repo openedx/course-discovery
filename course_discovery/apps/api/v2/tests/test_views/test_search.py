@@ -136,3 +136,45 @@ class AggregateSearchViewSetV2Tests(mixins.LoginMixin, ElasticsearchTestMixin, m
         assert (
             single_page_data["results"] == all_results
         ), "Combined pagination results do not match single request results"
+
+    def test_last_item_sort_pagination(self):
+        """
+        Test that the results won't be duplicated in any request response.
+        """
+        page_size = 5
+        PersonFactory.create_batch(10, partner=self.partner)
+        courses = CourseFactory.create_batch(10, partner=self.partner)
+
+        for course in courses:
+            CourseRunFactory(
+                course__partner=self.partner,
+                course=course,
+                type__is_marketable=True,
+                status=CourseRunStatus.Published,
+            )
+        total_items_count = 30  # 10 Persons + 10 Courses + 10 CourseRuns
+        max_pages = total_items_count // page_size
+
+        response_data = self.fetch_page_data(page_size)
+        all_results = response_data["results"]
+        aggregate_uuids = [result["aggregation_uuid"] for result in all_results]
+        next_url = response_data.get("next")
+
+        for _ in range(max_pages - 1):
+            parsed_url = urlparse(next_url)
+            query_params = parse_qs(parsed_url.query)
+            search_after = query_params.get("search_after", [None])[0]
+            assert search_after is not None
+
+            last_sort_value = all_results[-1]["sort"]
+            assert json.loads(search_after) == last_sort_value
+
+            response_data = self.fetch_page_data(page_size, next_url=next_url)
+            for result in response_data['results']:
+                assert result['aggregation_uuid'] not in aggregate_uuids
+                aggregate_uuids.append(result['aggregation_uuid'])
+
+            all_results.extend(response_data["results"])
+            next_url = response_data.get("next")
+
+        assert len(aggregate_uuids) == total_items_count

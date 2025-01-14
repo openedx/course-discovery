@@ -114,30 +114,26 @@ class SearchAfterPagination(PageNumberPagination):
         """
         Paginate the Elasticsearch queryset using search_after.
         """
-
         search_after = request.query_params.get(self.search_after_param)
         if search_after:
             try:
                 queryset = queryset.extra(search_after=json.loads(search_after))
             except json.JSONDecodeError as exc:
                 raise ValueError("Invalid JSON format for search_after parameter") from exc
-
-        return super().paginate_queryset(queryset, request, view)
+        queryset = super().paginate_queryset(queryset, request, view)
+        self.last_obj = queryset[-1] if queryset else None  # pylint: disable=attribute-defined-outside-init
+        return queryset
 
     def get_next_link(self):
         if not self.page.has_next():
             return None
 
-        last_item_sort = self._get_last_item_sort()
+        last_item_sort = self.last_obj.meta.sort.copy() if hasattr(self, 'last_obj') and self.last_obj else None
         if not last_item_sort:
             return None
 
         url = self.request.build_absolute_uri()
         return replace_query_param(url, self.search_after_param, json.dumps(last_item_sort))
-
-    def _get_last_item_sort(self):
-        last_item = self.page.object_list[-1] if self.page.object_list else None
-        return list(last_item.meta.sort) if last_item else None
 
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):
