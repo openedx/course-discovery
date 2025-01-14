@@ -4,7 +4,7 @@ from dal import autocomplete
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
-from .models import (
+from course_discovery.apps.course_metadata.models import (
     FAQ, Collaborator, CorporateEndorsement, Course, CourseRun, Endorsement, ExpectedLearningItem, JobOutlookItem,
     Organization, Person, Program
 )
