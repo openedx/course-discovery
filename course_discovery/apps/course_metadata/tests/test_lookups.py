@@ -122,9 +122,7 @@ class TestAutocomplete:
             (JobOutlookItemFactory, 'job-outlook-item-autocomplete', ['value']),
         ]
     )
-    @pytest.mark.foo
     def test_models_autocomplete(self, admin_client, model_factory, autocomplete_path, lookup_attrs):
-        # breakpoint()
         objects = model_factory.create_batch(3)
         path = reverse(f'admin_metadata:{autocomplete_path}')
         response = admin_client.get(path)
