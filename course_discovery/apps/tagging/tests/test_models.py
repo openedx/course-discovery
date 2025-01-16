@@ -23,6 +23,18 @@ class VerticalFilterModelTests(TestCase):
         with self.assertRaises(Exception):
             VerticalFactory(name="Test Vertical")
 
+    def test_has_changed_no_changes(self):
+        """
+        Test that `has_changed` returns False when no changes are made.
+        """
+        self.assertFalse(self.vertical.has_changed, "Expected has_changed to return False for unchanged instance.")
+
+    def test_has_changed_changes(self):
+        """
+        Test that `has_changed` returns True when changes are made.
+        """
+        self.vertical.name = "New Vertical"
+        self.assertTrue(self.vertical.has_changed, "Expected has_changed to return True for changed instance.")
 
 class SubVerticalFilterModelTests(TestCase):
 
@@ -37,6 +49,7 @@ class SubVerticalFilterModelTests(TestCase):
         self.assertEqual(self.sub_vertical.verticals, self.vertical)
         self.assertTrue(self.sub_vertical.slug == "software-engineering")
         self.assertTrue(self.sub_vertical.is_active)
+        self.assertEqual(str(self.sub_vertical), "Software Engineering")
 
     def test_unique_name_constraint(self):
         with self.assertRaises(Exception):

@@ -6,7 +6,7 @@ from simple_history.models import HistoricalRecords
 from course_discovery.apps.course_metadata.models import Course, ManageHistoryMixin
 
 
-class Vertical(ManageHistoryMixin, TimeStampedModel):
+class Vertical(TimeStampedModel):
     """
     Model for defining verticals used to categorize product types
     """
@@ -23,11 +23,6 @@ class Vertical(ManageHistoryMixin, TimeStampedModel):
         ordering = ['name']
         unique_together = ['name']
 
-    @property
-    def has_changed(self):
-        if not self.pk:
-            return False
-        return self.has_model_changed()
 
     def save(self, *args, **kwargs):
         """
@@ -41,7 +36,7 @@ class Vertical(ManageHistoryMixin, TimeStampedModel):
         super().save(*args, **kwargs)
 
 
-class SubVertical(ManageHistoryMixin, TimeStampedModel):
+class SubVertical(TimeStampedModel):
     """
     Model for defining sub-verticals used to categorize product types under specific verticals.
     """
@@ -59,13 +54,7 @@ class SubVertical(ManageHistoryMixin, TimeStampedModel):
         ordering = ['name']
         unique_together = ['name']
 
-    @property
-    def has_changed(self):
-        if not self.pk:
-            return False
-        return self.has_model_changed()
-
-class BaseVertical(ManageHistoryMixin, TimeStampedModel):
+class BaseVertical(TimeStampedModel):
     """
     Abstract base model for assigning vertical and sub verticals to product types.
     """
@@ -89,12 +78,6 @@ class BaseVertical(ManageHistoryMixin, TimeStampedModel):
         Returns a string representing the title of the object.
         """
         raise NotImplementedError("Subclasses must implement `get_object_title`.")
-
-    @property
-    def has_changed(self):
-        if not self.pk:
-            return False
-        return self.has_model_changed()
 
 class CourseVertical(BaseVertical):
     """
