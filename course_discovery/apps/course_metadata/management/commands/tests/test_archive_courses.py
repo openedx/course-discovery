@@ -90,7 +90,7 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
     @ddt.unpack
     @responses.activate
     def test_success(self, from_db, mangle_title, mangle_end_date, draft_only):
-    # draft_only specifies the case when the objects only have draft versions
+        # draft_only specifies the case when the objects only have draft versions
         for model in [Course, CourseRun]:
             assert model.objects.count() == 2
             assert model.everything.count() == 4
@@ -120,7 +120,7 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         call_command('archive_courses', *args)
 
         course1_or_its_draft = Course.everything.get(uuid=self.course1.uuid, draft=draft_only)
-        course2_or_its_draft = Course.everything.get(uuid=self.course2.uuid, draft=draft_only) 
+        course2_or_its_draft = Course.everything.get(uuid=self.course2.uuid, draft=draft_only)
         course1_or_its_draft.refresh_from_db()
         course2_or_its_draft.refresh_from_db()
         self.verify_archived(course1_or_its_draft, mangle_title, mangle_end_date, not draft_only)
