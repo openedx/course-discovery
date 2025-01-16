@@ -1,9 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django_extensions.db.fields import AutoSlugField
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
-from course_discovery.apps.course_metadata.models import Course, ManageHistoryMixin
+from course_discovery.apps.course_metadata.models import Course
 
 
 class Vertical(TimeStampedModel):
@@ -90,6 +91,24 @@ class CourseVertical(BaseVertical):
     class Meta(BaseVertical.Meta):
         verbose_name_plural = "Course Verticals"
         unique_together = ["course"]
+
+    def clean(self):
+        """
+        Validate that the sub_vertical belongs to the selected vertical.
+        """
+        super().clean()
+        if self.vertical and self.sub_vertical and self.sub_vertical.verticals != self.vertical:
+            raise ValidationError({
+                'sub_vertical': f'Sub-vertical {self.sub_vertical.name} does not belong to '
+                               f'vertical {self.vertical.name}'
+            })
+
+    def save(self, *args, **kwargs):
+        """
+        Call full_clean before saving to ensure validation is always run
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_object_title(self):
         return self.course.title

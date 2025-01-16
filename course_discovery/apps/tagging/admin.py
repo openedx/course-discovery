@@ -1,5 +1,5 @@
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 
 from course_discovery.apps.course_metadata.models import Course
