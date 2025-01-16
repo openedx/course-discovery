@@ -166,3 +166,5 @@ ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = ['enterprise']
 
 RETIRED_RUN_TYPES = ['paid-bootcamp', 'unpaid-bootcamp']
 RETIRED_COURSE_TYPES = ['bootcamp-2u']
+
+VERTICALS_MANAGEMENT_GROUPS = ['allowed_group']
