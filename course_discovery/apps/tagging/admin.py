@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
@@ -12,6 +14,11 @@ class VerticalAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'slug',)
     search_fields = ('name',)
 
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            raise PermissionDenied("You are not authorized to perform this action.")
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(SubVertical)
 class SubVerticalAdmin(admin.ModelAdmin):
@@ -22,6 +29,11 @@ class SubVerticalAdmin(admin.ModelAdmin):
     list_filter = ('verticals', )
     search_fields = ('name',)
     ordering = ('name',)
+
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            raise PermissionDenied("You are not authorized to perform this action.")
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(CourseVertical)
@@ -46,3 +58,9 @@ class CourseVerticalAdmin(admin.ModelAdmin):
         elif db_field.name == 'sub_vertical':
             kwargs['queryset'] = SubVertical.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        allowed_groups = getattr(settings, 'VERTICALS_MANAGEMENT_GROUPS', [])
+        if not (request.user.is_superuser or request.user.groups.filter(name__in=allowed_groups).exists()):
+            raise PermissionDenied("You are not authorized to perform this action.")
+        super().save_model(request, obj, form, change)

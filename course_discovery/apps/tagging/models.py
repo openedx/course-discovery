@@ -29,6 +29,18 @@ class Vertical(ManageHistoryMixin, TimeStampedModel):
             return False
         return self.has_model_changed()
 
+    def save(self, *args, **kwargs):
+        """
+        Override the save method to deactivate related sub-verticals when `is_active` is set to False.
+        """
+        if self.pk:
+            cur_instance = Vertical.objects.get(pk=self.pk)
+            if cur_instance.is_active and not self.is_active:
+                self.sub_verticals.update(is_active=False)
+
+        super().save(*args, **kwargs)
+
+
 class SubVertical(ManageHistoryMixin, TimeStampedModel):
     """
     Model for defining sub-verticals used to categorize product types under specific verticals.
