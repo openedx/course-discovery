@@ -64,6 +64,7 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
         return args
 
     def verify_archived(self, course, mangle_title, mangle_end_date, is_official=True):
+        # is_official specifies if the course is an official version
         for c in ([course, course.draft_version] if is_official else [course]):
             assert c.additional_metadata.product_status == ExternalProductStatus.Archived
             assert c.additional_metadata.end_date < timezone.now() + timedelta(minutes=1)
@@ -76,6 +77,7 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             assert is_end_date_mangled if mangle_end_date else not is_end_date_mangled
 
     def verify_not_archived(self, course, is_official=True):
+        # is_official specifies if the course is an official version
         for c in ([course, course.draft_version] if is_official else [course]):
             assert c.additional_metadata.product_status == ExternalProductStatus.Published
             assert c.additional_metadata.end_date > timezone.now() + timedelta(minutes=1)
@@ -119,12 +121,12 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             args = ['--from-db']
         call_command('archive_courses', *args)
 
-        course1_or_its_draft = Course.everything.get(uuid=self.course1.uuid, draft=draft_only)
-        course2_or_its_draft = Course.everything.get(uuid=self.course2.uuid, draft=draft_only)
-        course1_or_its_draft.refresh_from_db()
-        course2_or_its_draft.refresh_from_db()
-        self.verify_archived(course1_or_its_draft, mangle_title, mangle_end_date, not draft_only)
-        self.verify_not_archived(course2_or_its_draft, not draft_only)
+        course1 = Course.everything.get(uuid=self.course1.uuid, draft=draft_only)
+        course2 = Course.everything.get(uuid=self.course2.uuid, draft=draft_only)
+        course1.refresh_from_db()
+        course2.refresh_from_db()
+        self.verify_archived(course1, mangle_title, mangle_end_date, not draft_only)
+        self.verify_not_archived(course2, not draft_only)
 
         mangle_call_count = 1 if draft_only else 2
         if mangle_end_date:
