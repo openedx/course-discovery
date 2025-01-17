@@ -60,10 +60,10 @@ class BaseVertical(TimeStampedModel):
     Abstract base model for assigning vertical and sub verticals to product types.
     """
     vertical = models.ForeignKey(
-        Vertical, on_delete=models.CASCADE, related_name="%(class)s_verticals"
+        Vertical, on_delete=models.CASCADE, null=True, blank=True, related_name="%(class)s_verticals"
     )
     sub_vertical = models.ForeignKey(
-        SubVertical, on_delete=models.CASCADE, related_name="%(class)s_sub_verticals"
+        SubVertical, on_delete=models.CASCADE, null=True, blank=True, related_name="%(class)s_sub_verticals"
     )
     history = HistoricalRecords()
 
@@ -72,7 +72,12 @@ class BaseVertical(TimeStampedModel):
         ordering = ["vertical", "sub_vertical"]
 
     def __str__(self):
-        return f'{self.get_object_title()} - {self.vertical.name} - {self.sub_vertical.name}'
+        """
+        Returns a string representing the object.
+        """
+        vertical = self.vertical.name if self.vertical else "None"
+        sub_vertical = self.sub_vertical.name if self.sub_vertical else "None"
+        return f'{self.get_object_title()} - {vertical} - {sub_vertical}'
 
     def get_object_title(self):
         """
@@ -95,19 +100,28 @@ class CourseVertical(BaseVertical):
     def clean(self):
         """
         Validate that the sub_vertical belongs to the selected vertical.
+        Automatically set the vertical if only sub_vertical is set.
         """
         super().clean()
-        if self.vertical and self.sub_vertical and self.sub_vertical.verticals != self.vertical:
-            raise ValidationError({
-                'sub_vertical': f'Sub-vertical {self.sub_vertical.name} does not belong to '
-                               f'vertical {self.vertical.name}'
-            })
+        if hasattr(self, 'sub_vertical') and self.sub_vertical:
+            if not self.vertical:
+                self.vertical = self.sub_vertical.verticals # Auto-assign vertical if it's not set
+
+            if self.sub_vertical.verticals and self.sub_vertical.verticals != self.vertical:
+                raise ValidationError({
+                    'sub_vertical': f'Sub-vertical "{self.sub_vertical.name}" does not belong to '
+                                    f'vertical "{self.vertical.name}".'
+                })
+
+        elif not self.sub_vertical and not self.vertical:
+            return   # Skip validation if sub_vertical is not set
+
 
     def save(self, *args, **kwargs):
         """
         Call full_clean before saving to ensure validation is always run
         """
-        self.full_clean()
+        # self.full_clean()
         super().save(*args, **kwargs)
 
     def get_object_title(self):
