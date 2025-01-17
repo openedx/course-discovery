@@ -75,9 +75,9 @@ class Command(BaseCommand):
             conf = ArchiveCoursesConfig.current()
             mangle_end_date = conf.mangle_end_date
             mangle_title = conf.mangle_title
-            courses = Course.objects.filter(uuid__in=self.get_uuids_from_database())
+            courses = Course.objects.filter_drafts(uuid__in=self.get_uuids_from_database())
         elif course_type:
-            courses = Course.objects.filter(
+            courses = Course.objects.filter_drafts(
                 type__in=[CourseType.objects.get(slug__in=[course_type, course_type.lower()])]
             )
         else:
@@ -90,8 +90,8 @@ class Command(BaseCommand):
             course_title = course.title
             try:
                 self.archive(course, mangle_end_date, mangle_title)
-                if course.draft_version:
-                    self.archive(course.draft_version, mangle_end_date, mangle_title)
+                if course.official_version:
+                    self.archive(course.official_version, mangle_end_date, mangle_title)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 self.report['failures'].append(
                     {

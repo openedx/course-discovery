@@ -63,8 +63,9 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             args.append('--mangle-end-date')
         return args
 
-    def verify_archived(self, course, mangle_title, mangle_end_date):
-        for c in [course, course.draft_version]:
+    def verify_archived(self, course, mangle_title, mangle_end_date, is_official=True):
+        # is_official specifies if the course is an official version
+        for c in ([course, course.draft_version] if is_official else [course]):
             assert c.additional_metadata.product_status == ExternalProductStatus.Archived
             assert c.additional_metadata.end_date < timezone.now() + timedelta(minutes=1)
             assert c.course_runs.last().status == CourseRunStatus.Unpublished
@@ -75,8 +76,9 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             is_end_date_mangled = c.course_runs.first().end < timezone.now() + timedelta(minutes=1)
             assert is_end_date_mangled if mangle_end_date else not is_end_date_mangled
 
-    def verify_not_archived(self, course):
-        for c in [course, course.draft_version]:
+    def verify_not_archived(self, course, is_official=True):
+        # is_official specifies if the course is an official version
+        for c in ([course, course.draft_version] if is_official else [course]):
             assert c.additional_metadata.product_status == ExternalProductStatus.Published
             assert c.additional_metadata.end_date > timezone.now() + timedelta(minutes=1)
             assert c.course_runs.last().status == CourseRunStatus.Published
@@ -85,15 +87,22 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             assert not c.course_runs.first().end < timezone.now() + timedelta(minutes=1)
 
     @ddt.data(
-        *list(product([0, 1], repeat=3))
+        *list(product([0, 1], repeat=4))
     )
     @ddt.unpack
     @responses.activate
-    def test_success(self, from_db, mangle_title, mangle_end_date):
-        # Some sanity checks on counts
+    def test_success(self, from_db, mangle_title, mangle_end_date, draft_only):
+        # draft_only specifies the case when the objects only have draft versions
         for model in [Course, CourseRun]:
             assert model.objects.count() == 2
             assert model.everything.count() == 4
+
+        if draft_only:
+            self.course1.delete()
+            self.course2.delete()
+            for model in [Course, CourseRun]:
+                assert model.objects.count() == 0
+                assert model.everything.count() == 2
 
         if from_db:
             ArchiveCoursesConfigFactory.create(
@@ -112,13 +121,16 @@ class ArchiveCoursesCommandTests(TestCase, OAuth2Mixin):
             args = ['--from-db']
         call_command('archive_courses', *args)
 
-        self.course1.refresh_from_db()
-        self.course2.refresh_from_db()
-        self.verify_archived(self.course1, mangle_title, mangle_end_date)
-        self.verify_not_archived(self.course2)
+        course1 = Course.everything.get(uuid=self.course1.uuid, draft=draft_only)
+        course2 = Course.everything.get(uuid=self.course2.uuid, draft=draft_only)
+        course1.refresh_from_db()
+        course2.refresh_from_db()
+        self.verify_archived(course1, mangle_title, mangle_end_date, not draft_only)
+        self.verify_not_archived(course2, not draft_only)
 
+        mangle_call_count = 1 if draft_only else 2
         if mangle_end_date:
-            assert responses.assert_call_count(self.courserun1_studio_url, 2) is True
+            assert responses.assert_call_count(self.courserun1_studio_url, mangle_call_count) is True
         else:
             assert responses.assert_call_count(self.courserun1_studio_url, 0) is True
 
