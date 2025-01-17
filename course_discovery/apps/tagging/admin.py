@@ -7,6 +7,16 @@ from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
 
 
+class SubVerticalInline(admin.TabularInline):
+    """
+    Inline form for SubVertical under VerticalAdmin.
+    """
+    model = SubVertical
+    extra = 0
+    fields = ('name', 'is_active', 'slug')
+    readonly_fields = ('slug',)
+    show_change_link = True
+
 @admin.register(Vertical)
 class VerticalAdmin(admin.ModelAdmin):
     """
@@ -14,6 +24,7 @@ class VerticalAdmin(admin.ModelAdmin):
     """
     list_display = ('name', 'is_active', 'slug',)
     search_fields = ('name',)
+    inlines = [SubVerticalInline]
 
     def save_model(self, request, obj, form, change):
         """
@@ -29,8 +40,8 @@ class SubVerticalAdmin(admin.ModelAdmin):
     """
     Admin class for SubVertical model.
     """
-    list_display = ('name', 'is_active', 'slug', 'verticals')
-    list_filter = ('verticals', )
+    list_display = ('name', 'is_active', 'slug', 'vertical')
+    list_filter = ('vertical', )
     search_fields = ('name',)
     ordering = ('name',)
 
@@ -58,9 +69,7 @@ class CourseVerticalAdmin(admin.ModelAdmin):
         Override the formfield_for_foreignkey method to filter non-draft entry of courses and active vertical and
         sub-vertical filters.
         """
-        if db_field.name == 'course':
-            kwargs['queryset'] = Course.objects.filter(draft=False)
-        elif db_field.name == 'vertical':
+        if db_field.name == 'vertical':
             kwargs['queryset'] = Vertical.objects.filter(is_active=True)
         elif db_field.name == 'sub_vertical':
             kwargs['queryset'] = SubVertical.objects.filter(is_active=True)

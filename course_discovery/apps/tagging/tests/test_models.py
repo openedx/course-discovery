@@ -32,7 +32,7 @@ class VerticalFilterModelTests(TestCase):
 
     def test_deactivate_sub_verticals(self):
         """ Verify that deactivating a vertical also deactivates its sub-verticals """
-        sub_vertical = SubVerticalFactory(verticals=self.vertical)
+        sub_vertical = SubVerticalFactory(vertical=self.vertical)
         self.assertTrue(sub_vertical.is_active)
 
         self.vertical.is_active = False
@@ -47,7 +47,7 @@ class SubVerticalFilterModelTests(TestCase):
         super().setUp()
         self.vertical = VerticalFactory(name="Technology")
         self.sub_vertical = SubVerticalFactory(
-            name="Software Engineering", verticals=self.vertical
+            name="Software Engineering", vertical=self.vertical
         )
     
     def test_str(self):
@@ -57,14 +57,14 @@ class SubVerticalFilterModelTests(TestCase):
     def test_sub_vertical_filter_creation(self):
         """ Verify that sub-vertical filter is created correctly """
         self.assertEqual(self.sub_vertical.name, "Software Engineering")
-        self.assertEqual(self.sub_vertical.verticals, self.vertical)
+        self.assertEqual(self.sub_vertical.vertical, self.vertical)
         self.assertTrue(self.sub_vertical.slug == "software-engineering")
         self.assertTrue(self.sub_vertical.is_active)
 
     def test_unique_name_constraint(self):
         """ Verify that sub-vertical names must be unique """
         with self.assertRaises(Exception):
-            SubVerticalFactory(name="Software Engineering", verticals=self.vertical)
+            SubVerticalFactory(name="Software Engineering", vertical=self.vertical)
 
     def test_cascade_delete(self):
         """ Verify that sub-verticals are deleted when their vertical is deleted """
@@ -81,7 +81,7 @@ class CourseVerticalFilterModelTests(TestCase):
         self.course = CourseFactory(title="Test Course", draft=False, draft_version_id=self.course_draft.id)
         self.vertical = VerticalFactory(name="Test Vertical")
         self.sub_vertical = SubVerticalFactory(
-            name="Test Sub Vertical", verticals=self.vertical
+            name="Test Sub Vertical", vertical=self.vertical
         )
         self.course_vertical = CourseVerticalFactory(
             course=self.course, vertical=self.vertical, sub_vertical=self.sub_vertical
@@ -125,7 +125,7 @@ class CourseVerticalFilterModelTests(TestCase):
     def test_mismatched_sub_vertical(self):
         """Verify that a sub-vertical must belong to the selected vertical."""
         different_vertical = VerticalFactory()
-        mismatched_sub_vertical = SubVerticalFactory(verticals=different_vertical)
+        mismatched_sub_vertical = SubVerticalFactory(vertical=different_vertical)
 
         with self.assertRaises(ValidationError):
             CourseVertical.objects.create(

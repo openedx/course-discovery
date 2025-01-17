@@ -12,7 +12,7 @@ class Vertical(TimeStampedModel):
     Model for defining verticals used to categorize product types
     """
     name = models.CharField(max_length=255, unique=True)
-    slug = AutoSlugField(populate_from='name', max_length=255, unique=True)
+    slug = AutoSlugField(populate_from='name', max_length=255, unique=True, db_index=True)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
 
@@ -42,9 +42,9 @@ class SubVertical(TimeStampedModel):
     Model for defining sub-verticals used to categorize product types under specific verticals.
     """
     name = models.CharField(max_length=255, unique=True)
-    slug = AutoSlugField(populate_from='name', max_length=255, unique=True)
+    slug = AutoSlugField(populate_from='name', max_length=255, unique=True, db_index=True)
     is_active = models.BooleanField(default=True)
-    verticals = models.ForeignKey(Vertical, on_delete=models.CASCADE, related_name='sub_verticals')
+    vertical = models.ForeignKey(Vertical, on_delete=models.CASCADE, related_name='sub_verticals')
     history = HistoricalRecords()
 
     def __str__(self):
@@ -90,7 +90,7 @@ class CourseVertical(BaseVertical):
     Model for assigning vertical and sub verticals to courses
     """
     course = models.OneToOneField(
-        Course, on_delete=models.CASCADE, related_name="verticals"
+        Course, on_delete=models.CASCADE, related_name="verticals", limit_choices_to={'draft': False}
     )
 
     class Meta(BaseVertical.Meta):
@@ -105,9 +105,9 @@ class CourseVertical(BaseVertical):
         super().clean()
         if hasattr(self, 'sub_vertical') and self.sub_vertical:
             if not self.vertical:
-                self.vertical = self.sub_vertical.verticals # Auto-assign vertical if it's not set
+                self.vertical = self.sub_vertical.vertical # Auto-assign vertical if it's not set
 
-            if self.sub_vertical.verticals and self.sub_vertical.verticals != self.vertical:
+            if self.sub_vertical.vertical and self.sub_vertical.vertical != self.vertical:
                 raise ValidationError({
                     'sub_vertical': f'Sub-vertical "{self.sub_vertical.name}" does not belong to '
                                     f'vertical "{self.vertical.name}".'
@@ -121,7 +121,7 @@ class CourseVertical(BaseVertical):
         """
         Call full_clean before saving to ensure validation is always run
         """
-        # self.full_clean()
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def get_object_title(self):

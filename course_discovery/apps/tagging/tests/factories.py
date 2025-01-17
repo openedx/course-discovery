@@ -25,7 +25,7 @@ class SubVerticalFactory(DjangoModelFactory):
         model = SubVertical
 
     name = FuzzyText()
-    verticals = factory.SubFactory(VerticalFactory)
+    vertical = factory.SubFactory(VerticalFactory)
     is_active = True
 
 

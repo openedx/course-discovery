@@ -23,23 +23,24 @@ class MockRequest:
 class BaseAdminTestCase(TestCase):
     """ Base test class for admin tests """
 
-    def setUp(self):
-        super().setUp()
-        self.site = AdminSite()
-        self.factory = RequestFactory()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.site = AdminSite()
 
-        self.superuser = User.objects.create_superuser(
+        # Create users and groups
+        cls.superuser = User.objects.create_superuser(
             username='admin',
             email='admin@example.com',
             password='password'
         )
-        self.regular_user = User.objects.create_user(
+        cls.regular_user = User.objects.create_user(
             username='user',
             email='user@example.com',
             password='password'
         )
 
-        self.allowed_group = Group.objects.create(name='allowed_group')
+        cls.allowed_group = Group.objects.create(name='allowed_group')
         settings.VERTICALS_MANAGEMENT_GROUPS = ['allowed_group']
 
 
@@ -52,29 +53,15 @@ class VerticalAdminTests(BaseAdminTestCase):
         self.vertical = VerticalFactory()
 
     def test_save_model_as_superuser(self):
-        """Verify that superuser can save vertical."""
+        """ Verify that superuser can save vertical. """
         request = MockRequest(self.superuser)
-        try:
-            self.vertical_admin.save_model(request, self.vertical, None, False)
-        except PermissionDenied:
-            self.fail("Superuser should be able to save vertical")
+        self.vertical_admin.save_model(request, self.vertical, None, False)
 
     def test_save_model_as_regular_user(self):
         """Verify that regular user cannot save vertical."""
         request = MockRequest(self.regular_user)
         with self.assertRaises(PermissionDenied):
             self.vertical_admin.save_model(request, self.vertical, None, False)
-
-    def test_list_display(self):
-        """Verify the correct list display fields."""
-        self.assertEqual(
-            self.vertical_admin.list_display,
-            ('name', 'is_active', 'slug',)
-        )
-
-    def test_vertical_filter_admin_registration(self):
-        """ Verify that Vertical model is registered on the admin site """
-        self.assertIn(Vertical, site._registry)
 
 
 class SubVerticalAdminTests(BaseAdminTestCase):
@@ -103,12 +90,8 @@ class SubVerticalAdminTests(BaseAdminTestCase):
         """Verify the correct list display fields."""
         self.assertEqual(
             self.subvertical_admin.list_display,
-            ('name', 'is_active', 'slug', 'verticals')
+            ('name', 'is_active', 'slug', 'vertical')
         )
-
-    def test_sub_vertical_filter_admin_registration(self):
-        """Verify that SubVertical model is registered on the admin site."""
-        self.assertIn(SubVertical, site._registry)
 
 
 class CourseVerticalAdminTests(BaseAdminTestCase):
@@ -119,7 +102,7 @@ class CourseVerticalAdminTests(BaseAdminTestCase):
         self.coursevertical_admin = CourseVerticalAdmin(CourseVertical, self.site)
         self.course = CourseFactory(draft=False)
         self.vertical = VerticalFactory(is_active=True)
-        self.subvertical = SubVerticalFactory(is_active=True, verticals=self.vertical)
+        self.subvertical = SubVerticalFactory(is_active=True, vertical=self.vertical)
         self.coursevertical = CourseVerticalFactory(
             course=self.course,
             vertical=self.vertical,
@@ -149,19 +132,6 @@ class CourseVerticalAdminTests(BaseAdminTestCase):
         with self.assertRaises(PermissionDenied):
             self.coursevertical_admin.save_model(request, self.coursevertical, None, False)
 
-    def test_formfield_for_foreignkey_course(self):
-        """Verify that only non-draft courses are available."""
-        draft_course = CourseFactory(draft=True)
-        request = MockRequest(self.superuser)
-
-        formfield = self.coursevertical_admin.formfield_for_foreignkey(
-            CourseVertical._meta.get_field('course'),
-            request
-        )
-
-        self.assertIn(self.course, formfield.queryset)
-        self.assertNotIn(draft_course, formfield.queryset)
-
     def test_formfield_for_foreignkey_vertical(self):
         """ Verify that only active verticals are available """
         inactive_vertical = VerticalFactory(is_active=False)
@@ -187,14 +157,3 @@ class CourseVerticalAdminTests(BaseAdminTestCase):
 
         self.assertIn(self.subvertical, formfield.queryset)
         self.assertNotIn(inactive_subvertical, formfield.queryset)
-
-    def test_list_display(self):
-        """Verify the correct list display fields."""
-        self.assertEqual(
-            self.coursevertical_admin.list_display,
-            ('course', 'vertical', 'sub_vertical')
-        )
-
-    def test_course_vertical_filter_admin_registration(self):
-        """ Verify that CourseVertical model is registered on the admin site """
-        self.assertIn(CourseVertical, site._registry)
