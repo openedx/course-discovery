@@ -73,7 +73,8 @@ class VerticalAdminTests(BaseAdminTestCase):
         )
 
     def test_vertical_filter_admin_registration(self):
-            self.assertIn(Vertical, site._registry)
+        """ Verify that Vertical model is registered on the admin site """
+        self.assertIn(Vertical, site._registry)
 
 
 class SubVerticalAdminTests(BaseAdminTestCase):
@@ -106,6 +107,7 @@ class SubVerticalAdminTests(BaseAdminTestCase):
         )
 
     def test_sub_vertical_filter_admin_registration(self):
+        """Verify that SubVertical model is registered on the admin site."""
         self.assertIn(SubVertical, site._registry)
 
 
@@ -194,4 +196,5 @@ class CourseVerticalAdminTests(BaseAdminTestCase):
         )
 
     def test_course_vertical_filter_admin_registration(self):
+        """ Verify that CourseVertical model is registered on the admin site """
         self.assertIn(CourseVertical, site._registry)
