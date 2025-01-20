@@ -1,0 +1,90 @@
+{% extends "tagging/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Course: {{ course.title }}</h1>
+    <h2>Key: {{ course.key }}</h2>
+
+    <h3>Assign or Edit Vertical and Sub-Vertical</h3>
+    <form method="post" action=""
+          hx-post=""
+          hx-target="#message-container"
+          hx-swap="innerHTML">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="vertical">Vertical</label>
+            <select name="vertical" id="vertical" class="form-control"
+                    hx-trigger="change"
+                    hx-on="change: filterSubVerticals(event)">
+                <option value="">Select Vertical</option>
+                {% for vertical in verticals %}
+                    <option value="{{ vertical.slug }}"
+                            {% if course.product_vertical and course.product_vertical.vertical.slug == vertical.slug %}selected{% endif %}>
+                        {{ vertical.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="sub_vertical">Sub-Vertical</label>
+            <select name="sub_vertical" id="sub_vertical" class="form-control">
+                <option value="">Select Sub-Vertical</option>
+                {% for sub_vertical in all_sub_verticals %}
+                    <option value="{{ sub_vertical.slug }}"
+                            data-vertical="{{ sub_vertical.vertical.slug }}"
+                            {% if course.product_vertical and course.product_vertical.sub_vertical and course.product_vertical.sub_vertical.slug == sub_vertical.slug %}
+                                selected
+                            {% elif course.product_vertical and not course.product_vertical.sub_vertical and sub_vertical.vertical.slug != course.product_vertical.vertical.slug %}
+                                style="display: none;"
+                            {% elif not course.product_vertical or sub_vertical.vertical.slug != course.product_vertical.vertical.slug %}
+                                style="display: none;"
+                            {% endif %}>
+                        {{ sub_vertical.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+
+    <!-- Message container for success/error -->
+    <div id="message-container" class="mt-3"></div>
+</div>
+
+<script>
+    function filterSubVerticals(event) {
+        const selectedVertical = event.target.value;
+        const subVerticalSelect = document.getElementById('sub_vertical');
+        const options = subVerticalSelect.querySelectorAll('option[data-vertical]');
+
+        // Clear sub-vertical selection only when vertical is changed to no selection
+        if (!selectedVertical) {
+            subVerticalSelect.value = ""; // Reset sub-vertical selection
+        }
+
+        // Hide or show sub-vertical options based on selected vertical
+        options.forEach(option => {
+            if (selectedVertical && option.getAttribute('data-vertical') === selectedVertical) {
+                option.style.display = ""; // Show relevant sub-vertical
+            } else {
+                option.style.display = "none"; // Hide irrelevant sub-vertical
+            }
+        });
+
+        // Automatically clear sub-vertical selection if no matching options are visible
+        const selectedSubVertical = subVerticalSelect.value;
+        const matchingOption = Array.from(options).find(option => option.value === selectedSubVertical && option.style.display !== "none");
+        if (!matchingOption) {
+            subVerticalSelect.value = ""; // Clear selection if no valid options remain
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectedVertical = document.getElementById('vertical');
+        filterSubVerticals({ target: selectedVertical });
+    });
+</script>
+{% endblock %}

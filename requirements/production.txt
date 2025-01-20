@@ -202,6 +202,8 @@ django-fsm==3.0.0
     # via -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
+django-htmx==1.21.0
+    # via -r requirements/base.in
 django-libsass==0.9
     # via -r requirements/base.in
 django-localflavor==4.0

@@ -1,0 +1,18 @@
+{% extends "tagging/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Courses</h1>
+
+    <form method="get" class="mb-4" hx-get="{% url 'tagging:course_list' %}" hx-target="#course-table" hx-trigger="keyup changed delay:500ms from:search">
+        <div class="input-group">
+            <input type="text" name="search" id="search" class="form-control" placeholder="Search courses..." value="{{ request.GET.search|default:'' }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div id="course-table">
+        {% include "partials/course_table.html" %}
+    </div>
+</div>
+{% endblock %}

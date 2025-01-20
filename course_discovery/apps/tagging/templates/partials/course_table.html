@@ -1,0 +1,109 @@
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>
+                <a href="?sort=key&direction={% if current_sort == 'key' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    Course Key
+                    {% if current_sort == 'key' %}
+                        <span>{% if current_direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="?sort=title&direction={% if current_sort == 'title' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    Course Title
+                    {% if current_sort == 'title' %}
+                        <span>{% if current_direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="?sort=vertical&direction={% if current_sort == 'vertical' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    Vertical
+                    {% if current_sort == 'vertical' %}
+                        <span>{% if current_direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="?sort=sub_vertical&direction={% if current_sort == 'sub_vertical' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    Sub-Vertical
+                    {% if current_sort == 'sub_vertical' %}
+                        <span>{% if current_direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                    {% endif %}
+                </a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ course.key }}</td>
+                <td>
+                    <a href="{% url 'tagging:course_tagging_detail' uuid=course.uuid %}">
+                        {{ course.title }}
+                    </a>
+                </td>
+                <td>
+                    {% if course.product_vertical and course.product_vertical.vertical %}
+                        <a href="{% url 'tagging:vertical_detail' slug=course.product_vertical.vertical.slug %}">
+                            {{ course.product_vertical.vertical.name }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if course.product_vertical and course.product_vertical.sub_vertical %}
+                        <a href="{% url 'tagging:sub_vertical_detail' slug=course.product_vertical.sub_vertical.slug %}">
+                            {{ course.product_vertical.sub_vertical.name }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No courses found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-get="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-target="#course-table">
+                    &laquo;
+                </a>
+            </li>
+        {% endif %}
+        {% for page_num in paginator.page_range %}
+            <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
+                <a class="page-link" href="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-get="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-target="#course-table">
+                    {{ page_num }}
+                </a>
+            </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-get="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                   hx-target="#course-table">
+                    &raquo;
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
