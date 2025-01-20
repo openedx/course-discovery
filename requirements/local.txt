@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.35.97
+boto3==1.36.2
     # via django-ses
-botocore==1.35.97
+botocore==1.36.2
     # via
     #   boto3
     #   s3transfer
@@ -126,7 +126,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-code-annotations==2.1.0
+code-annotations==2.2.0
     # via
     #   edx-lint
     #   edx-toggles
@@ -284,7 +284,7 @@ django-object-actions==4.3.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==4.3.1
+django-ses==4.3.2
     # via taxonomy-connector
 django-simple-history==3.7.0
     # via -r requirements/base.in
@@ -304,7 +304,7 @@ django-taggit==6.1.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
-django-taggit-autosuggest==0.4.1
+django-taggit-autosuggest==0.4.2
     # via -r requirements/base.in
 django-waffle==4.2.0
     # via
@@ -439,7 +439,7 @@ glom==22.1.0
     # via semgrep
 google-api-core==2.24.0
     # via google-api-python-client
-google-api-python-client==2.158.0
+google-api-python-client==2.159.0
     # via -r requirements/base.in
 google-auth==2.37.0
     # via
@@ -518,7 +518,7 @@ mccabe==0.7.0
     # via pylint
 mock==5.1.0
     # via -r requirements/test.in
-more-itertools==10.5.0
+more-itertools==10.6.0
     # via simple-salesforce
 multidict==6.1.0
     # via
@@ -539,7 +539,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.in
-openedx-events==9.15.0
+openedx-events==9.15.2
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -755,7 +755,7 @@ requests-toolbelt==0.10.1
     # via
     #   -c requirements/constraints.txt
     #   zeep
-responses==0.25.5
+responses==0.25.6
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -767,7 +767,7 @@ ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
-s3transfer==0.10.4
+s3transfer==0.11.1
     # via boto3
 selenium==4.12.0
     # via
@@ -904,7 +904,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.28.1
+virtualenv==20.29.1
     # via tox
 walrus==0.9.4
     # via edx-event-bus-redis
