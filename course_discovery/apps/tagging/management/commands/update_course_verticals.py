@@ -59,15 +59,18 @@ class Command(BaseCommand):
         subvertical = SubVertical.objects.filter(name=subvertical_name).first()
         if (not vertical and vertical_name) or (not subvertical and subvertical_name):
             raise ValueError("Incorrect vertical or subvertical provided")
+        
+        if (vertical and not vertical.is_active) or (subvertical and not subvertical.is_active):
+            raise ValueError("The provided vertical or subvertical is not active")
 
         course_vertical = CourseVertical.objects.filter(course=course).first()
         if course_vertical:
-            logger.info(f"Changing existing vertical association for course with key {course.key}")
+            logger.info(f"Existing vertical association found for course with key {course_key}")
             course_vertical.vertical = vertical
-            course_vertical.subvertical = subvertical
+            course_vertical.sub_vertical = subvertical
             course_vertical.save()
         else:
-            CourseVertical.objects.create(course=course, vertical=vertical, subvertical=subvertical)
+            CourseVertical.objects.create(course=course, vertical=vertical, sub_vertical=subvertical)
 
     def get_csv_reader(self):
         config = UpdateCourseVerticalsConfig.current()

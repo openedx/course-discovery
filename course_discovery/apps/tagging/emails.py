@@ -13,7 +13,7 @@ def send_email_for_course_verticals_update(report, to_users):
         'success_count': success_count,
         'failures': report['failures']
     }
-    html_template = 'course_metadata/email/update_course_verticals.html'
+    html_template = 'email/update_course_verticals.html'
     template = get_template(html_template)
     html_content = template.render(context)
 
