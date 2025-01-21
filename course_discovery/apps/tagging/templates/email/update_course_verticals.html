@@ -1,0 +1,42 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load django_markup %}
+{% block body %}
+
+<p>
+    The course verticals update process has completed. A summary is presented below.
+</p>
+<div>
+    <table border="2" width="50%" style="padding: 5px;">
+        <tr>
+            <th colspan="2">
+                Course Verticals Update Summary
+            </th>
+        </tr>
+        <tr>
+            <th>Total Data Rows</th>
+            <td>{{ total_count }}</td>
+        </tr>
+        <tr>
+            <th>Successfully Archived</th>
+            <td>{{ success_count }}</td>
+        </tr>
+        <tr>
+            <th>Failures</th>
+            <td>{{ failure_count }}</td>
+        </tr>
+    </table>
+</div>
+
+
+{% if failure_count > 0 %}
+<div>
+    <h3>Verticals Update Failures</h3>
+        <ul>
+            {% for failure in failures %}
+                <li>[{{failure.id}}]: {{failure.reason}}</li>
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+{% endblock body %}
