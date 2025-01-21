@@ -10,14 +10,13 @@ from course_discovery.apps.tagging.tests.factories import (
     CourseVerticalFactory, SubVerticalFactory, VerticalFactory, UpdateCourseVerticalsConfigFactory
 )
 
-
-@ddt.ddt
-class UpdateCourseVerticalsCommandTests(TestCase):
+@pytest.mark.django_db
+class TestUpdateCourseVerticalsCommand:
     """
     Test suite for update_course_verticals management command.
     """
-    def setUp(self):
-        super().setUp()
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.course1 = CourseFactory()
         self.course2 = CourseFactory()
         self.ai_vertical = VerticalFactory(name="AI & Data Science")
@@ -60,6 +59,8 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         UpdateCourseVerticalsConfigFactory(enabled=True, csv_file=csv)
         call_command('update_course_verticals')
 
+        self.course1.refresh_from_db()
+        self.course2.refresh_from_db()
         assert self.course1.vertical.vertical == self.ai_vertical
         assert self.course1.vertical.sub_vertical == self.python_subvertical
         assert self.course2.vertical.vertical == self.literature_vertical
