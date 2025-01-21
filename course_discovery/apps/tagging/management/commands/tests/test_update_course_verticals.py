@@ -10,13 +10,13 @@ from course_discovery.apps.tagging.tests.factories import (
     CourseVerticalFactory, SubVerticalFactory, VerticalFactory, UpdateCourseVerticalsConfigFactory
 )
 
-@pytest.mark.django_db
-class TestUpdateCourseVerticalsCommand:
+@ddt.ddt
+class UpdateCourseVerticalsCommandTests(TestCase):
     """
     Test suite for update_course_verticals management command.
     """
-    @pytest.fixture(autouse=True)
-    def setup(self):
+    def setUp(self):
+        super().setUp()
         self.course1 = CourseFactory()
         self.course2 = CourseFactory()
         self.ai_vertical = VerticalFactory(name="AI & Data Science")
@@ -42,7 +42,7 @@ class TestUpdateCourseVerticalsCommand:
         )
         return csv_file
 
-    @pytest.mark.parametrize("has_existing_verticals", [True, False])
+    @ddt.data(True, False)
     def test_success(self, has_existing_verticals):
         if has_existing_verticals:
             CourseVerticalFactory(
