@@ -1,7 +1,7 @@
 import ddt
 import pytest
 from bs4 import BeautifulSoup
-from django.core import mail 
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -56,7 +56,7 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert 'Total' in rows[1].find('th').get_text()
         assert 'Success' in rows[2].find('th').get_text()
         assert 'Failure' in rows[3].find('th').get_text()
-        assert f'{success_count+failure_count}' == rows[1].find('td').get_text()
+        assert f'{success_count + failure_count}' == rows[1].find('td').get_text()
         assert f'{success_count}' == rows[2].find('td').get_text()
         assert f'{failure_count}' == rows[3].find('td').get_text()
 
@@ -108,7 +108,6 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
         self.assert_email_content(success_count=1, failure_count=0)
-
 
     def test_nonexistent_vertical(self):
         self.csv_data[0]["vertical"] = "Computer Science"
