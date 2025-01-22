@@ -96,6 +96,6 @@ class CourseVerticalAdmin(SimpleHistoryAdmin):
 @admin.register(UpdateCourseVerticalsConfig)
 class UpdateCourseVerticalsConfigurationAdmin(admin.ModelAdmin):
     """
-    Admin for ArchiveCoursesConfig model.
+    Admin for UpdateCourseVerticalsConfig model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')

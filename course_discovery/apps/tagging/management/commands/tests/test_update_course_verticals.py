@@ -1,5 +1,7 @@
 import ddt
 import pytest
+from bs4 import BeautifulSoup
+from django.core import mail 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -43,6 +45,29 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         )
         return csv_file
 
+    def assert_email_content(self, success_count, failure_count, failure_reasons=None):
+        email = mail.outbox[0]
+        soup = BeautifulSoup(email.body)
+
+        table = soup.find('table', {'width': '50%'})
+        rows = table.find_all('tr')
+
+        assert len(rows) == 4
+        assert 'Total' in rows[1].find('th').get_text()
+        assert 'Success' in rows[2].find('th').get_text()
+        assert 'Failure' in rows[3].find('th').get_text()
+        assert f'{success_count+failure_count}' == rows[1].find('td').get_text()
+        assert f'{success_count}' == rows[2].find('td').get_text()
+        assert f'{failure_count}' == rows[3].find('td').get_text()
+
+        if failure_reasons:
+            assert 'Failures' in soup.find('h3').get_text()
+            failures = soup.find_all('li')
+            for i, (key, value) in enumerate(failure_reasons.items()):
+                assert failures[i].get_text().startswith(f"[{key}]: {value}")
+        else:
+            assert soup.find('h3') is None
+
     @ddt.data(True, False)
     def test_success(self, has_existing_verticals):
         if has_existing_verticals:
@@ -69,6 +94,7 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert CourseVertical.objects.count() == 2
         assert Vertical.objects.count() == 2
         assert SubVertical.objects.count() == 2
+        self.assert_email_content(success_count=2, failure_count=0)
 
     def test_empty_subvertical(self):
         self.csv_data.pop()
@@ -81,6 +107,8 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert self.course1.vertical.sub_vertical is None
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
+        self.assert_email_content(success_count=1, failure_count=0)
+
 
     def test_nonexistent_vertical(self):
         self.csv_data[0]["vertical"] = "Computer Science"
@@ -92,6 +120,9 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert self.course2.vertical.vertical == self.literature_vertical
         assert self.course2.vertical.sub_vertical == self.kafka_subvertical
         assert CourseVertical.objects.count() == 1
+        self.assert_email_content(
+            success_count=1, failure_count=1, failure_reasons={f"{self.course1.key}": "ValueError"}
+        )
 
     def test_inactive_vertical(self):
         self.literature_vertical.is_active = False
@@ -105,9 +136,12 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert self.course1.vertical.sub_vertical == self.python_subvertical
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
+        self.assert_email_content(
+            success_count=1, failure_count=1, failure_reasons={f"{self.course2.key}": "ValueError"}
+        )
 
     def test_raises_error_if_config_disabled(self):
         with pytest.raises(CommandError):
             csv = self.build_csv(self.csv_data)
             UpdateCourseVerticalsConfigFactory(enabled=False, csv_file=csv)
-            call_command("archive_courses")
+            call_command("update_course_verticals")
