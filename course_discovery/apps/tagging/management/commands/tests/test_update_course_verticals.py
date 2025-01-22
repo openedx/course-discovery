@@ -5,10 +5,11 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
-from course_discovery.apps.tagging.models import CourseVertical, Vertical, SubVertical
+from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
 from course_discovery.apps.tagging.tests.factories import (
-    CourseVerticalFactory, SubVerticalFactory, VerticalFactory, UpdateCourseVerticalsConfigFactory
+    CourseVerticalFactory, SubVerticalFactory, UpdateCourseVerticalsConfigFactory, VerticalFactory
 )
+
 
 @ddt.ddt
 class UpdateCourseVerticalsCommandTests(TestCase):
@@ -28,7 +29,7 @@ class UpdateCourseVerticalsCommandTests(TestCase):
             {"course": self.course1.key, "vertical": "AI & Data Science", "subvertical": "Python"},
             {"course": self.course2.key, "vertical": "Literature", "subvertical": "Kafkaesque"},
         ]
-    
+
     def build_csv(self, rows):
         csv_file_content = "course,vertical,subvertical\n"
         for row in rows:
@@ -68,7 +69,7 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert CourseVertical.objects.count() == 2
         assert Vertical.objects.count() == 2
         assert SubVertical.objects.count() == 2
-    
+
     def test_empty_subvertical(self):
         self.csv_data.pop()
         self.csv_data[0]['subvertical'] = ''
@@ -104,3 +105,9 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         assert self.course1.vertical.sub_vertical == self.python_subvertical
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
+
+    def test_raises_error_if_config_disabled(self):
+        with pytest.raises(CommandError):
+            csv = self.build_csv(self.csv_data)
+            UpdateCourseVerticalsConfigFactory(enabled=False, csv_file=csv)
+            call_command("archive_courses")

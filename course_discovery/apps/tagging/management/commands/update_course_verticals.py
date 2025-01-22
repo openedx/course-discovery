@@ -6,12 +6,13 @@ Example usage:
 
 """
 import logging
+
 import unicodecsv
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
-from course_discovery.apps.tagging.emails import send_email_for_course_verticals_update
 from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.tagging.emails import send_email_for_course_verticals_update
 from course_discovery.apps.tagging.models import CourseVertical, SubVertical, UpdateCourseVerticalsConfig, Vertical
 
 logger = logging.getLogger(__name__)
@@ -34,10 +35,10 @@ class Command(BaseCommand):
             try:
                 course_key = row.get('course')
                 self.process_vertical_information(row)
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
                 self.report['failures'].append(
                     {
-                        'id': course_key,
+                        'id': course_key,  # pylint: disable=used-before-assignment
                         'reason': repr(exc)
                     }
                 )
@@ -59,7 +60,7 @@ class Command(BaseCommand):
         subvertical = SubVertical.objects.filter(name=subvertical_name).first()
         if (not vertical and vertical_name) or (not subvertical and subvertical_name):
             raise ValueError("Incorrect vertical or subvertical provided")
-        
+
         if (vertical and not vertical.is_active) or (subvertical and not subvertical.is_active):
             raise ValueError("The provided vertical or subvertical is not active")
 

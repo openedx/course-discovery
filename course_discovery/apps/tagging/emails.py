@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
 
+
 def send_email_for_course_verticals_update(report, to_users):
     """
     Send an overall report of an update_course_verticals mgmt command run
