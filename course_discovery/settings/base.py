@@ -800,9 +800,9 @@ ENHANCED_THROTTLE_LIMIT = '400/hour'
 
 RETIRED_RUN_TYPES = []
 RETIRED_COURSE_TYPES = []
-COURSE_ARCHIVAL_MAIL_RECIPIENTS = ['phoenix@edx.org']
+COURSE_ARCHIVAL_MAIL_RECIPIENTS = ['user@domain.org']
 
 # The list of user groups that have access to assign verticals and sub-verticals to courses
 VERTICALS_MANAGEMENT_GROUPS = []
 
-COURSE_VERTICALS_UPDATE_RECIPIENTS = ['phoenix@edx.org']
+COURSE_VERTICALS_UPDATE_RECIPIENTS = ['user@domain.org']
