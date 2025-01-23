@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from simple_history.admin import SimpleHistoryAdmin
 
-from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
+from course_discovery.apps.tagging.models import CourseVertical, SubVertical, UpdateCourseVerticalsConfig, Vertical
 
 
 class SubVerticalInline(admin.TabularInline):
@@ -91,3 +91,11 @@ class CourseVerticalAdmin(SimpleHistoryAdmin):
         if not (request.user.is_superuser or request.user.groups.filter(name__in=allowed_groups).exists()):
             raise PermissionDenied("You are not authorized to perform this action.")
         super().save_model(request, obj, form, change)
+
+
+@admin.register(UpdateCourseVerticalsConfig)
+class UpdateCourseVerticalsConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for UpdateCourseVerticalsConfig model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')

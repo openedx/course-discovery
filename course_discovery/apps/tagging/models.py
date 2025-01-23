@@ -1,4 +1,6 @@
+from config_models.models import ConfigurationModel
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django_extensions.db.fields import AutoSlugField
 from model_utils.models import TimeStampedModel
@@ -111,3 +113,15 @@ class CourseVertical(ProductVertical):
 
     def get_object_title(self):
         return self.course.title
+
+
+class UpdateCourseVerticalsConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file for the update_course_verticals command
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text="A csv file containing the course keys, verticals and subverticals"
+    )
