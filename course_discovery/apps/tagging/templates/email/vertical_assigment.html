@@ -1,0 +1,11 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load i18n %}
+{% load django_markup %}
+{% block body %}
+
+<p>
+    A new course '{{course_name}}' has been created. 
+    Please assign vertical and sub-vertical to this course here: {{course_tagging_url}}.
+</p>
+
+{% endblock body %}
