@@ -64,15 +64,15 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.2
+boto3==1.36.6
     # via django-ses
-botocore==1.36.2
+botocore==1.36.6
     # via
     #   boto3
     #   s3transfer
 bracex==2.5.post1
     # via wcmatch
-cachetools==5.5.0
+cachetools==5.5.1
     # via
     #   google-auth
     #   tox
@@ -286,7 +286,7 @@ django-parler==2.3
     # via -r requirements/base.in
 django-ses==4.3.2
     # via taxonomy-connector
-django-simple-history==3.7.0
+django-simple-history==3.8.0
     # via -r requirements/base.in
 django-solo==2.4.0
     # via
@@ -418,11 +418,11 @@ face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==33.3.1
+faker==35.0.0
     # via factory-boy
 fastavro==1.10.0
     # via openedx-events
-filelock==3.16.1
+filelock==3.17.0
     # via
     #   snowflake-connector-python
     #   tox
@@ -441,7 +441,7 @@ google-api-core==2.24.0
     # via google-api-python-client
 google-api-python-client==2.159.0
     # via -r requirements/base.in
-google-auth==2.37.0
+google-auth==2.38.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -474,7 +474,7 @@ idna==3.10
     #   yarl
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.5.0
+importlib-metadata==8.6.1
     # via -r requirements/base.in
 inflection==0.5.1
     # via drf-yasg
@@ -582,7 +582,7 @@ pluggy==1.5.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via click-repl
 propcache==0.2.1
     # via
@@ -767,7 +767,7 @@ ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
-s3transfer==0.11.1
+s3transfer==0.11.2
     # via boto3
 selenium==4.12.0
     # via
@@ -798,7 +798,7 @@ sniffio==1.3.1
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.12.4
+snowflake-connector-python==3.13.0
     # via -r requirements/base.in
 social-auth-app-django==5.4.2
     # via
@@ -878,7 +878,7 @@ typing-extensions==4.12.2
     #   semgrep
     #   simple-salesforce
     #   snowflake-connector-python
-tzdata==2024.2
+tzdata==2025.1
     # via
     #   celery
     #   kombu
