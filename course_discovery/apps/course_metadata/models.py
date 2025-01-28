@@ -97,9 +97,11 @@ class ManageHistoryMixin(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Sets the parameter 'skip_history_on_save' if the object is not changed
+        Sets the parameter 'skip_history_on_save' if the object is not changed. This is only applicable for already
+        created object. Any new object will always have a history entry. This is added to avoid the changes
+        introduced in django-simple-history in https://github.com/jazzband/django-simple-history/pull/1262.
         """
-        if not self.has_changed:
+        if not self.has_changed and self.pk:
             setattr(self, 'skip_history_when_saving', True)  # pylint: disable=literal-used-as-attribute
 
         super().save(*args, **kwargs)
