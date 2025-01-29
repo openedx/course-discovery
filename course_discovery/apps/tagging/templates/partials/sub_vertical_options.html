@@ -1,0 +1,4 @@
+<option value="">-- Select Sub-Vertical --</option>
+{% for sub_vertical in sub_verticals %}
+    <option value={{ sub_vertical.slug }} >{{ sub_vertical.name }}</option>
+{% endfor %}

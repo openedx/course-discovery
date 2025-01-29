@@ -85,7 +85,7 @@ class CourseVertical(ProductVertical):
     Model for assigning vertical and sub verticals to courses
     """
     course = models.OneToOneField(
-        Course, on_delete=models.CASCADE, related_name="vertical", limit_choices_to={'draft': False}
+        Course, on_delete=models.CASCADE, related_name="product_vertical", limit_choices_to={'draft': False}
     )
 
     def clean(self):
