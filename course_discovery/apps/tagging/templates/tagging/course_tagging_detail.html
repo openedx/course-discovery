@@ -1,19 +1,29 @@
 {% extends "tagging/base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Course: {{ course.title }}</h1>
-    <h2>Key: {{ course.key }}</h2>
+<div class="container">
+    <div class="my-5">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Course: {{ course.title }}</h2>
+                <h3 class="mb-0">Key: {{ course.key }}</h3>
+            </div>
+        </div>
+    </div>
 
-    <h3>Assign or Edit Vertical and Sub-Vertical</h3>
-    <form method="post" action=""
-          hx-post=""
-          hx-target="#message-container"
-          hx-swap="innerHTML">
-        {% csrf_token %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Assign or Edit Vertical and Sub-Vertical</h3>
+        </div>
+        <div class="card-body">
+        <form method="post" action=""
+            hx-post=""
+            hx-target="#message-container"
+            hx-swap="innerHTML">
+            {% csrf_token %}
 
-        <div class="form-group">
-            <label for="vertical">Vertical</label>
+        <div class="form-group mb-3">
+            <label for="vertical" class="py-2">Vertical</label>
             <select name="vertical" id="vertical" class="form-control"
                     hx-trigger="change"
                     hx-on="change: filterSubVerticals(event)">
@@ -27,8 +37,8 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="sub_vertical">Sub-Vertical</label>
+        <div class="form-group mb-3">
+            <label for="sub_vertical" class="py-2">Sub-Vertical</label>
             <select name="sub_vertical" id="sub_vertical" class="form-control">
                 <option value="">Select Sub-Vertical</option>
                 {% for sub_vertical in all_sub_verticals %}
@@ -47,11 +57,17 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save</button>
+        <div class="d-flex justify-content-end">
+            <div class="me-2">
+                <a href="{% url 'tagging:course_list' %}" class="btn btn-secondary">Back to Courses</a>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
     </form>
 
     <!-- Message container for success/error -->
     <div id="message-container" class="mt-3"></div>
+</div>
 </div>
 
 <script>

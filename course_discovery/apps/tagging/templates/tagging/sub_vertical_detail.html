@@ -1,25 +1,36 @@
 {% extends "tagging/base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <h1 class="mb-4">Sub-Vertical: {{ sub_vertical.name }}</h1>
     <p>Parent Vertical:
         <a href="{% url 'tagging:vertical_detail' slug=sub_vertical.vertical.slug %}">
             {{ sub_vertical.vertical.name }}
         </a>
     </p>
-    <h2>Tagged Courses</h2>
+    <h3 class="my-4">Tagged Courses</h3>
 
     {% if courses %}
-        <ul class="list-group">
-            {% for course in courses %}
-                <li class="list-group-item">
-                    <a href="{% url 'tagging:course_tagging_detail' uuid=course.uuid %}">
-                        {{ course.title }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Course Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <a href="{% url 'tagging:course_tagging_detail' uuid=course.uuid %}">
+                            {{ course.title }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         <p class="text-muted">No courses assigned to this sub-vertical.</p>
     {% endif %}

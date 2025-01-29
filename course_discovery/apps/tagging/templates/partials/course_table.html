@@ -74,36 +74,43 @@
 </table>
 
 {% if is_paginated %}
-<nav>
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-get="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-target="#course-table">
-                    &laquo;
-                </a>
-            </li>
-        {% endif %}
-        {% for page_num in paginator.page_range %}
-            <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
-                <a class="page-link" href="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-get="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-target="#course-table">
-                    {{ page_num }}
-                </a>
-            </li>
-        {% endfor %}
-        {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-get="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
-                   hx-target="#course-table">
-                    &raquo;
-                </a>
-            </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                       hx-get="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                       hx-target="#course-table">
+                        &laquo;
+                    </a>
+                </li>
+            {% endif %}
 
+            {% for page_num in elided_page_range %}
+                {% if page_num == "..." %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% else %}
+                    <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                           hx-get="?page={{ page_num }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                           hx-target="#course-table">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                       hx-get="?page={{ page_obj.next_page_number }}&search={{ request.GET.search|default:'' }}&sort={{ current_sort }}&direction={{ current_direction }}"
+                       hx-target="#course-table">
+                        &raquo;
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

@@ -1,11 +1,13 @@
 {% extends "tagging/base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1>Sub-Vertical List</h1>
-    <table class="table table-striped">
+<div class="container my-4">
+    <h1 class="my-3">Sub-Verticals</h1>
+    <table class="table table-bordered">
+        <thead class="table-dark">
         <thead>
             <tr>
+                <th>#</th>
                 <th>
                     <a href="?sort=name&direction={% if current_sort == 'name' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Sub-Vertical
@@ -21,6 +23,7 @@
         <tbody>
             {% for sub_vertical in sub_verticals %}
                 <tr>
+                    <td>{{ forloop.counter }}</td>
                     <td>
                         <a href="{% url 'tagging:sub_vertical_detail' slug=sub_vertical.slug %}">
                             {{ sub_vertical.name }}

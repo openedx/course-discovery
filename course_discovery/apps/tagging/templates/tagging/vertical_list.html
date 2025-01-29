@@ -2,10 +2,11 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Verticals List</h1>
-    <table class="table table-striped">
-        <thead>
+    <h1>Verticals</h1>
+    <table class="table table-bordered">
+        <thead class="table-light">
             <tr>
+                <th>#</th>
                 <th>
                     <a href="?sort=name&direction={% if current_sort == 'name' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Vertical Name
@@ -20,6 +21,7 @@
         <tbody>
             {% for vertical in verticals %}
                 <tr>
+                    <td>{{ forloop.counter }}</td>
                     <td>
                         <a href="{% url 'tagging:vertical_detail' slug=vertical.slug %}">
                             {{ vertical.name }}
