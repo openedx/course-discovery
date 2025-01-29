@@ -1011,3 +1011,15 @@ class RestrictedCourseRunFactory(factory.django.DjangoModelFactory):
 
     course_run = factory.SubFactory(CourseRunFactory)
     restriction_type = FuzzyChoice([name for name, __ in CourseRunRestrictionType.choices])
+
+
+class CourseProxy(SearchAfterMixin, Course):
+    """Proxy model for testing SearchAfterMixin with Course."""
+    class Meta:
+        proxy = True
+
+
+class CourseProxyFactory(CourseFactory):
+    """Factory for the CourseProxy proxy model."""
+    class Meta:
+        model = CourseProxy
