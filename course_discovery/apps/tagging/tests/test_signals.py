@@ -27,7 +27,7 @@ class NotifyVerticalAssignmentTests(TestCase):
         group.user_set.add(user1, user2)
 
         course = CourseFactory(draft=True)
-         
+
         mock_send_email.assert_not_called()
 
         course_run = CourseRunFactory(draft=True, course=course, status=CourseRunStatus.Unpublished)
