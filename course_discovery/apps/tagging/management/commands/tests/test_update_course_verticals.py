@@ -87,10 +87,10 @@ class UpdateCourseVerticalsCommandTests(TestCase):
 
         self.course1.refresh_from_db()
         self.course2.refresh_from_db()
-        assert self.course1.vertical.vertical == self.ai_vertical
-        assert self.course1.vertical.sub_vertical == self.python_subvertical
-        assert self.course2.vertical.vertical == self.literature_vertical
-        assert self.course2.vertical.sub_vertical == self.kafka_subvertical
+        assert self.course1.product_vertical.vertical == self.ai_vertical
+        assert self.course1.product_vertical.sub_vertical == self.python_subvertical
+        assert self.course2.product_vertical.vertical == self.literature_vertical
+        assert self.course2.product_vertical.sub_vertical == self.kafka_subvertical
         assert CourseVertical.objects.count() == 2
         assert Vertical.objects.count() == 2
         assert SubVertical.objects.count() == 2
@@ -103,8 +103,8 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         UpdateCourseVerticalsConfigFactory(enabled=True, csv_file=csv)
         call_command('update_course_verticals')
 
-        assert self.course1.vertical.vertical == self.ai_vertical
-        assert self.course1.vertical.sub_vertical is None
+        assert self.course1.product_vertical.vertical == self.ai_vertical
+        assert self.course1.product_vertical.sub_vertical is None
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
         self.assert_email_content(success_count=1, failure_count=0)
@@ -116,8 +116,8 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         call_command('update_course_verticals')
 
         assert not hasattr(self.course1, 'vertical')
-        assert self.course2.vertical.vertical == self.literature_vertical
-        assert self.course2.vertical.sub_vertical == self.kafka_subvertical
+        assert self.course2.product_vertical.vertical == self.literature_vertical
+        assert self.course2.product_vertical.sub_vertical == self.kafka_subvertical
         assert CourseVertical.objects.count() == 1
         self.assert_email_content(
             success_count=1, failure_count=1, failure_reasons={f"{self.course1.key}": "ValueError"}
@@ -131,8 +131,8 @@ class UpdateCourseVerticalsCommandTests(TestCase):
         UpdateCourseVerticalsConfigFactory(enabled=True, csv_file=csv)
         call_command('update_course_verticals')
 
-        assert self.course1.vertical.vertical == self.ai_vertical
-        assert self.course1.vertical.sub_vertical == self.python_subvertical
+        assert self.course1.product_vertical.vertical == self.ai_vertical
+        assert self.course1.product_vertical.sub_vertical == self.python_subvertical
         assert not hasattr(self.course2, 'vertical')
         assert CourseVertical.objects.count() == 1
         self.assert_email_content(

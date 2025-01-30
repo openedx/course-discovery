@@ -1,0 +1,38 @@
+{% extends "tagging/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Verticals List</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <a href="?sort=name&direction={% if current_sort == 'name' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                        Vertical Name
+                        {% if current_sort == 'name' %}
+                            <span>{% if current_direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                        {% endif %}
+                    </a>
+                </th>
+                <th>Assigned Courses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vertical in verticals %}
+                <tr>
+                    <td>
+                        <a href="{% url 'tagging:vertical_detail' slug=vertical.slug %}">
+                            {{ vertical.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% with vertical.coursevertical_verticals.count as course_count %}
+                            {{ course_count }} course{% if course_count != 1 %}s{% endif %}
+                        {% endwith %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

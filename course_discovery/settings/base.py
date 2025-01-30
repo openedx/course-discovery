@@ -68,6 +68,7 @@ THIRD_PARTY_APPS = [
     'nested_admin',
     'openedx_events',
     'multi_email_field',
+    'django_htmx',
 ]
 
 ALGOLIA = {
@@ -120,6 +121,7 @@ MIDDLEWARE = (
     'edx_django_utils.cache.middleware.TieredCacheMiddleware',
     'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'

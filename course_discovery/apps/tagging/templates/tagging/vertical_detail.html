@@ -1,0 +1,32 @@
+{% extends "tagging/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Vertical: {{ vertical.name }}</h1>
+    <h2>Sub-Verticals</h2>
+    <ul class="list-group mb-4">
+        {% for sub_vertical in vertical.sub_verticals.all %}
+            <li class="list-group-item">
+                <a href="{% url 'tagging:sub_vertical_detail' slug=sub_vertical.slug %}">
+                    {{ sub_vertical.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No sub-verticals assigned.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Tagged Courses</h2>
+    <ul class="list-group">
+        {% for course in courses %}
+            <li class="list-group-item">
+                <a href="{% url 'tagging:course_tagging_detail' uuid=course.uuid %}">
+                    {{ course.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No courses assigned to this vertical.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
