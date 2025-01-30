@@ -1,6 +1,7 @@
 """
 Test the admin interface for the tagging app.
 """
+from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -38,7 +39,7 @@ class BaseAdminTestCase(TestCase):
             email='user@example.com',
             password='password'
         )
-        cls.allowed_group = Group.objects.create(name='allowed_group')
+        cls.allowed_group = Group.objects.create(name=settings.VERTICALS_MANAGEMENT_GROUPS[0])
 
 
 class VerticalAdminTests(BaseAdminTestCase):
