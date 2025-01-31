@@ -53,6 +53,7 @@ def send_email_for_course_vertical_assignment(course, to_users):
         settings.PUBLISHER_FROM_EMAIL,
         to_users,
     )
+    email.content_subtype = "html"
 
     try:
         email.send()
