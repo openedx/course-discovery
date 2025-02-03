@@ -1183,7 +1183,8 @@ class SearchAfterMixin:
             QuerySet
         """
         query = clean_query(query)
-        queryset = queryset or cls.objects.all()
+        if queryset is None:
+            queryset = cls.objects.all()
 
         if query == '(*)':
             # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
