@@ -30,6 +30,7 @@ asgiref==3.8.1
     #   django
     #   django-cors-headers
     #   django-countries
+    #   django-htmx
 asn1crypto==1.5.1
     # via snowflake-connector-python
 astroid==3.3.8
@@ -46,13 +47,13 @@ attrs==21.4.0
     #   semgrep
     #   trio
     #   zeep
-babel==2.16.0
+babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
 backoff==2.2.1
     # via -r requirements/base.in
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.0
     # via
     #   -r requirements/base.in
     #   pydata-sphinx-theme
@@ -64,9 +65,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.6
+boto3==1.36.11
     # via django-ses
-botocore==1.36.6
+botocore==1.36.11
     # via
     #   boto3
     #   s3transfer
@@ -86,7 +87,7 @@ celery==5.4.0
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   elasticsearch
     #   requests
@@ -134,7 +135,7 @@ colorama==0.4.6
     # via
     #   semgrep
     #   tox
-contentful==2.2.0
+contentful==2.3.2
     # via -r requirements/base.in
 coverage[toml]==7.6.10
     # via
@@ -180,6 +181,7 @@ distlib==0.3.9
     #   django-extensions
     #   django-filter
     #   django-guardian
+    #   django-htmx
     #   django-localflavor
     #   django-model-utils
     #   django-multi-email-field
@@ -286,7 +288,7 @@ django-object-actions==4.3.0
     #   taxonomy-connector
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==4.3.2
+django-ses==4.4.0
     # via taxonomy-connector
 django-simple-history==3.8.0
     # via -r requirements/base.in
@@ -420,7 +422,7 @@ face==24.0.0
     # via glom
 factory-boy==3.3.1
     # via -r requirements/test.in
-faker==35.0.0
+faker==35.2.0
     # via factory-boy
 fastavro==1.10.0
     # via openedx-events
@@ -439,9 +441,9 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 glom==22.1.0
     # via semgrep
-google-api-core==2.24.0
+google-api-core==2.24.1
     # via google-api-python-client
-google-api-python-client==2.159.0
+google-api-python-client==2.160.0
     # via -r requirements/base.in
 google-auth==2.38.0
     # via
@@ -484,7 +486,7 @@ iniconfig==2.0.0
     # via pytest
 isodate==0.7.2
     # via zeep
-isort==5.13.2
+isort==6.0.0
     # via
     #   -r requirements/test.in
     #   pylint
@@ -528,7 +530,7 @@ multidict==6.1.0
     #   yarl
 mysqlclient==2.2.7
     # via -r requirements/test.in
-newrelic==10.4.0
+newrelic==10.5.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -541,7 +543,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.in
-openedx-events==9.15.2
+openedx-events==9.17.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -590,7 +592,7 @@ propcache==0.2.1
     # via
     #   aiohttp
     #   yarl
-proto-plus==1.25.0
+proto-plus==1.26.0
     # via google-api-core
 protobuf==5.29.3
     # via
@@ -627,7 +629,7 @@ pyjwt[crypto]==2.10.1
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==3.3.3
+pylint==3.3.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -645,7 +647,7 @@ pymemcache==4.0.0
     # via
     #   -r requirements/local.in
     #   -r requirements/test.in
-pymongo==4.10.1
+pymongo==4.11
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -702,7 +704,7 @@ python-stdnum==1.20
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2024.2
+pytz==2025.1
     # via
     #   -r requirements/base.in
     #   drf-yasg
@@ -800,7 +802,7 @@ sniffio==1.3.1
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python==3.13.0
+snowflake-connector-python==3.13.2
     # via -r requirements/base.in
 social-auth-app-django==5.4.2
     # via
@@ -873,6 +875,7 @@ trio-websocket==0.11.1
     # via selenium
 typing-extensions==4.12.2
     # via
+    #   beautifulsoup4
     #   django-countries
     #   edx-opaque-keys
     #   faker
