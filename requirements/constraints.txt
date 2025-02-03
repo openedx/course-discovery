@@ -57,3 +57,5 @@ openai<=0.28.1
 # importlib.resources' has no attribute 'files'
 # To be unpinned once course-discovery moves to Python 3.12
 edx-lint==5.3.7
+
+importlib-metadata==7.1.0
