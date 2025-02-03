@@ -1,3 +1,5 @@
+-c constraints.txt
+
 algoliasearch_django
 backoff
 beautifulsoup4

@@ -60,7 +60,9 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
 	pip install -q -r requirements/pip.txt
 	pip install -q -r requirements/pip_tools.txt
+	pip-compile --upgrade -o requirements/base.txt requirements/base.in
 	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
+	pip-compile --upgrade -o requirements/test.txt requirements/test.in
 	pip-compile --upgrade -o requirements/local.txt requirements/local.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	# Let tox control the Django version for tests
