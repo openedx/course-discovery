@@ -60,3 +60,4 @@ edx-lint==5.3.7
 
 importlib-metadata==7.1.0
 protobuf==4.25.6
+urllib3<2
