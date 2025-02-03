@@ -1,5 +1,6 @@
 # Packages required for testing
 -c constraints.txt
+-c base.txt
 
 coverage
 ddt
