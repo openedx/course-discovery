@@ -94,5 +94,6 @@ typing-extensions==4.12.2
 urllib3==1.26.20
     # via
     #   -c requirements/common_constraints.txt
+    #   -c requirements/constraints.txt
     #   elasticsearch
     #   requests
