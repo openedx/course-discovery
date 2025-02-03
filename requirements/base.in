@@ -80,4 +80,3 @@ xss-utils
 taxonomy-connector
 importlib-metadata
 snowflake-connector-python
-django-htmx

@@ -48,7 +48,7 @@ class CourseTaggingDetailViewTests(BaseViewsTestCase):
         }
         response = self.client.post(self.url, data=mock_response_data)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Vertical and Sub-Vertical assigned successfully.")
+        self.assertContains(response, "Course Vertical added successfully.")
 
         course_vertical = CourseVertical.objects.get(course=self.course)
         self.assertEqual(course_vertical.vertical, self.vertical)

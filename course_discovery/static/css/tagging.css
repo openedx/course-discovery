@@ -1,0 +1,31 @@
+.site-header .active {
+    border-bottom: 2px solid #454545;
+}
+.page-link {
+   color:  #00262b;
+   transition: color 0.3s ease;
+}
+.page-link:hover {
+    color: #00404a;
+    background: floralwhite !important;
+}
+.active > .page-link,
+.page-link.active {
+    border-color: #00262b;
+    background-color: #00262b;
+}
+.active-link {
+    background-color: #00404a !important;
+}
+.btn-primary {
+    background-color: #00262b !important;
+    transition: background-color 0.3s ease;
+    border: 1px solid #00262b;
+}
+.btn-primary:hover {
+    background-color: #00404a !important;
+    border: 1px solid #00404a;
+}
+a {
+    color: #00404a;
+}

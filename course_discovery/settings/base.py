@@ -68,7 +68,6 @@ THIRD_PARTY_APPS = [
     'nested_admin',
     'openedx_events',
     'multi_email_field',
-    'django_htmx',
 ]
 
 ALGOLIA = {
@@ -121,7 +120,6 @@ MIDDLEWARE = (
     'edx_django_utils.cache.middleware.TieredCacheMiddleware',
     'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
@@ -257,6 +255,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                'course_discovery.apps.tagging.context_processors.tagging',
                 'course_discovery.apps.core.context_processors.core',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
@@ -264,7 +263,6 @@ TEMPLATES = [
     },
 ]
 # END TEMPLATE CONFIGURATION
-
 
 # COOKIE CONFIGURATION
 # The purpose of customizing the cookie names is to avoid conflicts when
@@ -808,3 +806,4 @@ COURSE_ARCHIVAL_MAIL_RECIPIENTS = ['user@domain.org']
 VERTICALS_MANAGEMENT_GROUPS = []
 
 COURSE_VERTICALS_UPDATE_RECIPIENTS = ['user@domain.org']
+HEADER_LOGO_URL= 'https://edx-cdn.org/v3/default/logo.svg'

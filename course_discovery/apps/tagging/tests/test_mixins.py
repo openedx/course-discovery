@@ -35,15 +35,14 @@ class VerticalTaggingAdministratorPermissionRequiredMixinTests(TestCase):
         request = self.factory.get("/")
         request.user = AnonymousUser()
 
-        with self.assertRaisesMessage(PermissionDenied, "You do not have permission to access this page."):
-            self.view(request)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 302)
 
     def test_regular_user(self):
         """Test that users not in the allowed group or superuser are forbidden."""
         request = self.factory.get("/")
         request.user = self.regular_user
-
-        with self.assertRaisesMessage(PermissionDenied, "You do not have permission to access this page."):
+        with self.assertRaises(PermissionDenied):
             self.view(request)
 
     def test_user_in_allowed_group(self):

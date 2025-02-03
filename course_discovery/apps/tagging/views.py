@@ -38,13 +38,13 @@ class CourseTaggingDetailView(VerticalTaggingAdministratorPermissionRequiredMixi
             }, request)
             return HttpResponse(html, status=200)
 
-        CourseVertical.objects.update_or_create(
+        _, created = CourseVertical.objects.update_or_create(
             course=course,
             defaults={"vertical": vertical, "sub_vertical": sub_vertical}
         )
 
         html = render_to_string("partials/message.html", {
-            "success": "Vertical and Sub-Vertical assigned successfully."
+            "success": "Course Vertical added successfully." if created else "Course Vertical updated successfully."
         }, request)
         return HttpResponse(html, status=200)
 
@@ -80,8 +80,14 @@ class CourseListView(VerticalTaggingAdministratorPermissionRequiredMixin, ListVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        paginator = context["paginator"]
+        page_obj = context["page_obj"]
+        context["elided_page_range"] = paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
+
         context['current_sort'] = self.request.GET.get('sort', 'title')
         context['current_direction'] = self.request.GET.get('direction', 'asc')
+
         return context
 
     def render_to_response(self, context, **response_kwargs):

@@ -35,7 +35,7 @@ class UpdateCourseVerticalsCommandTests(TestCase):
     def build_csv(self, rows):
         csv_file_content = "course,vertical,subvertical\n"
         for row in rows:
-            row_content = f"{row["course"]},{row["vertical"]},{row["subvertical"]}\n"
+            row_content = f'{row["course"]},{row["vertical"]},{row["subvertical"]}\n'
             csv_file_content += row_content
 
         csv_file = SimpleUploadedFile(

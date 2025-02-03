@@ -1,32 +1,83 @@
 {% extends "tagging/base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <h1 class="mb-4">Vertical: {{ vertical.name }}</h1>
-    <h2>Sub-Verticals</h2>
-    <ul class="list-group mb-4">
-        {% for sub_vertical in vertical.sub_verticals.all %}
-            <li class="list-group-item">
-                <a href="{% url 'tagging:sub_vertical_detail' slug=sub_vertical.slug %}">
-                    {{ sub_vertical.name }}
-                </a>
-            </li>
-        {% empty %}
-            <li class="list-group-item text-muted">No sub-verticals assigned.</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Tagged Courses</h2>
-    <ul class="list-group">
-        {% for course in courses %}
-            <li class="list-group-item">
-                <a href="{% url 'tagging:course_tagging_detail' uuid=course.uuid %}">
-                    {{ course.title }}
-                </a>
-            </li>
-        {% empty %}
-            <li class="list-group-item text-muted">No courses assigned to this vertical.</li>
-        {% endfor %}
-    </ul>
-</div>
+    <h3 class="my-4">Sub-Verticals</h3>
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Sub-Vertical Name</th>
+                <th>Courses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub_vertical in vertical.sub_verticals.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <a href="{% url 'tagging:sub_vertical_detail' slug=sub_vertical.slug %}">
+                        {{ sub_vertical.name }}
+                    </a>
+                </td>
+                <td>
+                    <ul class="list-group ps-3">
+                        {% for course_vertical in sub_vertical.coursevertical_sub_verticals.all %}
+                            <li class="list-group-item list-unstyled course-item-{{ forloop.parentloop.counter }}" 
+                                {% if forloop.counter > 3 %} style="display: none;" {% endif %}>
+                                <a href="{% url 'tagging:course_tagging_detail' uuid=course_vertical.course.uuid %}">
+                                    {{ course_vertical.course.title }}
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No courses available</li>
+                        {% endfor %}
+                    </ul>
+                    {% if sub_vertical.coursevertical_sub_verticals.count > 3 %}
+                        <button class="btn btn-primary show-more-btn m-3" data-target="{{ forloop.counter }}">Show More</button>
+                        <button class="btn btn-primary show-less-btn m-3" data-target="{{ forloop.counter }}" style="display: none;">Show Less</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center text-muted">No sub-verticals assigned.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".show-more-btn").forEach(function(button) {
+                button.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    let target = this.getAttribute("data-target");
+    
+                    document.querySelectorAll(".course-item-" + target).forEach(function(item) {
+                        item.style.display = "list-item";
+                    });
+    
+                    this.style.display = "none";
+                    document.querySelector(".show-less-btn[data-target='" + target + "']").style.display = "inline-block";
+                });
+            });
+    
+            document.querySelectorAll(".show-less-btn").forEach(function(button) {
+                button.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    let target = this.getAttribute("data-target");
+    
+                    document.querySelectorAll(".course-item-" + target).forEach(function(item, index) {
+                        if (index >= 3) {
+                            item.style.display = "none";
+                        }
+                    });
+    
+                    this.style.display = "none";
+                    document.querySelector(".show-more-btn[data-target='" + target + "']").style.display = "inline-block";
+                });
+            });
+        });
+    </script>
 {% endblock %}
