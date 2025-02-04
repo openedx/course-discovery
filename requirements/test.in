@@ -17,6 +17,7 @@ pytest
 pytest-cov
 pytest-django
 pytest-responses
+pytest-split
 pytest-xdist
 responses
 semgrep
