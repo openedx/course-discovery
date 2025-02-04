@@ -1,5 +1,6 @@
 .site-header .active {
     border-bottom: 2px solid #454545;
+    font-weight: bold;
 }
 .page-link {
    color:  #00262b;
