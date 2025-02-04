@@ -7,6 +7,5 @@
 django-debug-toolbar
 django-elasticsearch-debug-toolbar
 edx-i18n-tools
-pytest-split
 pywatchman                                 # For devserver code reloading
 pymemcache
