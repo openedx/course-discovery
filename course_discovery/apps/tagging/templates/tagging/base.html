@@ -18,13 +18,16 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                    <a class="navbar-brand" href="{% url 'tagging:course_list' %}">
+                    <a class="navbar-brand me-3" href="{% url 'tagging:course_list' %}">
                         <img src="{{ HEADER_LOGO_URL }}" alt="header logo" height="30" class="d-inline-block align-middle" />
-                        <span class="fw-bold ml-2 me-3">Course Tagging</span>
                     </a>
                     <nav class="navbar navbar-expand-lg">
                         <div class="collapse navbar-collapse" id="navbarNav">
+                            
                             <ul class="navbar-nav">
+                                <li class="nav-item {% if request.resolver_match.url_name == 'course_list' %}active{% endif %}">
+                                    <a class="nav-link" href="{% url 'tagging:course_list' %}">Course Tagging</a>
+                                </li>
                                 <li class="nav-item {% if request.resolver_match.url_name == 'vertical_list' %}active{% endif %}">
                                     <a class="nav-link" href="{% url 'tagging:vertical_list' %}">Verticals</a>
                                 </li>                                
