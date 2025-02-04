@@ -48,7 +48,7 @@ attrs==25.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
-beautifulsoup4==4.13.1
+beautifulsoup4==4.13.2
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -56,11 +56,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.36.11
+boto3==1.36.12
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.11
+botocore==1.36.12
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -541,7 +541,7 @@ packaging==24.2
     #   drf-yasg
     #   gunicorn
     #   snowflake-connector-python
-pbr==6.1.0
+pbr==6.1.1
     # via
     #   -r requirements/base.txt
     #   stevedore
