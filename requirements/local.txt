@@ -72,7 +72,7 @@ babel==2.17.0
     #   sphinx
 backoff==2.2.1
     # via -r requirements/test.txt
-beautifulsoup4==4.13.1
+beautifulsoup4==4.13.2
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -88,11 +88,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.11
+boto3==1.36.12
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.36.11
+botocore==1.36.12
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -708,7 +708,7 @@ packaging==24.2
     #   tox
 path==16.16.0
     # via edx-i18n-tools
-pbr==6.1.0
+pbr==6.1.1
     # via
     #   -r requirements/test.txt
     #   stevedore
@@ -862,7 +862,7 @@ pytest-django==4.9.0
 pytest-responses==0.5.1
     # via -r requirements/test.txt
 pytest-split==0.10.0
-    # via -r requirements/local.in
+    # via -r requirements/test.txt
 pytest-xdist==3.6.1
     # via -r requirements/test.txt
 python-dateutil==2.9.0.post0
