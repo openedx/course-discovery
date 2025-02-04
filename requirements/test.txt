@@ -58,7 +58,7 @@ attrs==25.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
-beautifulsoup4==4.13.1
+beautifulsoup4==4.13.2
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -71,11 +71,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.11
+boto3==1.36.12
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.11
+botocore==1.36.12
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -621,7 +621,7 @@ packaging==24.2
     #   semgrep
     #   snowflake-connector-python
     #   tox
-pbr==6.1.0
+pbr==6.1.1
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -739,12 +739,15 @@ pytest==8.3.4
     #   pytest-cov
     #   pytest-django
     #   pytest-responses
+    #   pytest-split
     #   pytest-xdist
 pytest-cov==6.0.0
     # via -r requirements/test.in
 pytest-django==4.9.0
     # via -r requirements/test.in
 pytest-responses==0.5.1
+    # via -r requirements/test.in
+pytest-split==0.10.0
     # via -r requirements/test.in
 pytest-xdist==3.6.1
     # via -r requirements/test.in
