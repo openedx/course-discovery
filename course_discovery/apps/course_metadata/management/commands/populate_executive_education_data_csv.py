@@ -16,7 +16,7 @@ import requests
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
-from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType, ExternalCourseMarketingType
 from course_discovery.apps.course_metadata.data_loaders import utils
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
@@ -408,5 +408,10 @@ class Command(BaseCommand):
             ),
             'external_course_marketing_type': product_dict['productType'],
             'taxi_form_id': product_dict['edxTaxiFormId'],
-            'post_submit_url': utils.format_base64_strings(product_dict['prospectusUrl']),
+            'post_submit_url': (
+                utils.format_base64_strings(product_dict['edxPlpUrl']).replace('/lp/', '/info/')
+                if not product_dict['prospectusUrl'] and
+                product_dict.get('productType', '').lower() == ExternalCourseMarketingType.Sprint.value
+                else utils.format_base64_strings(product_dict['prospectusUrl'])
+            ),
         }
