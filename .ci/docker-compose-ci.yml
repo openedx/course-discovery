@@ -58,7 +58,6 @@ services:
       DB_PORT: "3306"
       DB_USER: "root"
       DJANGO_SETTINGS_MODULE: "course_discovery.settings.test"
-      ENABLE_DJANGO_TOOLBAR: 1
       TEST_ELASTICSEARCH_URL: "http://es:9200"
 
 volumes:

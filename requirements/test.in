@@ -1,4 +1,6 @@
 # Packages required for testing
+-c constraints.txt
+-r base.txt
 
 coverage
 ddt
@@ -15,6 +17,7 @@ pytest
 pytest-cov
 pytest-django
 pytest-responses
+pytest-split
 pytest-xdist
 responses
 semgrep
