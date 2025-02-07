@@ -356,6 +356,39 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 ),
             )
 
+    @mock.patch('course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient')
+    def test_taxi_form_post_submit_url_in_case_prospectus_url_is_empty_and_product_type_sprint(
+        self, mock_get_smarter_client
+    ):
+        """
+        Verify that the taxi form post submit url is set to the edxPlpUrl if the prospectusUrl is empty
+        and the product type is sprint.
+        """
+        success_api_response = copy.deepcopy(self.SUCCESS_API_RESPONSE)
+        success_api_response['products'][0]['prospectusUrl'] = ''
+        success_api_response['products'][0]['productType'] = 'sprint'
+        success_api_response['products'][0]['edxPlpUrl'] = 'https://example.com/presentations/lp/example-course/'
+        mock_get_smarter_client.return_value.request.return_value.json.return_value = (
+            self.mock_get_smarter_client_response(
+                override_get_smarter_client_response=success_api_response
+            )
+        )
+        with NamedTemporaryFile() as output_csv:
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
+                '--use_getsmarter_api_client', True,
+            )
+
+            output_csv.seek(0)
+            with open(output_csv.name, 'r') as csv_file:
+                reader = csv.DictReader(csv_file)
+                data_row = next(reader)
+                assert data_row['Title'] == 'Alternative CSV Course'
+                assert data_row['External Course Marketing Type'] == 'sprint'
+                assert data_row['Taxi Form Id'] == 'test-form-id'
+                assert data_row['Post Submit Url'] == 'https://example.com/presentations/info/example-course/'
+
     @mock.patch("course_discovery.apps.course_metadata.utils.GetSmarterEnterpriseApiClient")
     @ddt.data(
         ("active", str(date.today().isoformat())), ("scheduled", "2024-03-20")
