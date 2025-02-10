@@ -8,11 +8,11 @@ accessible-pygments==0.0.5
     # via
     #   -r requirements/docs.txt
     #   pydata-sphinx-theme
-aiohappyeyeballs==2.4.4
+aiohappyeyeballs==2.4.6
     # via
     #   -r requirements/test.txt
     #   aiohttp
-aiohttp==3.11.11
+aiohttp==3.11.12
     # via
     #   -r requirements/test.txt
     #   openai
@@ -72,7 +72,7 @@ babel==2.17.0
     #   sphinx
 backoff==2.2.1
     # via -r requirements/test.txt
-beautifulsoup4==4.13.2
+beautifulsoup4==4.13.3
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -88,11 +88,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.12
+boto3==1.36.16
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.36.12
+botocore==1.36.16
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -188,7 +188,7 @@ colorama==0.4.6
     #   tox
 contentful==2.3.2
     # via -r requirements/test.txt
-coverage[toml]==7.6.10
+coverage[toml]==7.6.11
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -291,7 +291,7 @@ django-config-models==2.7.0
     # via -r requirements/test.txt
 django-contrib-comments==2.2.0
     # via -r requirements/test.txt
-django-cors-headers==4.6.0
+django-cors-headers==4.7.0
     # via -r requirements/test.txt
 django-countries==7.6.1
     # via -r requirements/test.txt
@@ -666,7 +666,7 @@ multidict==6.1.0
     #   yarl
 mysqlclient==2.2.7
     # via -r requirements/test.txt
-newrelic==10.5.0
+newrelic==10.6.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -712,7 +712,7 @@ pbr==6.1.1
     # via
     #   -r requirements/test.txt
     #   stevedore
-peewee==3.17.8
+peewee==3.17.9
     # via
     #   -r requirements/test.txt
     #   semgrep

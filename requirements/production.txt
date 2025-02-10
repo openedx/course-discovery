@@ -4,11 +4,11 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
-aiohappyeyeballs==2.4.4
+aiohappyeyeballs==2.4.6
     # via
     #   -r requirements/base.txt
     #   aiohttp
-aiohttp==3.11.11
+aiohttp==3.11.12
     # via
     #   -r requirements/base.txt
     #   openai
@@ -48,7 +48,7 @@ attrs==25.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
-beautifulsoup4==4.13.2
+beautifulsoup4==4.13.3
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -56,11 +56,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.36.12
+boto3==1.36.16
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.12
+botocore==1.36.16
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -145,7 +145,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.18
+django==4.2.19
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -214,7 +214,7 @@ django-config-models==2.7.0
     # via -r requirements/base.txt
 django-contrib-comments==2.2.0
     # via -r requirements/base.txt
-django-cors-headers==4.6.0
+django-cors-headers==4.7.0
     # via -r requirements/base.txt
 django-countries==7.6.1
     # via -r requirements/base.txt
@@ -510,7 +510,7 @@ multidict==6.1.0
     #   yarl
 mysqlclient==2.2.7
     # via -r requirements/production.in
-newrelic==10.5.0
+newrelic==10.6.0
     # via
     #   -r requirements/base.txt
     #   -r requirements/production.in
