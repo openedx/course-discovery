@@ -14,11 +14,11 @@ should not be accepted.
 
 Decision
 ----------
-A new field `status` will be added to the pathway model. This field will support three possible values: `unpublished`,
-`published` and `retired`. Existing pathways will be assigned the "published" status, while any new pathways will be set
-to "unpublished" by default.
+A new field **status** will be added to the pathway model. This field will support three possible values: *unpublished*,
+*published* and *retired*. Existing pathways will be assigned the *published* status (through a data migration), while any new pathways will be set
+to *unpublished* by default.
 
-The `status` field will be exposed in the pathways endpoint, and the API will also support filtering by its value.
+The **status** field will be exposed in the pathways endpoint, and the API will also support filtering by its value.
 
 Consequences
 --------------
