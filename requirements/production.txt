@@ -56,11 +56,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.36.16
+boto3==1.36.21
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.16
+botocore==1.36.21
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -127,7 +127,7 @@ code-annotations==2.2.0
     #   edx-toggles
 contentful==2.3.2
     # via -r requirements/base.txt
-cryptography==44.0.0
+cryptography==44.0.1
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -196,7 +196,7 @@ django==4.2.19
     #   xss-utils
 django-admin-sortable2==2.2.4
     # via -r requirements/base.txt
-django-appconf==1.0.6
+django-appconf==1.1.0
     # via
     #   -r requirements/base.txt
     #   django-compressor
@@ -210,7 +210,7 @@ django-compressor==4.5.1
     # via
     #   -r requirements/base.txt
     #   django-libsass
-django-config-models==2.7.0
+django-config-models==2.8.0
     # via -r requirements/base.txt
 django-contrib-comments==2.2.0
     # via -r requirements/base.txt
@@ -235,7 +235,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.txt
 django-extensions==3.2.3
     # via -r requirements/base.txt
-django-filter==24.3
+django-filter==25.1
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -284,7 +284,7 @@ django-stdimage==5.3.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
-django-storages==1.14.4
+django-storages==1.14.5
     # via -r requirements/base.txt
 django-taggit==6.1.0
     # via
@@ -371,11 +371,11 @@ edx-opaque-keys[django]==2.11.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==6.0.0
+edx-rest-api-client==6.1.0
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
-edx-toggles==5.2.0
+edx-toggles==5.3.0
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
@@ -414,7 +414,7 @@ google-api-core==2.24.1
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.160.0
+google-api-python-client==2.161.0
     # via -r requirements/base.txt
 google-auth==2.38.0
     # via
@@ -432,7 +432,7 @@ google-auth-oauthlib==1.2.1
     # via
     #   -r requirements/base.txt
     #   gspread
-googleapis-common-protos==1.66.0
+googleapis-common-protos==1.67.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -484,7 +484,7 @@ libsass==0.23.0
     # via
     #   -r requirements/base.txt
     #   django-libsass
-lxml[html-clean]==5.3.0
+lxml[html-clean]==5.3.1
     # via
     #   -r requirements/base.txt
     #   lxml-html-clean
@@ -528,7 +528,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.txt
-openedx-events==9.17.0
+openedx-events==9.18.1
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
@@ -575,7 +575,7 @@ protobuf==5.29.3
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-psutil==6.1.1
+psutil==7.0.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -606,7 +606,7 @@ pyjwt[crypto]==2.10.1
     #   social-auth-core
 pymemcache==4.0.0
     # via -r requirements/production.in
-pymongo==4.11
+pymongo==4.11.1
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
@@ -732,11 +732,11 @@ six==1.17.0
     #   python-dateutil
 snowflake-connector-python==3.13.2
     # via -r requirements/base.txt
-social-auth-app-django==5.4.2
+social-auth-app-django==5.4.3
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
-social-auth-core==4.5.4
+social-auth-core==4.5.6
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
