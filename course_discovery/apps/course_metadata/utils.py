@@ -784,8 +784,6 @@ def clean_html(content):
         is_list_with_dir_attr_present = True
 
     cleaned = str(soup)
-    # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
-    cleaned = cleaned.replace('·', '&middot;')
     # Need to clean empty <b> and <p> tags which are converted to <hr/> by html2text
     cleaned = cleaned.replace('<p><b></b></p>', '')
     html_converter = HTML2TextWithLangSpans(bodywidth=None)
