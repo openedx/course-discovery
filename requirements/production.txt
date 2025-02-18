@@ -56,11 +56,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.36.21
+boto3==1.36.22
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.21
+botocore==1.36.22
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -759,7 +759,7 @@ stevedore==5.4.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.0.0
+taxonomy-connector==2.1.0
     # via -r requirements/base.txt
 text-unidecode==1.3
     # via

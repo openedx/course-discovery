@@ -88,11 +88,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.21
+boto3==1.36.22
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.36.21
+botocore==1.36.22
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -693,6 +693,7 @@ outcome==1.3.0.post0
     # via
     #   -r requirements/test.txt
     #   trio
+    #   trio-websocket
 packaging==24.2
     # via
     #   -r requirements/docs.txt
@@ -1091,7 +1092,7 @@ stevedore==5.4.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.0.0
+taxonomy-connector==2.1.0
     # via -r requirements/test.txt
 testfixtures==8.3.0
     # via -r requirements/test.txt
@@ -1124,7 +1125,7 @@ trio==0.29.0
     #   -r requirements/test.txt
     #   selenium
     #   trio-websocket
-trio-websocket==0.11.1
+trio-websocket==0.12.1
     # via
     #   -r requirements/test.txt
     #   selenium
