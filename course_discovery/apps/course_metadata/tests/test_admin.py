@@ -23,7 +23,7 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdmin, ProgramEligibilityFilter
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import PathwayStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import (
@@ -628,6 +628,7 @@ class PathwayAdminTest(TestCase):
             'email': 'email@example.com',
             'programs': [program1.id],
             'pathway_type': PathwayType.CREDIT.value,
+            'status': PathwayStatus.Published
         }
         form = PathwayAdminForm(data=data)
 
@@ -650,6 +651,7 @@ class PathwayAdminTest(TestCase):
             'email': 'email@example.com',
             'programs': [program1.id, program2.id],
             'pathway_type': PathwayType.INDUSTRY.value,
+            'status': PathwayStatus.Unpublished
         }
         form = PathwayAdminForm(data=data)
 
