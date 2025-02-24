@@ -44,7 +44,7 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
-    ExternalCourseMarketingType, ExternalProductStatus, PayeeType, ProgramStatus, ReportingType
+    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
@@ -4370,6 +4370,11 @@ class Pathway(TimeStampedModel):
         max_length=32,
         choices=[(tag.value, tag.value) for tag in PathwayType],
         default=PathwayType.CREDIT.value,
+    )
+    status = models.CharField(
+        default=PathwayStatus.Unpublished,
+        max_length=255, null=False, blank=False,
+        choices=PathwayStatus.choices
     )
 
     def __str__(self):
