@@ -2281,6 +2281,12 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
                     'and the language label. These entries represent the languages into which the run '
                     'content can be translated.')
     )
+    ai_languages = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_('A JSON dict detailing the available translations and transcriptions for this run. '
+                    'The dict has two keys: translation_languages and transcription_languages.')
+    )
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices)
     syllabus = models.ForeignKey(SyllabusItem, models.CASCADE, default=None, null=True, blank=True)
