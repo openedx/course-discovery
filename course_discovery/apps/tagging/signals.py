@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -16,10 +16,11 @@ def notify_vertical_assignment(instance, created, **kwargs):
     if instance.draft or not created:
         return
 
+    User = get_user_model()
     management_groups = getattr(settings, "VERTICALS_MANAGEMENT_GROUPS", [])
 
-    groups = Group.objects.filter(name__in=management_groups).exclude(user__isnull=True)
-    recipients = set(groups.values_list('user__email', flat=True))
-
+    recipients = list(
+        User.objects.prefetch_related('groups').filter(groups__name__in=management_groups).distinct()
+    )
     if recipients:
         send_email_for_course_vertical_assignment(instance, recipients)

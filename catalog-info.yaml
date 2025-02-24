@@ -18,7 +18,7 @@ metadata:
     openedx.org/arch-interest-groups: ""
     openedx.org/release: "master" 
 spec:
-  owner: group:course-discovery-admins
+  owner: group:2u-phoenix
   type: 'service'
   lifecycle: 'production'
   dependsOn:

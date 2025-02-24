@@ -1588,6 +1588,7 @@ class PathwaySerializerTest(TestCase):
             'destination_url': pathway.destination_url,
             'pathway_type': pathway.pathway_type,
             'course_run_statuses': [],
+            'status': 'unpublished'
         }
         self.assertDictEqual(serializer.data, expected)
 

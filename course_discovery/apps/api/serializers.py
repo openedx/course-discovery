@@ -2372,6 +2372,7 @@ class PathwaySerializer(BaseModelSerializer):
             'email',
             'programs',
             'description',
+            'status',
             'destination_url',
             'pathway_type',
             'course_run_statuses',
