@@ -5,6 +5,8 @@ from django.core.mail import EmailMessage
 from django.template.loader import get_template
 from django.urls import reverse
 
+from course_discovery.apps.publisher.utils import is_email_notification_enabled
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,8 +39,16 @@ def send_email_for_course_verticals_update(report, to_users):
 def send_email_for_course_vertical_assignment(course, to_users):
     """
     Sends an email to specified users requesting action to assign vertical and sub-vertical
-    for a given course.
+    for a given course, but only to those who have email notifications enabled.
     """
+    email_enabled_users = [user.email for user in to_users if is_email_notification_enabled(user)]
+    if not email_enabled_users:
+        logger.exception(
+            f"Failed to send vertical assignment email for course '{course.title}' (UUID: {course.uuid})"
+            f"No recipients found."
+        )
+        return
+
     course_tagging_url = (
         f"{settings.DISCOVERY_BASE_URL}{reverse('tagging:course_tagging_detail', kwargs={'uuid': course.uuid})}"
     )
@@ -51,7 +61,7 @@ def send_email_for_course_vertical_assignment(course, to_users):
         f"Action Required: Assign Vertical and Sub-vertical for Course '{course.title}'",
         html_content,
         settings.PUBLISHER_FROM_EMAIL,
-        to_users,
+        email_enabled_users,
     )
     email.content_subtype = "html"
 
@@ -60,5 +70,5 @@ def send_email_for_course_vertical_assignment(course, to_users):
     except Exception as e:  # pylint: disable=broad-except
         logger.exception(
             f"Failed to send vertical assignment email for course '{course.title}' (UUID: {course.uuid}) to "
-            f"recipients {', '.join(to_users)}. Error: {str(e)}"
+            f"recipients {', '.join(email_enabled_users)}. Error: {str(e)}"
         )
