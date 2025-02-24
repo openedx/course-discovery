@@ -579,13 +579,19 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.type = CourseTypeFactory(slug=course_type_slug)
         assert course.learning_type_exp == [expected_result]
 
-    def test_course_translation_languages(self):
+    def test_course_ai_languages(self):
         course = self.create_current_upgradeable_course()
-        assert course.product_translation_languages == [{'code': 'fr', 'label': 'French'}]
+        assert course.product_ai_languages == {
+            'translation_languages': ['French'],
+            'transcription_languages': ['English', 'Bosnian']
+        }
 
-    def test_course_translation_languages__no_advertised_run(self):
+    def test_course_ai_languages__no_advertised_run(self):
         course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
-        assert course.product_translation_languages == []
+        assert course.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
 
 
 @ddt.ddt
@@ -927,6 +933,9 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
         assert program.learning_type_exp == [learning_type]
 
-    def test_program_translation_languages(self):
+    def test_program_ai_languages(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        assert program.product_translation_languages == []
+        assert program.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
