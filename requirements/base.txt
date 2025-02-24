@@ -41,13 +41,13 @@ beautifulsoup4==4.13.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.36.22
+boto3==1.36.26
     # via django-ses
-botocore==1.36.22
+botocore==1.36.26
     # via
     #   boto3
     #   s3transfer
-cachetools==5.5.1
+cachetools==5.5.2
     # via google-auth
 cairocffi==1.4.0
     # via
@@ -366,7 +366,7 @@ google-auth-httplib2==0.2.0
     #   google-api-python-client
 google-auth-oauthlib==1.2.1
     # via gspread
-googleapis-common-protos==1.67.0
+googleapis-common-protos==1.68.0
     # via google-api-core
 gspread==6.1.4
     # via -r requirements/base.in
@@ -429,7 +429,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.in
-openedx-events==9.18.1
+openedx-events==9.18.2
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -453,7 +453,7 @@ platformdirs==4.3.6
     #   zeep
 prompt-toolkit==3.0.50
     # via click-repl
-propcache==0.2.1
+propcache==0.3.0
     # via
     #   aiohttp
     #   yarl
@@ -592,7 +592,7 @@ soupsieve==2.6
     # via beautifulsoup4
 sqlparse==0.5.3
     # via django
-stevedore==5.4.0
+stevedore==5.4.1
     # via
     #   code-annotations
     #   edx-django-utils
