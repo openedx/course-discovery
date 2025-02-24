@@ -313,7 +313,7 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('course', 'draft_version',)
     readonly_fields = [
         'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion',
-        'variant_id', 'fixed_price_usd', 'translation_languages'
+        'variant_id', 'fixed_price_usd', 'translation_languages', 'ai_languages'
     ]
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
     save_error = False

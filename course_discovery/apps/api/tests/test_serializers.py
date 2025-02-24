@@ -783,6 +783,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
                 lang.get_search_facet_display() for lang in course_run.transcript_languages.all()
             ],
             'translation_languages': course_run.translation_languages,
+            'ai_languages': course_run.ai_languages,
         })
         return expected
 

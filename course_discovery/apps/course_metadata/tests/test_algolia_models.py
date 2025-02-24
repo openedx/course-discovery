@@ -587,6 +587,20 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
         assert course.product_translation_languages == []
 
+    def test_course_ai_languages(self):
+        course = self.create_current_upgradeable_course()
+        assert course.product_ai_languages == {
+            'translation_languages': ['French'],
+            'transcription_languages': ['English', 'Bosnian']
+        }
+
+    def test_course_ai_languages__no_advertised_run(self):
+        course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
+        assert course.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -930,3 +944,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_program_translation_languages(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         assert program.product_translation_languages == []
+
+    def test_program_ai_languages(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        assert program.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }

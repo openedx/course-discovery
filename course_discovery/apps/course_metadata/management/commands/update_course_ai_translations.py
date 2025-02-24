@@ -61,18 +61,35 @@ class Command(BaseCommand):
         for course_run in course_runs:
             try:
                 translation_data = lms_api_client.get_course_run_translations(course_run.key)
-
-                course_run.translation_languages = (
+                available_translation_languages = (
                     translation_data.get('available_translation_languages', [])
                     if translation_data.get('feature_enabled', False)
                     else []
                 )
+                available_transcription_languages = translation_data.get('transcription_languages', [])
+
+                # Remove any keys other than `code` and `label`
+                available_translation_languages = [{'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages]
+
+                # Add the labels for the codes. Currently we set the code as the label. We will be fixing this shortly
+                available_transcription_languages = [{'code': lang, 'label': lang} for lang in available_transcription_languages]
+
+                course_run.translation_languages = available_translation_languages
                 course_run.save(update_fields=["translation_languages"])
+
+                course_run.ai_languages = {
+                    "translation_languages": available_translation_languages,
+                    "transcription_languages": available_transcription_languages
+                }
+                course_run.save(update_fields=["ai_languages"])
 
                 if course_run.draft_version:
                     course_run.draft_version.translation_languages = course_run.translation_languages
                     course_run.draft_version.save(update_fields=["translation_languages"])
                     logger.info(f'Updated translations for {course_run.key} (both draft and non-draft versions)')
+
+                    course_run.draft_version.ai_languages = course_run.ai_languages
+                    course_run.draft_version.save(update_fields=["ai_languages"])
                 else:
                     logger.info(f'Updated translations for {course_run.key} (non-draft version only)')
             except Exception as e:  # pylint: disable=broad-except
