@@ -1,6 +1,6 @@
 """ Views for accessing Pathway data """
-from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin

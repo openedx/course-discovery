@@ -42,7 +42,7 @@ class TestPathwayViewSet(SerializationMixin):
         program = ProgramFactory(partner=pathway.partner)
         pathway.programs.add(program)
         return pathway
-        
+
     def test_pathway_list(self):
         pathways = []
         for _ in range(4):

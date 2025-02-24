@@ -17,6 +17,7 @@ class CourseRunStatus(models.TextChoices):
     def REVIEW_STATES(cls):
         return [cls.LegalReview.value, cls.InternalReview.value]
 
+
 class PathwayStatus(models.TextChoices):
     Unpublished = 'unpublished', _('Unpublished')
     Published = 'published', _('Published')

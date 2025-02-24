@@ -44,8 +44,7 @@ from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
-    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus,
-    ReportingType
+    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
