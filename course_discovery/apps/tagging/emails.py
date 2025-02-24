@@ -41,7 +41,7 @@ def send_email_for_course_vertical_assignment(course, to_users):
     Sends an email to specified users requesting action to assign vertical and sub-vertical
     for a given course, but only to those who have email notifications enabled.
     """
-    email_enabled_users = [user.email for user in to_users if is_email_notification_enabled(user)]
+    email_enabled_users = [user for user in to_users if is_email_notification_enabled(user)]
     if not email_enabled_users:
         logger.exception(
             f"Failed to send vertical assignment email for course '{course.title}' (UUID: {course.uuid})"
@@ -70,5 +70,5 @@ def send_email_for_course_vertical_assignment(course, to_users):
     except Exception as e:  # pylint: disable=broad-except
         logger.exception(
             f"Failed to send vertical assignment email for course '{course.title}' (UUID: {course.uuid}) to "
-            f"recipients {', '.join(email_enabled_users)}. Error: {str(e)}"
+            f"recipients {', '.join(list(map(lambda user: user.email, email_enabled_users)))}. Error: {str(e)}"
         )
