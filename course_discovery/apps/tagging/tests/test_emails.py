@@ -31,7 +31,7 @@ class VerticalAssignmentEmailTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         email = mail.outbox[0]
-        self.assertEqual(email.to, [self.user1, self.user2])
+        self.assertEqual(email.to, [self.user1.email, self.user2.email])
         expected_subject = f"Action Required: Assign Vertical and Sub-vertical for Course '{self.course.title}'"
         self.assertEqual(email.subject, expected_subject)
 
