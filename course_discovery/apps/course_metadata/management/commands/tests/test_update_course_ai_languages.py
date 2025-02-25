@@ -21,14 +21,14 @@ class UpdateCourseAiLanguagesTests(TestCase):
     AI_LANGUAGES_DATA = {
         'available_translation_languages': [
             {'code': 'fr', 'label': 'French'},
-            {'code': 'es', 'label': 'Spanish'}
+            {'code': 'cs', 'label': 'Czech'}
         ],
         'feature_enabled': True,
     }
 
     AI_LANGUAGES_DATA_WITH_TRANSCRIPTIONS = {
         **AI_LANGUAGES_DATA,
-        'transcription_languages': ['en', 'fr']
+        'transcription_languages': ['da', 'fr']
     }
 
     def setUp(self):
@@ -42,7 +42,7 @@ class UpdateCourseAiLanguagesTests(TestCase):
         )
         self.assertListEqual(
             run.ai_languages['transcription_languages'],
-            data.get('transcription_languages', [])
+            [{'code': lang_code, 'label': lang_code} for lang_code in data.get('transcription_languages', [])]
         )
 
 
@@ -157,6 +157,8 @@ class UpdateCourseAiLanguagesTests(TestCase):
         call_command('update_course_ai_languages', partner=self.partner.name, marketable=True, active=True)
 
         marketable_non_active_course_run.refresh_from_db()
+        active_non_marketable_course_run.refresh_from_db()
+        non_active_non_marketable_course_run.refresh_from_db()
         self.assert_ai_langs(marketable_non_active_course_run, mock_data)
         self.assert_ai_langs(active_non_marketable_course_run, mock_data)
         assert non_active_non_marketable_course_run.ai_languages is None
