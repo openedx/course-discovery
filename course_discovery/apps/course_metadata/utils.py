@@ -26,6 +26,7 @@ from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from taxonomy.utils import get_whitelisted_serialized_skills
 
+from jsonschema.validators import Draft202012Validator
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -1262,3 +1263,42 @@ def get_course_run_statuses(statuses, course_runs):
         else:
             statuses.add(course_run.status)
     return statuses
+
+AI_LANG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "translation_languages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string"},
+                    "label": {"type": "string"}
+                },
+                "required": ["code", "label"],
+                "additionalProperties": False
+            }
+        },
+        "transcription_languages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string"},
+                    "label": {"type": "string"}
+                },
+                "required": ["code", "label"],
+                "additionalProperties": False
+
+            }
+        },
+    },
+    "required": ["translation_languages", "transcription_languages"],
+    "additionalProperties": False
+}
+Draft202012Validator.check_schema(payload_schema)
+def validate_ai_languages(ai_langs):
+    try:
+        Draft202012Validator(AI_LANG_SCHEMA).validate(ai_langs)
+    except Exception as exc:
+        raise ValidationError("Could not validate ai_languages field")
