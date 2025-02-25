@@ -2450,6 +2450,8 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             self.enrollment_count = 0
         if self.recent_enrollment_count is None:
             self.recent_enrollment_count = 0
+        if self.ai_languages is not None:
+            validate_ai_languages(self.ai_languages)
 
     @property
     def first_enrollable_paid_seat_price(self):
@@ -3532,8 +3534,6 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
             self.enrollment_count = 0
         if self.recent_enrollment_count is None:
             self.recent_enrollment_count = 0
-        if self.ai_languages is not None:
-            validate_ai_languages(self.ai_languages)
 
     @property
     def is_program_eligible_for_one_click_purchase(self):
