@@ -1296,7 +1296,7 @@ AI_LANG_SCHEMA = {
     "required": ["translation_languages", "transcription_languages"],
     "additionalProperties": False
 }
-Draft202012Validator.check_schema(payload_schema)
+Draft202012Validator.check_schema(AI_LANG_SCHEMA)
 def validate_ai_languages(ai_langs):
     try:
         Draft202012Validator(AI_LANG_SCHEMA).validate(ai_langs)
