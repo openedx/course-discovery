@@ -66,6 +66,7 @@ gspread
 html2text
 lxml[html_clean]
 jsonfield
+jsonschema
 markdown
 openedx-atlas
 pillow
