@@ -83,7 +83,7 @@ def delegate_attributes(cls):
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
                     'product_allowed_in', 'product_blocked_in', 'learning_type', 'learning_type_exp',
-                    'product_translation_languages']
+                    'product_ai_languages']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -355,10 +355,16 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return getattr(self.advertised_course_run, 'max_effort', None)
 
     @property
-    def product_translation_languages(self):
-        if self.advertised_course_run and self.advertised_course_run.translation_languages:
-            return self.advertised_course_run.translation_languages
-        return []
+    def product_ai_languages(self):
+        if ai_langs:=(self.advertised_course_run and self.advertised_course_run.ai_languages):
+            return {
+                'translation_languages': [lang['label'] for lang in ai_langs['translation_languages']],
+                'transcription_languages': [lang['label'] for lang in ai_langs['transcription_languages']]
+            }
+        return {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
 
     @property
     def owners(self):
@@ -544,8 +550,11 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return self.max_hours_effort_per_week
 
     @property
-    def product_translation_languages(self):
-        return []
+    def product_ai_languages(self):
+        return {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
 
     @property
     def subject_names(self):
