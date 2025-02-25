@@ -265,7 +265,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         )
 
         result = self.lms.get_course_run_translations_and_transcriptions(course_run_id)
-        assert result == translation_data
+        assert result == response_data
 
     @responses.activate
     def test_get_course_run_translations_and_transcriptions_with_error(self):
