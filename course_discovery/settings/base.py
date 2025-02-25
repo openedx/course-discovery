@@ -753,7 +753,7 @@ LMS_API_URLS = {
     'api_access_request': 'api-admin/api/v1/api_access_request/',
     'blocks': 'api/courses/v1/blocks/',
     'block_metadata': 'api/courses/v1/block_metadata/',
-    'translations': 'api/translatable_xblocks/config/',
+    'translations_and_transcriptions': 'api/translatable_xblocks/config/',
 }
 
 # Map defining the required data fields against courses types and course's product source.

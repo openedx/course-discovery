@@ -1,5 +1,5 @@
 """
-Management command to fetch translation information from the LMS and update the CourseRun model.
+Management command to fetch translation and transcription information from the LMS and update the CourseRun model.
 """
 
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Fetches Content AI Translations metadata from the LMS and updates the CourseRun model in Discovery.'
+    help = 'Fetches Content AI Translations and Transcriptions metadata from the LMS and updates the CourseRun model in Discovery.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
-        Example usage: ./manage.py update_course_ai_translations --partner=edx --active --marketable
+        Example usage: ./manage.py update_course_ai_languages --partner=edx --active --marketable
         """
         partner_identifier = options.get('partner')
         partner = Partner.objects.filter(name__iexact=partner_identifier).first()
@@ -60,20 +60,31 @@ class Command(BaseCommand):
 
         for course_run in course_runs:
             try:
-                translation_data = lms_api_client.get_course_run_translations(course_run.key)
-
-                course_run.translation_languages = (
-                    translation_data.get('available_translation_languages', [])
-                    if translation_data.get('feature_enabled', False)
+                ai_languages_data = lms_api_client.get_course_run_translations_and_transcriptions(course_run.key)
+                available_translation_languages = (
+                    ai_languages_data.get('available_translation_languages', [])
+                    if ai_languages_data.get('feature_enabled', False)
                     else []
                 )
-                course_run.save(update_fields=["translation_languages"])
+                available_transcription_languages = ai_languages_data.get('transcription_languages', [])
+
+                # Remove any keys other than `code` and `label`
+                available_translation_languages = [{'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages]
+
+                # Add the labels for the codes. Currently we set the code as the label. We will be fixing this in a follow-up PR
+                available_transcription_languages = [{'code': lang, 'label': lang} for lang in available_transcription_languages]
+
+                course_run.ai_languages = {
+                    "translation_languages": available_translation_languages,
+                    "transcription_languages": available_transcription_languages
+                }
+                course_run.save(update_fields=["ai_languages"])
 
                 if course_run.draft_version:
-                    course_run.draft_version.translation_languages = course_run.translation_languages
-                    course_run.draft_version.save(update_fields=["translation_languages"])
-                    logger.info(f'Updated translations for {course_run.key} (both draft and non-draft versions)')
+                    course_run.draft_version.ai_languages = course_run.ai_languages
+                    course_run.draft_version.save(update_fields=["ai_languages"])
+                    logger.info(f'Updated ai languages for {course_run.key} (both draft and non-draft versions)')
                 else:
-                    logger.info(f'Updated translations for {course_run.key} (non-draft version only)')
+                    logger.info(f'Updated ai languages for {course_run.key} (non-draft version only)')
             except Exception as e:  # pylint: disable=broad-except
                 logger.error(f'Error processing {course_run.key}: {e}')
