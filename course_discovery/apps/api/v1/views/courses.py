@@ -281,7 +281,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         """
         Finds and updates an existing entitlement from the incoming data, with verification.
 
-        Will create an entitlement if we're switching from Audit.
+        It will create an entitlement if we're switching from Audit.
         Returns a tuple of (CourseEntitlement, bool) where the second value is whether the entitlement changed.
         """
         entitlement = CourseEntitlement.everything.filter(course=course, draft=models.Value(1)).first()
