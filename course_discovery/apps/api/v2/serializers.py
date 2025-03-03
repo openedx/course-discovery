@@ -48,6 +48,7 @@ class CourseSearchDocumentSerializerV2(SortFieldMixin, CourseSearchDocumentSeria
 
     class Meta(CourseSearchDocumentSerializer.Meta):
         document = CourseDocument
+        list_serializer_class = CourseSearchDocumentSerializer.Meta.list_serializer_class
         fields = CourseSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -78,6 +79,7 @@ class LearnerPathwaySearchDocumentSerializerV2(SortFieldMixin, LearnerPathwaySea
 
     class Meta(LearnerPathwaySearchDocumentSerializer.Meta):
         document = LearnerPathwayDocument
+        list_serializer_class = LearnerPathwaySearchDocumentSerializer.Meta.list_serializer_class
         fields = LearnerPathwaySearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
