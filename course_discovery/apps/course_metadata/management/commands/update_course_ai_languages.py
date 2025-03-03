@@ -4,11 +4,14 @@ Management command to fetch translation and transcription information from the L
 
 import logging
 
+from jsonschema import validate
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.models import CourseRun, Partner
+from course_discovery.apps.course_metadata.management.commands.constants import AI_LANG_SCHEMA
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +39,17 @@ class Command(BaseCommand):
             default=False,
             help='Only update translations for marketable course runs. Defaults to False.',
         )
+
+    def save_run_with_validation(run):
+        """
+        Verify that the ai_languages field matches the `AI_LANG_SCHEMA` schema before saving
+        """
+        try:
+            validate(run.ai_languages, AI_LANG_SCHEMA)
+        except Exception as exc:
+            raise ValidationError("Could not validate ai_languages field")
+
+        run.save(update_fields=["ai_languages"])
 
     def handle(self, *args, **options):
         """
@@ -78,11 +92,11 @@ class Command(BaseCommand):
                     "translation_languages": available_translation_languages,
                     "transcription_languages": available_transcription_languages
                 }
-                course_run.save(update_fields=["ai_languages"])
+                self.save_run_with_validation(course_run)
 
                 if course_run.draft_version:
                     course_run.draft_version.ai_languages = course_run.ai_languages
-                    course_run.draft_version.save(update_fields=["ai_languages"])
+                    self.save_run_with_validation(course_run.draft_version)
                     logger.info(f'Updated ai languages for {course_run.key} (both draft and non-draft versions)')
                 else:
                     logger.info(f'Updated ai languages for {course_run.key} (non-draft version only)')
