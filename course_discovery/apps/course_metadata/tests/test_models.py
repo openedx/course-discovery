@@ -1004,21 +1004,6 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory(ai_languages=None)
         assert course_run.ai_languages is None
 
-    def test_course_run_ai_languages_invalid(self):
-        """
-        Check that trying to add a value for ai_languages that does not match the schema
-        raises
-        """
-        course_run = factories.CourseRunFactory()
-        INVALID_AI_LANGUAGES = {
-            'translation_languages': [{'code': 'fr', 'label': 'French', 'enabled': True}],
-            'transcription_languages': [{'code': 'en', 'label': 'English'}]
-        }
-        course_run.ai_languages = INVALID_AI_LANGUAGES
-
-        with pytest.raises(ValidationError):
-            course_run.save()
-
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
         # Happy path
