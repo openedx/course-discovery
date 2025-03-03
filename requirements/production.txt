@@ -8,7 +8,7 @@ aiohappyeyeballs==2.4.6
     # via
     #   -r requirements/base.txt
     #   aiohttp
-aiohttp==3.11.12
+aiohttp==3.11.13
     # via
     #   -r requirements/base.txt
     #   openai
@@ -56,11 +56,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.36.26
+boto3==1.37.4
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.26
+botocore==1.37.4
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -127,7 +127,7 @@ code-annotations==2.2.0
     #   edx-toggles
 contentful==2.3.2
     # via -r requirements/base.txt
-cryptography==44.0.1
+cryptography==44.0.2
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -200,7 +200,7 @@ django-appconf==1.1.0
     # via
     #   -r requirements/base.txt
     #   django-compressor
-django-autocomplete-light==3.11.0
+django-autocomplete-light==3.12.1
     # via -r requirements/base.txt
 django-choices==2.0.0
     # via
@@ -328,7 +328,7 @@ drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-drf-yasg==1.21.8
+drf-yasg==1.21.9
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
@@ -346,7 +346,7 @@ edx-django-release-util==1.4.0
     # via -r requirements/base.txt
 edx-django-sites-extensions==4.2.0
     # via -r requirements/base.txt
-edx-django-utils==7.1.0
+edx-django-utils==7.2.0
     # via
     #   -r requirements/base.txt
     #   django-config-models
@@ -414,7 +414,7 @@ google-api-core==2.24.1
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.161.0
+google-api-python-client==2.162.0
     # via -r requirements/base.txt
 google-auth==2.38.0
     # via
@@ -438,7 +438,7 @@ googleapis-common-protos==1.68.0
     #   google-api-core
 greenlet==3.1.1
     # via gevent
-gspread==6.1.4
+gspread==6.2.0
     # via -r requirements/base.txt
 gunicorn==23.0.0
     # via -r requirements/production.in
@@ -710,7 +710,7 @@ rsa==4.9
     # via
     #   -r requirements/base.txt
     #   google-auth
-s3transfer==0.11.2
+s3transfer==0.11.3
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -824,7 +824,7 @@ webencodings==0.5.1
     #   -r requirements/base.txt
     #   cssselect2
     #   tinycss2
-xss-utils==0.6.0
+xss-utils==0.7.1
     # via -r requirements/base.txt
 yarl==1.18.3
     # via
