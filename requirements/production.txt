@@ -44,7 +44,9 @@ attrs==25.1.0
     # via
     #   -r requirements/base.txt
     #   aiohttp
+    #   jsonschema
     #   openedx-events
+    #   referencing
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
@@ -432,7 +434,7 @@ google-auth-oauthlib==1.2.1
     # via
     #   -r requirements/base.txt
     #   gspread
-googleapis-common-protos==1.68.0
+googleapis-common-protos==1.69.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -476,6 +478,12 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.1.0
     # via -r requirements/base.txt
+jsonschema==4.23.0
+    # via -r requirements/base.txt
+jsonschema-specifications==2024.10.1
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 kombu==5.4.2
     # via
     #   -r requirements/base.txt
@@ -670,6 +678,11 @@ redis==5.2.1
     # via
     #   -r requirements/base.txt
     #   walrus
+referencing==0.36.2
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.32.3
     # via
     #   -r requirements/base.txt
@@ -706,6 +719,11 @@ rjsmin==1.2.2
     # via
     #   -r requirements/base.txt
     #   django-compressor
+rpds-py==0.23.1
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
+    #   referencing
 rsa==4.9
     # via
     #   -r requirements/base.txt
@@ -784,6 +802,7 @@ typing-extensions==4.12.2
     #   beautifulsoup4
     #   django-countries
     #   edx-opaque-keys
+    #   referencing
     #   simple-salesforce
     #   snowflake-connector-python
 tzdata==2025.1
