@@ -8,7 +8,7 @@ aiohappyeyeballs==2.4.6
     # via
     #   -r requirements/base.txt
     #   aiohttp
-aiohttp==3.11.12
+aiohttp==3.11.13
     # via
     #   -r requirements/base.txt
     #   openai
@@ -71,11 +71,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.36.26
+boto3==1.37.4
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.36.26
+botocore==1.37.4
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -164,7 +164,7 @@ coverage[toml]==7.6.12
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==44.0.1
+cryptography==44.0.2
     # via
     #   -r requirements/base.txt
     #   pyjwt
@@ -244,7 +244,7 @@ django-appconf==1.1.0
     # via
     #   -r requirements/base.txt
     #   django-compressor
-django-autocomplete-light==3.11.0
+django-autocomplete-light==3.12.1
     # via -r requirements/base.txt
 django-choices==2.0.0
     # via
@@ -371,7 +371,7 @@ drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-drf-yasg==1.21.8
+drf-yasg==1.21.9
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
@@ -389,7 +389,7 @@ edx-django-release-util==1.4.0
     # via -r requirements/base.txt
 edx-django-sites-extensions==4.2.0
     # via -r requirements/base.txt
-edx-django-utils==7.1.0
+edx-django-utils==7.2.0
     # via
     #   -r requirements/base.txt
     #   django-config-models
@@ -473,7 +473,7 @@ google-api-core==2.24.1
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.161.0
+google-api-python-client==2.162.0
     # via -r requirements/base.txt
 google-auth==2.38.0
     # via
@@ -495,7 +495,7 @@ googleapis-common-protos==1.68.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
-gspread==6.1.4
+gspread==6.2.0
     # via -r requirements/base.txt
 h11==0.14.0
     # via wsproto
@@ -525,7 +525,7 @@ isodate==0.7.2
     # via
     #   -r requirements/base.txt
     #   zeep
-isort==6.0.0
+isort==6.0.1
     # via
     #   -r requirements/test.in
     #   pylint
@@ -735,7 +735,7 @@ pyproject-api==1.9.0
     # via tox
 pysocks==1.7.1
     # via urllib3
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -863,7 +863,7 @@ ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
-s3transfer==0.11.2
+s3transfer==0.11.3
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -954,7 +954,7 @@ trio==0.29.0
     # via
     #   selenium
     #   trio-websocket
-trio-websocket==0.12.1
+trio-websocket==0.12.2
     # via selenium
 typing-extensions==4.12.2
     # via
@@ -1014,7 +1014,7 @@ webencodings==0.5.1
     #   tinycss2
 wsproto==1.2.0
     # via trio-websocket
-xss-utils==0.6.0
+xss-utils==0.7.1
     # via -r requirements/base.txt
 yarl==1.18.3
     # via
