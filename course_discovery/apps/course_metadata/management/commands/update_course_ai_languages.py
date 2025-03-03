@@ -40,7 +40,7 @@ class Command(BaseCommand):
             help='Only update translations for marketable course runs. Defaults to False.',
         )
 
-    def save_run_with_validation(run):
+    def save_run_with_validation(self, run):
         """
         Verify that the ai_languages field matches the `AI_LANG_SCHEMA` schema before saving
         """
