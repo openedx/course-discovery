@@ -61,7 +61,7 @@ from course_discovery.apps.course_metadata.toggles import (
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
     get_course_run_statuses, get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, validate_ai_languages
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -2273,14 +2273,6 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
-    translation_languages = models.JSONField(
-        null=True,
-        blank=True,
-        help_text=_('A JSON list detailing the available translations for this run. '
-                    'Each element in the list is a dictionary containing two keys: the language code '
-                    'and the language label. These entries represent the languages into which the run '
-                    'content can be translated.')
-    )
     ai_languages = models.JSONField(
         null=True,
         blank=True,
@@ -2450,8 +2442,6 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             self.enrollment_count = 0
         if self.recent_enrollment_count is None:
             self.recent_enrollment_count = 0
-        if self.ai_languages is not None:
-            validate_ai_languages(self.ai_languages)
 
     @property
     def first_enrollable_paid_seat_price(self):
@@ -2924,7 +2914,6 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        self.clean()
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and

@@ -228,5 +228,5 @@ class LMSAPIClient:
             response.raise_for_status()
             return response.json()
         except RequestException as e:
-            logger.exception(f'Failed to fetch data for course run [{course_run_id}]: {e}')
+            logger.exception(f'Failed to fetch translation/transcription data for course run [{course_run_id}]: {e}')
             return {}
