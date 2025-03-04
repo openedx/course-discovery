@@ -8,6 +8,7 @@ from tempfile import NamedTemporaryFile
 from urllib.parse import urljoin, urlparse
 
 import html2text
+import jsonschema
 import markdown
 import pytz
 import requests
@@ -30,7 +31,7 @@ from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import (
-    DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES,
+    AI_LANG_SCHEMA, DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES,
     SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
 )
 from course_discovery.apps.course_metadata.exceptions import (
@@ -1262,3 +1263,9 @@ def get_course_run_statuses(statuses, course_runs):
         else:
             statuses.add(course_run.status)
     return statuses
+
+def validate_ai_languages(ai_langs):
+    try:
+        jsonschema.validate(ai_langs, AI_LANG_SCHEMA)
+    except Exception as exc:
+        raise ValidationError("Could not validate ai_languages field")

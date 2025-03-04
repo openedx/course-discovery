@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import itertools
 import re
@@ -1003,6 +1004,26 @@ class CourseRunTests(OAuth2Mixin, TestCase):
 
         course_run = factories.CourseRunFactory(ai_languages=None)
         assert course_run.ai_languages is None
+
+    @ddt.data(True, False)
+    def test_course_run_ai_languages_invalid(self, is_invalid):
+        """
+        Check that trying to add a value for ai_languages that does not match the schema
+        raises on clean_fields
+        """
+        course_run = factories.CourseRunFactory()
+        INVALID_AI_LANGUAGES = {
+            'translation_languages': [{'code': 'fr', 'label': 'French'}],
+            'transcription_languages': [{'code': 'en', 'label': 'English'}]
+        }
+        if is_invalid:
+            INVALID_AI_LANGUAGES['translation_languages'][0]['enabled'] = True
+
+        course_run.ai_languages = INVALID_AI_LANGUAGES
+
+        ctx = pytest.raises(ValidationError) if is_invalid else contextlib.nullcontext(0)
+        with ctx:
+            course_run.clean_fields()
 
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):

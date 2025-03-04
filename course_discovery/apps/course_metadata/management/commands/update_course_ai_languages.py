@@ -4,14 +4,12 @@ Management command to fetch translation and transcription information from the L
 
 import logging
 
-from jsonschema import validate
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.models import CourseRun, Partner
-from course_discovery.apps.course_metadata.management.commands.constants import AI_LANG_SCHEMA
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +42,7 @@ class Command(BaseCommand):
         """
         Verify that the ai_languages field matches the `AI_LANG_SCHEMA` schema before saving
         """
-        try:
-            validate(run.ai_languages, AI_LANG_SCHEMA)
-        except Exception as exc:
-            raise ValidationError("Could not validate ai_languages field")
-
+        run.clean_fields()
         run.save(update_fields=["ai_languages"])
 
     def handle(self, *args, **options):
@@ -85,7 +79,8 @@ class Command(BaseCommand):
                 # Remove any keys other than `code` and `label`
                 available_translation_languages = [{'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages]
 
-                # Add the labels for the codes. Currently we set the code as the label. We will be fixing this in a follow-up PR
+                # TODO: Set the `label` appropriately depending on the `code`. Currently, we set the `label` to the same
+                # value as `code`
                 available_transcription_languages = [{'code': lang, 'label': lang} for lang in available_transcription_languages]
 
                 course_run.ai_languages = {

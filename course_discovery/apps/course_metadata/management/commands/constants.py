@@ -1776,36 +1776,3 @@ STARTER_SUBJECTS = [
     'Humanities', 'Language', 'Law', 'Literature', 'Math', 'Medicine', 'Music', 'Philanthropy',
     'Philosophy & Ethics', 'Physics', 'Science', 'Social Sciences'
 ]
-
-AI_LANG_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "translation_languages": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "label": {"type": "string"}
-                },
-                "required": ["code", "label"],
-                "additionalProperties": False
-            }
-        },
-        "transcription_languages": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "label": {"type": "string"}
-                },
-                "required": ["code", "label"],
-                "additionalProperties": False
-
-            }
-        },
-    },
-    "required": ["translation_languages", "transcription_languages"],
-    "additionalProperties": False
-}
