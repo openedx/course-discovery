@@ -9,7 +9,7 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 from django.utils.timezone import now
 
-from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, LanguageTag
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, PartnerFactory, SeatFactory
 
 
@@ -34,6 +34,8 @@ class UpdateCourseAiLanguagesTests(TestCase):
     def setUp(self):
         self.partner = PartnerFactory()
         self.course_run = CourseRunFactory()
+        LanguageTag.objects.get_or_create(code='da', name='Danish')
+        LanguageTag.objects.get_or_create(code='fr', name='French')
 
     def assert_ai_langs(self, run, data):
         self.assertListEqual(
@@ -41,8 +43,15 @@ class UpdateCourseAiLanguagesTests(TestCase):
             data['available_translation_languages']
         )
         self.assertListEqual(
-            run.ai_languages['transcription_languages'],
-            [{'code': lang_code, 'label': lang_code} for lang_code in data.get('transcription_languages', [])]
+            run.ai_languages["transcription_languages"],
+            [
+                {
+                    "code": lang_code, "label": LanguageTag.objects.get(
+                    code__iexact=lang_code.replace("_", "-")
+                ).name,
+                }
+                for lang_code in data.get("transcription_languages", [])
+            ],
         )
 
     @ddt.data(AI_LANGUAGES_DATA, AI_LANGUAGES_DATA_WITH_TRANSCRIPTIONS)
@@ -100,7 +109,6 @@ class UpdateCourseAiLanguagesTests(TestCase):
 
         active_course_run.refresh_from_db()
         non_active_course_run.refresh_from_db()
-
         self.assert_ai_langs(active_course_run, mock_data)
         assert non_active_course_run.ai_languages is None
 
