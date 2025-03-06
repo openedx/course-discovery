@@ -61,7 +61,7 @@ from course_discovery.apps.course_metadata.toggles import (
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
     get_course_run_statuses, get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, validate_ai_languages
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -2273,17 +2273,10 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
-    translation_languages = models.JSONField(
-        null=True,
-        blank=True,
-        help_text=_('A JSON list detailing the available translations for this run. '
-                    'Each element in the list is a dictionary containing two keys: the language code '
-                    'and the language label. These entries represent the languages into which the run '
-                    'content can be translated.')
-    )
     ai_languages = models.JSONField(
         null=True,
         blank=True,
+        validators=[validate_ai_languages],
         help_text=_('A JSON dict detailing the available translations and transcriptions for this run. '
                     'The dict has two keys: translation_languages and transcription_languages.')
     )

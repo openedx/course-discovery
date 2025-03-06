@@ -491,7 +491,7 @@ google-auth-oauthlib==1.2.1
     # via
     #   -r requirements/base.txt
     #   gspread
-googleapis-common-protos==1.68.0
+googleapis-common-protos==1.69.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -541,9 +541,13 @@ jmespath==1.0.1
 jsonfield==3.1.0
     # via -r requirements/base.txt
 jsonschema==4.23.0
-    # via semgrep
+    # via
+    #   -r requirements/base.txt
+    #   semgrep
 jsonschema-specifications==2024.10.1
-    # via jsonschema
+    # via
+    #   -r requirements/base.txt
+    #   jsonschema
 kombu==5.4.2
     # via
     #   -r requirements/base.txt
@@ -573,7 +577,7 @@ mccabe==0.7.0
     # via pylint
 mdurl==0.1.2
     # via markdown-it-py
-mock==5.1.0
+mock==5.2.0
     # via -r requirements/test.in
 more-itertools==10.6.0
     # via
@@ -804,6 +808,7 @@ redis==5.2.1
     #   walrus
 referencing==0.36.2
     # via
+    #   -r requirements/base.txt
     #   jsonschema
     #   jsonschema-specifications
 requests==2.32.3
@@ -853,6 +858,7 @@ rjsmin==1.2.2
     #   django-compressor
 rpds-py==0.23.1
     # via
+    #   -r requirements/base.txt
     #   jsonschema
     #   referencing
 rsa==4.9

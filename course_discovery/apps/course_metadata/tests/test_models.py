@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import itertools
 import re
@@ -990,16 +991,39 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         assert course_run.fixed_price_usd is None
 
-    def test_course_run_translation_languages(self):
+    def test_course_run_ai_languages(self):
         """
-        Sanity checks for the translation_languages field
+        Sanity checks for the ai_languages field
         """
-        DEFAULT_TRANSLATION_LANGUAGES = [{'code': 'fr', 'label': 'French'}]
         course_run = factories.CourseRunFactory()
-        assert course_run.translation_languages == DEFAULT_TRANSLATION_LANGUAGES
+        DEFAULT_AI_LANGUAGES = {
+            'translation_languages': [{'code': 'fr', 'label': 'French'}],
+            'transcription_languages': [{'code': 'en', 'label': 'English'}, {'code': 'bs', 'label': 'Bosnian'}]
+        }
+        assert course_run.ai_languages == DEFAULT_AI_LANGUAGES
 
-        course_run = factories.CourseRunFactory(translation_languages=None)
-        assert course_run.translation_languages is None
+        course_run = factories.CourseRunFactory(ai_languages=None)
+        assert course_run.ai_languages is None
+
+    @ddt.data(True, False)
+    def test_course_run_ai_languages_invalid(self, is_invalid):
+        """
+        Check that trying to add a value for ai_languages that does not match the schema
+        raises on clean_fields
+        """
+        course_run = factories.CourseRunFactory()
+        INVALID_AI_LANGUAGES = {
+            'translation_languages': [{'code': 'fr', 'label': 'French'}],
+            'transcription_languages': [{'code': 'en', 'label': 'English'}]
+        }
+        if is_invalid:
+            INVALID_AI_LANGUAGES['translation_languages'][0]['enabled'] = True
+
+        course_run.ai_languages = INVALID_AI_LANGUAGES
+
+        ctx = pytest.raises(ValidationError) if is_invalid else contextlib.nullcontext(0)
+        with ctx:
+            course_run.clean_fields()
 
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):

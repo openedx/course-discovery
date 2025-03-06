@@ -237,35 +237,43 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_get_course_run_translations(self):
+    def test_get_course_run_translations_and_transcriptions(self):
         """
-        Verify that `get_course_run_translations` returns correct translation data.
+        Verify that `get_course_run_translations_and_transcriptions` returns correct data.
         """
         course_run_id = 'course-v1:edX+DemoX+Demo_Course'
-        translation_data = {
-            "en": {"title": "Course Title", "language": "English"},
-            "fr": {"title": "Titre du cours", "language": "French"}
+        response_data = {
+            "available_translation_languages": [
+                {
+                    "code": "ar",
+                    "enabled": True,
+                    "label": "Arabic"
+                }
+            ],
+            "feature_enabled": True,
+            "feature_available": False,
+            "transcription_languages": ["en", "fr"]
         }
-        resource = settings.LMS_API_URLS['translations']
+        resource = settings.LMS_API_URLS['translations_and_transcriptions']
         resource_url = urljoin(self.partner.lms_url, resource)
 
         responses.add(
             responses.GET,
             resource_url,
-            json=translation_data,
+            json=response_data,
             status=200
         )
 
-        result = self.lms.get_course_run_translations(course_run_id)
-        assert result == translation_data
+        result = self.lms.get_course_run_translations_and_transcriptions(course_run_id)
+        assert result == response_data
 
     @responses.activate
-    def test_get_course_run_translations_with_error(self):
+    def test_get_course_run_translations_and_transcriptions_with_error(self):
         """
-        Verify that get_course_run_translations returns an empty dictionary when there's an error.
+        Verify that `get_course_run_translations_and_transcriptions` returns an empty dictionary when there's an error.
         """
         course_run_id = 'course-v1:edX+DemoX+Demo_Course'
-        resource = settings.LMS_API_URLS['translations']
+        resource = settings.LMS_API_URLS['translations_and_transcriptions']
         resource_url = urljoin(self.partner.lms_url, resource)
 
         responses.add(
@@ -274,6 +282,9 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             status=500
         )
 
-        result = self.lms.get_course_run_translations(course_run_id)
+        result = self.lms.get_course_run_translations_and_transcriptions(course_run_id)
         assert result == {}
-        assert 'Failed to fetch translation data for course run [%s]' % course_run_id in self.log_messages['error'][0]
+        assert (
+            'Failed to fetch translation/transcription data for course run [%s]' % course_run_id
+            in self.log_messages['error'][0]
+        )

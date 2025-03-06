@@ -151,3 +151,36 @@ SNOWFLAKE_REFRESH_COURSE_REVIEWS_QUERY = '''
     from
         prod.enterprise.course_reviews
 '''
+
+AI_LANG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "translation_languages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string"},
+                    "label": {"type": "string"}
+                },
+                "required": ["code", "label"],
+                "additionalProperties": False
+            }
+        },
+        "transcription_languages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string"},
+                    "label": {"type": "string"}
+                },
+                "required": ["code", "label"],
+                "additionalProperties": False
+
+            }
+        },
+    },
+    "required": ["translation_languages", "transcription_languages"],
+    "additionalProperties": False
+}
