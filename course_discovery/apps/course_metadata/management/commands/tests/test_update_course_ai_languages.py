@@ -46,9 +46,7 @@ class UpdateCourseAiLanguagesTests(TestCase):
             run.ai_languages["transcription_languages"],
             [
                 {
-                    "code": lang_code, "label": LanguageTag.objects.get(
-                    code__iexact=lang_code.replace("_", "-")
-                ).name,
+                    "code": lang_code, "label": LanguageTag.objects.get(code__iexact=lang_code.replace("_", "-")).name,
                 }
                 for lang_code in data.get("transcription_languages", [])
             ],
