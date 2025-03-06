@@ -33,6 +33,7 @@ class CourseRunSearchDocumentSerializerV2(SortFieldMixin, CourseRunSearchDocumen
 
     class Meta(CourseRunSearchDocumentSerializer.Meta):
         document = CourseRunDocument
+        ignore_fields = CourseRunSearchDocumentSerializer.Meta.ignore_fields
         fields = CourseRunSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -49,6 +50,7 @@ class CourseSearchDocumentSerializerV2(SortFieldMixin, CourseSearchDocumentSeria
     class Meta(CourseSearchDocumentSerializer.Meta):
         document = CourseDocument
         list_serializer_class = CourseSearchDocumentSerializer.Meta.list_serializer_class
+        ignore_fields = CourseSearchDocumentSerializer.Meta.ignore_fields
         fields = CourseSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -64,6 +66,7 @@ class ProgramSearchDocumentSerializerV2(SortFieldMixin, ProgramSearchDocumentSer
 
     class Meta(ProgramSearchDocumentSerializer.Meta):
         document = ProgramDocument
+        ignore_fields = ProgramSearchDocumentSerializer.Meta.ignore_fields
         fields = ProgramSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -80,6 +83,7 @@ class LearnerPathwaySearchDocumentSerializerV2(SortFieldMixin, LearnerPathwaySea
     class Meta(LearnerPathwaySearchDocumentSerializer.Meta):
         document = LearnerPathwayDocument
         list_serializer_class = LearnerPathwaySearchDocumentSerializer.Meta.list_serializer_class
+        ignore_fields = LearnerPathwaySearchDocumentSerializer.Meta.ignore_fields
         fields = LearnerPathwaySearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -95,6 +99,7 @@ class PersonSearchDocumentSerializerV2(SortFieldMixin, PersonSearchDocumentSeria
 
     class Meta(PersonSearchDocumentSerializer.Meta):
         document = PersonDocument
+        ignore_fields = PersonSearchDocumentSerializer.Meta.ignore_fields
         fields = PersonSearchDocumentSerializer.Meta.fields + SEARCH_INDEX_ADDITIONAL_FIELDS_V2
 
 
@@ -132,4 +137,5 @@ class AggregateSearchSerializerV2(AggregateSearchSerializer):
         """
 
         list_serializer_class = AggregateSearchListSerializerV2
+        ignore_fields = AggregateSearchSerializer.Meta.ignore_fields
         document = DummyDocument

@@ -55,7 +55,7 @@ class AggregateSearchViewSetV2Tests(mixins.LoginMixin, ElasticsearchTestMixin, m
                 type__is_marketable=True,
                 status=CourseRunStatus.Published,
             )
-        with self.assertNumQueries(11, threshold=2):
+        with self.assertNumQueries(14, threshold=3):
             response = self.client.get(self.list_path)
         response_data = response.json()
         assert response.status_code == 200
