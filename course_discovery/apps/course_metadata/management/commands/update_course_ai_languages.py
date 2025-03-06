@@ -76,7 +76,9 @@ class Command(BaseCommand):
                 available_transcription_languages = ai_languages_data.get('transcription_languages', [])
 
                 # Remove any keys other than `code` and `label`
-                available_translation_languages = [{'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages]
+                available_translation_languages = [
+                    {'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages
+                ]
 
                 # TODO: Set the `label` appropriately depending on the `code`. Currently, we set the `label` to the
                 # same value as `code`
