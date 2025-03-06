@@ -356,7 +356,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_ai_languages(self):
-        if ai_langs:=(self.advertised_course_run and self.advertised_course_run.ai_languages):
+        if ai_langs := (self.advertised_course_run and self.advertised_course_run.ai_languages):
             return {
                 'translation_languages': [lang['label'] for lang in ai_langs['translation_languages']],
                 'transcription_languages': [lang['label'] for lang in ai_langs['transcription_languages']]

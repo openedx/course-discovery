@@ -45,7 +45,6 @@ class UpdateCourseAiLanguagesTests(TestCase):
             [{'code': lang_code, 'label': lang_code} for lang_code in data.get('transcription_languages', [])]
         )
 
-
     @ddt.data(AI_LANGUAGES_DATA, AI_LANGUAGES_DATA_WITH_TRANSCRIPTIONS)
     def test_update_ai_languages(self, mock_data, mock_get_translations_and_transcriptions):
         """Test the command with a valid course run and response data."""
@@ -75,7 +74,6 @@ class UpdateCourseAiLanguagesTests(TestCase):
 
         draft_course_run.refresh_from_db()
         self.assert_ai_langs(draft_course_run, mock_data)
-
 
     @ddt.data(AI_LANGUAGES_DATA, AI_LANGUAGES_DATA_WITH_TRANSCRIPTIONS)
     def test_update_ai_languages_no_translations(self, mock_data, mock_get_translations_and_transcriptions):

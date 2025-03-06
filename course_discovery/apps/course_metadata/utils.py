@@ -31,8 +31,8 @@ from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import (
-    AI_LANG_SCHEMA, DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES,
-    SLUG_FORMAT_REGEX, SUBDIRECTORY_SLUG_FORMAT_REGEX
+    AI_LANG_SCHEMA, DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
+    SUBDIRECTORY_SLUG_FORMAT_REGEX
 )
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
@@ -1264,8 +1264,12 @@ def get_course_run_statuses(statuses, course_runs):
             statuses.add(course_run.status)
     return statuses
 
+
 def validate_ai_languages(ai_langs):
+    """
+    Verify that the ai_langs json matches the `AI_LANG_SCHEMA` schema before saving
+    """
     try:
         jsonschema.validate(ai_langs, AI_LANG_SCHEMA)
     except Exception as exc:
-        raise ValidationError("Could not validate ai_languages field")
+        raise ValidationError("Could not validate ai_languages field") from exc

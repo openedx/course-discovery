@@ -284,4 +284,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
 
         result = self.lms.get_course_run_translations_and_transcriptions(course_run_id)
         assert result == {}
-        assert 'Failed to fetch translation/transcription data for course run [%s]' % course_run_id in self.log_messages['error'][0]
+        assert (
+            'Failed to fetch translation/transcription data for course run [%s]' % course_run_id
+            in self.log_messages['error'][0]
+        )

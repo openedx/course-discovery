@@ -117,7 +117,8 @@ class EnglishProductIndex(BaseProductIndex):
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
             'skills.category', 'skills.subcategory', 'tags', 'subscription_eligible', 'subscription_prices',
-            'learning_type', 'learning_type_exp', 'ai_languages.translation_languages', 'ai_languages.transcription_languages',
+            'learning_type', 'learning_type_exp', 'ai_languages.translation_languages',
+            'ai_languages.transcription_languages',
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
