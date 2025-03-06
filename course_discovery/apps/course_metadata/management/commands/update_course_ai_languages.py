@@ -5,7 +5,6 @@ Management command to fetch translation and transcription information from the L
 import logging
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Fetches Content AI Translations and Transcriptions metadata from the LMS and updates the CourseRun model in Discovery.'
+    help = 'Fetches Content AI Translations and Transcriptions metadata from the LMS and updates the CourseRun model.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -79,9 +78,11 @@ class Command(BaseCommand):
                 # Remove any keys other than `code` and `label`
                 available_translation_languages = [{'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages]
 
-                # TODO: Set the `label` appropriately depending on the `code`. Currently, we set the `label` to the same
-                # value as `code`
-                available_transcription_languages = [{'code': lang, 'label': lang} for lang in available_transcription_languages]
+                # TODO: Set the `label` appropriately depending on the `code`. Currently, we set the `label` to the
+                # same value as `code`
+                available_transcription_languages = [
+                    {'code': lang, 'label': lang} for lang in available_transcription_languages
+                ]
 
                 course_run.ai_languages = {
                     "translation_languages": available_translation_languages,
