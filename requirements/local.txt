@@ -548,7 +548,7 @@ google-auth-oauthlib==1.2.1
     # via
     #   -r requirements/test.txt
     #   gspread
-googleapis-common-protos==1.68.0
+googleapis-common-protos==1.69.0
     # via
     #   -r requirements/test.txt
     #   google-api-core
@@ -653,7 +653,7 @@ mdurl==0.1.2
     # via
     #   -r requirements/test.txt
     #   markdown-it-py
-mock==5.1.0
+mock==5.2.0
     # via -r requirements/test.txt
 more-itertools==10.6.0
     # via

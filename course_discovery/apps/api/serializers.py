@@ -1103,10 +1103,10 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion',
-            'transcript_languages_search_facet_names', 'translation_languages'
+            'transcript_languages_search_facet_names', 'ai_languages'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
-                            'enterprise_subscription_inclusion', 'translation_languages')
+                            'enterprise_subscription_inclusion', 'ai_languages')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.

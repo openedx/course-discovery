@@ -210,17 +210,17 @@ class LMSAPIClient:
         cache_key = get_cache_key(block_id=block_id, resource=resource)
         return self._get_blocks_data(block_id, cache_key, query_parameters, resource)
 
-    def get_course_run_translations(self, course_run_id: str):
+    def get_course_run_translations_and_transcriptions(self, course_run_id: str):
         """
-        Get translation information for a given course run.
+        Get translation and transcription information for a given course run.
 
         Args:
-            course_run_id (str): The course run ID to fetch translation information for.
+            course_run_id (str): The course run ID to fetch information for.
 
         Returns:
-            dict: A dictionary containing the translation information or an empty dict on error.
+            dict: A dictionary containing the relevant information or an empty dict on error.
         """
-        resource = settings.LMS_API_URLS['translations']
+        resource = settings.LMS_API_URLS['translations_and_transcriptions']
         resource_url = urljoin(self.lms_url, resource)
 
         try:
@@ -228,5 +228,5 @@ class LMSAPIClient:
             response.raise_for_status()
             return response.json()
         except RequestException as e:
-            logger.exception(f'Failed to fetch translation data for course run [{course_run_id}]: {e}')
+            logger.exception(f'Failed to fetch translation/transcription data for course run [{course_run_id}]: {e}')
             return {}
