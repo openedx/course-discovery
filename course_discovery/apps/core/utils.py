@@ -256,33 +256,6 @@ def update_instance(instance, data, should_commit=False, **kwargs):
     return instance, updated
 
 
-# pylint: disable=setting-boolean-default-value
-def _get_enable_custom_management_command_monitoring():
-    """
-    Returns whether custom Django management command monitoring is enabled.
-
-    .. setting_name: ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING
-    .. setting_default: False
-    .. setting_description: A boolean flag that determines whether Django management command executions
-        should be explicitly monitored.
-    """
-    return getattr(settings, 'ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING', False)
-
-
-def _get_django_management_monitoring_function_trace_name():
-    """
-    Returns the function trace name used for monitoring Django management commands.
-
-    .. setting_name: DJANGO_MANAGEMENT_MONITORING_FUNCTION_TRACE_NAME
-    .. setting_default: 'django.command'
-    .. setting_description: This setting specifies the function trace name that will be used when monitoring
-        Django management commands. It helps group and categorize monitoring spans for better visibility.
-    .. setting_warning: Ensure this setting is properly configured to align with your monitoring tools,
-        as an incorrect name may lead to untracked or misclassified spans.
-    """
-    return getattr(settings, 'DJANGO_MANAGEMENT_MONITORING_FUNCTION_TRACE_NAME', 'django.command')
-
-
 @contextmanager
 def monitor_django_management_command(name):
     """
@@ -294,8 +267,8 @@ def monitor_django_management_command(name):
       to the name of the command, provided in the `name` argument.
     """
 
-    custom_command_monitoring_enabled = _get_enable_custom_management_command_monitoring()
-    trace_name = _get_django_management_monitoring_function_trace_name()
+    custom_command_monitoring_enabled = getattr(settings, "ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING", False)
+    trace_name = getattr(settings, "DJANGO_MANAGEMENT_MONITORING_FUNCTION_TRACE_NAME", "django.command")
 
     if custom_command_monitoring_enabled:
         with function_trace(trace_name):
