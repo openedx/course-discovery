@@ -83,23 +83,26 @@ class Command(BaseCommand):
                     {'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages
                 ]
 
-                available_transcription_languages = [
-                    {
-                        "code": lang_code,
-                        "label": (
-                            # Standardizing language codes to match between edx-val and course-discovery:
-                            # - edx-val uses "zh_HANS", "zh_HANT", while course-discovery uses "zh-Hans", "zh-Hant"
-                            # - edx-val uses "en-GB", whereas course-discovery uses "en-gb"
-                            DEPRECATED_LANGUAGE_CODES[lang_code]
-                            if lang_code in DEPRECATED_LANGUAGE_CODES
-                            else LanguageTag.objects.get(code__iexact=lang_code.replace("_", "-")).name
+                available_transcription_langs = []
+                for lang_code in available_transcription_languages:
+                    # Standardizing language codes to match between edx-val and course-discovery:
+                    # - edx-val uses "zh_HANS", "zh_HANT", while course-discovery uses "zh-Hans", "zh-Hant"
+                    # - edx-val uses "en-GB", whereas course-discovery uses "en-gb"
+                    standardized_code = lang_code.replace("_", "-")
+                
+                    if lang_code in DEPRECATED_LANGUAGE_CODES:
+                        label = DEPRECATED_LANGUAGE_CODES[lang_code]
+                    else:
+                        language_tag = LanguageTag.objects.filter(code__iexact=standardized_code).first()
+                        if language_tag:
+                            label = language_tag.name
+                        else:
+                            logger.error(f"Error: Missing language label for {lang_code}")
+                            continue
 
-                        ),
-                    }
-                    for lang_code in available_transcription_languages
-                    if LanguageTag.objects.filter(code__iexact=lang_code.replace("_", "-")).exists()
-                    if not logger.error(f"Error: Missing language label for {lang_code}")
-                ]
+                    available_transcription_langs.append({"code": lang_code, "label": label})
+
+                available_transcription_languages = available_transcription_langs
 
                 course_run.ai_languages = {
                     "translation_languages": available_translation_languages,
