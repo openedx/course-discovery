@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/base.txt requirements/base.in
 #
-aiohappyeyeballs==2.4.6
+aiohappyeyeballs==2.5.0
     # via aiohttp
 aiohttp==3.11.13
     # via openai
@@ -43,9 +43,9 @@ beautifulsoup4==4.13.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.37.4
+boto3==1.37.9
     # via django-ses
-botocore==1.37.4
+botocore==1.37.9
     # via
     #   boto3
     #   s3transfer
@@ -100,7 +100,7 @@ cryptography==44.0.2
     #   pyopenssl
     #   snowflake-connector-python
     #   social-auth-core
-cssselect2==0.7.0
+cssselect2==0.8.0
     # via cairosvg
 defusedxml==0.7.1
     # via
@@ -108,7 +108,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==4.2.19
+django==4.2.20
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -353,7 +353,7 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 google-api-core==2.24.1
     # via google-api-python-client
-google-api-python-client==2.162.0
+google-api-python-client==2.163.0
     # via -r requirements/base.in
 google-auth==2.38.0
     # via
@@ -368,7 +368,7 @@ google-auth-httplib2==0.2.0
     #   google-api-python-client
 google-auth-oauthlib==1.2.1
     # via gspread
-googleapis-common-protos==1.69.0
+googleapis-common-protos==1.69.1
     # via google-api-core
 gspread==6.2.0
     # via -r requirements/base.in
@@ -389,7 +389,7 @@ inflection==0.5.1
     # via drf-yasg
 isodate==0.7.2
     # via zeep
-jinja2==3.1.5
+jinja2==3.1.6
     # via code-annotations
 jmespath==1.0.1
     # via
@@ -422,7 +422,7 @@ multidict==6.1.0
     # via
     #   aiohttp
     #   yarl
-newrelic==10.6.0
+newrelic==10.7.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -491,11 +491,11 @@ pyjwt[crypto]==2.10.1
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pymongo==4.11.1
+pymongo==4.11.2
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pyopenssl==24.3.0
+pyopenssl==25.0.0
     # via snowflake-connector-python
 pyparsing==3.2.1
     # via httplib2
@@ -575,7 +575,7 @@ rpds-py==0.23.1
     #   referencing
 rsa==4.9
     # via google-auth
-s3transfer==0.11.3
+s3transfer==0.11.4
     # via boto3
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -590,7 +590,7 @@ six==1.17.0
     #   edx-django-release-util
     #   elasticsearch-dsl
     #   python-dateutil
-snowflake-connector-python==3.13.2
+snowflake-connector-python==3.14.0
     # via -r requirements/base.in
 social-auth-app-django==5.4.3
     # via
@@ -628,6 +628,7 @@ typing-extensions==4.12.2
     #   beautifulsoup4
     #   django-countries
     #   edx-opaque-keys
+    #   pyopenssl
     #   referencing
     #   simple-salesforce
     #   snowflake-connector-python
