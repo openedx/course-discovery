@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
-from course_discovery.apps.course_metadata.models import CourseRun, Partner
+from course_discovery.apps.course_metadata.models import CourseRun, LanguageTag, Partner
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,9 @@ class Command(BaseCommand):
         """
         partner_identifier = options.get('partner')
         partner = Partner.objects.filter(name__iexact=partner_identifier).first()
+        DEPRECATED_LANGUAGE_CODES = {
+            "iw": "Hebrew",
+        }
 
         if not partner:
             raise CommandError('No partner object found. Ensure that the Partner data is correctly configured.')
@@ -80,11 +83,26 @@ class Command(BaseCommand):
                     {'code': lang['code'], 'label': lang['label']} for lang in available_translation_languages
                 ]
 
-                # TODO: Set the `label` appropriately depending on the `code`. Currently, we set the `label` to the
-                # same value as `code`
-                available_transcription_languages = [
-                    {'code': lang, 'label': lang} for lang in available_transcription_languages
-                ]
+                transcription_langs_with_labels = []
+                for lang_code in available_transcription_languages:
+                    # Standardizing language codes to match between edx-val and course-discovery:
+                    # - edx-val uses "zh_HANS", "zh_HANT", while course-discovery uses "zh-Hans", "zh-Hant"
+                    # - edx-val uses "en-GB", whereas course-discovery uses "en-gb"
+                    standardized_code = lang_code.replace("_", "-")
+
+                    if lang_code in DEPRECATED_LANGUAGE_CODES:
+                        label = DEPRECATED_LANGUAGE_CODES[lang_code]
+                    else:
+                        language_tag = LanguageTag.objects.filter(code__iexact=standardized_code).first()
+                        if language_tag:
+                            label = language_tag.name
+                        else:
+                            logger.error(f"Error: Missing language label for {lang_code}")
+                            continue
+
+                    transcription_langs_with_labels.append({"code": lang_code, "label": label})
+
+                available_transcription_languages = transcription_langs_with_labels
 
                 course_run.ai_languages = {
                     "translation_languages": available_translation_languages,
