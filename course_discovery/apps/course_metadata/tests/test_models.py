@@ -109,7 +109,6 @@ class TestCourse(TestCase):
             partner=partner,
             additional_metadata=None,
         )
-        LanguageTag.objects.create(code='en', name='English')
         course_run = CourseRunFactory(
             course=Course.objects.all()[0],
             status=CourseRunStatus.Published,
@@ -3644,7 +3643,7 @@ class ProgramTests(TestCase):
         when no language_override is set.
         """
 
-        language_en = LanguageTag.objects.create(code='en', name='English')
+        language_en = LanguageTag.objects.get(code='en', name='English')
         language_fr = LanguageTag.objects.get(code='fr')
 
         course_run1 = CourseRunFactory.create(language=language_en)
