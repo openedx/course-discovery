@@ -77,6 +77,7 @@ jobs:
         DB_PASSWORD:
         DB_HOST: localhost
         DB_PORT: 3306
+        DJANGO_SETTINGS_MODULE: course_discovery.settings.test
       run: |
         echo "CREATE DATABASE IF NOT EXISTS discovery;" | sudo mysql -u root
         echo "Running the migrations."
