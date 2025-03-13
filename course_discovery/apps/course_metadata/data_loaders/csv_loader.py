@@ -484,13 +484,14 @@ class CSVDataLoader(AbstractDataLoader):
 
         course_runs = CourseRun.objects.filter_drafts(course=course)
         variant_id = data.get('variant_id', None)
+        course_run_key = data.get('course_run_key', None)
         start_datetime = self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}")
         end_datetime = self.get_formatted_datetime_string(f'{data["end_date"]} {data["end_time"]}')
 
         # Added a sanity check (variant_id__isnull=True) to ensure that a wrong course run with the same schedule is not
         # incorrectly updated. It is possible the runs with same schedule but different restriction types can exist.
         filtered_course_runs = course_runs.filter(
-            Q(variant_id=variant_id) |
+            Q(variant_id=variant_id) | Q(key=course_run_key) |
             (Q(start=start_datetime) & Q(end=end_datetime) & Q(variant_id__isnull=True))
         ).order_by('created')
         course_run = filtered_course_runs.last()
@@ -744,46 +745,40 @@ class CSVDataLoader(AbstractDataLoader):
     def _update_course_run_request_data(self, data, course_run, course_type, is_draft):
         """
         Create and return the request data for making a patch call to update the course run.
+        Only include fields present in the `data` dictionary.
         """
-        program_type = data.get('expected_program_type')
-        staff_uuids = self.process_staff_names(data.get('staff', ''), course_run.key)
-        content_language = self.verify_and_get_language_tags(data['content_language'])
-        transcript_language = self.verify_and_get_language_tags(data['transcript_language'])
-        registration_deadline = data.get('reg_close_date', '')
-        variant_id = data.get('variant_id', '')
-        restriction_type = data.get('restriction_type', None)
+
+        field_mapping = {
+            'run_type': lambda: str(course_run.type.uuid),
+            'verified_price': lambda: self.get_pricing_representation(data['verified_price'], course_type),
+            'staff': lambda: self.process_staff_names(data.get('staff', ''), course_run.key),
+            'length': lambda: data['length'],
+            'minimum_effort': lambda: data['minimum_effort'],
+            'maximum_effort': lambda: data['maximum_effort'],
+            'content_language': lambda: self.verify_and_get_language_tags(data['content_language'])[0],
+            'expected_program_name': lambda: data.get('expected_program_name', ''),
+            'transcript_language': lambda: self.verify_and_get_language_tags(data['transcript_language']),
+            'publish_date': lambda: self.get_formatted_datetime_string(data['publish_date']),
+            'expected_program_type': lambda: data['expected_program_type']
+            if data['expected_program_type'] in self.PROGRAM_TYPES else None,
+            'upgrade_deadline_override_date': lambda: self.get_formatted_datetime_string(
+                f"{data.get('upgrade_deadline_override_date', '')} {data.get('upgrade_deadline_override_time', '')}".strip()
+            ),
+            'end_date': lambda: self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
+            'start_date': lambda: self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'fixed_price_usd': lambda: data.get('fixed_price_usd', ''),
+            'reg_close_date': lambda: self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            ),
+            'variant_id': lambda: data['variant_id'],
+            'draft': lambda: is_draft,
+            'restriction_type': lambda: data['restriction_type'] if data['restriction_type'] != 'None' else None,
+        }
 
         update_course_run_data = {
-            'run_type': str(course_run.type.uuid),
-            'key': course_run.key,
-            'prices': self.get_pricing_representation(data['verified_price'], course_type),
-            'staff': staff_uuids,
-            'draft': is_draft,
-
-            'weeks_to_complete': data['length'],
-            'min_effort': data['minimum_effort'],
-            'max_effort': data['maximum_effort'],
-            'content_language': content_language[0],
-            'expected_program_name': data.get('expected_program_name', ''),
-            'transcript_languages': transcript_language,
-            'go_live_date': self.get_formatted_datetime_string(data['publish_date']),
-            'expected_program_type': program_type if program_type in self.PROGRAM_TYPES else None,
-            'upgrade_deadline_override': self.get_formatted_datetime_string(
-                f"{data.get('upgrade_deadline_override_date', '')} "
-                f"{data.get('upgrade_deadline_override_time', '')}".strip()
-            ),
+            key: func() for key, func in field_mapping.items() if key in data
         }
-        if fix_price := data.get('fixed_price_usd', ''):
-            update_course_run_data['fixed_price_usd'] = fix_price
 
-        if registration_deadline:
-            update_course_run_data.update({'enrollment_end': self.get_formatted_datetime_string(
-                f"{data['reg_close_date']} {data['reg_close_time']}"
-            )})
-        if variant_id:
-            update_course_run_data.update({'variant_id': variant_id})
-        if restriction_type and restriction_type != 'None':
-            update_course_run_data.update({'restriction_type': restriction_type})
         return update_course_run_data
 
     def get_formatted_datetime_string(self, date_string):
