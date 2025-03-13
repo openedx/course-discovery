@@ -701,6 +701,22 @@ PRODUCT_METADATA_MAPPING = {
             'EMAIL_NOTIFICATION_LIST': []
         }
     },
+    'audit': {
+        'edx': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
+    'masters': {
+        'edx': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
     'DEGREES': {
         'ext_source': {
             'SHEET_ID': '',

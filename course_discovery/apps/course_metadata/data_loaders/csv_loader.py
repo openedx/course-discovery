@@ -47,10 +47,12 @@ class CSVDataLoader(AbstractDataLoader):
 
     # list of data fields present as CSV columns that should be present in each row for successful CSV Data ingestion.
     BASE_REQUIRED_DATA_FIELDS = [
-        'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'publish_date', 'start_date', 'start_time', 'end_date',
+        'title', 'number', 'image', 'course_level',
+        'primary_subject', 'publish_date', 'start_date', 'start_time', 'end_date',
         'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
+        # 'verified_price',
+        # 'short_description', 'long_description', 'what_will_you_learn',
     ]
 
     # Addition of a user agent to allow access to data CDNs
@@ -481,7 +483,7 @@ class CSVDataLoader(AbstractDataLoader):
         is_course_run_created = False
 
         course_runs = CourseRun.objects.filter_drafts(course=course)
-        variant_id = data.get('variant_id', '')
+        variant_id = data.get('variant_id', None)
         start_datetime = self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}")
         end_datetime = self.get_formatted_datetime_string(f'{data["end_date"]} {data["end_time"]}')
 
@@ -726,12 +728,12 @@ class CSVDataLoader(AbstractDataLoader):
             'title': data['title'],
             'syllabus_raw': data.get('syllabus', ''),
             'level_type': data['course_level'],
-            'outcome': data['what_will_you_learn'],
+            'outcome': data.get('what_will_you_learn', ''),
             'faq': data.get('frequently_asked_questions', ''),
             'video': {'src': data.get('about_video_link', '')},
             'prerequisites_raw': data.get('prerequisites', ''),
-            'full_description': data['long_description'],
-            'short_description': data['short_description'],
+            'full_description': data.get('long_description'),
+            'short_description': data.get('short_description'),
             'additional_metadata': self.get_additional_metadata_dict(data, course.type.slug),
             'learner_testimonials': data.get('learner_testimonials', ''),
             'additional_information': data.get('additional_information', ''),
