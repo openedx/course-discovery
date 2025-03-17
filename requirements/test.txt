@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/test.txt requirements/test.in
 #
-aiohappyeyeballs==2.5.0
+aiohappyeyeballs==2.6.1
     # via
     #   -r requirements/base.txt
     #   aiohttp
@@ -44,7 +44,7 @@ astroid==3.3.9
     # via
     #   pylint
     #   pylint-celery
-attrs==25.1.0
+attrs==25.3.0
     # via
     #   -r requirements/base.txt
     #   aiohttp
@@ -71,11 +71,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.37.9
+boto3==1.37.13
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.37.9
+botocore==1.37.13
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -158,9 +158,9 @@ colorama==0.4.6
     # via
     #   semgrep
     #   tox
-contentful==2.3.2
+contentful==2.4.0
     # via -r requirements/base.txt
-coverage[toml]==7.6.12
+coverage[toml]==7.7.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -371,7 +371,7 @@ drf-jwt==1.19.2
     # via
     #   -r requirements/base.txt
     #   edx-drf-extensions
-drf-yasg==1.21.9
+drf-yasg==1.21.10
     # via
     #   -r requirements/base.txt
     #   edx-api-doc-tools
@@ -452,7 +452,7 @@ fastavro==1.10.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
-filelock==3.17.0
+filelock==3.18.0
     # via
     #   -r requirements/base.txt
     #   snowflake-connector-python
@@ -469,11 +469,11 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.txt
 glom==22.1.0
     # via semgrep
-google-api-core==2.24.1
+google-api-core==2.24.2
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.163.0
+google-api-python-client==2.164.0
     # via -r requirements/base.txt
 google-auth==2.38.0
     # via
@@ -548,7 +548,7 @@ jsonschema-specifications==2024.10.1
     # via
     #   -r requirements/base.txt
     #   jsonschema
-kombu==5.4.2
+kombu==5.5.0
     # via
     #   -r requirements/base.txt
     #   celery
@@ -660,7 +660,7 @@ propcache==0.3.0
     #   -r requirements/base.txt
     #   aiohttp
     #   yarl
-proto-plus==1.26.0
+proto-plus==1.26.1
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -846,7 +846,7 @@ requests-toolbelt==0.10.1
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   zeep
-responses==0.25.6
+responses==0.25.7
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -930,7 +930,7 @@ stevedore==5.4.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.1.0
+taxonomy-connector==2.1.1
     # via -r requirements/base.txt
 testfixtures==8.3.0
     # via -r requirements/test.in
