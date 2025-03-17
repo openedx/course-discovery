@@ -167,6 +167,7 @@ class CSVDataLoader(AbstractDataLoader):
                     _ = self._create_course(row, course_type, course_run_type.uuid)
                 except Exception as exc:  # pylint: disable=broad-except
                     exception_message = exc
+                    logger.exception(exc)
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
                     self._log_ingestion_error(
@@ -623,7 +624,7 @@ class CSVDataLoader(AbstractDataLoader):
         Given a data dictionary, return a reduced data representation in dict
         which will be used as input for course creation via course api.
         """
-        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        pricing = self.get_pricing_representation(data.get('verified_price'), course_type)
         product_source = self.product_source.slug if self.product_source else None
 
         course_run_creation_fields = {
@@ -706,7 +707,7 @@ class CSVDataLoader(AbstractDataLoader):
         """
         collaborator_uuids = self.process_collaborators(data.get('collaborators', ''), course.key)
         price = (
-            self.get_pricing_representation(data['verified_price'], course.type)
+            self.get_pricing_representation(data.get('verified_price'), course.type)
             if data.get('restriction_type', 'None') != CourseRunRestrictionType.CustomB2BEnterprise.value else {}
         )
 
