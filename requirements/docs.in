@@ -1,4 +1,4 @@
-# Used by doc builds (like for edx.readthedocs.io)
+# Used by doc builds (like for docs.openedx.org)
 
 -c constraints.txt
 -r github.in              # Forks and other dependencies not yet on PyPI

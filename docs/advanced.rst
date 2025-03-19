@@ -73,7 +73,7 @@ Internationalization
 
 All user-facing strings should be marked for translation. edX runs this application in English, but our open source users may choose to use another language. Marking strings for translation ensures our users have this choice. Refer to edX's `i18n guidelines`_ for more details.
 
-.. _i18n guidelines: https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/internationalization/i18n.html
+.. _i18n guidelines: https://docs.openedx.org/en/latest/developers/references/developer_guide/internationalization/i18n.html
 
 Updating Translated Strings
 +++++++++++++++++++++++++++
