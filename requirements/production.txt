@@ -8,7 +8,7 @@ aiohappyeyeballs==2.6.1
     # via
     #   -r requirements/base.txt
     #   aiohttp
-aiohttp==3.11.13
+aiohttp==3.11.14
     # via
     #   -r requirements/base.txt
     #   openai
@@ -58,11 +58,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.37.13
+boto3==1.37.18
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.37.13
+botocore==1.37.18
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -366,7 +366,7 @@ edx-event-bus-kafka==6.0.0
     # via -r requirements/base.txt
 edx-event-bus-redis==0.5.1
     # via -r requirements/base.txt
-edx-opaque-keys[django]==2.11.0
+edx-opaque-keys[django]==2.12.0
     # via
     #   -r requirements/base.txt
     #   edx-ccx-keys
@@ -416,7 +416,7 @@ google-api-core==2.24.2
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.164.0
+google-api-python-client==2.165.0
     # via -r requirements/base.txt
 google-auth==2.38.0
     # via
@@ -434,7 +434,7 @@ google-auth-oauthlib==1.2.1
     # via
     #   -r requirements/base.txt
     #   gspread
-googleapis-common-protos==1.69.1
+googleapis-common-protos==1.69.2
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -511,7 +511,7 @@ more-itertools==10.6.0
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
-multidict==6.1.0
+multidict==6.2.0
     # via
     #   -r requirements/base.txt
     #   aiohttp
@@ -536,7 +536,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.6.2
     # via -r requirements/base.txt
-openedx-events==9.18.2
+openedx-events==9.20.0
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
@@ -559,7 +559,7 @@ pillow==9.5.0
     #   -r requirements/base.txt
     #   cairosvg
     #   django-stdimage
-platformdirs==4.3.6
+platformdirs==4.3.7
     # via
     #   -r requirements/base.txt
     #   snowflake-connector-python
@@ -577,7 +577,7 @@ proto-plus==1.26.1
     # via
     #   -r requirements/base.txt
     #   google-api-core
-protobuf==5.29.3
+protobuf==6.30.1
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -614,7 +614,7 @@ pyjwt[crypto]==2.10.1
     #   social-auth-core
 pymemcache==4.0.0
     # via -r requirements/production.in
-pymongo==4.11.2
+pymongo==4.11.3
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
