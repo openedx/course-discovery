@@ -47,8 +47,8 @@ class CSVDataLoader(AbstractDataLoader):
 
     # list of data fields present as CSV columns that should be present in each row for successful CSV Data ingestion.
     BASE_REQUIRED_DATA_FIELDS = [
-        'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'publish_date', 'start_date', 'start_time', 'end_date',
+        'title', 'number', 'image', 'course_level', 'primary_subject', 'publish_date',
+        'start_date', 'start_time', 'end_date',
         'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
@@ -110,8 +110,8 @@ class CSVDataLoader(AbstractDataLoader):
         Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
         """
         try:
-            if use_gspread_client:
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[self.product_type][self.product_source.slug]
+            if use_gspread_client and False:
+                product_type_config = settings.PRODUCT_METADATA_MAPPING.get(self.product_type, {}).get(self.product_source.slug, {})
                 gspread_client = GspreadClient()
                 return list(gspread_client.read_data(product_type_config))
             else:
@@ -124,21 +124,21 @@ class CSVDataLoader(AbstractDataLoader):
             logger.exception(f"Error reading input data source: {e}")
             raise
 
-    def ingest(self):  # pylint: disable=too-many-statements
+    def ingest(self, partial=False):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
         course_external_identifiers = set()  # store external course ids for each course present in sheet
 
         for row in self.reader:
             row = self.transform_dict_keys(row)
-            course_title = row['title']
-            org_key = row['organization']
+            course_title = row.get('title')
+            org_key = row.get('organization')
 
             # store all external identifiers present in sheet, irrespective of ingestion status
             if 'external_identifier' in row:
                 course_external_identifiers.add(row['external_identifier'])
 
             logger.info(f'Starting data import flow for {course_title}')
-            is_valid, course_type, course_run_type = self._validate_and_process_row(row, course_title, org_key)
+            is_valid, course_type, course_run_type = self._validate_and_process_row(row, course_title, org_key, partial)
             if not is_valid:
                 continue
 
@@ -372,7 +372,7 @@ class CSVDataLoader(AbstractDataLoader):
         except CourseRunType.DoesNotExist:
             return None
 
-    def _validate_and_process_row(self, row, course_title, org_key):
+    def _validate_and_process_row(self, row, course_title, org_key, partial):
         """
         Validate the row data and process the row if it is valid.
 
@@ -428,7 +428,7 @@ class CSVDataLoader(AbstractDataLoader):
         if not is_valid:
             return False, course_type, course_run_type
 
-        missing_fields = self.validate_course_data(course_type, row)
+        missing_fields = self.validate_course_data(course_type, row, partial=partial)
         if missing_fields:
             self._log_ingestion_error(
                 CSVIngestionErrors.MISSING_REQUIRED_DATA,
@@ -481,14 +481,29 @@ class CSVDataLoader(AbstractDataLoader):
         is_course_run_created = False
 
         course_runs = CourseRun.objects.filter_drafts(course=course)
-        variant_id = data.get('variant_id', '')
-        start_datetime = self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}")
-        end_datetime = self.get_formatted_datetime_string(f'{data["end_date"]} {data["end_time"]}')
+        variant_id = data.get('variant_id', None)
+        course_run_key = data.get('course_run_key', None)
+        start_date = data.get('start_date')
+        start_time = data.get('start_time')
+        end_date = data.get('end_date')
+        end_time = data.get('end_time')
+
+        # use get_formatted_datetime_string if both start_date and start_time are present else return None
+        if start_date and start_time:
+            start_datetime = self.get_formatted_datetime_string(f"{start_date} {start_time}")
+        else:
+            start_datetime = None
+
+        # use get_formatted_datetime_string if both end_date and end_time are present else return None
+        if end_date and end_time:
+            end_datetime = self.get_formatted_datetime_string(f"{end_date} {end_time}")
+        else:
+            end_datetime = None
 
         # Added a sanity check (variant_id__isnull=True) to ensure that a wrong course run with the same schedule is not
         # incorrectly updated. It is possible the runs with same schedule but different restriction types can exist.
         filtered_course_runs = course_runs.filter(
-            Q(variant_id=variant_id) |
+             Q(key=course_run_key) | Q(variant_id=variant_id) |
             (Q(start=start_datetime) & Q(end=end_datetime) & Q(variant_id__isnull=True))
         ).order_by('created')
         course_run = filtered_course_runs.last()
@@ -499,7 +514,7 @@ class CSVDataLoader(AbstractDataLoader):
                 f'Creating new course run for course {course.key} with variant_id {variant_id}'
             )
             try:
-                last_run = course_runs.last()
+                last_run = data.get('rerun_key') if data.get('rerun_key') else course_runs.last()
                 _ = self._create_course_run(data, course, course_type, course_run_type_uuid, last_run.key)
                 is_course_run_created = True
             except Exception as exc:
@@ -517,11 +532,14 @@ class CSVDataLoader(AbstractDataLoader):
             course_run = CourseRun.objects.filter_drafts(course=course).order_by('created').last()
         return course_run, is_course_run_created
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, course_type, data, partial=False):
         """
         Verify the required data key-values for a course type are present in the provided
         data dictionary and return a comma separated string of missing data fields.
         """
+        if partial:
+            # Returning empty for now but we can add here required fields for identifying course and course run
+            return ''
         missing_fields = []
         required_fields = self.BASE_REQUIRED_DATA_FIELDS.copy()
         if (
@@ -620,7 +638,7 @@ class CSVDataLoader(AbstractDataLoader):
         Given a data dictionary, return a reduced data representation in dict
         which will be used as input for course creation via course api.
         """
-        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        pricing = self.get_pricing_representation(data.get('verified_price'), course_type)
         product_source = self.product_source.slug if self.product_source else None
 
         course_run_creation_fields = {
@@ -646,7 +664,7 @@ class CSVDataLoader(AbstractDataLoader):
         Given a data dictionary, return a reduced data representation in dict
         which will be used as input for course run creation via course run api.
         """
-        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        pricing = self.get_pricing_representation(data('verified_price'), course_type)
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
             'start': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
@@ -726,18 +744,170 @@ class CSVDataLoader(AbstractDataLoader):
             'title': data['title'],
             'syllabus_raw': data.get('syllabus', ''),
             'level_type': data['course_level'],
-            'outcome': data['what_will_you_learn'],
+            'outcome': data.get('what_will_you_learn', ''),
             'faq': data.get('frequently_asked_questions', ''),
             'video': {'src': data.get('about_video_link', '')},
             'prerequisites_raw': data.get('prerequisites', ''),
-            'full_description': data['long_description'],
-            'short_description': data['short_description'],
+            'full_description': data.get('long_description'),
+            'short_description': data.get('short_description'),
             'additional_metadata': self.get_additional_metadata_dict(data, course.type.slug),
             'learner_testimonials': data.get('learner_testimonials', ''),
             'additional_information': data.get('additional_information', ''),
             'organization_short_code_override': data.get('organization_short_code_override', ''),
         }
         return update_course_data
+    
+    def _update_course_api_request_data_v2(self, data, course, is_draft):
+        """
+        Create and return the request data for making a patch call to update the course.
+        """
+        required_fields = {
+            'draft': is_draft,
+            'key': course.key,
+            'uuid': str(course.uuid),
+            'type': str(course.type.uuid),
+        }
+        
+        update_course_data = {**required_fields}  # Start with required fields
+
+        if 'collaborators' in data:
+            update_course_data['collaborators'] = self.process_collaborators(data.get('collaborators', ''), course.key)
+        
+        if 'verified_price' in data and data.get('restriction_type', 'None') != CourseRunRestrictionType.CustomB2BEnterprise.value:
+            update_course_data['prices'] = self.get_pricing_representation(data['verified_price'], course.type)
+        
+        if any(k in data for k in ('primary_subject', 'secondary_subject', 'tertiary_subject')):
+            update_course_data['subjects'] = self.get_subject_slugs(
+                data.get('primary_subject'),
+                data.get('secondary_subject'),
+                data.get('tertiary_subject')
+            )
+        
+        optional_fields = {
+            'url_slug': course.active_url_slug,
+            'title': data.get('title'),
+            'syllabus_raw': data.get('syllabus', ''),
+            'level_type': data.get('course_level'),
+            'outcome': data.get('what_will_you_learn', ''),
+            'faq': data.get('frequently_asked_questions', ''),
+            'video': {'src': data.get('about_video_link', '')} if 'about_video_link' in data else None,
+            'prerequisites_raw': data.get('prerequisites', ''),
+            'full_description': data.get('long_description'),
+            'short_description': data.get('short_description'),
+            'additional_metadata': self.get_additional_metadata_dict(data, course.type.slug),
+            'learner_testimonials': data.get('learner_testimonials', ''),
+            'additional_information': data.get('additional_information', ''),
+            'organization_short_code_override': data.get('organization_short_code_override', ''),
+        }
+        
+        # Only add optional fields if they exist in the input data
+        update_course_data.update({k: v for k, v in optional_fields.items() if v is not None})
+        
+        return update_course_data
+    
+    def _update_course_run_request_data_v2(self, data, course_run, course_type, is_draft):
+        """
+        Create and return the request data for making a patch call to update the course run.
+        """
+        def add_if_present(data_key, payload_key, transform_fn=None):
+            """
+            Helper function to add field to the update data dictionary if it exists in `data`
+            """
+            if data_key in data:
+                val = data.get(data_key)
+                if transform_fn:
+                    val = transform_fn(val)
+                update_course_run_data[payload_key] = val
+
+        update_course_run_data = {}
+
+        key_mapping = {
+            'expected_program_type': 'expected_program_type', 
+            'staff': 'staff_uuids',
+            'content_language': 'content_language_code',
+            'transcript_language': 'transcript_languages',
+            'reg_close_date': 'enrollment_end',
+            'variant_id': 'variant_id',
+            'restriction_type': 'restriction_type',
+            'length': 'weeks_to_complete',
+            'minimum_effort': 'min_effort',
+            'maximum_effort': 'max_effort',
+            'expected_program_name': 'expected_program_name',
+            'publish_date': 'go_live_date',
+            'upgrade_deadline_override_date': 'upgrade_deadline_override',
+            'fixed_price_usd': 'fixed_price_usd'
+        }
+
+        for data_key, payload_key in key_mapping.items():
+            if data_key == 'content_language':
+                # Special handling for content_language as it needs transformation
+                add_if_present(data_key, payload_key, lambda val: self.verify_and_get_language_tags(val)[0])
+            elif data_key == 'transcript_language':
+                # Special handling for transcript_language as it may return a list
+                add_if_present(data_key, payload_key, lambda val: self.verify_and_get_language_tags(val))
+            elif data_key == 'reg_close_date':
+                # Special handling for 'reg_close_date' to format datetime
+                add_if_present(data_key, payload_key, lambda val: self.get_formatted_datetime_string(
+                    f"{val} {data.get('reg_close_time', '')}"
+                ) if val else None)
+            elif data_key == 'publish_date':
+                # Special handling for publish_date to format datetime
+                add_if_present(data_key, payload_key, lambda val: self.get_formatted_datetime_string(val))
+            elif data_key == 'upgrade_deadline_override_date' and 'upgrade_deadline_override_time' in data:
+                # Handle 'upgrade_deadline_override' separately as it needs two fields
+                update_course_run_data[payload_key] = self.get_formatted_datetime_string(
+                    f"{data.get('upgrade_deadline_override_date', '')} "
+                    f"{data.get('upgrade_deadline_override_time', '')}".strip()
+                )
+            else:
+                # Regular case: no transformation needed
+                add_if_present(data_key, payload_key)
+
+        # Fields that should always be present (but don't have mapping in key_mapping)
+        update_course_run_data['run_type'] = str(course_run.type.uuid)
+        update_course_run_data['key'] = course_run.key
+        update_course_run_data['prices'] = self.get_pricing_representation(data.get('verified_price', ''), course_type)
+        update_course_run_data['draft'] = is_draft
+
+        return update_course_run_data
+
+    def _update_course_run_request_data_v3(self, data, course_run, course_type, is_draft):
+        """
+        Create and return the request data for making a patch call to update the course run.
+        Only include fields present in the `data` dictionary.
+        """
+        field_mapping = {
+            'run_type': lambda: str(course_run.type.uuid),
+            'verified_price': lambda: self.get_pricing_representation(data['verified_price'], course_type),
+            'staff': lambda: self.process_staff_names(data.get('staff', ''), course_run.key),
+            'length': lambda: data['length'],
+            'minimum_effort': lambda: data['minimum_effort'],
+            'maximum_effort': lambda: data['maximum_effort'],
+            'content_language': lambda: self.verify_and_get_language_tags(data['content_language'])[0],
+            'expected_program_name': lambda: data.get('expected_program_name', ''),
+            'transcript_language': lambda: self.verify_and_get_language_tags(data['transcript_language']),
+            'publish_date': lambda: self.get_formatted_datetime_string(data['publish_date']),
+            'expected_program_type': lambda: data['expected_program_type']
+            if data['expected_program_type'] in self.PROGRAM_TYPES else None,
+            'upgrade_deadline_override_date': lambda: self.get_formatted_datetime_string(
+                f"{data.get('upgrade_deadline_override_date', '')} {data.get('upgrade_deadline_override_time', '')}".strip()
+            ),
+            'end_date': lambda: self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
+            'start_date': lambda: self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'fixed_price_usd': lambda: data.get('fixed_price_usd', ''),
+            'reg_close_date': lambda: self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            ),
+            'variant_id': lambda: data['variant_id'],
+            'restriction_type': lambda: data['restriction_type'] if data['restriction_type'] != 'None' else None,
+        }
+
+        update_course_run_data = {
+            key: func() for key, func in field_mapping.items() if key in data
+        }
+        update_course_run_data.update({'key': course_run.key, 'draft': is_draft})
+
+        return update_course_run_data
 
     def _update_course_run_request_data(self, data, course_run, course_type, is_draft):
         """
@@ -899,7 +1069,7 @@ class CSVDataLoader(AbstractDataLoader):
         """
         course_api_url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}?exclude_utm=1"
-        request_data = self._update_course_api_request_data(data, course, is_draft)
+        request_data = self._update_course_api_request_data_v2(data, course, is_draft)
         response = self._call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
@@ -912,7 +1082,8 @@ class CSVDataLoader(AbstractDataLoader):
         """
         course_run_api_url = reverse('api:v1:course_run-detail', kwargs={'key': course_run.key})
         url = f"{settings.DISCOVERY_BASE_URL}{course_run_api_url}?exclude_utm=1"
-        request_data = self._update_course_run_request_data(data, course_run, course_type, is_draft)
+        request_data = self._update_course_run_request_data_v2(data, course_run, course_type, is_draft)
+        import pdb; pdb.set_trace();
         response = self._call_course_api('PATCH', url, request_data)
         if response.status_code not in (200, 201):
             logger.info(f"Course run update response: {response.content}")

@@ -762,6 +762,13 @@ CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS = {
     'audit': {
         'openedx': ['staff']
     },
+    # 'executive-education': {
+    #     '2u': [
+    #         'short_description',
+    #         'long_description',
+    #         'what_you_will_learn',
+    #     ]
+    # },
 }
 
 EVENT_BUS_PROCESSING_DELAY_SECONDS = 60

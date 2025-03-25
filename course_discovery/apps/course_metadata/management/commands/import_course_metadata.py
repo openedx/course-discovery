@@ -27,7 +27,10 @@ class Command(BaseCommand):
 
     PRODUCT_TYPE_SLUG_MAP = {
         'EXECUTIVE_EDUCATION': CourseType.EXECUTIVE_EDUCATION_2U,
-        'BOOTCAMPS': CourseType.BOOTCAMP_2U
+        'BOOTCAMPS': CourseType.BOOTCAMP_2U,
+        'AUDIT': CourseType.AUDIT,
+        'VERIFIED_AUDIT': CourseType.VERIFIED_AUDIT,
+        'MASTERS': 'masters',
     }
 
     def add_arguments(self, parser):
@@ -47,13 +50,19 @@ class Command(BaseCommand):
             help='Product Type to ingest',
             type=str,
             required=True,
-            choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS']
+            choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS', 'AUDIT']
         )
         parser.add_argument(
             '--product_source',
             help='Slug of product source with whom the ingested courses are to be linked.',
             type=str,
             required=True
+        )
+        parser.add_argument(
+            '--partial_update',
+            help='Value to indicate if the import should be a partial update',
+            type=bool,
+            default=False,
         )
         parser.add_argument(
             '--use_gspread_client',
@@ -72,6 +81,7 @@ class Command(BaseCommand):
         product_type = options.get('product_type', None)
         product_source = options.get('product_source', None)
         use_gspread_client = options.get('use_gspread_client', None)
+        partial_update = options.get('partial_update', False)
 
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
@@ -110,7 +120,7 @@ class Command(BaseCommand):
 
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             ingestion_time = datetime.now()
-            loader.ingest()
+            loader.ingest(partial_update)
         except Exception as exc:
             raise CommandError(  # pylint: disable=raise-missing-from
                 "CSV loader import could not be completed due to unexpected errors.\n{}".format(exc)
@@ -125,8 +135,8 @@ class Command(BaseCommand):
         if product_type:
             logger.info(f"Sending Ingestion stats email for product type {product_type}")
             email_subject = f"{source.name} - {product_type.replace('_', ' ').title()} Data Ingestion"
-            product_mapping = settings.PRODUCT_METADATA_MAPPING[self.PRODUCT_TYPE_SLUG_MAP[product_type]][source.slug]
-            to_users = product_mapping['EMAIL_NOTIFICATION_LIST']
+            product_mapping = settings.PRODUCT_METADATA_MAPPING.get(self.PRODUCT_TYPE_SLUG_MAP.get(product_type, {}), {}).get(source.slug, {})
+            to_users = product_mapping.get('EMAIL_NOTIFICATION_LIST')
             ingestion_details = {
                 'ingestion_run_time': ingestion_time,
                 **loader.get_ingestion_stats(),
