@@ -88,11 +88,11 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.37.18
+boto3==1.37.23
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.37.18
+botocore==1.37.23
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -164,7 +164,7 @@ click-log==0.4.0
     # via
     #   -r requirements/test.txt
     #   edx-lint
-click-option-group==0.5.6
+click-option-group==0.5.7
     # via
     #   -r requirements/test.txt
     #   semgrep
@@ -188,7 +188,7 @@ colorama==0.4.6
     #   tox
 contentful==2.4.0
     # via -r requirements/test.txt
-coverage[toml]==7.7.1
+coverage[toml]==7.8.0
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -383,7 +383,7 @@ django-waffle==4.2.0
     #   edx-toggles
 django-webpack-loader==3.1.1
     # via -r requirements/test.txt
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements/test.txt
     #   django-config-models
@@ -499,7 +499,7 @@ face==24.0.0
     #   glom
 factory-boy==3.3.3
     # via -r requirements/test.txt
-faker==37.0.2
+faker==37.1.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -530,7 +530,7 @@ google-api-core==2.24.2
     # via
     #   -r requirements/test.txt
     #   google-api-python-client
-google-api-python-client==2.165.0
+google-api-python-client==2.166.0
     # via -r requirements/test.txt
 google-auth==2.38.0
     # via
@@ -616,7 +616,7 @@ jsonschema-specifications==2024.10.1
     # via
     #   -r requirements/test.txt
     #   jsonschema
-kombu==5.5.0
+kombu==5.5.2
     # via
     #   -r requirements/test.txt
     #   celery
@@ -666,7 +666,7 @@ multidict==6.2.0
     #   yarl
 mysqlclient==2.2.7
     # via -r requirements/test.txt
-newrelic==10.7.0
+newrelic==10.8.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -742,7 +742,7 @@ prompt-toolkit==3.0.50
     # via
     #   -r requirements/test.txt
     #   click-repl
-propcache==0.3.0
+propcache==0.3.1
     # via
     #   -r requirements/test.txt
     #   aiohttp
@@ -751,7 +751,7 @@ proto-plus==1.26.1
     # via
     #   -r requirements/test.txt
     #   google-api-core
-protobuf==6.30.1
+protobuf==6.30.2
     # via
     #   -r requirements/test.txt
     #   google-api-core
@@ -766,11 +766,11 @@ pyasn1==0.6.1
     #   -r requirements/test.txt
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.4.1
+pyasn1-modules==0.4.2
     # via
     #   -r requirements/test.txt
     #   google-auth
-pycodestyle==2.12.1
+pycodestyle==2.13.0
     # via -r requirements/test.txt
 pycountry==24.6.1
     # via -r requirements/test.txt
@@ -836,7 +836,7 @@ pyopenssl==25.0.0
     # via
     #   -r requirements/test.txt
     #   snowflake-connector-python
-pyparsing==3.2.1
+pyparsing==3.2.3
     # via
     #   -r requirements/test.txt
     #   httplib2
@@ -893,7 +893,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/test.txt
     #   social-auth-core
-pytz==2025.1
+pytz==2025.2
     # via
     #   -r requirements/test.txt
     #   drf-yasg
@@ -965,7 +965,7 @@ responses==0.25.7
     # via
     #   -r requirements/test.txt
     #   pytest-responses
-rich==13.9.4
+rich==14.0.0
     # via
     #   -r requirements/test.txt
     #   semgrep
@@ -973,7 +973,7 @@ rjsmin==1.2.2
     # via
     #   -r requirements/test.txt
     #   django-compressor
-rpds-py==0.23.1
+rpds-py==0.24.0
     # via
     #   -r requirements/test.txt
     #   jsonschema
@@ -1114,7 +1114,7 @@ tomlkit==0.13.2
     #   -r requirements/test.txt
     #   pylint
     #   snowflake-connector-python
-tox==4.24.2
+tox==4.25.0
     # via -r requirements/test.txt
 tqdm==4.67.1
     # via
@@ -1129,7 +1129,7 @@ trio-websocket==0.12.2
     # via
     #   -r requirements/test.txt
     #   selenium
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -1142,7 +1142,7 @@ typing-extensions==4.12.2
     #   semgrep
     #   simple-salesforce
     #   snowflake-connector-python
-tzdata==2025.1
+tzdata==2025.2
     # via
     #   -r requirements/test.txt
     #   celery
