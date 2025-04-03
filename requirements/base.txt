@@ -43,9 +43,9 @@ beautifulsoup4==4.13.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.37.18
+boto3==1.37.23
     # via django-ses
-botocore==1.37.18
+botocore==1.37.23
     # via
     #   boto3
     #   s3transfer
@@ -253,7 +253,7 @@ django-waffle==4.2.0
     #   edx-toggles
 django-webpack-loader==3.1.1
     # via -r requirements/base.in
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -353,7 +353,7 @@ getsmarter-api-clients==0.6.1
     # via -r requirements/base.in
 google-api-core==2.24.2
     # via google-api-python-client
-google-api-python-client==2.165.0
+google-api-python-client==2.166.0
     # via -r requirements/base.in
 google-auth==2.38.0
     # via
@@ -401,7 +401,7 @@ jsonschema==4.23.0
     # via -r requirements/base.in
 jsonschema-specifications==2024.10.1
     # via jsonschema
-kombu==5.5.0
+kombu==5.5.2
     # via celery
 libsass==0.23.0
     # via django-libsass
@@ -422,7 +422,7 @@ multidict==6.2.0
     # via
     #   aiohttp
     #   yarl
-newrelic==10.7.0
+newrelic==10.8.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -459,13 +459,13 @@ platformdirs==4.3.7
     #   zeep
 prompt-toolkit==3.0.50
     # via click-repl
-propcache==0.3.0
+propcache==0.3.1
     # via
     #   aiohttp
     #   yarl
 proto-plus==1.26.1
     # via google-api-core
-protobuf==6.30.1
+protobuf==6.30.2
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -476,7 +476,7 @@ pyasn1==0.6.1
     # via
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.4.1
+pyasn1-modules==0.4.2
     # via google-auth
 pycountry==24.6.1
     # via -r requirements/base.in
@@ -497,7 +497,7 @@ pynacl==1.5.0
     # via edx-django-utils
 pyopenssl==25.0.0
     # via snowflake-connector-python
-pyparsing==3.2.1
+pyparsing==3.2.3
     # via httplib2
 python-dateutil==2.9.0.post0
     # via
@@ -516,7 +516,7 @@ python-stdnum==1.20
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2025.1
+pytz==2025.2
     # via
     #   -r requirements/base.in
     #   drf-yasg
@@ -569,7 +569,7 @@ requests-toolbelt==0.10.1
     #   zeep
 rjsmin==1.2.2
     # via django-compressor
-rpds-py==0.23.1
+rpds-py==0.24.0
     # via
     #   jsonschema
     #   referencing
@@ -623,7 +623,7 @@ tomlkit==0.13.2
     # via snowflake-connector-python
 tqdm==4.67.1
     # via openai
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via
     #   beautifulsoup4
     #   django-countries
@@ -632,7 +632,7 @@ typing-extensions==4.12.2
     #   referencing
     #   simple-salesforce
     #   snowflake-connector-python
-tzdata==2025.1
+tzdata==2025.2
     # via
     #   celery
     #   kombu
