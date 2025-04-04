@@ -396,7 +396,7 @@ def course_collaborators_changed(sender, instance, action, **kwargs):  # pylint:
     then the collaborators have been changed.
     https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
     """
-    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+    if action == 'pre_add' and instance.draft and instance.official_version and not kwargs['reverse']:
         official_version_collaborators_pk = set(
             instance.official_version.collaborators.all().values_list('pk', flat=True)
         )
@@ -417,7 +417,7 @@ def course_subjects_changed(sender, instance, action, **kwargs):  # pylint: disa
     then the subjects have been changed.
     https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
     """
-    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+    if action == 'pre_add' and instance.draft and instance.official_version and not kwargs['reverse']:
         official_version_subjects_pk = set(
             instance.official_version.subjects.all().values_list('pk', flat=True)
         )
@@ -483,7 +483,7 @@ def course_run_staff_changed(sender, instance, action, **kwargs):  # pylint: dis
     then the staff has been changed.
     https://github.com/jazzband/django-sortedm2m/blob/e646aafa81416c7888a7d358c7293bd4f707a25f/sortedm2m/fields.py#L47-L50
     """
-    if action in ['pre_add', 'pre_remove'] and instance.draft and instance.official_version and not kwargs['reverse']:
+    if action == 'pre_add' and instance.draft and instance.official_version and not kwargs['reverse']:
         official_version_staff_pk = set(
             instance.official_version.staff.all().values_list('pk', flat=True)
         )
