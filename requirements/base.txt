@@ -6,7 +6,7 @@
 #
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.11.14
+aiohttp==3.11.16
     # via openai
 aiosignal==1.3.2
     # via aiohttp
@@ -43,9 +43,9 @@ beautifulsoup4==4.13.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.37.23
+boto3==1.37.28
     # via django-ses
-botocore==1.37.23
+botocore==1.37.28
     # via
     #   boto3
     #   s3transfer
@@ -57,7 +57,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.4.0
+celery==5.5.0
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -157,7 +157,7 @@ django==4.2.20
     #   social-auth-app-django
     #   taxonomy-connector
     #   xss-utils
-django-admin-sortable2==2.2.4
+django-admin-sortable2==2.2.6
     # via -r requirements/base.in
 django-appconf==1.1.0
     # via django-compressor
@@ -217,7 +217,7 @@ django-nested-admin==4.1.1
     # via -r requirements/base.in
 django-nine==0.2.7
     # via django-elasticsearch-dsl-drf
-django-object-actions==4.3.0
+django-object-actions==5.0.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -237,7 +237,7 @@ django-stdimage==5.3.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-django-storages==1.14.5
+django-storages==1.14.6
     # via -r requirements/base.in
 django-taggit==6.1.0
     # via
@@ -307,7 +307,7 @@ edx-django-utils==7.2.0
     #   getsmarter-api-clients
     #   openedx-events
     #   taxonomy-connector
-edx-drf-extensions==10.5.0
+edx-drf-extensions==10.6.0
     # via -r requirements/base.in
 edx-event-bus-kafka==6.0.0
     # via -r requirements/base.in
@@ -405,7 +405,7 @@ kombu==5.5.2
     # via celery
 libsass==0.23.0
     # via django-libsass
-lxml[html-clean,html_clean]==5.3.1
+lxml[html-clean,html_clean]==5.3.2
     # via
     #   -r requirements/base.in
     #   lxml-html-clean
@@ -418,11 +418,11 @@ markupsafe==3.0.2
     # via jinja2
 more-itertools==10.6.0
     # via simple-salesforce
-multidict==6.2.0
+multidict==6.3.2
     # via
     #   aiohttp
     #   yarl
-newrelic==10.8.0
+newrelic==10.8.1
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -623,7 +623,7 @@ tomlkit==0.13.2
     # via snowflake-connector-python
 tqdm==4.67.1
     # via openai
-typing-extensions==4.13.0
+typing-extensions==4.13.1
     # via
     #   beautifulsoup4
     #   django-countries
@@ -633,9 +633,7 @@ typing-extensions==4.13.0
     #   simple-salesforce
     #   snowflake-connector-python
 tzdata==2025.2
-    # via
-    #   celery
-    #   kombu
+    # via kombu
 unicodecsv==0.14.1
     # via -r requirements/base.in
 uritemplate==4.1.1
@@ -663,7 +661,7 @@ webencodings==0.5.1
     #   tinycss2
 xss-utils==0.7.1
     # via -r requirements/base.in
-yarl==1.18.3
+yarl==1.19.0
     # via aiohttp
 zeep==4.3.1
     # via simple-salesforce
