@@ -42,7 +42,6 @@ router.register(r'search/courses', search_views.CourseSearchViewSet, base_name='
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base_name='search-course_runs')
 router.register(r'search/programs', search_views.ProgramSearchViewSet, base_name='search-programs')
 
-
 router.register(r'programs', ProgramViewSet, base_name='program')
 program_courses_router = routers.NestedSimpleRouter(router, r'programs', lookup=r'program')
 program_courses_router.register(r'courses', ProgramCoursesViewSet, base_name=r'courses')
