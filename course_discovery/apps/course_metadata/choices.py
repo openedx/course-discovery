@@ -46,6 +46,14 @@ class ReportingType(models.TextChoices):
     demo = 'demo', _('demo')
     other = 'other', _('other')
 
+class BulkOperationType(models.TextChoices):
+    BulkCourseCreate = 'bulk_course_create', _('Bulk Course Create')
+    BulkCourseUpdate = 'bulk_course_update', _('Bulk Course Update')
+    BulkCoursePartialUpdate = 'bulk_course_partial_update', _('Bulk Course Partial Update')
+    BulkCourseRerunCreate = 'bulk_course_rerun_create', _('Bulk Course Rerun Create')
+    BulkCourseRunUpdate = 'bulk_course_run_update', _('Bulk Course Run Update')
+    BulkCourseRunPartialUpdate = 'bulk_course_run_partial_update', _('Bulk Course Run Partial Update')
+
 
 class CertificateType(models.TextChoices):
     Honor = 'honor', _('Honor')

@@ -1,4 +1,5 @@
 import datetime
+import csv
 import itertools
 import logging
 import re
@@ -10,6 +11,7 @@ import pytz
 import requests
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from config_models.models import ConfigurationModel
+from django_celery_results.models import TaskResult
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -40,11 +42,11 @@ from stdimage.models import StdImageField
 from taggit_autosuggest.managers import TaggableManager
 from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 
-from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.core.models import Currency, Partner, User
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
     CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
-    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus, ReportingType
+    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus, ReportingType, BulkOperationType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
@@ -4801,3 +4803,76 @@ class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
 
     def __str__(self):
         return f"{self.course_run.key}: <{self.restriction_type}>"
+
+class BulkTasksConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in bulk_tasks.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers."),
+        blank=False,
+        null=False
+    )
+    uploader = models.ForeignKey(
+        User,
+        models.CASCADE,
+        related_name='bulk_tasks_config',
+        null=True,
+        blank=True,
+        help_text=_('User who uploaded the file')
+    )
+    job_summary = models.TextField(
+        null=True,
+        blank=True,
+        help_text=_('Summary of the job')
+    )
+    task_type = models.CharField(
+        verbose_name=_('Task Type'),
+        max_length=255,
+        choices=BulkOperationType.choices,
+        help_text=_('Type of Bulk Task to be performed'),
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=[
+            ('Pending', 'Pending'),
+            ('Verified', 'Verified'),
+            ('Processing', 'Processing'),
+            ('Completed', 'Completed'),
+            ('Failed', 'Failed'),
+            ('Partially Completed', 'Partially Completed'),
+            ('Errored', 'Errored'),
+        ],
+        default='Pending'
+    )
+    task_id = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text=_('Identifier of the celery task associated with this bulk task')
+    )
+
+    def save(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        if not self.uploader:
+            self.uploader = user
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.csv_file.name} - {self.task_type} - {self.status} - {self.uploader.username}"
+
+    def get_task_result(self):
+        if not self.task_id:
+            return "No task ID"
+        try:
+            result = TaskResult.objects.get(task_id=self.task_id)
+            return f"{result.status}: {result.result}"
+        except TaskResult.DoesNotExist:
+            return "No result found"
+
+    get_task_result.short_description = "Task Result"

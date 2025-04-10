@@ -360,6 +360,25 @@ class CourseRunAdmin(SimpleHistoryAdmin):
             msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')
             messages.add_message(request, messages.ERROR, msg)
 
+@admin.register(BulkTasksConfig)
+class BulkTasksConfigAdmin(admin.ModelAdmin):
+    """
+    Admin for BulkTasksConfig model.
+    """
+    readonly_fields = [ 'status', 'uploader', 'job_summary', 'get_task_result']
+    list_display = ('id', 'csv_file', 'task_type', 'uploader', 'status', 'task_id', 'get_task_result')
+    def get_fields(self, request, obj=None):
+        if obj:  # Update form
+            return ['csv_file', 'task_type', 'status', 'task_id', 'uploader', 'job_summary', 'get_task_result']
+        else:  # Create form
+            return ['csv_file', 'task_type']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Save the model instance and set the uploader to the current user.
+        """
+        obj.uploader = request.user
+        super().save_model(request, obj, form, change)
 
 class CourseInline(admin.TabularInline):
     model = Course

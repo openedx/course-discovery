@@ -68,6 +68,7 @@ THIRD_PARTY_APPS = [
     'nested_admin',
     'openedx_events',
     'multi_email_field',
+    'django_celery_results'
 ]
 
 ALGOLIA = {
@@ -809,3 +810,8 @@ COURSE_VERTICALS_UPDATE_RECIPIENTS = ['user@domain.org']
 HEADER_LOGO_URL= 'https://edx-cdn.org/v3/default/logo.svg'
 
 ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING = False
+DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH=191
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_RESULT_EXTENDED = True
+DJANGO_CELERY_RESULTS_TASK_MODEL = "course_discovery.apps.course_metadata.models.TaskResult"

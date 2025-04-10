@@ -58,11 +58,11 @@ billiard==4.2.1
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.37.28
+boto3==1.37.31
     # via
     #   -r requirements/base.txt
     #   django-ses
-botocore==1.37.28
+botocore==1.37.31
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -78,10 +78,11 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.txt
-celery==5.5.0
+celery==5.5.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
+    #   django-celery-results
     #   taxonomy-connector
 certifi==2025.1.31
     # via
@@ -123,7 +124,7 @@ click-repl==0.3.0
     # via
     #   -r requirements/base.txt
     #   celery
-code-annotations==2.2.0
+code-annotations==2.3.0
     # via
     #   -r requirements/base.txt
     #   edx-toggles
@@ -156,6 +157,7 @@ django==4.2.20
     #   django-admin-sortable2
     #   django-appconf
     #   django-autocomplete-light
+    #   django-celery-results
     #   django-choices
     #   django-compressor
     #   django-config-models
@@ -180,6 +182,7 @@ django==4.2.20
     #   django-taggit
     #   django-waffle
     #   djangorestframework
+    #   drf-extensions
     #   drf-jwt
     #   drf-yasg
     #   edx-api-doc-tools
@@ -203,6 +206,8 @@ django-appconf==1.1.0
     #   -r requirements/base.txt
     #   django-compressor
 django-autocomplete-light==3.12.1
+    # via -r requirements/base.txt
+django-celery-results==2.6.0
     # via -r requirements/base.txt
 django-choices==2.0.0
     # via
@@ -235,7 +240,7 @@ django-elasticsearch-dsl==7.4
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.txt
-django-extensions==3.2.3
+django-extensions==4.0
     # via -r requirements/base.txt
 django-filter==25.1
     # via
@@ -322,7 +327,7 @@ dnspython==2.7.0
     # via
     #   -r requirements/base.txt
     #   pymongo
-drf-extensions==0.7.1
+drf-extensions==0.8.0
     # via -r requirements/base.txt
 drf-flex-fields==1.0.2
     # via -r requirements/base.txt
@@ -362,9 +367,9 @@ edx-django-utils==7.2.0
     #   taxonomy-connector
 edx-drf-extensions==10.6.0
     # via -r requirements/base.txt
-edx-event-bus-kafka==6.0.0
+edx-event-bus-kafka==6.0.1
     # via -r requirements/base.txt
-edx-event-bus-redis==0.5.1
+edx-event-bus-redis==0.6.1
     # via -r requirements/base.txt
 edx-opaque-keys[django]==2.12.0
     # via
@@ -497,7 +502,7 @@ lxml[html-clean]==5.3.2
     #   -r requirements/base.txt
     #   lxml-html-clean
     #   zeep
-lxml-html-clean==0.4.1
+lxml-html-clean==0.4.2
     # via
     #   -r requirements/base.txt
     #   lxml
@@ -511,7 +516,7 @@ more-itertools==10.6.0
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
-multidict==6.3.2
+multidict==6.4.2
     # via
     #   -r requirements/base.txt
     #   aiohttp
@@ -534,7 +539,7 @@ openai==0.28.1
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   taxonomy-connector
-openedx-atlas==0.6.2
+openedx-atlas==0.7.0
     # via -r requirements/base.txt
 openedx-events==9.20.0
     # via
@@ -546,6 +551,7 @@ packaging==24.2
     # via
     #   -r requirements/base.txt
     #   django-nine
+    #   drf-extensions
     #   drf-yasg
     #   gunicorn
     #   snowflake-connector-python
@@ -614,7 +620,7 @@ pyjwt[crypto]==2.10.1
     #   social-auth-core
 pymemcache==4.0.0
     # via -r requirements/production.in
-pymongo==4.11.3
+pymongo==4.12.0
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
@@ -796,7 +802,7 @@ tqdm==4.67.1
     # via
     #   -r requirements/base.txt
     #   openai
-typing-extensions==4.13.1
+typing-extensions==4.13.2
     # via
     #   -r requirements/base.txt
     #   beautifulsoup4
