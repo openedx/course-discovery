@@ -50,3 +50,7 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
     LOGGER.info(sub_tag_log, org_pk, len(programs), 'programs')
     for program in programs:
         program.save()
+
+@shared_task
+def add(x, y):
+    return x + y
