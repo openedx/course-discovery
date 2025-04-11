@@ -1,12 +1,18 @@
 """
 Utils for loaders to format or transform field values.
 """
+import csv
 import base64
 import logging
 import re
 
 from lxml.html import clean
+from django.conf import settings
+import unicodecsv
+from dateutil.parser import parse
 
+from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import OrganizationMapping
 from course_discovery.apps.course_metadata.validators import HtmlValidator
 
@@ -139,3 +145,44 @@ def map_external_org_code_to_internal_org_code(external_org_code, product_source
             f'product_source {product_source}'
         )
         return external_org_code
+
+def initialize_csv_reader(csv_path, csv_file, use_gspread_client, product_type=None, product_source=None):
+    """
+    Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
+    """
+    try:
+        if use_gspread_client:
+            product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][product_source.slug]
+            gspread_client = GspreadClient()
+            return list(gspread_client.read_data(product_type_config))
+        else:
+            # read the file from the provided path; otherwise, use the file received from CSVDataLoaderConfiguration
+            return list(csv.DictReader(open(csv_path, 'r'))) if csv_path else list(unicodecsv.DictReader(csv_file))
+    except FileNotFoundError:
+        logger.exception(f"Error opening CSV file at path: {csv_path}")
+        raise
+    except Exception as e:
+        logger.exception(f"Error reading input data source: {e}")
+        raise
+
+def transform_dict_keys(data):
+    """
+    Given a data dictionary, return a new dict that has its keys transformed to
+    snake case. For example, Enrollment Track becomes enrollment_track.
+
+    Each key is stripped of whitespaces around the edges, converted to lower case,
+    and has internal spaces converted to _. This convention removes the dependency on CSV
+    headers format(Enrollment Track vs Enrollment track) and makes code flexible to ignore
+    any case sensitivity, among other things.
+    """
+    transformed_dict = {}
+    for key, value in data.items():
+        updated_key = key.strip().lower().replace(' ', '_')
+        transformed_dict[updated_key] = value
+    return transformed_dict
+
+def get_formatted_datetime_string(date_string):
+    """
+    Return the datetime string into the desired format %Y-%m-%dT%H:%M:%SZ
+    """
+    return serialize_datetime(parse(date_string))
