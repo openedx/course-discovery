@@ -368,9 +368,9 @@ class BulkTasksConfigAdmin(admin.ModelAdmin):
     readonly_fields = [ 'status', 'uploader', 'job_summary', 'get_task_result']
     list_display = ('id', 'csv_file', 'task_type', 'uploader', 'status', 'task_id', 'get_task_result')
     def get_fields(self, request, obj=None):
-        if obj:  # Update form
+        if obj:
             return ['csv_file', 'task_type', 'status', 'task_id', 'uploader', 'job_summary', 'get_task_result']
-        else:  # Create form
+        else:
             return ['csv_file', 'task_type']
 
     def save_model(self, request, obj, form, change):

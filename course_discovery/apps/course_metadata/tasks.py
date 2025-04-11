@@ -2,7 +2,6 @@
 Celery tasks for course metadata.
 """
 import logging
-import time
 
 from celery import shared_task
 
@@ -55,12 +54,3 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
 @shared_task
 def add(x, y):
     return x + y
-
-@shared_task
-def long_running_task():
-    time.sleep(5)  # Simulate a long task
-    return "done"
-
-def test_add_task():
-    result = add.delay(2, 3)
-    assert result.get(timeout=5) == 5

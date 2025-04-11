@@ -84,7 +84,7 @@ ENABLE_PUBLISHER = True
 
 ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
 
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = False
 
 EVENT_BUS_CONSUMER = 'edx_event_bus_redis.RedisEventConsumer'
 EVENT_BUS_PRODUCER = 'edx_event_bus_redis.create_producer'
