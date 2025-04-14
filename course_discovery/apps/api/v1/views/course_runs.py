@@ -217,8 +217,6 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
         # to set these two variables as part of the serializer context. When the endpoint is hit directly,
         # self.request should exist, but when this function is called from the Course POST endpoint in courses.py
         # we have to manually set these values.
-        import pdb
-        pdb.set_trace()
         if not hasattr(self, 'request'):
             self.request = request  # pylint: disable=attribute-defined-outside-init
         if not hasattr(self, 'format_kwarg'):
