@@ -19,6 +19,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
+from django_celery_results.models import TaskResult
 from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from freezegun import freeze_time
@@ -33,7 +34,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import (
-    CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus, ProgramStatus
+    BulkOperationType, CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus, ProgramStatus
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX as slug_format
 from course_discovery.apps.course_metadata.models import (
@@ -50,8 +51,9 @@ from course_discovery.apps.course_metadata.signals import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, CourseUrlSlugFactory, ImageFactory,
-    OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory
+    AdditionalMetadataFactory, BulkOperationTaskFactory, CourseFactory, CourseRunFactory, CourseTypeFactory,
+    CourseUrlSlugFactory, ImageFactory, OrganizationFactory, PartnerFactory, ProgramFactory, SeatFactory,
+    SeatTypeFactory, SourceFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.toggles import (
@@ -4215,3 +4217,65 @@ class RestrictedCourseRunTests(TestCase):
         self.assertEqual(course_run.restricted_run, restricted_course_run)
         self.assertEqual(restricted_course_run.restriction_type, 'custom-b2b-enterprise')
         self.assertEqual(str(restricted_course_run), "course-v1:SC+BreadX+3T2015: <custom-b2b-enterprise>")
+
+
+class BulkOperationTaskTest(TestCase):
+    def test_bulk_operation_task_creation(self):
+        """
+        Verify that the bulk operation task is created with the correct attributes.
+        """
+        bulk_operation_task = BulkOperationTaskFactory()
+        assert bulk_operation_task.task_type == BulkOperationType.CourseCreate
+        self.assertIsNotNone(bulk_operation_task.uploaded_by)
+        self.assertTrue(bulk_operation_task.csv_file.name.endswith('.csv'))
+
+    def test_task_result_property_with_existing_result(self):
+        """
+        Verify that the task_result method returns the correct TaskResult object
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id="test-task-123")
+        task_result = TaskResult.objects.create(
+            task_id="test-task-123",
+            status="SUCCESS",
+            result='{"message": "Task completed"}'
+        )
+        result = bulk_operation.task_result
+        self.assertEqual(result, task_result)
+
+    def test_task_result_property_with_no_task_result(self):
+        """
+        Verify that the task_result method handles if no task result is found.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id="non-existent-task")
+        self.assertIsNone(bulk_operation.task_result)
+
+    def test_task_result_property_with_no_task_id(self):
+        """
+        Verify that the task_result method handles if no task ID is associated with the bulk operation.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id=None)
+        self.assertIsNone(bulk_operation.task_result)
+
+    def test_str_representation(self):
+        """
+        Verify that the string representation of the bulk operation task includes the uploaded_by username.
+        """
+        bulk_operation = BulkOperationTaskFactory()
+        string_output = str(bulk_operation)
+        self.assertIn(bulk_operation.uploaded_by.username, string_output)
+
+    def test_save_assigns_uploaded_by(self):
+        """
+        Verify that the uploaded_by is assigned when saving the bulk operation task.
+        """
+        user = factories.UserFactory()
+        bulk_operation = BulkOperationTaskFactory.build(uploaded_by=None)
+        bulk_operation.save(user=user)
+        self.assertEqual(bulk_operation.uploaded_by, user)
+
+    def test_bulk_operation_task_save_raises_error_without_user_or_uploaded_by(self):
+        """
+        Verify that an error is raised if the user or uploaded_by is not provided when saving.
+        """
+        with pytest.raises(ValueError, match="User is required to save the BulkOperationTask"):
+            BulkOperationTaskFactory(uploaded_by=None)

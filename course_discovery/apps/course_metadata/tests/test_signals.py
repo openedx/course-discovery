@@ -25,9 +25,9 @@ from course_discovery.apps.course_metadata.algolia_models import (
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig,
-    BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun, CSVDataLoaderConfiguration,
-    Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig, DeletePersonDupsConfig,
-    DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
+    BulkOperationTask, BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun,
+    CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig,
+    DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
     MigratePublisherToCourseMetadataConfig, ProductMeta, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
     RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
@@ -66,7 +66,7 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
+            if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig, BulkOperationTask,
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
