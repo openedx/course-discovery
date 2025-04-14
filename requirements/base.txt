@@ -43,9 +43,9 @@ beautifulsoup4==4.13.3
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.37.28
+boto3==1.37.33
     # via django-ses
-botocore==1.37.28
+botocore==1.37.33
     # via
     #   boto3
     #   s3transfer
@@ -57,7 +57,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.7.1
     # via -r requirements/base.in
-celery==5.5.0
+celery==5.5.1
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -90,7 +90,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-code-annotations==2.2.0
+code-annotations==2.3.0
     # via edx-toggles
 contentful==2.4.0
     # via -r requirements/base.in
@@ -141,6 +141,7 @@ django==4.2.20
     #   django-taggit
     #   django-waffle
     #   djangorestframework
+    #   drf-extensions
     #   drf-jwt
     #   drf-yasg
     #   edx-api-doc-tools
@@ -171,7 +172,7 @@ django-compressor==4.5.1
     # via
     #   -r requirements/base.in
     #   django-libsass
-django-config-models==2.8.0
+django-config-models==2.9.0
     # via -r requirements/base.in
 django-contrib-comments==2.2.0
     # via -r requirements/base.in
@@ -193,7 +194,7 @@ django-elasticsearch-dsl==7.4
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
-django-extensions==3.2.3
+django-extensions==4.1
     # via -r requirements/base.in
 django-filter==25.1
     # via
@@ -271,7 +272,7 @@ djangorestframework-xml==2.0.0
     # via -r requirements/base.in
 dnspython==2.7.0
     # via pymongo
-drf-extensions==0.7.1
+drf-extensions==0.8.0
     # via -r requirements/base.in
 drf-flex-fields==1.0.2
     # via -r requirements/base.in
@@ -285,7 +286,7 @@ edx-analytics-data-api-client==0.18.3
     # via -r requirements/base.in
 edx-api-doc-tools==2.0.0
     # via -r requirements/base.in
-edx-auth-backends==4.4.0
+edx-auth-backends==4.5.0
     # via -r requirements/base.in
 edx-ccx-keys==2.0.2
     # via
@@ -295,7 +296,7 @@ edx-django-release-util==1.4.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.2.0
     # via -r requirements/base.in
-edx-django-utils==7.2.0
+edx-django-utils==7.4.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -309,9 +310,9 @@ edx-django-utils==7.2.0
     #   taxonomy-connector
 edx-drf-extensions==10.6.0
     # via -r requirements/base.in
-edx-event-bus-kafka==6.0.0
+edx-event-bus-kafka==6.1.0
     # via -r requirements/base.in
-edx-event-bus-redis==0.5.1
+edx-event-bus-redis==0.6.1
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.12.0
     # via
@@ -320,7 +321,7 @@ edx-opaque-keys[django]==2.12.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==6.1.0
+edx-rest-api-client==6.2.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -410,19 +411,19 @@ lxml[html-clean,html_clean]==5.3.2
     #   -r requirements/base.in
     #   lxml-html-clean
     #   zeep
-lxml-html-clean==0.4.1
+lxml-html-clean==0.4.2
     # via lxml
-markdown==3.7
+markdown==3.8
     # via -r requirements/base.in
 markupsafe==3.0.2
     # via jinja2
 more-itertools==10.6.0
     # via simple-salesforce
-multidict==6.3.2
+multidict==6.4.3
     # via
     #   aiohttp
     #   yarl
-newrelic==10.8.1
+newrelic==10.9.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -433,9 +434,9 @@ openai==0.28.1
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-openedx-atlas==0.6.2
+openedx-atlas==0.7.0
     # via -r requirements/base.in
-openedx-events==9.20.0
+openedx-events==10.0.0
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -443,6 +444,7 @@ openedx-events==9.20.0
 packaging==24.2
     # via
     #   django-nine
+    #   drf-extensions
     #   drf-yasg
     #   snowflake-connector-python
 pbr==6.1.1
@@ -491,7 +493,7 @@ pyjwt[crypto]==2.10.1
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pymongo==4.11.3
+pymongo==4.12.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -623,7 +625,7 @@ tomlkit==0.13.2
     # via snowflake-connector-python
 tqdm==4.67.1
     # via openai
-typing-extensions==4.13.1
+typing-extensions==4.13.2
     # via
     #   beautifulsoup4
     #   django-countries
