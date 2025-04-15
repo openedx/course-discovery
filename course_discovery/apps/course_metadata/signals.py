@@ -1,7 +1,9 @@
+import inspect
+
 import logging
 import time
 from datetime import datetime, timezone
-
+import datetime
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
@@ -21,14 +23,15 @@ from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDat
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
     Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Fact, GeoLocation, Organization, ProductMeta,
-    ProductValue, Program, Seat, TaxiForm
+    ProductValue, Program, ProgramLocationRestriction, Seat, TaxiForm, DegreeDeadline, DegreeCost, DegreeAdditionalMetadata,
+    IconTextPairing, Degree, Ranking, Specialization
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
 from course_discovery.apps.course_metadata.tasks import update_org_program_and_courses_ent_sub_inclusion
-from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, get_salesforce_util
+from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, get_salesforce_util, data_modified_timestamp_update__deletion
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -447,6 +450,17 @@ def course_topics_taggable_changed(sender, instance, action, **kwargs):
         logger.info(f"{sender} has been updated for Course {instance.key}.")
         instance.set_data_modified_timestamp()
 
+@receiver(m2m_changed, sender=Program.labels.through)
+def program_labels_changed(sender, instance, action, **kwargs):
+    """
+    Signal handler to handle Taggable manager changes for the program labels field.
+    """
+    if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
+            and kwargs['pk_set'] and instance._meta.label in ['course_metadata.Program', 'course_metadata.Degree']:
+        instance._meta.model.objects.filter(pk=instance.pk).update(
+            data_modified_timestamp = datetime.datetime.now()
+        )
+
 
 @receiver(m2m_changed, sender=AdditionalMetadata.facts.through)
 def additional_metadata_facts_changed(sender, instance, action, **kwargs):
@@ -492,6 +506,52 @@ def course_run_staff_changed(sender, instance, action, **kwargs):  # pylint: dis
             instance.course.set_data_modified_timestamp()
 
 
+program_m2m_map = {
+    field_name: getattr(Program, field_name).through for field_name in [
+        'authoring_organizations',
+        'expected_learning_items',
+        'faq',
+        'instructor_ordering',
+        'credit_backing_organizations',
+        'corporate_endorsements',
+        'job_outlook_items',
+        'individual_endorsements'
+    ]
+}
+
+@receiver(m2m_changed, sender=Program.authoring_organizations.through)
+@receiver(m2m_changed, sender=Program.expected_learning_items.through)
+@receiver(m2m_changed, sender=Program.faq.through)
+@receiver(m2m_changed, sender=Program.instructor_ordering.through)
+@receiver(m2m_changed, sender=Program.credit_backing_organizations.through)
+@receiver(m2m_changed, sender=Program.corporate_endorsements.through)
+@receiver(m2m_changed, sender=Program.job_outlook_items.through)
+@receiver(m2m_changed, sender=Program.individual_endorsements.through)
+@receiver(m2m_changed, sender=Program.courses.through)
+@receiver(m2m_changed, sender=Degree.specializations.through)
+@receiver(m2m_changed, sender=Degree.rankings.through)
+def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    field_name = sender._meta.model_name.split("_", 1)[1]
+
+    if action == 'pre_clear' and not kwargs['reverse']:
+        to_set = [obj.id for obj in inspect.stack()[4][0].f_locals['objs']]
+        already_set = list(getattr(instance, field_name).all().values_list('id', flat=True))
+
+        if to_set != already_set:
+            instance._meta.model.objects.filter(pk=instance.pk).update(
+                data_modified_timestamp = datetime.datetime.now()
+            )
+
+
+@receiver(m2m_changed, sender=Program.excluded_course_runs.through)
+def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+
+    if action in ['pre_add', 'pre_remove']:
+        instance._meta.model.objects.filter(pk=instance.pk).update(
+            data_modified_timestamp = datetime.datetime.now()
+        )
+
+
 def connect_course_data_modified_timestamp_related_models():
     """
     This wrapper is used to connect Course model's related models (ForeignKey)
@@ -509,8 +569,26 @@ def connect_course_data_modified_timestamp_related_models():
         Seat,
         Fact,
         TaxiForm,
+        ProgramLocationRestriction,
+        Curriculum,
+        CurriculumProgramMembership,
+        CurriculumCourseMembership,
+        DegreeCost,
+        DegreeDeadline,
+        DegreeAdditionalMetadata,
+        IconTextPairing,
+        Ranking,
+        Specialization
     ]:
         pre_save.connect(data_modified_timestamp_update, sender=model)
+
+    for model in [
+        Curriculum,
+        CurriculumProgramMembership,
+        CurriculumCourseMembership,
+        ProgramLocationRestriction
+    ]:
+        pre_delete.connect(data_modified_timestamp_update__deletion, sender=model)
 
 
 def disconnect_course_data_modified_timestamp_related_models():
@@ -530,9 +608,27 @@ def disconnect_course_data_modified_timestamp_related_models():
         ProductValue,
         Seat,
         Fact,
-        TaxiForm
+        TaxiForm,
+        ProgramLocationRestriction,
+        Curriculum,
+        CurriculumProgramMembership,
+        CurriculumCourseMembership,
+        DegreeCost,
+        DegreeDeadline,
+        DegreeAdditionalMetadata,
+        IconTextPairing,
+        Ranking,
+        Specialization
     ]:
         pre_save.disconnect(data_modified_timestamp_update, sender=model)
+
+    for model in [
+        Curriculum,
+        CurriculumProgramMembership,
+        CurriculumCourseMembership,
+        ProgramLocationRestriction
+    ]:
+        pre_delete.disconnect(data_modified_timestamp_update__deletion, sender=model)
 
 
 def disconnect_course_data_modified_timestamp_signal_handlers():

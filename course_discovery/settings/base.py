@@ -180,7 +180,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -567,6 +567,11 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
+
+DATETIME_FORMAT = 'N j, Y, H:i:s' 
+
+
+
 
 AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
 AWS_SES_REGION_NAME = "us-east-1"

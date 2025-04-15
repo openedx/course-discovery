@@ -939,8 +939,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         # Do a diff of all the course runs and the explicitly-associated course runs to determine
         # which course runs should be explicitly excluded.
         excluded_course_runs = CourseRun.objects.filter(course__in=courses).exclude(key__in=course_run_keys)
-        program.excluded_course_runs.clear()
-        program.excluded_course_runs.add(*excluded_course_runs)
+        program.excluded_course_runs.set(*excluded_course_runs)
 
     def _update_program_organizations(self, body, program):
         uuid = self._get_uuid(body)
