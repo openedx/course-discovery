@@ -1,9 +1,8 @@
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import TemplateView, UpdateView
-
+from django.views.generic import TemplateView, UpdateView, View
 from course_discovery.apps.course_metadata.forms import CourseRunSelectionForm
 from course_discovery.apps.course_metadata.models import Program
 
@@ -41,3 +40,12 @@ class CourseRunSelectionAdmin(UpdateView):
 
     def get_success_url(self):
         return reverse('admin:course_metadata_program_change', args=(self.object.id,))
+
+
+class CourseMetadataRefresher(View):
+
+    def post(self, request, course_id):
+        """Add a newly created course metadata into Mysql
+        """
+
+        return JsonResponse({'error': None})

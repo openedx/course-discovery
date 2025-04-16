@@ -16,6 +16,7 @@ from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramCoursesViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
+from course_discovery.apps.course_metadata.views import CourseMetadataRefresher
 
 
 partners_router = routers.SimpleRouter()
@@ -25,7 +26,8 @@ urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
     url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
     url(r'currency', CurrencyView.as_view(), name='currency'),
-    url(r'^catalog/query_contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains')
+    url(r'^catalog/query_contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains'),
+    url(r'^refresh_course_metadata/', CourseMetadataRefresher.as_view(), name='refresh-course-metadata')
 ]
 
 router = routers.SimpleRouter()
