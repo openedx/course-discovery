@@ -1665,7 +1665,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         Course.everything.filter(key=self.key).update(
             data_modified_timestamp=datetime.datetime.now(pytz.UTC)
         )
-        Program.objects.filter(courses__in=[Course.everything.filter(key=self.key)]).update(
+        Program.objects.filter(courses__in=Course.everything.filter(key=self.key)).update(
             data_modified_timestamp=datetime.datetime.now(pytz.UTC)
         )
         self.refresh_from_db()
@@ -4076,7 +4076,7 @@ class Specialization(ManageHistoryMixin, AbstractValueModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
-            Degree.objects.filter(rankings=self).update(
+            Degree.objects.filter(specializations=self).update(
                 data_modified_timestamp=datetime.datetime.now()
             )
 
