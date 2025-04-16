@@ -3,6 +3,7 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
+import jwt
 
 from edx_rest_api_client.client import EdxRestApiClient
 
@@ -71,11 +72,16 @@ class CourseMetadataRefresher(View):
                     '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
                     partner.oidc_key, partner.oidc_secret, token_type='JWT'
                 )
+                username = jwt.decode(access_token, verify=False)['preferred_username']
 
-                CoursesApiDataLoader(
-                    partner=partner, api_url=partner.courses_api_url, access_token=access_token,
-                    token_type='JWT', max_workers=1, is_threadsafe=True, course_key=course_id
-                ).ingest()
+                kwargs = {
+                    'partner': partner, 'api_url': partner.courses_api_url, 'access_token': access_token,
+                    'token_type': 'JWT', 'max_workers': 1, 'is_threadsafe': True, 'course_key': course_id
+                }
+                if username:
+                    kwargs['username'] = username
+
+                CoursesApiDataLoader(**kwargs).ingest()
 
                 response.append({'partner': partner.short_code, 'course_key': course_id})
 
