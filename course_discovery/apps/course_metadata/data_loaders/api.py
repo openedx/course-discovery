@@ -72,6 +72,19 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
+    def __init__(
+            self,
+            partner, api_url, access_token=None,
+            token_type=None, max_workers=None,
+            is_threadsafe=False, **kwargs
+    ):
+        super(CoursesApiDataLoader, self).__init__(
+            partner=partner, api_url=api_url, access_token=access_token,
+            token_type=token_type, max_workers=max_workers,
+            is_threadsafe=is_threadsafe, **kwargs
+        )
+        self.target_course_key = kwargs.pop('course_key', None)
+
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
@@ -162,11 +175,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         else:
             logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
-            return self.api_client.courses().get(
-                page=page, page_size=self.PAGE_SIZE,
-                username=self.username,
-                org=self.partner.short_code
-            )
+            kwargs = {
+                'page': page, 'page_size': self.PAGE_SIZE,
+                'username': self.username, 'org': self.partner.short_code
+            }
+            if self.target_course_key:
+                kwargs['course_key'] = self.target_course_key
+
+            return self.api_client.courses().get(**kwargs)
 
     def _process_response(self, response):
         results = response['results']
