@@ -180,7 +180,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -236,7 +236,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(
@@ -348,7 +348,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(
@@ -438,7 +438,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -531,7 +531,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 with LogCapture(LOGGER_PATH) as log_capture:
                     with mock.patch.object(
                             CSVDataLoader,
-                            '_call_course_api',
+                            'call_course_api',
                             self.mock_call_course_api
                     ):
                         loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -659,7 +659,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 with LogCapture(LOGGER_PATH):
                     with mock.patch.object(
                             CSVDataLoader,
-                            '_call_course_api',
+                            'call_course_api',
                             self.mock_call_course_api
                     ):
                         loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -691,17 +691,16 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
 
             with mock.patch.object(
-                CSVDataLoader, "_call_course_api", self.mock_call_course_api
+                CSVDataLoader, "call_course_api", self.mock_call_course_api
             ):
                 loader = CSVDataLoader(
                     self.partner, csv_path=csv.name, product_source=self.source.slug
                 )
                 # pylint: disable=protected-access
                 loader._register_ingestion_error = mock.MagicMock()
-                loader._update_course = mock.MagicMock()
+                loader.update_course = mock.MagicMock()
 
-                # pylint: disable=protected-access
-                loader._update_course.side_effect = MockExceptionWithResponse(b"Update course error")
+                loader.update_course.side_effect = MockExceptionWithResponse(b"Update course error")
 
                 with LogCapture(LOGGER_PATH):
                     loader.ingest()
@@ -766,7 +765,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, mocked_data])
             with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
                 with mock.patch.object(
-                    CSVDataLoader, "_call_course_api", self.mock_call_course_api
+                    CSVDataLoader, "call_course_api", self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(
                         self.partner, csv_path=csv.name, product_source=self.source.slug
@@ -884,7 +883,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
             with mock.patch.object(
                 CSVDataLoader,
-                '_call_course_api',
+                'call_course_api',
                 self.mock_call_course_api
             ):
                 with mock.patch.object(CSVDataLoader, '_register_ingestion_error') as mock_register_error:
@@ -914,7 +913,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -986,7 +985,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
 
@@ -1055,7 +1054,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
 
@@ -1106,7 +1105,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -1166,7 +1165,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -1241,7 +1240,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)
@@ -1272,7 +1271,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
                         CSVDataLoader,
-                        '_call_course_api',
+                        'call_course_api',
                         self.mock_call_course_api
                 ):
                     loader = CSVDataLoader(self.partner, csv_path=csv.name, product_source=self.source.slug)

@@ -47,7 +47,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
     PAGE_SIZE = 50
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
-        super().__init__(partner, api_url, max_workers, is_threadsafe, enable_api)
+        super().__init__(
+            partner=partner,
+            api_url=api_url,
+            max_workers=max_workers,
+            is_threadsafe=is_threadsafe,
+            enable_api=enable_api
+        )
         self.default_product_source, __ = Source.objects.get_or_create(
             name=settings.DEFAULT_PRODUCT_SOURCE_NAME,
             slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG
@@ -330,7 +336,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     LOADER_MAX_RETRY = 2
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, **kwargs):
-        super().__init__(partner, api_url, max_workers, is_threadsafe, **kwargs)
+        super().__init__(
+            partner=partner,
+            api_url=api_url,
+            max_workers=max_workers,
+            is_threadsafe=is_threadsafe,
+            **kwargs
+        )
         self.initial_page = 1
         self.enrollment_skus = []
         self.entitlement_skus = []
@@ -850,7 +862,12 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     XSERIES = None
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
-        super().__init__(partner, api_url, max_workers, is_threadsafe)
+        super().__init__(
+            partner=partner,
+            api_url=api_url,
+            max_workers=max_workers,
+            is_threadsafe=is_threadsafe
+        )
         self.XSERIES = ProgramType.objects.get(translations__name_t='XSeries')
 
     def ingest(self):
