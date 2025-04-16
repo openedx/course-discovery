@@ -3166,6 +3166,8 @@ class ProgramTests(TestCase):
         data_modified_timestamp = program.data_modified_timestamp
         program.geolocation.location_name = 'New Location name'
         program.save()
+        program.geolocation.save()
+        program.refresh_from_db()
         assert data_modified_timestamp < program.data_modified_timestamp
 
     def test_data_modified_timestamp_no_change(self):
@@ -3240,7 +3242,7 @@ class ProgramTests(TestCase):
         assert self.program.start == expected_start
 
         # Verify start is None for programs with no courses.
-        self.program.courses.clear()
+        self.program.courses.set([])
         assert self.program.start is None
 
         # Verify start is None if no course runs have a start date.
