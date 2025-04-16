@@ -4444,7 +4444,10 @@ class Curriculum(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
-            assoc_prog = [pk for pk in [self.field_tracker.previous('program_id'), self.program.pk] if pk is not None]
+            assoc_prog = [self.field_tracker.previous('program_id')]
+            if self.program:
+                assoc_prog.append(self.program.id)
+            assoc_prog = filter(lambda x: x is not None, assoc_prog)
             Program.objects.filter(id__in=assoc_prog).update(
                 data_modified_timestamp=datetime.datetime.now()
             )

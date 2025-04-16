@@ -3,7 +3,6 @@ import inspect
 import logging
 import time
 from datetime import datetime, timezone
-import datetime
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
@@ -458,7 +457,7 @@ def program_labels_changed(sender, instance, action, **kwargs):
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
             and kwargs['pk_set'] and instance._meta.label in ['course_metadata.Program', 'course_metadata.Degree']:
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.datetime.now()
+            data_modified_timestamp = datetime.now()
         )
 
 
@@ -543,7 +542,7 @@ def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: d
 
         if to_set != already_set:
             instance._meta.model.objects.filter(pk=instance.pk).update(
-                data_modified_timestamp = datetime.datetime.now()
+                data_modified_timestamp = datetime.now()
             )
 
 
@@ -552,7 +551,7 @@ def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disabl
 
     if action in ['pre_add', 'pre_remove']:
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.datetime.now()
+            data_modified_timestamp = datetime.now()
         )
 
 

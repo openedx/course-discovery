@@ -79,6 +79,7 @@ class TestProgramViewSet(SerializationMixin):
             type=program_type,
         )
         program.labels.add(topic)
+        program.refresh_from_db()
         return program
 
     def create_curriculum(self, parent_program):
