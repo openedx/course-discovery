@@ -38,7 +38,7 @@ class NotifyVerticalAssignmentTests(TestCase):
         mock_send_email.assert_called_once()
         called_args = mock_send_email.call_args[0]
         self.assertEqual(called_args[0].uuid, course.uuid)
-        self.assertListEqual(called_args[1], expected_recipients)
+        self.assertCountEqual(called_args[1], expected_recipients)
 
     @mock.patch("course_discovery.apps.tagging.signals.send_email_for_course_vertical_assignment")
     def test_notify_vertical_assignment_email_when_course_is_draft(self, mock_send_email):

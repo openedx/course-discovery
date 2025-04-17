@@ -1,6 +1,7 @@
 from random import randint
 
 import factory
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import post_save
 from edx_django_utils.cache import TieredCache, get_cache_key
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
@@ -1026,3 +1027,16 @@ class CourseProxyFactory(CourseFactory):
     """Factory for the CourseProxy proxy model."""
     class Meta:
         model = CourseProxy
+
+
+class BulkOperationTaskFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BulkOperationTask
+
+    uploaded_by = factory.SubFactory(UserFactory)
+    task_type = factory.Iterator([choice[0] for choice in BulkOperationType.choices])
+    status = 'Pending'
+    csv_file = factory.LazyAttribute(lambda _: SimpleUploadedFile(
+        "test.csv", b"header1,header2\nvalue1,value2", content_type="text/csv"
+    ))
+    task_id = factory.Sequence(lambda n: f"fake-task-id-{n}")

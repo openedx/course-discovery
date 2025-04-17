@@ -361,6 +361,48 @@ class CourseRunAdmin(SimpleHistoryAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
 
+@admin.register(BulkOperationTask)
+class BulkOperationTaskAdmin(admin.ModelAdmin):
+    """
+    Admin for BulkOperationTask model.
+    """
+    readonly_fields = ['status', 'uploaded_by', 'task_summary', 'task_result_status_summary']
+    list_display = ('id', 'csv_file', 'task_type', 'uploaded_by', 'status', 'task_id')
+    list_filter = ('task_type', 'status')
+
+    def get_fields(self, request, obj=None):
+        if obj:
+            return [
+                "csv_file", "task_type", "status", "task_id", "uploaded_by", "task_summary",
+                "task_result_status_summary",
+            ]
+        else:
+            return ['csv_file', 'task_type']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Save the model instance and set the uploaded_by to the current user.
+        """
+        if not change:
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def task_result_status_summary(self, obj):
+        """
+        Returns a formatted string with the status and result of the task
+        associated with bulk task.
+        """
+        if not obj.task_id:
+            return "No task ID"
+        try:
+            result = TaskResult.objects.get(task_id=obj.task_id)
+            return f"{result.status}: {result.result}"
+        except TaskResult.DoesNotExist:
+            return "No result found"
+
+    task_result_status_summary.short_description = 'Task Result Status Summary'
+
+
 class CourseInline(admin.TabularInline):
     model = Course
     fields = ('key', 'title', 'draft')

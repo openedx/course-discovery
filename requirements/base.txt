@@ -60,6 +60,7 @@ cairosvg==2.7.1
 celery==5.5.1
     # via
     #   -c requirements/constraints.txt
+    #   django-celery-results
     #   taxonomy-connector
 certifi==2025.1.31
     # via
@@ -117,6 +118,7 @@ django==4.2.20
     #   django-admin-sortable2
     #   django-appconf
     #   django-autocomplete-light
+    #   django-celery-results
     #   django-choices
     #   django-compressor
     #   django-config-models
@@ -163,6 +165,8 @@ django-admin-sortable2==2.2.6
 django-appconf==1.1.0
     # via django-compressor
 django-autocomplete-light==3.12.1
+    # via -r requirements/base.in
+django-celery-results==2.6.0
     # via -r requirements/base.in
 django-choices==2.0.0
     # via

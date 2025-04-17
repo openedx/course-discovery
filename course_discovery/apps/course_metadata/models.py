@@ -19,6 +19,7 @@ from django.db.models import F, Q, UniqueConstraint
 from django.db.models.query import Prefetch
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_celery_results.models import TaskResult
 from django_countries import countries as COUNTRIES
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
@@ -40,11 +41,12 @@ from stdimage.models import StdImageField
 from taggit_autosuggest.managers import TaggableManager
 from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 
-from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.core.models import Currency, Partner, User
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
-    ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus, ReportingType
+    BulkOperationStatus, BulkOperationType, CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType,
+    CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus,
+    ReportingType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
@@ -4801,3 +4803,73 @@ class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
 
     def __str__(self):
         return f"{self.course_run.key}: <{self.restriction_type}>"
+
+
+class BulkOperationTask(TimeStampedModel):
+    """
+    Model to store information related to bulk operations.
+    """
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers."),
+        blank=False,
+        null=False
+    )
+    uploaded_by = models.ForeignKey(
+        User,
+        models.CASCADE,
+        related_name='bulk_operation_tasks',
+        null=True,
+        blank=True,
+        help_text=_('User who uploaded the file')
+    )
+    task_summary = models.TextField(
+        null=True,
+        blank=True,
+        help_text=_('Summary of the task')
+    )
+    task_type = models.CharField(
+        verbose_name=_('Task Type'),
+        max_length=255,
+        choices=BulkOperationType.choices,
+        help_text=_('Type of Bulk Task to be performed'),
+    )
+    status = models.CharField(
+        verbose_name=_('Status'),
+        max_length=50,
+        choices=BulkOperationStatus.choices,
+        help_text=_('Status of the Bulk Task'),
+        default=BulkOperationStatus.Pending,
+    )
+    task_id = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text=_('Identifier of the celery task associated with this bulk task')
+    )
+
+    def save(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        if not self.uploaded_by:
+            if user is None:
+                raise ValueError("User is required to save the BulkOperationTask")
+            self.uploaded_by = user
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        username = self.uploaded_by.username if self.uploaded_by else ""
+        return f"{self.csv_file.name} - {self.task_type} - {self.status} - {username}"
+
+    @property
+    def task_result(self):
+        """
+        Returns the TaskResult object associated with the task_id of this bulk task.
+        """
+        if not self.task_id:
+            return None
+        try:
+            return TaskResult.objects.get(task_id=self.task_id)
+        except TaskResult.DoesNotExist:
+            return None
