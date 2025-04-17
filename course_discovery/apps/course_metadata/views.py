@@ -1,10 +1,11 @@
+import jwt
+import json
+
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
-import jwt
-
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
@@ -55,12 +56,13 @@ class CourseMetadataRefresher(View):
             URL: http://0.0.0.0:18000/api/courses/v1/courses/
         """
         response = []
+        data = json.loads(request.body.decode('utf-8'))
 
-        course_id = request.POST.get('course_id')
+        course_id = data.get('course_id')
         if not course_id:
             return JsonResponse({'error': 'Invalid Course Key : {}'.format(course_id)}, status=503)
 
-        partner_code = request.POST.get('partner_code', None)
+        partner_code = data.get('partner_code', None)
         # If a specific partner was indicated, filter down the set
         partners = Partner.filter(short_code=partner_code) if partner_code else Partner.objects.all()
         if not partners:
