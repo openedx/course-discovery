@@ -908,10 +908,11 @@ class TaxiForm(ManageHistoryMixin, TimeStampedModel):
                 self.additional_metadata.related_courses.all().update(
                     data_modified_timestamp=datetime.datetime.now(pytz.UTC)
                 )
+                
+                course_ids = self.additional_metadata.related_courses.all().values_list('id', flat=True)
+                courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
                 Program.objects.filter(
-                    courses__in=Course.objects.filter(
-                        draft_version__in=self.additional_metadata.related_courses.all()
-                    )
+                    courses__in=courses
                 ).update(data_modified_timestamp=datetime.datetime.now())
 
             if hasattr(self, 'program') and self.program:
@@ -1020,11 +1021,11 @@ class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
             self.related_courses.all().update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            course_ids = self.related_courses.all().values_list('id', flat=True)
+            courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
             Program.objects.filter(
-                courses__in=Course.objects.filter(draft_version__in=self.related_courses.all())
-            ).update(
-                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
-            )
+                courses__in=courses
+            ).update(data_modified_timestamp=datetime.datetime.now())
 
 
     def __str__(self):
@@ -1333,11 +1334,13 @@ class ProductValue(ManageHistoryMixin, TimeStampedModel):
                 f"timestamps for related courses."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            course_ids = self.courses.all().values_list('id', flat=True)
+            courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
             Program.objects.filter(
-                courses__in=Course.objects.filter(draft_version__in=self.courses.all())
-            ).update(
-                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
-            )
+                courses__in=courses
+            ).update(data_modified_timestamp=datetime.datetime.now())
+
 
             self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
@@ -1397,11 +1400,13 @@ class GeoLocation(ManageHistoryMixin, TimeStampedModel):
                 f"timestamps for related courses."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            course_ids = self.courses.all().values_list('id', flat=True)
+            courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
             Program.objects.filter(
-                courses__in=Course.objects.filter(draft_version__in=self.courses.all())
-            ).update(
-                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
-            )
+                courses__in=courses
+            ).update(data_modified_timestamp=datetime.datetime.now())
+
 
             self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
@@ -1445,11 +1450,11 @@ class CourseLocationRestriction(ManageHistoryMixin, AbstractLocationRestrictionM
                 f"timestamps for related courses."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+            course_ids = self.courses.all().values_list('id', flat=True)
+            courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
             Program.objects.filter(
-                courses__in=Course.objects.filter(draft_version__in=self.courses.all())
-            ).update(
-                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
-            )
+                courses__in=courses
+            ).update(data_modified_timestamp=datetime.datetime.now())
 
 
 class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
@@ -1653,10 +1658,11 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         elif self.draft and self.has_changed:
             now = datetime.datetime.now(pytz.UTC)
             self.data_modified_timestamp = now
-            if self.official_version:
-                self.official_version.programs.all().update(
-                    data_modified_timestamp=now
-                )
+            course_ids = [self.id]
+            courses = Course.everything.filter(Q(draft_version_id__in=course_ids) | Q(id__in=course_ids))
+            Program.objects.filter(
+                courses__in=courses
+            ).update(data_modified_timestamp=datetime.datetime.now())
 
     def set_data_modified_timestamp(self):
         """
@@ -4054,7 +4060,7 @@ class Ranking(ManageHistoryMixin, TimeStampedModel):
 
     @property
     def has_changed(self):
-        return self.has_model_changed()
+        return self.pk and self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -4072,7 +4078,7 @@ class Specialization(ManageHistoryMixin, AbstractValueModel):
 
     @property
     def has_changed(self):
-        return self.has_model_changed()
+        return self.pk and self.has_model_changed()
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
@@ -4247,8 +4253,13 @@ class DegreeAdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     @property
     def has_changed(self):
         return self.has_model_changed()
+    
+    def save(self, *args, **kwargs):
+        # breakpoint()
+        return super().save(*args, **kwargs)
 
     def update_product_data_modified_timestamp(self):
+        # breakpoint()
         if self.has_changed:
             Degree.objects.filter(id__in=[self.degree_id]).update(
                 data_modified_timestamp=datetime.datetime.now()
