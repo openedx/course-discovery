@@ -79,6 +79,7 @@ class TestProgramViewSet(SerializationMixin):
             type=program_type,
         )
         program.labels.add(topic)
+        program.refresh_from_db()
         return program
 
     def create_curriculum(self, parent_program):
@@ -133,7 +134,7 @@ class TestProgramViewSet(SerializationMixin):
     def test_retrieve_basic_curriculum(self, django_assert_num_queries):
         program = self.create_program(courses=[])
         self.create_curriculum(program)
-
+        program.refresh_from_db()
         with django_assert_num_queries(FuzzyInt(52, 3)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
@@ -152,7 +153,7 @@ class TestProgramViewSet(SerializationMixin):
             program=child_program2,
             curriculum=curriculum
         )
-
+        parent_program.refresh_from_db()
         with django_assert_num_queries(FuzzyInt(85, 3)):
             response = self.assert_retrieve_success(parent_program)
         assert response.data == self.serialize_program(parent_program)

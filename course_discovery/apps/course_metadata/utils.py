@@ -1022,8 +1022,12 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
      * A method called update_product_data_modified_stamp which will be implemented by each model
      depending upon its relation with Course/Program.
     """
-    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):            
         instance.update_product_data_modified_timestamp()
+
+def data_modified_timestamp_update__deletion(sender, instance, **kwargs):
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):            
+        instance.update_product_data_modified_timestamp(bypass_has_changed=True)
 
 
 def is_valid_slug_format(val):

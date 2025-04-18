@@ -40,6 +40,7 @@ from course_discovery.apps.course_metadata.signals import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory
+from course_discovery.apps.course_metadata.utils import set_official_state
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import GroupFactory, OrganizationExtensionFactory
 
@@ -1014,6 +1015,7 @@ class OrganizationGroupRemovalTests(TestCase):
         assert CourseEditor.objects.count() == 5
 
 
+@ddt.ddt
 class DataModifiedTimestampUpdateSignalsTests(TestCase):
     """
     This test suite is meant for testing various signal handlers that update data modified timestamps on
@@ -1031,7 +1033,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_signal_handlers()
+        # disconnect_course_data_modified_timestamp_signal_handlers()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -1051,13 +1053,20 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
                 product_meta=product_meta
             )
         )
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course])
+        program.refresh_from_db()
+
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
 
         with LogCapture(LOGGER_NAME) as log:
             product_meta.keywords.set(['keyword_1', 'keyword_2'])
 
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         log.check_present(
             (
@@ -1075,14 +1084,18 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         """
         m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
         course = factories.CourseFactory(draft=True)
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course])
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
 
         with LogCapture(LOGGER_NAME) as log:
             course.topics.set(['keyword_1', 'keyword_2'])
 
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
-
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_NAME,
@@ -1092,9 +1105,12 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         )
         # Attempting to set the same keywords does not update the timestamp
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         course.topics.set(['keyword_1', 'keyword_2'])
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
         m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
 
     def test_additional_metadata_fact_addition(self):
@@ -1108,13 +1124,19 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             draft=True,
             additional_metadata=additional_metadata
         )
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course])
+        program.refresh_from_db()
         fact_1 = factories.FactFactory()
         fact_2 = factories.FactFactory()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         with LogCapture(LOGGER_NAME) as log:
             additional_metadata.facts.add(fact_1, fact_2)
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_NAME,
@@ -1134,6 +1156,10 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
+        program = factories.ProgramFactory(courses=[non_draft_course])
+        program.refresh_from_db()
+
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
         collaborator_1 = factories.CollaboratorFactory()
         collaborator_2 = factories.CollaboratorFactory()
@@ -1143,7 +1169,10 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             draft_course.collaborators.set((collaborator_1, collaborator_2))
         draft_course.refresh_from_db()
+        program.refresh_from_db()
+
         assert course_timestamp < draft_course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_NAME,
@@ -1189,6 +1218,10 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
+        program = factories.ProgramFactory(courses=[non_draft_course])
+        program.refresh_from_db()
+
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
         subject_1 = factories.SubjectFactory()
         subject_2 = factories.SubjectFactory()
@@ -1198,7 +1231,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             draft_course.subjects.set((subject_1, subject_2))
         draft_course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < draft_course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         log.check_present(
             (
@@ -1241,15 +1276,21 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         """
         m2m_changed.connect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
         course = CourseFactory(draft=True)
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course])
+        program.refresh_from_db()
         course_run = factories.CourseRunFactory(course=course, draft=True)
         language_tags = LanguageTag.objects.all()[:2]
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
 
         with LogCapture(LOGGER_NAME) as log:
             course_run.transcript_languages.set(language_tags)
 
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_NAME,
@@ -1257,6 +1298,11 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
                 f"{course_run.transcript_languages.through} has been updated for course run {course_run.key}."
             )
         )
+
+        program_timestamp = program.data_modified_timestamp
+        course_run.transcript_languages.set(language_tags)
+        program.refresh_from_db()
+        assert program_timestamp == program.data_modified_timestamp
 
         m2m_changed.disconnect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
 
@@ -1272,10 +1318,15 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         non_draft_course_run = factories.CourseRunFactory(
             course=non_draft_course, draft_version=draft_course_run, key=draft_course_run.key
         )
+        program = factories.ProgramFactory(courses=[non_draft_course])
+        program.refresh_from_db()
+
+
         staff1 = factories.PersonFactory()
         staff2 = factories.PersonFactory()
         staff3 = factories.PersonFactory()
         course_timestamp = draft_course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
 
         non_draft_course_run.staff.add(staff1, staff2, staff3)
 
@@ -1283,7 +1334,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             draft_course_run.staff.set((staff1, staff2))
 
         draft_course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < draft_course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_NAME,
@@ -1319,3 +1372,319 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
                 )
             )
         m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)
+
+
+    def test_program_labels_taggable_change(self):
+        program = factories.ProgramFactory()
+        program.refresh_from_db()
+        
+        last_change_time = program.data_modified_timestamp
+        
+        program.labels.set(['my_label', 'your_label'])
+
+        program.refresh_from_db()
+        assert last_change_time < program.data_modified_timestamp
+
+        last_change_time = program.data_modified_timestamp
+        program.labels.set(['my_label', 'your_label'])
+        program.refresh_from_db()
+        assert last_change_time == program.data_modified_timestamp
+
+
+    def test_program_excluded_runs_change(self):
+        run1, run2 = factories.CourseRunFactory.create_batch(2)
+
+        program = factories.ProgramFactory(courses = [run1.course, run2.course])
+        program.refresh_from_db()
+        
+        last_change_time = program.data_modified_timestamp
+        
+        program.excluded_course_runs.set([run1])
+
+        program.refresh_from_db()
+        assert last_change_time < program.data_modified_timestamp
+
+        last_change_time = program.data_modified_timestamp
+        program.excluded_course_runs.set([run1])
+        program.refresh_from_db()
+        assert last_change_time == program.data_modified_timestamp
+
+        last_change_time = program.data_modified_timestamp
+        program.excluded_course_runs.set([])
+        program.refresh_from_db()
+        assert last_change_time < program.data_modified_timestamp
+
+
+    @ddt.data(
+        ['authoring_organizations', factories.OrganizationFactory],
+        ['credit_backing_organizations', factories.OrganizationFactory],
+        ['corporate_endorsements', factories.CorporateEndorsementFactory],
+        ['courses', factories.CourseFactory],
+        ['faq', factories.FAQFactory],
+        ['individual_endorsements', factories.EndorsementFactory],
+        ['job_outlook_items', factories.JobOutlookItemFactory],
+        ['expected_learning_items', factories.ExpectedLearningItemFactory],
+        ['instructor_ordering', factories.PersonFactory]
+    )
+    @ddt.unpack
+    def test_program_sorted_m2m_change(self, field, factory):
+        program = factories.ProgramFactory()
+        obj1, obj2 = factory.create_batch(2)
+        program.refresh_from_db()
+        
+        last_change_time = program.data_modified_timestamp
+        
+        getattr(program, field).set([obj1.pk, obj2.pk])
+
+        program.refresh_from_db()
+        assert last_change_time < program.data_modified_timestamp
+
+        last_change_time = program.data_modified_timestamp
+        getattr(program, field).set([obj1, obj2])
+
+        program.refresh_from_db()
+        assert last_change_time == program.data_modified_timestamp
+
+        last_change_time = program.data_modified_timestamp
+        getattr(program, field).set([obj2, obj1])
+
+        program.refresh_from_db()
+        assert last_change_time < program.data_modified_timestamp
+
+
+    @ddt.data(
+        ['specializations', factories.SpecializationFactory],
+        ['rankings', factories.RankingFactory],
+    )
+    @ddt.unpack
+    def test_degree_sorted_m2m_change(self, field, factory):
+        degree = factories.DegreeFactory()
+        obj1, obj2 = factory.create_batch(2)
+        degree.refresh_from_db()
+        
+        last_change_time = degree.data_modified_timestamp
+        
+        getattr(degree, field).set([obj1.pk, obj2.pk])
+
+        degree.refresh_from_db()
+        assert last_change_time < degree.data_modified_timestamp
+
+        last_change_time = degree.data_modified_timestamp
+        getattr(degree, field).set([obj1, obj2])
+
+        degree.refresh_from_db()
+        assert last_change_time == degree.data_modified_timestamp
+
+        last_change_time = degree.data_modified_timestamp
+        getattr(degree, field).set([obj2, obj1])
+
+        degree.refresh_from_db()
+        assert last_change_time < degree.data_modified_timestamp
+
+    def test_degree_rank_update_timestamp(self):
+        degree = factories.DegreeFactory()
+        rank = factories.RankingFactory()
+        degree.rankings.set([rank])
+        degree.refresh_from_db()
+
+        last_timestamp  = degree.data_modified_timestamp
+        rank.description = 'wow, what a desc'
+        rank.save()
+
+        degree.refresh_from_db()
+        assert degree.data_modified_timestamp > last_timestamp
+
+    def test_degree_specialization_update_timestamp(self):
+        degree = factories.DegreeFactory()
+        spec = factories.SpecializationFactory()
+        degree.specializations.set([spec])
+        degree.refresh_from_db()
+
+        last_timestamp  = degree.data_modified_timestamp
+        spec.value = 'wow, what a value'
+        spec.save()
+
+        degree.refresh_from_db()
+        assert degree.data_modified_timestamp > last_timestamp
+
+    def test_degree_taxiform_update_timestamp(self):
+        degree = factories.DegreeFactory()
+        taxi = factories.TaxiFormFactory()
+        degree.taxi_form = taxi
+        degree.save()
+        degree.refresh_from_db()
+
+        last_timestamp  = degree.data_modified_timestamp
+        taxi.post_submit_url = 'https://post-submit-url.com'
+        taxi.save()
+
+        degree.refresh_from_db()
+        assert degree.data_modified_timestamp > last_timestamp
+
+    def test_degree_curriculum_timestamp_update(self):
+        degree = factories.DegreeFactory()
+        degree.refresh_from_db()
+
+        last_modified = degree.data_modified_timestamp
+        curriculum = factories.CurriculumFactory(program=degree)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        curriculum.save()
+        degree.refresh_from_db()
+        assert last_modified == degree.data_modified_timestamp
+
+        curriculum.marketing_text = 'Marketing awesome text'
+        curriculum.save()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        curr_course_member = factories.CurriculumCourseMembershipFactory(curriculum = curriculum)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        curr_course_member.delete()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+
+        last_modified = degree.data_modified_timestamp
+        curr_program_member = factories.CurriculumProgramMembershipFactory(curriculum = curriculum)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        curr_program_member.delete()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        curriculum.delete()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+    def test_degree_deadline_timestamp_update(self):
+        degree = factories.DegreeFactory()
+        degree.refresh_from_db()
+
+        last_modified = degree.data_modified_timestamp
+        deadline = factories.DegreeDeadlineFactory(degree=degree)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        deadline.save()
+        degree.refresh_from_db()
+        assert last_modified == degree.data_modified_timestamp
+
+        deadline.date = 'September 12, 1520'
+        deadline.save()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+
+    def test_degree_cost_timestamp_update(self):
+        degree = factories.DegreeFactory()
+        degree.refresh_from_db()
+
+        last_modified = degree.data_modified_timestamp
+        cost = factories.DegreeCostFactory(degree=degree)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        cost.save()
+        degree.refresh_from_db()
+        assert last_modified == degree.data_modified_timestamp
+
+        cost.amount = '$ 2011'
+        cost.save()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+
+    def test_degree_quick_facts_timestamp_update(self):
+        degree = factories.DegreeFactory()
+        degree.refresh_from_db()
+
+        last_modified = degree.data_modified_timestamp
+        quick_fact = factories.IconTextPairingFactory(degree=degree)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        quick_fact.save()
+        degree.refresh_from_db()
+        assert last_modified == degree.data_modified_timestamp
+
+        quick_fact.text = 'I am 45 feet tall'
+        quick_fact.save()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+    def test_degree_additional_metadata_timestamp_update(self):
+        degree = factories.DegreeFactory()
+        degree.refresh_from_db()
+
+        last_modified = degree.data_modified_timestamp
+        additional_metadata = factories.DegreeAdditionalMetadataFactory(degree=degree)
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+        last_modified = degree.data_modified_timestamp
+        additional_metadata.save()
+        degree.refresh_from_db()
+        assert last_modified == degree.data_modified_timestamp
+
+        additional_metadata.external_url = 'https://www.external-foobar.com'
+        additional_metadata.save()
+        degree.refresh_from_db()
+        assert last_modified < degree.data_modified_timestamp
+
+    def test_program_in_year_value_update_timestamp(self):
+        prog = factories.ProgramFactory()
+        in_year_value = factories.ProductValueFactory()
+        prog.in_year_value = in_year_value
+
+        last_modified = prog.data_modified_timestamp
+        prog.save()
+        prog.refresh_from_db()
+        assert last_modified < prog.data_modified_timestamp
+
+
+        last_modified  = prog.data_modified_timestamp
+        in_year_value.save()
+        prog.refresh_from_db()
+        assert last_modified == prog.data_modified_timestamp
+
+        in_year_value.per_click_international = 75
+        in_year_value.save()
+        prog.refresh_from_db()
+
+        assert last_modified < prog.data_modified_timestamp
+
+
+    def test_program_geolocation_update_timestamp(self):
+        prog = factories.ProgramFactory()
+        geoloc = factories.GeoLocationFactory()
+        prog.geolocation = geoloc
+
+        last_modified = prog.data_modified_timestamp
+        prog.save()
+        prog.refresh_from_db()
+        assert last_modified < prog.data_modified_timestamp
+
+
+        last_modified  = prog.data_modified_timestamp
+        geoloc.save()
+        prog.refresh_from_db()
+        assert last_modified == prog.data_modified_timestamp
+
+        geoloc.location_name = 'Lahore, PK'
+        geoloc.save()
+        prog.refresh_from_db()
+
+        assert last_modified < prog.data_modified_timestamp
