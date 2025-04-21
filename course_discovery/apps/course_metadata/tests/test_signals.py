@@ -1373,7 +1373,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             )
         m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)
 
-
     def test_program_labels_taggable_change(self):
         program = factories.ProgramFactory()
         program.refresh_from_db()
@@ -1389,7 +1388,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program.labels.set(['my_label', 'your_label'])
         program.refresh_from_db()
         assert last_change_time == program.data_modified_timestamp
-
 
     def test_program_excluded_runs_change(self):
         run1, run2 = factories.CourseRunFactory.create_batch(2)
@@ -1413,7 +1411,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program.excluded_course_runs.set([])
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
-
 
     @ddt.data(
         ['authoring_organizations', factories.OrganizationFactory],
@@ -1481,31 +1478,14 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree.refresh_from_db()
         assert last_change_time < degree.data_modified_timestamp
 
-    def test_degree_rank_update_timestamp(self):
-        degree = factories.DegreeFactory()
-        rank = factories.RankingFactory()
-        degree.rankings.set([rank])
+        last_change_time = degree.data_modified_timestamp
+        if field == 'rankings':
+            obj1.description = 'wow, what a desc'
+        else:
+            obj1.value = 'wow, what a value'
+        obj1.save()
         degree.refresh_from_db()
-
-        last_timestamp  = degree.data_modified_timestamp
-        rank.description = 'wow, what a desc'
-        rank.save()
-
-        degree.refresh_from_db()
-        assert degree.data_modified_timestamp > last_timestamp
-
-    def test_degree_specialization_update_timestamp(self):
-        degree = factories.DegreeFactory()
-        spec = factories.SpecializationFactory()
-        degree.specializations.set([spec])
-        degree.refresh_from_db()
-
-        last_timestamp  = degree.data_modified_timestamp
-        spec.value = 'wow, what a value'
-        spec.save()
-
-        degree.refresh_from_db()
-        assert degree.data_modified_timestamp > last_timestamp
+        assert degree.data_modified_timestamp > last_change_time
 
     def test_degree_taxiform_update_timestamp(self):
         degree = factories.DegreeFactory()
@@ -1566,125 +1546,54 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
-    def test_degree_deadline_timestamp_update(self):
+    @ddt.data(
+        (factories.DegreeAdditionalMetadataFactory, 'external_url', "https://www.external-url.com/"),
+        (factories.IconTextPairingFactory, 'text', 'I am 45 feet tall'),
+        (factories.DegreeCostFactory, 'amount', '$2011'),
+        (factories.DegreeDeadlineFactory, 'date', 'September 12, 1520')
+    )
+    @ddt.unpack
+    def test_degree_reverse_foreign_key_field_update_timestamp(self, related_factory, related_obj_field_name, related_obj_field_val):
         degree = factories.DegreeFactory()
         degree.refresh_from_db()
 
         last_modified = degree.data_modified_timestamp
-        deadline = factories.DegreeDeadlineFactory(degree=degree)
+        related_obj = related_factory(degree=degree)
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
         last_modified = degree.data_modified_timestamp
-        deadline.save()
+        related_obj.save()
         degree.refresh_from_db()
         assert last_modified == degree.data_modified_timestamp
 
-        deadline.date = 'September 12, 1520'
-        deadline.save()
+        setattr(related_obj, related_obj_field_name, related_obj_field_val)
+        related_obj.save()
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
+    @ddt.data(
+        ('in_year_value', factories.ProductValueFactory, 'per_click_international', 75),
+        ('geolocation', factories.GeoLocationFactory, 'location_name', 'Lahore, PK'),
+    )
+    @ddt.unpack
+    def test_program_foreign_key_field_update_timestamp(self, field_name, related_factory, related_obj_field_name, related_obj_field_val):
+        program = factories.ProgramFactory()
+        related_obj = related_factory()
+        setattr(program, field_name, related_obj) 
 
-    def test_degree_cost_timestamp_update(self):
-        degree = factories.DegreeFactory()
-        degree.refresh_from_db()
+        last_modified = program.data_modified_timestamp
+        program.save()
+        program.refresh_from_db()
+        assert last_modified < program.data_modified_timestamp
 
-        last_modified = degree.data_modified_timestamp
-        cost = factories.DegreeCostFactory(degree=degree)
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-        last_modified = degree.data_modified_timestamp
-        cost.save()
-        degree.refresh_from_db()
-        assert last_modified == degree.data_modified_timestamp
-
-        cost.amount = '$ 2011'
-        cost.save()
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-
-    def test_degree_quick_facts_timestamp_update(self):
-        degree = factories.DegreeFactory()
-        degree.refresh_from_db()
-
-        last_modified = degree.data_modified_timestamp
-        quick_fact = factories.IconTextPairingFactory(degree=degree)
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-        last_modified = degree.data_modified_timestamp
-        quick_fact.save()
-        degree.refresh_from_db()
-        assert last_modified == degree.data_modified_timestamp
-
-        quick_fact.text = 'I am 45 feet tall'
-        quick_fact.save()
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-    def test_degree_additional_metadata_timestamp_update(self):
-        degree = factories.DegreeFactory()
-        degree.refresh_from_db()
-
-        last_modified = degree.data_modified_timestamp
-        additional_metadata = factories.DegreeAdditionalMetadataFactory(degree=degree)
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-        last_modified = degree.data_modified_timestamp
-        additional_metadata.save()
-        degree.refresh_from_db()
-        assert last_modified == degree.data_modified_timestamp
-
-        additional_metadata.external_url = 'https://www.external-foobar.com'
-        additional_metadata.save()
-        degree.refresh_from_db()
-        assert last_modified < degree.data_modified_timestamp
-
-    def test_program_in_year_value_update_timestamp(self):
-        prog = factories.ProgramFactory()
-        in_year_value = factories.ProductValueFactory()
-        prog.in_year_value = in_year_value
-
-        last_modified = prog.data_modified_timestamp
-        prog.save()
-        prog.refresh_from_db()
-        assert last_modified < prog.data_modified_timestamp
-
-
-        last_modified  = prog.data_modified_timestamp
-        in_year_value.save()
-        prog.refresh_from_db()
+        last_modified  = program.data_modified_timestamp
+        related_obj.save()
+        program.refresh_from_db()
         assert last_modified == prog.data_modified_timestamp
 
-        in_year_value.per_click_international = 75
-        in_year_value.save()
-        prog.refresh_from_db()
-
-        assert last_modified < prog.data_modified_timestamp
-
-
-    def test_program_geolocation_update_timestamp(self):
-        prog = factories.ProgramFactory()
-        geoloc = factories.GeoLocationFactory()
-        prog.geolocation = geoloc
-
-        last_modified = prog.data_modified_timestamp
-        prog.save()
-        prog.refresh_from_db()
-        assert last_modified < prog.data_modified_timestamp
-
-
-        last_modified  = prog.data_modified_timestamp
-        geoloc.save()
-        prog.refresh_from_db()
-        assert last_modified == prog.data_modified_timestamp
-
-        geoloc.location_name = 'Lahore, PK'
-        geoloc.save()
-        prog.refresh_from_db()
+        setattr(related_obj, related_obj_field_name, related_obj_field_val)
+        related_obj.save()
+        program.refresh_from_db()
 
         assert last_modified < prog.data_modified_timestamp

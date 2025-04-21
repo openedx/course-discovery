@@ -3,6 +3,7 @@ import inspect
 import logging
 import time
 from datetime import datetime, timezone
+import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
@@ -457,7 +458,7 @@ def program_labels_changed(sender, instance, action, **kwargs):
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
             and kwargs['pk_set'] and instance._meta.label in ['course_metadata.Program', 'course_metadata.Degree']:
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.now()
+            data_modified_timestamp = datetime.now(pytz.UTC)
         )
 
 
@@ -505,19 +506,6 @@ def course_run_staff_changed(sender, instance, action, **kwargs):  # pylint: dis
             instance.course.set_data_modified_timestamp()
 
 
-program_m2m_map = {
-    field_name: getattr(Program, field_name).through for field_name in [
-        'authoring_organizations',
-        'expected_learning_items',
-        'faq',
-        'instructor_ordering',
-        'credit_backing_organizations',
-        'corporate_endorsements',
-        'job_outlook_items',
-        'individual_endorsements'
-    ]
-}
-
 @receiver(m2m_changed, sender=Program.authoring_organizations.through)
 @receiver(m2m_changed, sender=Program.expected_learning_items.through)
 @receiver(m2m_changed, sender=Program.faq.through)
@@ -530,9 +518,25 @@ program_m2m_map = {
 @receiver(m2m_changed, sender=Degree.specializations.through)
 @receiver(m2m_changed, sender=Degree.rankings.through)
 def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    """
+    Sorted m2m field, on a set(), first clears the field, and then adds the values. This makes it hard to
+    determine if the value has really changed, as from the local perspective of both a `clear` signal, or an
+    `add` signal there would be changes but globally, there might not be.
+
+    To circumvent that, we have chosen to hook into the `pre_clear` signal, and inside the signal handler,
+    traverse the stack to find the arguments that the sorted m2m field's `set()` was called with. We then
+    compare this value to the existing value to determine if there would be any changes.
+
+    This may break with newer versions of django-sortedm2m/django but I'd expect our tests to catch any such
+    scenarios. 
+    """
+
     field_name = sender._meta.model_name.split("_", 1)[1]
 
     if action == 'pre_clear' and not kwargs['reverse']:
+        # when this signal is called from the m2m field's set(), the 5th frame from the bottom
+        # corresponds to the frame of the set method. the objs param of that method contains
+        # the values being set()
         objs = inspect.stack()[4][0].f_locals['objs']
         if (len(objs) and isinstance(objs[0], int)):
             to_set = objs.copy()
@@ -542,16 +546,18 @@ def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: d
 
         if to_set != already_set:
             instance._meta.model.objects.filter(pk=instance.pk).update(
-                data_modified_timestamp = datetime.now()
+                data_modified_timestamp = datetime.now(pytz.UTC)
             )
 
 
 @receiver(m2m_changed, sender=Program.excluded_course_runs.through)
 def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
-
+    """
+    Signal handler to handle changes for the `excluded_course_runs` field on Programs.
+    """
     if action in ['pre_add', 'pre_remove']:
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.now()
+            data_modified_timestamp = datetime.now(pytz.UTC)
         )
 
 
