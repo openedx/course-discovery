@@ -2977,7 +2977,15 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
+            has_end_changed = self.field_tracker.has_changed('end')
+
             super().save(*args, **kwargs)
+
+            if has_end_changed:
+                for seat in self.seats.filter(type=Seat.VERIFIED):
+                    seat.upgrade_deadline_override = None
+                    seat.save(update_fields=['upgrade_deadline_override'])
+
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
             kwargs['force_update'] = True

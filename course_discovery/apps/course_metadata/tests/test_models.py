@@ -1679,6 +1679,29 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert course_timestamp == course_run.course.data_modified_timestamp
         assert program_timestamp == program.data_modified_timestamp
 
+    def test_verified_upgrade_deadline_reset_on_end_date_change(self):
+        """
+        Verify that changing the end date of a course run resets the upgrade_deadline_override.
+        """
+        original_end_date = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
+        new_end_date = original_end_date + datetime.timedelta(days=10)
+        course_run = factories.CourseRunFactory.create(end=original_end_date)
+
+        verified_seat_type = factories.SeatTypeFactory.verified()
+        verified_seat = factories.SeatFactory.create(
+            course_run=course_run,
+            type=verified_seat_type,
+            upgrade_deadline_override=datetime.datetime.now(pytz.UTC)
+        )
+
+        assert verified_seat.upgrade_deadline_override is not None
+
+        course_run.end = new_end_date
+        course_run.save()
+
+        verified_seat.refresh_from_db()
+        assert verified_seat.upgrade_deadline_override is None
+
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     """
