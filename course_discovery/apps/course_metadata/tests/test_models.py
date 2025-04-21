@@ -2350,7 +2350,7 @@ class ProductMetaTests(TestCase):
                 LOGGER_PATH,
                 'INFO',
                 f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
         )
 
@@ -2391,7 +2391,7 @@ class ProductMetaTests(TestCase):
                 LOGGER_PATH,
                 'INFO',
                 f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
         )
 
@@ -2580,7 +2580,7 @@ class AdditionalMetadataTests(TestCase):
                 LOGGER_PATH,
                 'INFO',
                 f"AdditionalMetadata update_product_data_modified_timestamp triggered "
-                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related products."
             )
         )
 
@@ -2622,7 +2622,7 @@ class AdditionalMetadataTests(TestCase):
                 LOGGER_PATH,
                 'INFO',
                 f"AdditionalMetadata update_product_data_modified_timestamp triggered "
-                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related products."
             )
         )
 

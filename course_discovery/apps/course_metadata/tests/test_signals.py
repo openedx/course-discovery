@@ -1590,10 +1590,10 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         last_modified  = program.data_modified_timestamp
         related_obj.save()
         program.refresh_from_db()
-        assert last_modified == prog.data_modified_timestamp
+        assert last_modified == program.data_modified_timestamp
 
         setattr(related_obj, related_obj_field_name, related_obj_field_val)
         related_obj.save()
         program.refresh_from_db()
 
-        assert last_modified < prog.data_modified_timestamp
+        assert last_modified < program.data_modified_timestamp
