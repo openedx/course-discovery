@@ -68,6 +68,9 @@ class Command(BaseCommand):
         elif options['marketable']:
             course_runs = course_runs.marketable()
 
+        # Reduce the memory usage
+        course_runs = course_runs.iterator()
+
         for course_run in course_runs:
             try:
                 ai_languages_data = lms_api_client.get_course_run_translations_and_transcriptions(course_run.key)
