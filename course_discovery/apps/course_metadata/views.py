@@ -55,7 +55,7 @@ class CourseMetadataRefresher(View):
         """Add a newly created course metadata fetched from LMS into Mysql
             URL: http://0.0.0.0:18000/api/courses/v1/courses/
         """
-        response = []
+        response = {}
         data = json.loads(request.body.decode('utf-8'))
 
         course_id = data.get('course_id')
@@ -74,22 +74,26 @@ class CourseMetadataRefresher(View):
                     '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
                     partner.oidc_key, partner.oidc_secret, token_type='JWT'
                 )
-                username = jwt.decode(access_token, verify=False)['preferred_username']
-
                 kwargs = {
                     'partner': partner, 'api_url': partner.courses_api_url, 'access_token': access_token,
                     'token_type': 'JWT', 'max_workers': 1, 'is_threadsafe': True, 'course_key': course_id
                 }
+                username = jwt.decode(access_token, verify=False)['preferred_username']
                 if username:
                     kwargs['username'] = username
 
                 CoursesApiDataLoader(**kwargs).ingest()
 
-                response.append({'partner': partner.short_code, 'course_key': course_id})
+                response[partner.short_code] = course_id
 
             except Exception as e:
-                response.append(
-                    {'partner': partner.short_code, 'course_key': course_id, 'error': str(e)}
+                error_message = 'code: {} | course_key: {} | error: {}'.format(
+                    partner.short_code, course_id, str(e)
                 )
+
+                if 'errors' in response:
+                    response['errors'].append(error_message)
+                else:
+                    response['errors'] = error_message
 
         return JsonResponse(response)

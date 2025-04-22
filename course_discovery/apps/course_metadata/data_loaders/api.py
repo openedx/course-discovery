@@ -175,7 +175,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         else:
             if self.target_course_key:
-                logger.info('*** Query Course => [ {} ] from LMS.'.format(self.target_course_key))
+                logger.info('*** Query Target Course => [ {} ] from LMS.'.format(self.target_course_key))
             else:
                 logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
 
