@@ -184,7 +184,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 'username': self.username, 'org': self.partner.short_code
             }
             if self.target_course_key:
-                kwargs['course_key'] = self.target_course_key
+                kwargs['id'] = self.target_course_key
 
             return self.api_client.courses().get(**kwargs)
 

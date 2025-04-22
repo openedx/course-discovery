@@ -94,6 +94,6 @@ class CourseMetadataRefresher(View):
                 if 'errors' in response:
                     response['errors'].append(error_message)
                 else:
-                    response['errors'] = error_message
+                    response['errors'] = [error_message]
 
         return JsonResponse(response)
