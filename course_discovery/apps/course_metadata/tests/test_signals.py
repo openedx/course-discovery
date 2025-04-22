@@ -1055,7 +1055,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         )
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -1126,7 +1125,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         )
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
         fact_1 = factories.FactFactory()
         fact_2 = factories.FactFactory()
         course_timestamp = course.data_modified_timestamp
@@ -1157,7 +1155,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
         program = factories.ProgramFactory(courses=[non_draft_course])
-        program.refresh_from_db()
 
         program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
@@ -1219,7 +1216,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
         program = factories.ProgramFactory(courses=[non_draft_course])
-        program.refresh_from_db()
 
         program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
@@ -1278,7 +1274,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         course = CourseFactory(draft=True)
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
         course_run = factories.CourseRunFactory(course=course, draft=True)
         language_tags = LanguageTag.objects.all()[:2]
         course_timestamp = course.data_modified_timestamp
@@ -1319,7 +1314,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             course=non_draft_course, draft_version=draft_course_run, key=draft_course_run.key
         )
         program = factories.ProgramFactory(courses=[non_draft_course])
-        program.refresh_from_db()
 
 
         staff1 = factories.PersonFactory()
@@ -1375,7 +1369,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
     def test_program_labels_taggable_change(self):
         program = factories.ProgramFactory()
-        program.refresh_from_db()
         
         last_change_time = program.data_modified_timestamp
         
@@ -1393,7 +1386,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         run1, run2 = factories.CourseRunFactory.create_batch(2)
 
         program = factories.ProgramFactory(courses = [run1.course, run2.course])
-        program.refresh_from_db()
         
         last_change_time = program.data_modified_timestamp
         

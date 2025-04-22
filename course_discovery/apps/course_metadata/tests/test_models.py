@@ -339,7 +339,6 @@ class TestCourse(TestCase):
         """
         course = factories.CourseFactory(draft=False)
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
 
         data_modified_timestamp = course.data_modified_timestamp
         prog_modified_timestamp = program.data_modified_timestamp
@@ -359,7 +358,6 @@ class TestCourse(TestCase):
             additional_metadata=AdditionalMetadataFactory(external_identifier='identifier_1')
         )
         prog = factories.ProgramFactory(courses=[course])
-        prog.refresh_from_db()
         data_modified_timestamp = course.data_modified_timestamp
         prog_timestamp = prog.data_modified_timestamp
         course.additional_metadata = AdditionalMetadataFactory(external_identifier='identifier_2')
@@ -602,7 +600,6 @@ class TestCourse(TestCase):
         draft_course = CourseFactory(draft=True, title="Test course")
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         program = ProgramFactory(courses=[non_draft_course])
-        program.refresh_from_db()
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
         # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
@@ -676,7 +673,6 @@ class TestCourse(TestCase):
         draft_course = CourseFactory(draft=True, title="Test course")
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
         program = ProgramFactory(courses=[non_draft_course])
-        program.refresh_from_db()
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
 
@@ -1666,7 +1662,6 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         """
         course_run = CourseRunFactory(draft=True, max_effort=9)
         program = ProgramFactory(courses=[course_run.course])
-        program.refresh_from_db()
         course_timestamp = course_run.course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
         course_run.max_effort = 10
@@ -2283,7 +2278,6 @@ class CertificateInfoTests(TestCase):
             )
         )
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
         cert_info.heading = 'updated heading'
@@ -2333,7 +2327,6 @@ class ProductMetaTests(TestCase):
         course.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
         product_meta.title = 'updated heading'
@@ -2377,7 +2370,6 @@ class ProductMetaTests(TestCase):
         )
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
         with LogCapture(LOGGER_PATH) as log:
@@ -2420,7 +2412,6 @@ class ProductValueTests(TestCase):
             in_year_value=product_value
         )
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
 
         program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
@@ -2468,7 +2459,6 @@ class GeoLocationTests(TestCase):
             geolocation=geoloc
         )
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
         geoloc.location_name = 'location 2'
@@ -2512,7 +2502,6 @@ class CourseLocationRestrictionTests(TestCase):
             location_restriction=location_restriction
         )
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
         program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
         location_restriction.restriction_type = 'blacklist'
@@ -2564,7 +2553,6 @@ class AdditionalMetadataTests(TestCase):
             additional_metadata=additional_metadata
         )
         program = factories.ProgramFactory(courses=[course])
-        program.refresh_from_db()
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -2606,7 +2594,6 @@ class AdditionalMetadataTests(TestCase):
 
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -2703,7 +2690,6 @@ class TaxiFormTests(TestCase):
         course2 = CourseFactory(additional_metadata=additional_metadata)
 
         program = ProgramFactory(courses = [course1])
-        program.refresh_from_db()
 
         program_timestamp = program.data_modified_timestamp
         course1_timestamp = course1.data_modified_timestamp
@@ -2727,7 +2713,6 @@ class TaxiFormTests(TestCase):
         additional_metadata = AdditionalMetadataFactory(taxi_form=taxi_form)
         course = CourseFactory(additional_metadata=additional_metadata)
         program = ProgramFactory(courses = [course])
-        program.refresh_from_db()
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -3896,7 +3881,6 @@ class CourseEntitlementTests(TestCase):
         course = factories.CourseFactory(draft=True)
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         program = factories.ProgramFactory(courses=[official_course])
-        program.refresh_from_db()
         entitlement = factories.CourseEntitlementFactory(course=course, mode=self.mode, draft=True, price=50)
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp

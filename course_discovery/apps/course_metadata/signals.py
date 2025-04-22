@@ -457,6 +457,7 @@ def program_labels_changed(sender, instance, action, **kwargs):
     """
     if action in ['pre_add', 'pre_remove'] and not kwargs['reverse'] \
             and kwargs['pk_set'] and instance._meta.label in ['course_metadata.Program', 'course_metadata.Degree']:
+        logger.info(f"{sender} has been updated for Program {instance.uuid}.")
         instance._meta.model.objects.filter(pk=instance.pk).update(
             data_modified_timestamp = datetime.now(pytz.UTC)
         )
@@ -538,10 +539,7 @@ def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: d
         # corresponds to the frame of the set method. the objs param of that method contains
         # the values being set()
         objs = inspect.stack()[4][0].f_locals['objs']
-        if (len(objs) and isinstance(objs[0], int)):
-            to_set = objs.copy()
-        else:
-            to_set = [obj.id for obj in objs]
+        to_set = [obj if isinstance(obj, int) else obj.id for obj in objs]
         already_set = list(getattr(instance, field_name).all().values_list('id', flat=True))
 
         if to_set != already_set:
