@@ -26,7 +26,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType, CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, RestrictedCourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.signals import (
-    connect_course_data_modified_timestamp_signal_handlers, disconnect_course_data_modified_timestamp_signal_handlers
+    connect_product_data_modified_timestamp_signal_handlers, disconnect_product_data_modified_timestamp_signal_handlers
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
@@ -66,11 +66,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_signal_handlers()
+        disconnect_product_data_modified_timestamp_signal_handlers()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        connect_course_data_modified_timestamp_signal_handlers()
+        connect_product_data_modified_timestamp_signal_handlers()
         super().tearDownClass()
 
     def mock_patch_to_studio(self, key, access_token=True, status=200, body=None):

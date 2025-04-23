@@ -559,7 +559,7 @@ def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disabl
         )
 
 
-def connect_course_data_modified_timestamp_related_models():
+def connect_product_data_modified_timestamp_related_models():
     """
     This wrapper is used to connect Course/Program model's related models (ForeignKey)
     whose data change should update data_modified_timestamp in Course/Program model.
@@ -598,7 +598,7 @@ def connect_course_data_modified_timestamp_related_models():
         pre_delete.connect(data_modified_timestamp_update__deletion, sender=model)
 
 
-def disconnect_course_data_modified_timestamp_related_models():
+def disconnect_product_data_modified_timestamp_related_models():
     """
     This wrapper is used to disconnect Course/Program model's related models (ForeignKey)
     whose data change should update data_modified_timestamp in Course/Program model. This
@@ -638,12 +638,12 @@ def disconnect_course_data_modified_timestamp_related_models():
         pre_delete.disconnect(data_modified_timestamp_update__deletion, sender=model)
 
 
-def disconnect_course_data_modified_timestamp_signal_handlers():
+def disconnect_product_data_modified_timestamp_signal_handlers():
     """
     Util method to disconnect all signal handlers that update data_modified_timestamp on
     Course/Program models.
     """
-    disconnect_course_data_modified_timestamp_related_models()
+    disconnect_product_data_modified_timestamp_related_models()
     m2m_changed.disconnect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
     m2m_changed.disconnect(course_topics_taggable_changed, sender=Course.topics.through)
     m2m_changed.disconnect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
@@ -670,12 +670,12 @@ def disconnect_course_data_modified_timestamp_signal_handlers():
         m2m_changed.disconnect(program_sorted_m2m_changed, sender=m2m_field)
 
 
-def connect_course_data_modified_timestamp_signal_handlers():
+def connect_product_data_modified_timestamp_signal_handlers():
     """
     Util method to connect all signal handlers that update data_modified_timestamp on
     Course/Program models.
     """
-    connect_course_data_modified_timestamp_related_models()
+    connect_product_data_modified_timestamp_related_models()
     m2m_changed.connect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
     m2m_changed.connect(course_topics_taggable_changed, sender=Course.topics.through)
     m2m_changed.connect(additional_metadata_facts_changed, sender=AdditionalMetadata.facts.through)
@@ -737,4 +737,4 @@ def handle_organization_group_removal(sender, instance, action, pk_set, reverse,
             )
 
 
-connect_course_data_modified_timestamp_related_models()
+connect_product_data_modified_timestamp_related_models()

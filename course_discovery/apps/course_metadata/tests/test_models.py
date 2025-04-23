@@ -47,7 +47,7 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.signals import (
-    connect_course_data_modified_timestamp_related_models, disconnect_course_data_modified_timestamp_related_models
+    connect_product_data_modified_timestamp_related_models, disconnect_product_data_modified_timestamp_related_models
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -75,11 +75,11 @@ class TestCourse(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_str(self):
@@ -938,11 +938,11 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):
@@ -2248,11 +2248,11 @@ class CertificateInfoTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_str(self):
@@ -2303,11 +2303,11 @@ class ProductMetaTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2394,11 +2394,11 @@ class ProductValueTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2441,11 +2441,11 @@ class GeoLocationTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2484,11 +2484,11 @@ class CourseLocationRestrictionTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2527,11 +2527,11 @@ class AdditionalMetadataTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_taxi_form(self):
@@ -2655,11 +2655,11 @@ class TaxiFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):
@@ -3853,11 +3853,11 @@ class CourseEntitlementTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):

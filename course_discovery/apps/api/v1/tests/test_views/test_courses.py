@@ -31,8 +31,8 @@ from course_discovery.apps.course_metadata.models import (
     RestrictedCourseRun, Seat, Source, TaxiForm
 )
 from course_discovery.apps.course_metadata.signals import (
-    additional_metadata_facts_changed, connect_course_data_modified_timestamp_signal_handlers,
-    disconnect_course_data_modified_timestamp_signal_handlers, product_meta_taggable_changed
+    additional_metadata_facts_changed, connect_product_data_modified_timestamp_signal_handlers,
+    disconnect_product_data_modified_timestamp_signal_handlers, product_meta_taggable_changed
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
@@ -79,11 +79,11 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_signal_handlers()
+        disconnect_product_data_modified_timestamp_signal_handlers()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        connect_course_data_modified_timestamp_signal_handlers()
+        connect_product_data_modified_timestamp_signal_handlers()
         super().tearDownClass()
 
     def mock_ecommerce_publication(self):

@@ -33,9 +33,9 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.signals import (
     _duplicate_external_key_message, additional_metadata_facts_changed,
-    connect_course_data_modified_timestamp_signal_handlers, course_collaborators_changed, course_run_staff_changed,
+    connect_product_data_modified_timestamp_signal_handlers, course_collaborators_changed, course_run_staff_changed,
     course_run_transcript_languages_changed, course_subjects_changed, course_topics_taggable_changed,
-    disconnect_course_data_modified_timestamp_signal_handlers, product_meta_taggable_changed,
+    disconnect_product_data_modified_timestamp_signal_handlers, product_meta_taggable_changed,
     update_course_data_from_event, program_labels_changed, program_sorted_m2m_changed,
     program_excluded_runs, 
 )
@@ -1034,11 +1034,11 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_signal_handlers()
+        disconnect_product_data_modified_timestamp_signal_handlers()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        connect_course_data_modified_timestamp_signal_handlers()
+        connect_product_data_modified_timestamp_signal_handlers()
         super().tearDownClass()
 
     def test_product_meta_keywords_change(self):
