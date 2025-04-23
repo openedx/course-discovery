@@ -8,7 +8,7 @@ import pytest
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, pre_save, pre_delete
 from django.test import TestCase, override_settings
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
@@ -25,22 +25,23 @@ from course_discovery.apps.course_metadata.algolia_models import (
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig,
-    BulkOperationTask, BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun,
-    CSVDataLoaderConfiguration, Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig,
-    DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
+    BulkOperationTask, BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun, CSVDataLoaderConfiguration,
+    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig, Degree, DeletePersonDupsConfig,
+    DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
     MigratePublisherToCourseMetadataConfig, ProductMeta, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
-    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TaxiForm, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import (
     _duplicate_external_key_message, additional_metadata_facts_changed,
     connect_course_data_modified_timestamp_signal_handlers, course_collaborators_changed, course_run_staff_changed,
     course_run_transcript_languages_changed, course_subjects_changed, course_topics_taggable_changed,
     disconnect_course_data_modified_timestamp_signal_handlers, product_meta_taggable_changed,
-    update_course_data_from_event
+    update_course_data_from_event, program_labels_changed, program_sorted_m2m_changed,
+    program_excluded_runs, 
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory
-from course_discovery.apps.course_metadata.utils import set_official_state
+from course_discovery.apps.course_metadata.utils import set_official_state, data_modified_timestamp_update, data_modified_timestamp_update__deletion
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import GroupFactory, OrganizationExtensionFactory
 
@@ -1033,7 +1034,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # disconnect_course_data_modified_timestamp_signal_handlers()
+        disconnect_course_data_modified_timestamp_signal_handlers()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -1054,7 +1055,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             )
         )
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
-        program = factories.ProgramFactory(courses=[official_course])
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -1124,7 +1125,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             additional_metadata=additional_metadata
         )
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
-        program = factories.ProgramFactory(courses=[official_course])
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
         fact_1 = factories.FactFactory()
         fact_2 = factories.FactFactory()
         course_timestamp = course.data_modified_timestamp
@@ -1154,7 +1155,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
-        program = factories.ProgramFactory(courses=[non_draft_course])
+        program = factories.ProgramFactory(courses=[non_draft_course], refresh=True)
 
         program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
@@ -1215,7 +1216,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         draft_course = CourseFactory(draft=True)
         non_draft_course = CourseFactory(draft_version=draft_course, key=draft_course.key)
-        program = factories.ProgramFactory(courses=[non_draft_course])
+        program = factories.ProgramFactory(courses=[non_draft_course], refresh=True)
 
         program_timestamp = program.data_modified_timestamp
         course_timestamp = draft_course.data_modified_timestamp
@@ -1273,7 +1274,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.connect(course_run_transcript_languages_changed, sender=CourseRun.transcript_languages.through)
         course = CourseFactory(draft=True)
         official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
-        program = factories.ProgramFactory(courses=[official_course])
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
         course_run = factories.CourseRunFactory(course=course, draft=True)
         language_tags = LanguageTag.objects.all()[:2]
         course_timestamp = course.data_modified_timestamp
@@ -1313,7 +1314,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         non_draft_course_run = factories.CourseRunFactory(
             course=non_draft_course, draft_version=draft_course_run, key=draft_course_run.key
         )
-        program = factories.ProgramFactory(courses=[non_draft_course])
+        program = factories.ProgramFactory(courses=[non_draft_course], refresh=True)
 
 
         staff1 = factories.PersonFactory()
@@ -1368,7 +1369,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)
 
     def test_program_labels_taggable_change(self):
-        program = factories.ProgramFactory()
+        m2m_changed.connect(program_labels_changed, sender=Program.labels.through)
+
+        program = factories.ProgramFactory(refresh=True)
         
         last_change_time = program.data_modified_timestamp
         
@@ -1381,11 +1384,14 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program.labels.set(['my_label', 'your_label'])
         program.refresh_from_db()
         assert last_change_time == program.data_modified_timestamp
+        m2m_changed.disconnect(program_labels_changed, sender=Program.labels.through)
 
     def test_program_excluded_runs_change(self):
+        m2m_changed.connect(program_excluded_runs, sender=Program.excluded_course_runs.through)
+
         run1, run2 = factories.CourseRunFactory.create_batch(2)
 
-        program = factories.ProgramFactory(courses = [run1.course, run2.course])
+        program = factories.ProgramFactory(courses = [run1.course, run2.course], refresh=True)
         
         last_change_time = program.data_modified_timestamp
         
@@ -1403,6 +1409,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program.excluded_course_runs.set([])
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
+        m2m_changed.disconnect(program_excluded_runs, sender=Program.excluded_course_runs.through)
 
     @ddt.data(
         ['authoring_organizations', factories.OrganizationFactory],
@@ -1417,6 +1424,8 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_program_sorted_m2m_change(self, field, factory):
+        m2m_changed.connect(program_sorted_m2m_changed, sender=getattr(Program, field).through)
+
         program = factories.ProgramFactory()
         obj1, obj2 = factory.create_batch(2)
         program.refresh_from_db()
@@ -1439,6 +1448,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
+        m2m_changed.disconnect(program_sorted_m2m_changed, sender=getattr(Program, field).through)
 
 
     @ddt.data(
@@ -1447,6 +1457,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_degree_sorted_m2m_change(self, field, factory):
+        m2m_changed.connect(program_sorted_m2m_changed, sender=getattr(Degree, field).through)
+        pre_save.connect(data_modified_timestamp_update, sender=factory._meta.model)
+
         degree = factories.DegreeFactory()
         obj1, obj2 = factory.create_batch(2)
         degree.refresh_from_db()
@@ -1478,8 +1491,12 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         obj1.save()
         degree.refresh_from_db()
         assert degree.data_modified_timestamp > last_change_time
+        pre_save.disconnect(data_modified_timestamp_update, sender=factory._meta.model)
+        m2m_changed.disconnect(program_sorted_m2m_changed, sender=getattr(Degree, field).through)
 
     def test_degree_taxiform_update_timestamp(self):
+        pre_save.connect(data_modified_timestamp_update, sender=TaxiForm)
+
         degree = factories.DegreeFactory()
         taxi = factories.TaxiFormFactory()
         degree.taxi_form = taxi
@@ -1492,8 +1509,13 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         degree.refresh_from_db()
         assert degree.data_modified_timestamp > last_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=TaxiForm)
 
     def test_degree_curriculum_timestamp_update(self):
+        for model in [Curriculum, CurriculumCourseMembership, CurriculumProgramMembership]:
+            pre_save.connect(data_modified_timestamp_update, sender=model)
+            pre_delete.connect(data_modified_timestamp_update__deletion, sender=model)
+
         degree = factories.DegreeFactory()
         degree.refresh_from_db()
 
@@ -1538,6 +1560,11 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
+        for model in [Curriculum, CurriculumCourseMembership, CurriculumProgramMembership]:
+            pre_save.disconnect(data_modified_timestamp_update, sender=model)
+            pre_delete.disconnect(data_modified_timestamp_update__deletion, sender=model)
+
+
     @ddt.data(
         (factories.DegreeAdditionalMetadataFactory, 'external_url', "https://www.external-url.com/"),
         (factories.IconTextPairingFactory, 'text', 'I am 45 feet tall'),
@@ -1546,6 +1573,8 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_degree_reverse_foreign_key_field_update_timestamp(self, related_factory, related_obj_field_name, related_obj_field_val):
+        pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
+
         degree = factories.DegreeFactory()
         degree.refresh_from_db()
 
@@ -1563,6 +1592,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         related_obj.save()
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=related_factory._meta.model)
 
     @ddt.data(
         ('in_year_value', factories.ProductValueFactory, 'per_click_international', 75),
@@ -1570,6 +1600,8 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_program_foreign_key_field_update_timestamp(self, field_name, related_factory, related_obj_field_name, related_obj_field_val):
+        pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
+
         program = factories.ProgramFactory()
         related_obj = related_factory()
         setattr(program, field_name, related_obj) 
@@ -1589,3 +1621,4 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program.refresh_from_db()
 
         assert last_modified < program.data_modified_timestamp
+        pre_save.disconnect(data_modified_timestamp_update, sender=related_factory._meta.model)

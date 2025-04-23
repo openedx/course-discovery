@@ -561,8 +561,8 @@ def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disabl
 
 def connect_course_data_modified_timestamp_related_models():
     """
-    This wrapper is used to connect Course model's related models (ForeignKey)
-    whose data change should update data_modified_timestamp in Course model.
+    This wrapper is used to connect Course/Program model's related models (ForeignKey)
+    whose data change should update data_modified_timestamp in Course/Program model.
     """
     for model in [
         AdditionalMetadata,
@@ -600,8 +600,8 @@ def connect_course_data_modified_timestamp_related_models():
 
 def disconnect_course_data_modified_timestamp_related_models():
     """
-    This wrapper is used to disconnect Course model's related models (ForeignKey)
-    whose data change should update data_modified_timestamp in Course model. This
+    This wrapper is used to disconnect Course/Program model's related models (ForeignKey)
+    whose data change should update data_modified_timestamp in Course/Program model. This
     is to be used in unit tests to disconnect these signals.
     """
     for model in [
@@ -641,7 +641,7 @@ def disconnect_course_data_modified_timestamp_related_models():
 def disconnect_course_data_modified_timestamp_signal_handlers():
     """
     Util method to disconnect all signal handlers that update data_modified_timestamp on
-    Course model.
+    Course/Program models.
     """
     disconnect_course_data_modified_timestamp_related_models()
     m2m_changed.disconnect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
@@ -651,12 +651,29 @@ def disconnect_course_data_modified_timestamp_signal_handlers():
     m2m_changed.disconnect(course_collaborators_changed, Course.collaborators.through)
     m2m_changed.disconnect(course_subjects_changed, Course.subjects.through)
     m2m_changed.disconnect(course_run_staff_changed, CourseRun.staff.through)
+    m2m_changed.disconnect(program_labels_changed, sender=Program.labels.through)
+    m2m_changed.disconnect(program_excluded_runs, sender=Program.excluded_course_runs.through)
+
+    for m2m_field in [
+        Program.authoring_organizations.through,
+        Program.expected_learning_items.through,
+        Program.faq.through,
+        Program.instructor_ordering.through,
+        Program.credit_backing_organizations.through,
+        Program.corporate_endorsements.through,
+        Program.job_outlook_items.through,
+        Program.individual_endorsements.through,
+        Program.courses.through,
+        Degree.specializations.through,
+        Degree.rankings.through,
+    ]:
+        m2m_changed.disconnect(program_sorted_m2m_changed, sender=m2m_field)
 
 
 def connect_course_data_modified_timestamp_signal_handlers():
     """
     Util method to connect all signal handlers that update data_modified_timestamp on
-    Course model.
+    Course/Program models.
     """
     connect_course_data_modified_timestamp_related_models()
     m2m_changed.connect(product_meta_taggable_changed, sender=ProductMeta.keywords.through)
@@ -666,7 +683,23 @@ def connect_course_data_modified_timestamp_signal_handlers():
     m2m_changed.connect(course_collaborators_changed, Course.collaborators.through)
     m2m_changed.connect(course_subjects_changed, Course.subjects.through)
     m2m_changed.connect(course_run_staff_changed, CourseRun.staff.through)
+    m2m_changed.connect(program_labels_changed, sender=Program.labels.through)
+    m2m_changed.connect(program_excluded_runs, sender=Program.excluded_course_runs.through)
 
+    for m2m_field in [
+        Program.authoring_organizations.through,
+        Program.expected_learning_items.through,
+        Program.faq.through,
+        Program.instructor_ordering.through,
+        Program.credit_backing_organizations.through,
+        Program.corporate_endorsements.through,
+        Program.job_outlook_items.through,
+        Program.individual_endorsements.through,
+        Program.courses.through,
+        Degree.specializations.through,
+        Degree.rankings.through,
+    ]:
+        m2m_changed.connect(program_sorted_m2m_changed, sender=m2m_field)
 
 @receiver(m2m_changed, sender=User.groups.through)
 def handle_organization_group_removal(sender, instance, action, pk_set, reverse, **kwargs):  # pylint: disable=unused-argument

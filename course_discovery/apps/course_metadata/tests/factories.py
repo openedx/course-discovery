@@ -758,7 +758,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     ## while running the other postgen hooks (e.g in signal handlers)
     @factory.post_generation
     def refresh(self, create, extracted, **kwargs):
-        if create:  # pragma: no cover
+        if create and extracted:  # pragma: no cover
             self.refresh_from_db()
 
 
