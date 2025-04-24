@@ -5,7 +5,10 @@ import logging
 
 from celery import shared_task
 
-from course_discovery.apps.course_metadata.models import Course, CourseType, Program, ProgramType
+from course_discovery.apps.core.models import Partner
+from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
+from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
+from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, Program, ProgramType
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,3 +53,43 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
     LOGGER.info(sub_tag_log, org_pk, len(programs), 'programs')
     for program in programs:
         program.save()
+
+
+def select_and_init_bulk_operation_loader(bulk_operation_task):
+    """
+    Identifies and instantiates the appropriate data loader for a given BulkOperationTask.
+    """
+    if bulk_operation_task.task_type == BulkOperationType.CourseCreate:
+        partner = Partner.objects.get(short_code='edx')
+        loader = CourseLoader(
+            partner,
+            csv_file=bulk_operation_task.csv_file,
+            product_source='edx',
+            task_type=BulkOperationType.CourseCreate,
+        )
+        return loader
+    else:
+        raise ValueError(f"Cannot find loader for task type {bulk_operation_task.task_type}")
+
+
+@shared_task()
+def process_bulk_operation(bulk_operation_task_id):
+    """
+    Task to process a given BulkOperationTask.
+    """
+    LOGGER.info(f"Starting processing for BulkOperationTask {bulk_operation_task_id}")
+    try:
+        bulk_operation_task = BulkOperationTask.objects.get(id=bulk_operation_task_id)
+        loader = select_and_init_bulk_operation_loader(bulk_operation_task)
+        bulk_operation_task.status = BulkOperationStatus.Processing
+        bulk_operation_task.save()
+
+        summary = loader.ingest()
+        bulk_operation_task.task_summary = summary
+        bulk_operation_task.status = BulkOperationStatus.Completed
+        bulk_operation_task.save()
+    except Exception as exc:
+        LOGGER.exception(f"An exception occurred while processing BulkOperationTask with id {bulk_operation_task_id}")
+        bulk_operation_task.status = BulkOperationStatus.Failed
+        bulk_operation_task.save()
+        raise exc

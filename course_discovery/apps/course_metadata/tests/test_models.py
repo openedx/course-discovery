@@ -18,7 +18,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django_celery_results.models import TaskResult
 from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
@@ -34,7 +34,8 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import (
-    BulkOperationType, CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus, ProgramStatus
+    BulkOperationStatus, BulkOperationType, CourseRunRestrictionType, CourseRunStatus, ExternalProductStatus,
+    ProgramStatus
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_PROGRAM_SLUG_FORMAT_REGEX as slug_format
 from course_discovery.apps.course_metadata.models import (
@@ -4373,7 +4374,51 @@ class RestrictedCourseRunTests(TestCase):
         self.assertEqual(str(restricted_course_run), "course-v1:SC+BreadX+3T2015: <custom-b2b-enterprise>")
 
 
-class BulkOperationTaskTest(TestCase):
+class BulkOperationTaskTest(TransactionTestCase):
+    def test_create_queues_task(self):
+        """
+        Verify that creation of a BulkOperationTask queues a celery task for its processing
+        """
+        with mock.patch(
+            'course_discovery.apps.course_metadata.signals.process_bulk_operation.apply_async'
+        ) as mocked_apply_async:
+            with mock.patch('course_discovery.apps.course_metadata.signals.uuid', return_value='123456-aaaa-bbbb'):
+                bulk_operation_task = BulkOperationTaskFactory()
+                bulk_operation_task.refresh_from_db()
+                mocked_apply_async.assert_called_with(
+                    args=[bulk_operation_task.id], task_id=bulk_operation_task.task_id
+                )
+                bulk_operation_task.save()
+                self.assertEqual(mocked_apply_async.call_count, 1)
+
+    def test_bulk_operation_celery_task__success(self):
+        """
+        Verify that the celery task triggered on creation of a BulkOperationTask appropriately
+        modified the state(status and summary) of the BulkOperationTask
+        """
+        with mock.patch('course_discovery.apps.course_metadata.tasks.CourseLoader') as mock_loader:
+            mock_loader.return_value.ingest.return_value = {"success_count": 23, "failure_count": 2}
+            PartnerFactory(short_code='edx')
+            bulk_operation_task = BulkOperationTaskFactory(task_type=BulkOperationType.CourseCreate)
+            bulk_operation_task.refresh_from_db()
+
+            self.assertEqual(bulk_operation_task.status, BulkOperationStatus.Completed)
+            self.assertEqual(bulk_operation_task.task_summary, {"success_count": 23, "failure_count": 2})
+
+    def test_bulk_operation_celery_task__failure(self):
+        """
+        Verify that the celery task triggered on creation of a BulkOperationTask appropriately
+        modified the state(status and summary) of the BulkOperationTask in the case that it fails
+        """
+        with mock.patch('course_discovery.apps.course_metadata.tasks.CourseLoader') as mock_loader:
+            mock_loader.return_value.ingest.side_effect = KeyError("Can not find short_description")
+            PartnerFactory(short_code='edx')
+            bulk_operation_task = BulkOperationTaskFactory(task_type=BulkOperationType.CourseCreate)
+            bulk_operation_task.refresh_from_db()
+
+            self.assertEqual(bulk_operation_task.status, BulkOperationStatus.Failed)
+            self.assertEqual(bulk_operation_task.task_summary, None)
+
     def test_bulk_operation_task_creation(self):
         """
         Verify that the bulk operation task is created with the correct attributes.
@@ -4387,12 +4432,13 @@ class BulkOperationTaskTest(TestCase):
         """
         Verify that the task_result method returns the correct TaskResult object
         """
-        bulk_operation = BulkOperationTaskFactory(task_id="test-task-123")
-        task_result = TaskResult.objects.create(
-            task_id="test-task-123",
-            status="SUCCESS",
-            result='{"message": "Task completed"}'
-        )
+        with mock.patch('course_discovery.apps.course_metadata.signals.uuid', return_value='test-task-123'):
+            bulk_operation = BulkOperationTaskFactory()
+            task_result = TaskResult.objects.create(
+                task_id="test-task-123",
+                status="SUCCESS",
+                result='{"message": "Task completed"}'
+            )
         result = bulk_operation.task_result
         self.assertEqual(result, task_result)
 

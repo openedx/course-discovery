@@ -5046,7 +5046,7 @@ class BulkOperationTask(TimeStampedModel):
         blank=True,
         help_text=_('User who uploaded the file')
     )
-    task_summary = models.TextField(
+    task_summary = models.JSONField(
         null=True,
         blank=True,
         help_text=_('Summary of the task')
