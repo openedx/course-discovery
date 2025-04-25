@@ -2,15 +2,13 @@ from datetime import datetime
 
 import factory
 from django.contrib.auth.models import Group
-# pylint:disable=ungrouped-imports
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.factories import UserFactory, add_m2m_data
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
@@ -20,27 +18,8 @@ from course_discovery.apps.publisher.models import (
 
 class CourseFactory(factory.DjangoModelFactory):
     title = FuzzyText()
-    short_description = FuzzyText()
-    full_description = FuzzyText()
     number = FuzzyText()
-    prerequisites = FuzzyText()
-    expected_learnings = FuzzyText()
-    syllabus = FuzzyText()
-    learner_testimonial = FuzzyText()
-    level_type = factory.SubFactory(factories.LevelTypeFactory)
-    image = factory.django.ImageField()
     version = Course.SEAT_VERSION
-
-    primary_subject = factory.SubFactory(factories.SubjectFactory)
-    secondary_subject = factory.SubFactory(factories.SubjectFactory)
-    tertiary_subject = factory.SubFactory(factories.SubjectFactory)
-    faq = FuzzyText()
-    video_link = factory.Faker('url')
-
-    @factory.post_generation
-    def organizations(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
-        if create:
-            add_m2m_data(self.organizations, extracted)
 
     class Meta:
         model = Course
@@ -50,29 +29,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    certificate_generation = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
-    min_effort = FuzzyInteger(1, 10)
-    max_effort = FuzzyInteger(10, 20)
-    language = factory.Iterator(LanguageTag.objects.all())
     pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
-    length = FuzzyInteger(1, 10)
-    notes = FuzzyText()
-    preview_url = factory.Faker('url')
-    contacted_partner_manager = FuzzyChoice((True, False))
-    video_language = factory.Iterator(LanguageTag.objects.all())
-    short_description_override = FuzzyText()
-    title_override = FuzzyText()
-    full_description_override = FuzzyText()
-
-    @factory.post_generation
-    def staff(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
-        if create:
-            add_m2m_data(self.staff, extracted)
-
-    @factory.post_generation
-    def transcript_languages(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
-        if create:
-            add_m2m_data(self.transcript_languages, extracted)
 
     class Meta:
         model = CourseRun

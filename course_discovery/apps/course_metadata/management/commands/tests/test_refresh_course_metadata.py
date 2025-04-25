@@ -10,7 +10,7 @@ from django.test import TransactionTestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
@@ -39,7 +39,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
-            (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
         self.kwargs = {'username': 'bob'}
@@ -209,7 +208,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     CourseMarketingSiteDataLoader,
                     OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
-                    EcommerceApiDataLoader,
                     ProgramsApiDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]

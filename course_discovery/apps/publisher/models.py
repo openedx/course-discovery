@@ -52,45 +52,8 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
     number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
-    short_description = models.TextField(
-        default=None, null=True, blank=True, verbose_name=_('Brief Description')
-    )
-    full_description = models.TextField(default=None, null=True, blank=True, verbose_name=_('Full Description'))
-    organizations = models.ManyToManyField(
-        Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
-    )
-    level_type = models.ForeignKey(
-        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Level Type')
-    )
-    expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("Expected Learnings"))
-    syllabus = models.TextField(default=None, null=True, blank=True)
-    prerequisites = models.TextField(default=None, null=True, blank=True, verbose_name=_('Prerequisites'))
-    learner_testimonial = models.TextField(default=None, null=True, blank=True, verbose_name=_('Learner Testimonials'))
-    primary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_primary'
-    )
-    secondary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_secondary'
-    )
-    tertiary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_tertiary'
-    )
 
-    image = StdImageField(
-        upload_to=UploadToFieldNamePath(
-            populate_from='number',
-            path='media/publisher/courses/images'
-        ),
-        blank=True,
-        null=True,
-        validators=[ImageMultiSizeValidator([(2120, 1192), (378, 225)], preferred_size=(1134, 675))]
-    )
-
-    is_seo_review = models.BooleanField(default=False)
     keywords = TaggableManager(blank=True, verbose_name='keywords')
-    faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
-    video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
-    version = models.IntegerField(default=SEAT_VERSION, verbose_name='Workflow Version')
 
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
@@ -135,19 +98,6 @@ class Course(TimeStampedModel, ChangedByMixin):
             return self.course_user_roles.get(user=user).role
         except CourseUserRole.DoesNotExist:
             return None
-
-    @property
-    def organization_name(self):
-        """
-        Returns organization name for a course.
-        """
-        organization_name = ''
-        try:
-            organization_name = self.organizations.only('key').first().key
-        except AttributeError:
-            pass
-
-        return organization_name
 
     @property
     def keywords_data(self):
@@ -278,79 +228,19 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
-    certificate_generation = models.DateTimeField(null=True, blank=True)
     pacing_type = models.CharField(
         max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
         validators=[CourseRunPacing.validator]
     )
-    staff = SortedManyToManyField(Person, blank=True, related_name='publisher_course_runs_staffed')
-    min_effort = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        help_text=_('Estimated minimum number of hours per week needed to complete a course run.'))
-    max_effort = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
-    language = models.ForeignKey(
-        LanguageTag, null=True, blank=True,
-        related_name='publisher_course_runs', verbose_name=_('Content Language')
-    )
-    transcript_languages = models.ManyToManyField(
-        LanguageTag, blank=True, related_name='publisher_transcript_course_runs'
-    )
-    length = models.PositiveIntegerField(
-        null=True, blank=True, help_text=_("Length of course, in number of weeks")
-    )
-    sponsor = models.ManyToManyField(Organization, blank=True, related_name='publisher_course_runs')
-
-    is_re_run = models.BooleanField(default=False)
-    is_xseries = models.BooleanField(default=False)
-    xseries_name = models.CharField(max_length=255, null=True, blank=True)
-    is_micromasters = models.BooleanField(default=False)
-    micromasters_name = models.CharField(max_length=255, null=True, blank=True)
-    is_professional_certificate = models.BooleanField(default=False)
-    professional_certificate_name = models.CharField(max_length=255, null=True, blank=True)
-    contacted_partner_manager = models.BooleanField(default=False)
-
-    notes = models.TextField(
-        default=None, null=True, blank=True, help_text=_(
-            "Please add any additional notes or special instructions for the course About Page."
-        )
-    )
-    target_content = models.BooleanField(default=False)
-    priority = models.CharField(
-        max_length=5, choices=PRIORITY_LEVELS, null=True, blank=True
-    )
-    course_team_admins = models.TextField(
-        default=None, blank=True, null=True, help_text=_("Comma separated list of edX usernames or emails of admins.")
-    )
-    course_team_additional_staff = models.TextField(
-        default=None, blank=True, null=True, help_text=_(
-            "Comma separated list of edX usernames or emails of additional staff."
-        )
-    )
-    video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
-    preview_url = models.URLField(null=True, blank=True)
 
     # temporary field to save the canonical course run image. In 2nd script this url field
     # will be used to download the image and save into course model --> course image.
     card_image_url = models.URLField(null=True, blank=True, verbose_name='canonical course run image')
 
-    short_description_override = models.CharField(
-        max_length=255, default=None, null=True, blank=True,
-        help_text=_(
-            "Short description specific for this run of a course. Leave this value blank to default to "
-            "the parent course's short_description attribute."))
-
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
             "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
-
-    full_description_override = models.TextField(
-        default=None, null=True, blank=True,
-        help_text=_(
-            "Full description specific for this run of a course. Leave this value blank to default to "
-            "the parent course's full_description attribute."))
 
     history = HistoricalRecords()
 
@@ -376,61 +266,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return urljoin(self.course.partner.studio_url, path)
 
         return None
-
-    @property
-    def has_valid_staff(self):
-        """ Check that each staff member has his bio data and image."""
-        staff_members = self.staff.all()
-        if not staff_members:
-            return False
-
-        return all([staff.bio and staff.get_profile_image_url for staff in staff_members])
-
-    @property
-    def is_valid_micromasters(self):
-        """ Check that `micromasters_name` is provided if is_micromaster is True."""
-        if not self.is_micromasters:
-            return True
-
-        if self.is_micromasters and self.micromasters_name:
-            return True
-
-        return False
-
-    @property
-    def is_valid_xseries(self):
-        """ Check that `xseries_name` is provided if is_xseries is True."""
-        if not self.is_xseries:
-            return True
-
-        if self.is_xseries and self.xseries_name:
-            return True
-
-        return False
-
-    @property
-    def is_valid_professional_certificate(self):
-        """ Check that `professional_certificate_name` is provided if is_professional_certificate is True."""
-        if not self.is_professional_certificate:
-            return True
-
-        if self.is_professional_certificate and self.professional_certificate_name:
-            return True
-
-        return False
-
-    @property
-    def has_valid_seats(self):
-        """
-        Validate course-run has a  valid seats.
-        """
-        seats = self.seats.filter(type__in=[Seat.AUDIT, Seat.VERIFIED, Seat.PROFESSIONAL, Seat.CREDIT])
-        return all([seat.is_valid_seat for seat in seats]) if seats else False
-
-    @property
-    def paid_seats(self):
-        """ Return course run paid seats """
-        return self.seats.filter(type__in=Seat.PAID_SEATS)
 
     def get_absolute_url(self):
         return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})

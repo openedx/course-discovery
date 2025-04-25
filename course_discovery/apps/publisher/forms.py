@@ -68,113 +68,22 @@ class BaseForm(forms.ModelForm):
 
 
 class CourseForm(BaseForm):
-    organization = forms.ModelChoiceField(
-        queryset=Organization.objects.filter(
-            organization_extension__organization_id__isnull=False
-        ).order_by(Lower('key')),
-        label=_('Organization Name'),
-        required=True
-    )
     title = forms.CharField(label=_('Course Title'), required=True)
     number = forms.CharField(
         label=_('Course Number'), required=True,
         validators=[validate_text_count(max_length=50)]
     )
-    short_description = forms.CharField(
-        label=_('Short Description'),
-        widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
-    )
-    full_description = forms.CharField(
-        label=_('Long Description'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
-    )
-    prerequisites = forms.CharField(
-        label=_('Prerequisites'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=1000)]
-    )
-
-    # users will be loaded through AJAX call based on organization
-    team_admin = UserModelChoiceField(
-        queryset=User.objects.none(), required=True,
-        label=_('Organization Course Admin'),
-    )
-
-    subjects = Subject.objects.all().order_by('translations__name')
-    primary_subject = forms.ModelChoiceField(
-        queryset=subjects,
-        label=_('Primary'),
-        required=False
-    )
-    secondary_subject = forms.ModelChoiceField(
-        queryset=subjects,
-        label=_('Additional Subject (optional)'),
-        required=False
-    )
-    tertiary_subject = forms.ModelChoiceField(
-        queryset=subjects,
-        label=_('Additional Subject (optional)'),
-        required=False
-    )
-
-    level_type = forms.ModelChoiceField(
-        queryset=LevelType.objects.all().order_by('-name'),
-        label=_('Level'),
-        required=False
-    )
-
-    expected_learnings = forms.CharField(
-        label=_('What You Will Learn'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
-    )
-
-    learner_testimonial = forms.CharField(
-        label=_('Learner Testimonial'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=500)]
-    )
-
-    faq = forms.CharField(
-        label=_('FAQ'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
-    )
-
-    syllabus = forms.CharField(
-        label=_('Syllabus'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
-    )
-
-    add_new_run = forms.BooleanField(required=False)
 
     class Meta:
         model = Course
-        widgets = {
-            'image': ClearableImageInput(attrs={'accept': 'image/*'})
-        }
         fields = (
-            'title', 'number', 'short_description', 'full_description',
-            'expected_learnings', 'primary_subject', 'secondary_subject',
-            'tertiary_subject', 'prerequisites', 'image', 'team_admin',
-            'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link',
+            'title',
         )
 
     def __init__(self, *args, **kwargs):
         # In case of edit mode pre-populate the drop-downs
         user = kwargs.pop('user', None)
-        organization = kwargs.pop('organization', None)
-        if organization:
-            org_extension = OrganizationExtension.objects.get(organization=organization)
-            self.declared_fields['team_admin'].queryset = User.objects.filter(
-                groups__name=org_extension.group
-            ).order_by('full_name', 'username')
-
-        if user:
-            self.declared_fields['organization'].queryset = get_user_organizations(user)
-            self.declared_fields['team_admin'].widget.attrs = {'data-user': user.id}
-
         super(CourseForm, self).__init__(*args, **kwargs)
-
-        if user and not is_internal_user(user):
-            self.fields['video_link'].widget = forms.HiddenInput()
 
     def clean_title(self):
         """
@@ -195,14 +104,13 @@ class CourseForm(BaseForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        organization = cleaned_data.get('organization')
         title = cleaned_data.get('title')
         number = cleaned_data.get('number')
         instance = getattr(self, 'instance', None)
         if not instance.pk:
-            if Course.objects.filter(title=title, organizations__in=[organization]).exists():
+            if Course.objects.filter(title=title).exists():
                 raise ValidationError({'title': _('This course title already exists')})
-            if Course.objects.filter(number=number, organizations__in=[organization]).exists():
+            if Course.objects.filter(number=number).exists():
                 raise ValidationError({'number': _('This course number already exists')})
         return cleaned_data
 
@@ -232,68 +140,20 @@ class CourseSearchForm(forms.Form):
 class CourseRunForm(BaseForm):
     start = forms.DateTimeField(label=_('Course Start Date'), required=True)
     end = forms.DateTimeField(label=_('Course End Date'), required=True)
-    staff = forms.ModelMultipleChoiceField(
-        label=_('Instructor'),
-        queryset=Person.objects.all(),
-        required=False,
-    )
-    target_content = forms.BooleanField(
-        widget=forms.RadioSelect(
-            choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
-    )
     pacing_type = forms.ChoiceField(
         label=_('Pacing'),
         widget=forms.RadioSelect,
         choices=CourseRunPacing.choices,
         required=True
     )
-
-    transcript_languages = forms.ModelMultipleChoiceField(
-        queryset=LanguageTag.objects.all(),
-        label=_('Transcript Languages'),
-        widget=LanguageModelSelect2Multiple(
-            url='language_tags:language-tag-autocomplete',
-            attrs={
-                'data-minimum-input-length': 2
-            }
-        ),
-        required=False,
-    )
-
-    is_xseries = forms.BooleanField(
-        label=_('XSeries'),
-        widget=forms.CheckboxInput,
-        required=False,
-    )
-
-    is_micromasters = forms.BooleanField(
-        label=_('MicroMasters'),
-        widget=forms.CheckboxInput,
-        required=False,
-    )
-
-    is_professional_certificate = forms.BooleanField(
-        label=_('Professional Certificate'),
-        widget=forms.CheckboxInput,
-        required=False,
-    )
-
-    xseries_name = forms.CharField(label=_('XSeries Name'), required=False)
-    professional_certificate_name = forms.CharField(label=_('Professional Certificate Name'), required=False)
-    micromasters_name = forms.CharField(label=_('MicroMasters Name'), required=False)
     lms_course_id = forms.CharField(label=_('Studio URL'), required=False)
-    video_language = forms.ModelChoiceField(
-        queryset=LanguageTag.objects.all(),
-        label=_('Video Language'),
-        required=False
-    )
 
     class Meta:
         model = CourseRun
         fields = (
-            'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
-            'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
-            'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
+            'pacing_type',
+            'start', 'end',
+            'lms_course_id',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ
@@ -331,30 +191,10 @@ class CourseRunForm(BaseForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        min_effort = cleaned_data.get('min_effort')
-        max_effort = cleaned_data.get('max_effort')
         start = cleaned_data.get('start')
         end = cleaned_data.get('end')
-        is_xseries = cleaned_data.get('is_xseries')
-        xseries_name = cleaned_data.get('xseries_name')
-        is_micromasters = cleaned_data.get('is_micromasters')
-        micromasters_name = cleaned_data.get('micromasters_name')
-        is_professional_certificate = cleaned_data.get('is_professional_certificate')
-        professional_certificate_name = cleaned_data.get('professional_certificate_name')
         if start and end and start > end:
             raise ValidationError({'start': _('Start date cannot be after the End date')})
-        if min_effort and max_effort and min_effort > max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
-        if min_effort and max_effort and min_effort == max_effort:
-            raise ValidationError({'min_effort': _('Minimum effort and Maximum effort can not be same')})
-        if not max_effort and min_effort:
-            raise ValidationError({'max_effort': _('Maximum effort can not be empty')})
-        if is_xseries and not xseries_name:
-            raise ValidationError({'xseries_name': _('Enter XSeries program name')})
-        if is_micromasters and not micromasters_name:
-            raise ValidationError({'micromasters_name': _('Enter Micromasters program name')})
-        if is_professional_certificate and not professional_certificate_name:
-            raise ValidationError({'professional_certificate_name': _('Enter Professional Certificate program name')})
 
         return cleaned_data
 

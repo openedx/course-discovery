@@ -279,7 +279,6 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
-            'transcript_languages': [],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
@@ -704,9 +703,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
             'overview': program.overview,
-            'price_ranges': program.price_ranges,
             'subjects': SubjectSerializer(program.subjects, many=True).data,
-            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
         })
         return expected
 
@@ -1286,8 +1283,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
 
     def test_data(self):
         request = make_request()
-        course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
-                                      authoring_organizations=[OrganizationFactory()])
+        course_run = CourseRunFactory()
         SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
@@ -1310,7 +1306,6 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     @classmethod
     def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
         return {
-            'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,

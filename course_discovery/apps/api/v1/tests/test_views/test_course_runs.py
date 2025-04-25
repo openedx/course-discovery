@@ -187,8 +187,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         for course_run in expected:
             SeatFactory(course_run=course_run)
 
-        CourseRunFactory.create_batch(3, slug=None, course__partner=self.partner)
-        CourseRunFactory.create_batch(3, slug='', course__partner=self.partner)
+        CourseRunFactory.create_batch(3, course__partner=self.partner)
+        CourseRunFactory.create_batch(3, course__partner=self.partner)
 
         url = reverse('api:v1:course_run-list') + '?marketable=1'
         self.assert_list_results(url, expected)
@@ -230,8 +230,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
 
     def test_filter_by_license(self):
         CourseRun.objects.all().delete()
-        course_runs_cc = CourseRunFactory.create_batch(3, course__partner=self.partner, license='cc-by-sa')
-        CourseRunFactory.create_batch(3, course__partner=self.partner, license='')
+        course_runs_cc = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        CourseRunFactory.create_batch(3, course__partner=self.partner)
 
         url = reverse('api:v1:course_run-list') + '?license=cc-by-sa'
         self.assert_list_results(url, course_runs_cc)

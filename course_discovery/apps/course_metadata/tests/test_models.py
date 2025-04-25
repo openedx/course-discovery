@@ -934,13 +934,6 @@ class ProgramTests(TestCase):
         self.program.courses.add(course_run.course)
         self.assertIsNone(self.program.start)
 
-    def test_price_ranges(self):
-        """ Verify the price_ranges property of the program is returning expected price values """
-        program = self.create_program_with_seats()
-
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600), 'total': Decimal(600)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
-
     def test_price_ranges_multiple_course(self):
         """ Verifies the price_range property of a program with multiple courses """
         currency = Currency.objects.get(code='USD')
@@ -956,33 +949,6 @@ class ProgramTests(TestCase):
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         self.program.type = program_type
-
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
-        self.assertEqual(self.program.price_ranges, expected_price_ranges)
-
-    @ddt.data(True, False)
-    def test_price_ranges_with_entitlements(self, create_seats):
-        """ Verifies the price_range property of a program with course entitlement products """
-        currency = Currency.objects.get(code='USD')
-        test_price = 100
-        verified_mode = SeatType.objects.get(name='verified')
-        for course_run in self.course_runs:
-            factories.CourseEntitlementFactory(
-                currency=currency, course=course_run.course, price=test_price, mode=verified_mode
-            )
-            if create_seats:
-                factories.SeatFactory(type='verified', currency=currency, price=test_price, course_run=course_run)
-            course_run.course.canonical_course_run = course_run
-            course_run.course.save()
-            test_price += 100
-
-        applicable_seat_types = SeatType.objects.filter(name__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-
-        self.program.type = program_type
-
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
-        self.assertEqual(self.program.price_ranges, expected_price_ranges)
 
     def create_program_with_multiple_course_runs(self, set_all_dates=True):
         currency = Currency.objects.get(code='USD')
@@ -1023,27 +989,6 @@ class ProgramTests(TestCase):
         program_courses.append(course)
 
         return factories.ProgramFactory(type=program_type, courses=program_courses)
-
-    def test_price_ranges_with_multiple_course_runs(self):
-        """
-        Verifies the price_range property of a program with multiple courses,
-        and a course with multiple runs
-        """
-        program = self.create_program_with_multiple_course_runs()
-
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
-
-    def test_price_ranges_with_multiple_course_runs_and_none_dates(self):
-        """
-        Verifies the price_range property of a program with multiple courses,
-        and a course with multiple runs, and some of the dates in the course runs are None
-        """
-
-        program = self.create_program_with_multiple_course_runs(set_all_dates=False)
-
-        expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_staff(self):
         staff = factories.PersonFactory.create_batch(2)

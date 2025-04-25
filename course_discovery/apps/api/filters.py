@@ -141,7 +141,6 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
     active = filters.BooleanFilter(method='filter_active')
     marketable = filters.BooleanFilter(method='filter_marketable')
     keys = CharListFilter(name='key', lookup_expr='in')
-    license = filters.CharFilter(name='license', lookup_expr='iexact')
 
     @property
     def qs(self):
@@ -154,7 +153,7 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 
     class Meta:
         model = CourseRun
-        fields = ('keys', 'hidden', 'license',)
+        fields = ('keys',)
 
 
 class ProgramFilter(FilterSetMixin, filters.FilterSet):

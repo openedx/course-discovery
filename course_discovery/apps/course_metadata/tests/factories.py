@@ -75,34 +75,11 @@ class CourseFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
-    short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
-    full_description = FuzzyText(prefix="Test çօմɾʂҽ FULL description")
-    level_type = factory.SubFactory(LevelTypeFactory)
     card_image_url = FuzzyURL()
-    video = factory.SubFactory(VideoFactory)
     partner = factory.SubFactory(PartnerFactory)
-    prerequisites_raw = FuzzyText()
-    syllabus_raw = FuzzyText()
-    outcome = FuzzyText()
-    image = factory.django.ImageField()
 
     class Meta:
         model = Course
-
-    @factory.post_generation
-    def subjects(self, create, extracted, **kwargs):
-        if create:  # pragma: no cover
-            add_m2m_data(self.subjects, extracted)
-
-    @factory.post_generation
-    def authoring_organizations(self, create, extracted, **kwargs):
-        if create:
-            add_m2m_data(self.authoring_organizations, extracted)
-
-    @factory.post_generation
-    def sponsoring_organizations(self, create, extracted, **kwargs):
-        if create:
-            add_m2m_data(self.sponsoring_organizations, extracted)
 
 
 class CourseRunFactory(factory.DjangoModelFactory):
@@ -111,42 +88,15 @@ class CourseRunFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
     course = factory.SubFactory(CourseFactory)
     title_override = None
-    short_description_override = None
-    full_description_override = None
-    language = factory.Iterator(LanguageTag.objects.all())
     start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     card_image_url = FuzzyURL()
-    video = factory.SubFactory(VideoFactory)
-    min_effort = FuzzyInteger(1, 10)
-    max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
-    reporting_type = FuzzyChoice([name for name, __ in ReportingType.choices])
-    slug = FuzzyText()
-    hidden = False
-    weeks_to_complete = FuzzyInteger(1)
-    license = 'all-rights-reserved'
-
-    @factory.post_generation
-    def staff(self, create, extracted, **kwargs):
-        if create:
-            add_m2m_data(self.staff, extracted)
 
     class Meta:
         model = CourseRun
-
-    @factory.post_generation
-    def transcript_languages(self, create, extracted, **kwargs):
-        if create:  # pragma: no cover
-            add_m2m_data(self.transcript_languages, extracted)
-
-    @factory.post_generation
-    def authoring_organizations(self, create, extracted, **kwargs):
-        if create:  # pragma: no cover
-            add_m2m_data(self.authoring_organizations, extracted)
 
 
 class SeatFactory(factory.DjangoModelFactory):

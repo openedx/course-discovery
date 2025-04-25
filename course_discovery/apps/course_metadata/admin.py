@@ -80,15 +80,12 @@ class CourseRunAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = (
         'course__partner',
-        'hidden',
-        ('language', admin.RelatedOnlyFieldListFilter,),
         'status',
-        'license',
     )
     ordering = ('key',)
     raw_id_fields = ('course',)
     readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
+    search_fields = ('uuid', 'key', 'title_override', 'course__title')
     save_error = False
 
     def response_change(self, request, obj):
