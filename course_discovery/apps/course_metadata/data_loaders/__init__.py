@@ -18,7 +18,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     LOADER_MAX_RETRY = 3
     PAGE_SIZE = 50
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True, **kwargs):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -28,6 +28,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             enable_api (bool): True if we want to use the api functionalities and clients with the dataloader.
                 This will most likely only be turned off for event bus use cases.
         """
+
         self.partner = partner
         self.enable_api = enable_api
         if self.enable_api:

@@ -138,7 +138,7 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 with LogCapture(LOGGER_PATH) as log_capture:
                     with mock.patch.object(
                             CSVDataLoader,
-                            '_call_course_api',
+                            'call_course_api',
                             self.mock_call_course_api
                     ):
                         call_command(
@@ -189,7 +189,7 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 with LogCapture(LOGGER_PATH) as log_capture:
                     with mock.patch.object(
                             CSVDataLoader,
-                            '_call_course_api',
+                            'call_course_api',
                             self.mock_call_course_api
                     ):
                         call_command(
