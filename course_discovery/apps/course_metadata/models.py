@@ -4050,6 +4050,10 @@ class Ranking(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in Ranking {self.pk}, updating data modified "
+                f"timestamps for related programs."
+            )
             Degree.objects.filter(rankings=self).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4068,6 +4072,10 @@ class Specialization(ManageHistoryMixin, AbstractValueModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in Specialization {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
             Degree.objects.filter(specializations=self).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4242,6 +4250,10 @@ class DegreeAdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeAdditionalMetadata {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
             Degree.objects.filter(id__in=[self.degree_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4299,6 +4311,10 @@ class IconTextPairing(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in IconTextPairing {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
             Degree.objects.filter(id__in=[self.degree_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4343,6 +4359,10 @@ class DegreeDeadline(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeDeadline {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
             Degree.objects.filter(id__in=[self.degree_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4378,6 +4398,10 @@ class DegreeCost(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeCost {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
             Degree.objects.filter(id__in=[self.degree_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4432,6 +4456,10 @@ class Curriculum(ManageHistoryMixin, TimeStampedModel):
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
             if self.program:
+                logger.info(
+                    f"Changes detected in Curriculum {self.pk}, updating data modified "
+                    f"timestamps for related program {self.program_id}."
+                )
                 Program.objects.filter(id=self.program_id).update(
                     data_modified_timestamp=datetime.datetime.now(pytz.UTC)
                 )
@@ -4458,6 +4486,10 @@ class CurriculumProgramMembership(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in CurriculumProgramMembership {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
             Program.objects.filter(id__in=[self.curriculum.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4489,6 +4521,10 @@ class CurriculumCourseMembership(ManageHistoryMixin, TimeStampedModel):
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in CurriculumCourseMembership {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
             Program.objects.filter(id__in=[self.curriculum.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
@@ -4753,6 +4789,10 @@ class ProgramLocationRestriction(ManageHistoryMixin, AbstractLocationRestriction
 
     def update_product_data_modified_timestamp(self, bypass_has_changed=False):
         if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in ProgramLocationRestriction {self.pk}, updating data modified "
+                f"timestamps for related program {self.program_id}."
+            )
             Program.objects.filter(id__in=[self.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )

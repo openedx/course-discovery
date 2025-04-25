@@ -1371,14 +1371,13 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.disconnect(course_run_staff_changed, sender=CourseRun.staff.through)
 
     def test_program_labels_taggable_change(self):
+        """
+        Verify that changing the labels on a program updates the data_modified_timestamp
+        """
         m2m_changed.connect(program_labels_changed, sender=Program.labels.through)
-
         program = factories.ProgramFactory(refresh=True)
-
         last_change_time = program.data_modified_timestamp
-
         program.labels.set(['my_label', 'your_label'])
-
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
 
@@ -1389,16 +1388,14 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.disconnect(program_labels_changed, sender=Program.labels.through)
 
     def test_program_excluded_runs_change(self):
+        """
+        Verify that changing the excluded_course_runs on a program updates the data_modified_timestamp
+        """
         m2m_changed.connect(program_excluded_runs, sender=Program.excluded_course_runs.through)
-
         run1, run2 = factories.CourseRunFactory.create_batch(2)
-
         program = factories.ProgramFactory(courses=[run1.course, run2.course], refresh=True)
-
         last_change_time = program.data_modified_timestamp
-
         program.excluded_course_runs.set([run1])
-
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
 
@@ -1426,28 +1423,27 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_program_sorted_m2m_change(self, field, factory):
+        """
+        Verify that changing sorted m2m fields on the program model updates
+        the data_modified_timestamp
+        """
         m2m_changed.connect(program_sorted_m2m_changed, sender=getattr(Program, field).through)
-
         program = factories.ProgramFactory()
         obj1, obj2 = factory.create_batch(2)
         program.refresh_from_db()
-
         last_change_time = program.data_modified_timestamp
 
         getattr(program, field).set([obj1.pk, obj2.pk])
-
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
 
         last_change_time = program.data_modified_timestamp
         getattr(program, field).set([obj1, obj2])
-
         program.refresh_from_db()
         assert last_change_time == program.data_modified_timestamp
 
         last_change_time = program.data_modified_timestamp
         getattr(program, field).set([obj2, obj1])
-
         program.refresh_from_db()
         assert last_change_time < program.data_modified_timestamp
         m2m_changed.disconnect(program_sorted_m2m_changed, sender=getattr(Program, field).through)
@@ -1458,29 +1454,28 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     )
     @ddt.unpack
     def test_degree_sorted_m2m_change(self, field, factory):
+        """
+        Verify that changing sorted m2m fields on a degree object changes
+        the data_modified_timestamp
+        """
         m2m_changed.connect(program_sorted_m2m_changed, sender=getattr(Degree, field).through)
         pre_save.connect(data_modified_timestamp_update, sender=factory._meta.model)
-
         degree = factories.DegreeFactory()
         obj1, obj2 = factory.create_batch(2)
         degree.refresh_from_db()
 
         last_change_time = degree.data_modified_timestamp
-
         getattr(degree, field).set([obj1.pk, obj2.pk])
-
         degree.refresh_from_db()
         assert last_change_time < degree.data_modified_timestamp
 
         last_change_time = degree.data_modified_timestamp
         getattr(degree, field).set([obj1, obj2])
-
         degree.refresh_from_db()
         assert last_change_time == degree.data_modified_timestamp
 
         last_change_time = degree.data_modified_timestamp
         getattr(degree, field).set([obj2, obj1])
-
         degree.refresh_from_db()
         assert last_change_time < degree.data_modified_timestamp
 
@@ -1496,8 +1491,11 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.disconnect(program_sorted_m2m_changed, sender=getattr(Degree, field).through)
 
     def test_degree_taxiform_update_timestamp(self):
+        """
+        Verify that changing the TaxiForm object related to a degree updates
+        the degree's data_modified_timestamp
+        """
         pre_save.connect(data_modified_timestamp_update, sender=TaxiForm)
-
         degree = factories.DegreeFactory()
         taxi = factories.TaxiFormFactory()
         degree.taxi_form = taxi
@@ -1507,19 +1505,21 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         last_timestamp = degree.data_modified_timestamp
         taxi.post_submit_url = 'https://post-submit-url.com'
         taxi.save()
-
         degree.refresh_from_db()
         assert degree.data_modified_timestamp > last_timestamp
         pre_save.disconnect(data_modified_timestamp_update, sender=TaxiForm)
 
     def test_degree_curriculum_timestamp_update(self):
+        """
+        Verify that changing a degree's curriculum updates the degree's
+        data_modified_timestamp
+        """
         for model in [Curriculum, CurriculumCourseMembership, CurriculumProgramMembership]:
             pre_save.connect(data_modified_timestamp_update, sender=model)
             pre_delete.connect(data_modified_timestamp_update__deletion, sender=model)
 
         degree = factories.DegreeFactory()
         degree.refresh_from_db()
-
         last_modified = degree.data_modified_timestamp
         curriculum = factories.CurriculumFactory(program=degree)
         degree.refresh_from_db()
@@ -1574,11 +1574,14 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     def test_degree_reverse_foreign_key_field_update_timestamp(
         self, related_factory, related_obj_field_name, related_obj_field_val
     ):
+        """
+        Verify that changing a degree's reverse foreign key related fields updates the
+        degree's data_modified_timestamp
+        """
         pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
 
         degree = factories.DegreeFactory()
         degree.refresh_from_db()
-
         last_modified = degree.data_modified_timestamp
         related_obj = related_factory(degree=degree)
         degree.refresh_from_db()
@@ -1603,12 +1606,14 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
     def test_program_foreign_key_field_update_timestamp(
         self, field_name, related_factory, related_obj_field_name, related_obj_field_val
     ):
+        """
+        Verify that changing a program's foreign key related fields updates the
+        program's data_modified_timestamp
+        """
         pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
-
         program = factories.ProgramFactory()
         related_obj = related_factory()
         setattr(program, field_name, related_obj)
-
         last_modified = program.data_modified_timestamp
         program.save()
         program.refresh_from_db()
@@ -1622,6 +1627,5 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         setattr(related_obj, related_obj_field_name, related_obj_field_val)
         related_obj.save()
         program.refresh_from_db()
-
         assert last_modified < program.data_modified_timestamp
         pre_save.disconnect(data_modified_timestamp_update, sender=related_factory._meta.model)

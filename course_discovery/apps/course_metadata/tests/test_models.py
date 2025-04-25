@@ -4215,6 +4215,7 @@ class DegreeTests(TestCase):
         self.assertEqual(degree.specializations.first().value, specialization.value)
 
     def test_degree_timestamp_update_simple_changes(self):
+        """Verify that changes on the Degree model update the data_modified_timestamp"""
         self.degree.refresh_from_db()
 
         last_data_modified = self.degree.data_modified_timestamp
