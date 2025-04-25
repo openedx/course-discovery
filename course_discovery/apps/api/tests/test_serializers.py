@@ -616,7 +616,7 @@ class MinimalProgramSerializerTests(TestCase):
 
         courses = CourseFactory.create_batch(3)
         for course in courses:
-            CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
+            CourseRunFactory.create_batch(2, course=course, start=datetime.datetime.now(UTC))
 
         return ProgramFactory(
             courses=courses,
@@ -688,7 +688,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'individual_endorsements': EndorsementSerializer(
                 program.individual_endorsements, many=True, context={'request': request}
             ).data,
-            'staff': PersonSerializer(program.staff, many=True, context={'request': request}).data,
             'instructor_ordering': PersonSerializer(
                 program.instructor_ordering,
                 many=True,
@@ -698,12 +697,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'languages': [serialize_language_to_code(l) for l in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
             'total_hours_of_effort': program.total_hours_of_effort,
-            'weeks_to_complete_min': program.weeks_to_complete_min,
-            'weeks_to_complete_max': program.weeks_to_complete_max,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
-            'overview': program.overview,
-            'subjects': SubjectSerializer(program.subjects, many=True).data,
+            'overview': program.overview
         })
         return expected
 
@@ -1377,15 +1373,7 @@ class TestProgramSearchSerializer(TestCase):
             'published': program.status == ProgramStatus.Active,
             'partner': program.partner.short_code,
             'authoring_organization_uuids': get_uuids(program.authoring_organizations.all()),
-            'subject_uuids': get_uuids(
-                itertools.chain.from_iterable(course.subjects.all() for course in program.courses.all())
-            ),
-            'staff_uuids': get_uuids(
-                itertools.chain.from_iterable(course.staff.all() for course in list(program.course_runs))
-            ),
             'aggregation_key': 'program:{}'.format(program.uuid),
-            'weeks_to_complete_min': program.weeks_to_complete_min,
-            'weeks_to_complete_max': program.weeks_to_complete_max,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
             'max_hours_effort_per_week': program.max_hours_effort_per_week,
             'language': [serialize_language(language) for language in program.languages],

@@ -792,8 +792,6 @@ class ProgramSerializer(MinimalProgramSerializer):
     corporate_endorsements = CorporateEndorsementSerializer(many=True, read_only=True)
     job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     individual_endorsements = EndorsementSerializer(many=True, read_only=True)
-    subjects = SubjectSerializer(many=True, read_only=True)
-    staff = PersonSerializer(many=True, read_only=True)
     instructor_ordering = PersonSerializer(many=True, read_only=True)
     applicable_seat_types = serializers.SerializerMethodField(read_only=True)
 
@@ -842,8 +840,8 @@ class ProgramSerializer(MinimalProgramSerializer):
             'overview',
             'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
-            'individual_endorsements', 'languages', 'subjects',
-            'staff', 'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
+            'individual_endorsements', 'languages',
+            'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
             'description', 'duration', 'language', 'created', 'modified', 'creator_id', 'released_date'
         )
 

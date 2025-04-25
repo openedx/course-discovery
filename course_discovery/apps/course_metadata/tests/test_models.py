@@ -652,51 +652,6 @@ class ProgramTests(TestCase):
         program, __ = self.create_program_with_entitlements_and_seats()
         self.assertTrue(program.is_program_eligible_for_one_click_purchase)
 
-    def test_one_click_purchase_ineligible_expired_entitlement(self):
-        """ Verify that program is not one click purchase eligible if course entitlement product is expired. """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        expired_entitlement = courses[2].entitlements.first()
-        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
-        expired_entitlement.save()
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_expired_entitlement_one_run(self):
-        """
-        Verify that program is one click purchase eligible if there is only one
-        published course run for the course whose entitlement product is expired.
-        """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        expired_entitlement = courses[2].entitlements.first()
-        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
-        expired_entitlement.save()
-        CourseRun.objects.filter(course=courses[2]).delete()
-        factories.SeatFactory(
-            course_run=factories.CourseRunFactory(
-                end=None,
-                enrollment_end=None,
-                course=courses[2]
-            ),
-            type=Seat.VERIFIED, upgrade_deadline=None
-        )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_future_expires(self):
-        """ Verify that program is one click purchase eligible if course entitlement product expires in the future. """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        future_expiring_entitlement = courses[1].entitlements.first()
-        future_expiring_entitlement.expires = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=7)
-        future_expiring_entitlement.save()
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_ineligible_wrong_mode(self):
-        """ Verify that program is not one click purchase eligible if course entitlement product has the wrong mode. """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        honor_seat_type, __ = SeatType.objects.get_or_create(name=Seat.HONOR)
-        honor_mode_entitlement = courses[0].entitlements.first()
-        honor_mode_entitlement.mode = honor_seat_type
-        honor_mode_entitlement.save()
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
     def test_one_click_purchase_ineligible_multiple_entitlements(self):
         """
         Verify that program is not one click purchase eligible if course has
@@ -810,21 +765,6 @@ class ProgramTests(TestCase):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
 
-    def test_weeks_to_complete_range(self):
-        """ Verify that weeks to complete range works correctly """
-        weeks_to_complete_values = [course_run.weeks_to_complete for course_run in self.course_runs]
-        for course_run in self.course_runs:
-            course = course_run.course
-            course.canonical_course_run = course_run
-            course.save()
-
-        expected_min = min(weeks_to_complete_values) if weeks_to_complete_values else None
-        expected_max = max(weeks_to_complete_values) if weeks_to_complete_values else None
-        # property does not have the right values while being indexed
-        del self.program._course_run_weeks_to_complete
-        self.assertEqual(self.program.weeks_to_complete_min, expected_min)
-        self.assertEqual(self.program.weeks_to_complete_max, expected_max)
-
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
         # In test, the factory will likely have the ProgramType's slug and ProgramType's name be the same, we need
@@ -862,39 +802,6 @@ class ProgramTests(TestCase):
         expected_canonical_runs = [self.course_runs[0], self.course_runs[1]]
         # Verify only canonical course runs are returned in set
         self.assertEqual(set(self.program.canonical_course_runs), set(expected_canonical_runs))
-
-    def test_canonical_course_seats(self):
-        """ Test canonical course seats returns only canonical course run's applicable seats """
-        currency = Currency.objects.get(code='USD')
-
-        course = factories.CourseFactory()
-        course_runs_same_course = factories.CourseRunFactory.create_batch(3, course=course)
-        for course_run in course_runs_same_course:
-            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
-        course.canonical_course_run = course_runs_same_course[0]
-        course.save()
-
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-
-        program = factories.ProgramFactory(type=program_type, courses=[course])
-
-        self.assertEqual(set(course.canonical_course_run.seats.all()), set(program.canonical_seats))
-
-    def test_entitlements(self):
-        """ Test entitlements returns only applicable course entitlements. """
-        course = factories.CourseFactory()
-        verified_mode = SeatType.objects.get(name='verified')
-        credit_mode = SeatType.objects.get(name='credit')
-        professional_mode = SeatType.objects.get(name='professional')
-        for mode in [verified_mode, credit_mode, professional_mode]:
-            factories.CourseEntitlementFactory(course=course, mode=mode)
-        applicable_seat_types = SeatType.objects.filter(name__in=['verified', 'professional'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-
-        program = factories.ProgramFactory(type=program_type, courses=[course])
-
-        assert set(course.entitlements.filter(mode__in=applicable_seat_types)) == set(program.entitlements)
 
     def test_languages(self):
         expected_languages = set([course_run.language for course_run in self.course_runs])

@@ -277,8 +277,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     published = indexes.BooleanField(null=False, faceted=True)
     min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
-    weeks_to_complete_min = indexes.IntegerField(model_attr='weeks_to_complete_min', null=True)
-    weeks_to_complete_max = indexes.IntegerField(model_attr='weeks_to_complete_max', null=True)
     language = indexes.MultiValueField(faceted=True)
     hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
     is_program_eligible_for_one_click_purchase = indexes.BooleanField(
