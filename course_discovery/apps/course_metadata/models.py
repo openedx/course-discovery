@@ -868,7 +868,6 @@ class ProductMeta(ManageHistoryMixin, TimeStampedModel):
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
 
-
     def __str__(self):
         return self.title
 
@@ -910,7 +909,6 @@ class TaxiForm(ManageHistoryMixin, TimeStampedModel):
                 self.additional_metadata.related_courses.all().update(
                     data_modified_timestamp=datetime.datetime.now(pytz.UTC)
                 )
-                
                 Program.objects.filter(
                     courses__in=self.additional_metadata.related_courses.all()
                 ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
@@ -1024,7 +1022,6 @@ class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
             Program.objects.filter(
                 courses__in=self.related_courses.all()
             ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
-
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
@@ -1337,8 +1334,8 @@ class ProductValue(ManageHistoryMixin, TimeStampedModel):
                 courses__in=self.courses.all()
             ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
-
             self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
 
 class GeoLocation(ManageHistoryMixin, TimeStampedModel):
     """
@@ -1400,7 +1397,6 @@ class GeoLocation(ManageHistoryMixin, TimeStampedModel):
             Program.objects.filter(
                 courses__in=self.courses.all()
             ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
-
 
             self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
@@ -4243,7 +4239,7 @@ class DegreeAdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     @property
     def has_changed(self):
         return self.has_model_changed()
-    
+
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
             Degree.objects.filter(id__in=[self.degree_id]).update(
@@ -4296,7 +4292,6 @@ class IconTextPairing(ManageHistoryMixin, TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "IconTextPairings"
-
 
     @property
     def has_changed(self):
@@ -4466,7 +4461,6 @@ class CurriculumProgramMembership(ManageHistoryMixin, TimeStampedModel):
             Program.objects.filter(id__in=[self.curriculum.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
-            
 
     class Meta(TimeStampedModel.Meta):
         unique_together = (
@@ -4498,7 +4492,6 @@ class CurriculumCourseMembership(ManageHistoryMixin, TimeStampedModel):
             Program.objects.filter(id__in=[self.curriculum.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
-
 
     class Meta(TimeStampedModel.Meta):
         unique_together = (
@@ -4763,6 +4756,7 @@ class ProgramLocationRestriction(ManageHistoryMixin, AbstractLocationRestriction
             Program.objects.filter(id__in=[self.program_id]).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+
 
 class CSVDataLoaderConfiguration(ConfigurationModel):
     """

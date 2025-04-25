@@ -1,8 +1,8 @@
 import inspect
-
 import logging
 import time
 from datetime import datetime, timezone
+
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
@@ -22,16 +22,18 @@ from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
-    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Fact, GeoLocation, Organization, ProductMeta,
-    ProductValue, Program, ProgramLocationRestriction, Seat, TaxiForm, DegreeDeadline, DegreeCost, DegreeAdditionalMetadata,
-    IconTextPairing, Degree, Ranking, Specialization
+    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost,
+    DegreeDeadline, Fact, GeoLocation, IconTextPairing, Organization, ProductMeta, ProductValue, Program,
+    ProgramLocationRestriction, Ranking, Seat, Specialization, TaxiForm
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
 from course_discovery.apps.course_metadata.tasks import update_org_program_and_courses_ent_sub_inclusion
-from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, get_salesforce_util, data_modified_timestamp_update__deletion
+from course_discovery.apps.course_metadata.utils import (
+    data_modified_timestamp_update, data_modified_timestamp_update__deletion, get_salesforce_util
+)
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -450,6 +452,7 @@ def course_topics_taggable_changed(sender, instance, action, **kwargs):
         logger.info(f"{sender} has been updated for Course {instance.key}.")
         instance.set_data_modified_timestamp()
 
+
 @receiver(m2m_changed, sender=Program.labels.through)
 def program_labels_changed(sender, instance, action, **kwargs):
     """
@@ -459,7 +462,7 @@ def program_labels_changed(sender, instance, action, **kwargs):
             and kwargs['pk_set'] and instance._meta.label in ['course_metadata.Program', 'course_metadata.Degree']:
         logger.info(f"{sender} has been updated for Program {instance.uuid}.")
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.now(pytz.UTC)
+            data_modified_timestamp=datetime.now(pytz.UTC)
         )
 
 
@@ -518,7 +521,7 @@ def course_run_staff_changed(sender, instance, action, **kwargs):  # pylint: dis
 @receiver(m2m_changed, sender=Program.courses.through)
 @receiver(m2m_changed, sender=Degree.specializations.through)
 @receiver(m2m_changed, sender=Degree.rankings.through)
-def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+def program_sorted_m2m_changed(sender, instance, action, **kwargs):
     """
     Sorted m2m field, on a set(), first clears the field, and then adds the values. This makes it hard to
     determine if the value has really changed, as from the local perspective of both a `clear` signal, or an
@@ -529,7 +532,7 @@ def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: d
     compare this value to the existing value to determine if there would be any changes.
 
     This may break with newer versions of django-sortedm2m/django but I'd expect our tests to catch any such
-    scenarios. 
+    scenarios.
     """
 
     field_name = sender._meta.model_name.split("_", 1)[1]
@@ -544,7 +547,7 @@ def program_sorted_m2m_changed(sender, instance, action, **kwargs):  # pylint: d
 
         if to_set != already_set:
             instance._meta.model.objects.filter(pk=instance.pk).update(
-                data_modified_timestamp = datetime.now(pytz.UTC)
+                data_modified_timestamp=datetime.now(pytz.UTC)
             )
 
 
@@ -555,7 +558,7 @@ def program_excluded_runs(sender, instance, action, **kwargs):  # pylint: disabl
     """
     if action in ['pre_add', 'pre_remove']:
         instance._meta.model.objects.filter(pk=instance.pk).update(
-            data_modified_timestamp = datetime.now(pytz.UTC)
+            data_modified_timestamp=datetime.now(pytz.UTC)
         )
 
 
@@ -700,6 +703,7 @@ def connect_product_data_modified_timestamp_signal_handlers():
         Degree.rankings.through,
     ]:
         m2m_changed.connect(program_sorted_m2m_changed, sender=m2m_field)
+
 
 @receiver(m2m_changed, sender=User.groups.through)
 def handle_organization_group_removal(sender, instance, action, pk_set, reverse, **kwargs):  # pylint: disable=unused-argument

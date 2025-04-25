@@ -552,8 +552,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         assert mock_logger.call_count == 1
         assert mock_logger.call_args_list[0] == \
-               mock.call('An error occurred while setting the course run image for [{key}] in studio. All other fields '
-                         'were successfully saved in Studio.'.format(key=new_key))
+            mock.call('An error occurred while setting the course run image for [{key}] in studio. All other fields '
+                      'were successfully saved in Studio.'.format(key=new_key))
 
     @responses.activate
     def test_update_operates_on_drafts(self):
@@ -1454,15 +1454,15 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         data = response.data['actions']['PUT']
         assert data['level_type']['choices'] == \
-               [{'display_name': self.course_run.level_type.name_t,
-                 'value': self.course_run.level_type.name_t},
-                {'display_name': self.course_run_2.level_type.name_t,
-                 'value': self.course_run_2.level_type.name_t},
-                {'display_name': self.draft_course_run.level_type.name_t,
-                 'value': self.draft_course_run.level_type.name_t}]
+            [{'display_name': self.course_run.level_type.name_t,
+              'value': self.course_run.level_type.name_t},
+             {'display_name': self.course_run_2.level_type.name_t,
+              'value': self.course_run_2.level_type.name_t},
+             {'display_name': self.draft_course_run.level_type.name_t,
+             'value': self.draft_course_run.level_type.name_t}]
 
         assert data['content_language']['choices'] == \
-               [{'display_name': x.name, 'value': x.code} for x in LanguageTag.objects.all().order_by('name')]
+            [{'display_name': x.name, 'value': x.code} for x in LanguageTag.objects.all().order_by('name')]
         assert LanguageTag.objects.count() > 0
 
     def test_editable_list_gives_drafts(self):

@@ -8,7 +8,7 @@ import pytest
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models.signals import m2m_changed, pre_save, pre_delete
+from django.db.models.signals import m2m_changed, pre_delete, pre_save
 from django.test import TestCase, override_settings
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
@@ -25,23 +25,25 @@ from course_discovery.apps.course_metadata.algolia_models import (
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     AdditionalMetadata, BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig,
-    BulkOperationTask, BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun, CSVDataLoaderConfiguration,
-    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig, DeduplicateHistoryConfig, Degree, DeletePersonDupsConfig,
-    DrupalPublishUuidConfig, LevelTypeTranslation, MigrateCourseSlugConfiguration,
-    MigratePublisherToCourseMetadataConfig, ProductMeta, ProfileImageDownloadConfig, Program, ProgramTypeTranslation,
-    RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TaxiForm, TopicTranslation
+    BulkOperationTask, BulkUpdateImagesConfig, BulkUploadTagsConfig, Course, CourseEditor, CourseRun,
+    CSVDataLoaderConfiguration, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig,
+    DeduplicateHistoryConfig, Degree, DeletePersonDupsConfig, DrupalPublishUuidConfig, LevelTypeTranslation,
+    MigrateCourseSlugConfiguration, MigratePublisherToCourseMetadataConfig, ProductMeta, ProfileImageDownloadConfig,
+    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TaxiForm,
+    TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import (
     _duplicate_external_key_message, additional_metadata_facts_changed,
     connect_product_data_modified_timestamp_signal_handlers, course_collaborators_changed, course_run_staff_changed,
     course_run_transcript_languages_changed, course_subjects_changed, course_topics_taggable_changed,
-    disconnect_product_data_modified_timestamp_signal_handlers, product_meta_taggable_changed,
-    update_course_data_from_event, program_labels_changed, program_sorted_m2m_changed,
-    program_excluded_runs, 
+    disconnect_product_data_modified_timestamp_signal_handlers, product_meta_taggable_changed, program_excluded_runs,
+    program_labels_changed, program_sorted_m2m_changed, update_course_data_from_event
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseFactory
-from course_discovery.apps.course_metadata.utils import set_official_state, data_modified_timestamp_update, data_modified_timestamp_update__deletion
+from course_discovery.apps.course_metadata.utils import (
+    data_modified_timestamp_update, data_modified_timestamp_update__deletion, set_official_state
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import GroupFactory, OrganizationExtensionFactory
 
@@ -893,7 +895,7 @@ class TestCourseDataUpdateSignal(TestCase):
                     metadata=metadata
                 )
                 assert f"COURSE_CATALOG_INFO_CHANGED event received within the " \
-                       f"delay applicable window for course run {self.course_key}." in logger.output[0]
+                    f"delay applicable window for course run {self.course_key}." in logger.output[0]
 
         sleep_patch.assert_called_once_with(settings.EVENT_BUS_PROCESSING_DELAY_SECONDS)
 
@@ -902,6 +904,7 @@ class OrganizationGroupRemovalTests(TestCase):
     """
     Tests for the handle_organization_group_removal signal handler
     """
+
     def setUp(self):
         self.user_1 = UserFactory(username="user1")
         self.user_2 = UserFactory(username="user2")
@@ -1316,7 +1319,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         )
         program = factories.ProgramFactory(courses=[non_draft_course], refresh=True)
 
-
         staff1 = factories.PersonFactory()
         staff2 = factories.PersonFactory()
         staff3 = factories.PersonFactory()
@@ -1372,9 +1374,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         m2m_changed.connect(program_labels_changed, sender=Program.labels.through)
 
         program = factories.ProgramFactory(refresh=True)
-        
+
         last_change_time = program.data_modified_timestamp
-        
+
         program.labels.set(['my_label', 'your_label'])
 
         program.refresh_from_db()
@@ -1391,10 +1393,10 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
 
         run1, run2 = factories.CourseRunFactory.create_batch(2)
 
-        program = factories.ProgramFactory(courses = [run1.course, run2.course], refresh=True)
-        
+        program = factories.ProgramFactory(courses=[run1.course, run2.course], refresh=True)
+
         last_change_time = program.data_modified_timestamp
-        
+
         program.excluded_course_runs.set([run1])
 
         program.refresh_from_db()
@@ -1429,9 +1431,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         program = factories.ProgramFactory()
         obj1, obj2 = factory.create_batch(2)
         program.refresh_from_db()
-        
+
         last_change_time = program.data_modified_timestamp
-        
+
         getattr(program, field).set([obj1.pk, obj2.pk])
 
         program.refresh_from_db()
@@ -1450,7 +1452,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         assert last_change_time < program.data_modified_timestamp
         m2m_changed.disconnect(program_sorted_m2m_changed, sender=getattr(Program, field).through)
 
-
     @ddt.data(
         ['specializations', factories.SpecializationFactory],
         ['rankings', factories.RankingFactory],
@@ -1463,9 +1464,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree = factories.DegreeFactory()
         obj1, obj2 = factory.create_batch(2)
         degree.refresh_from_db()
-        
+
         last_change_time = degree.data_modified_timestamp
-        
+
         getattr(degree, field).set([obj1.pk, obj2.pk])
 
         degree.refresh_from_db()
@@ -1503,7 +1504,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree.save()
         degree.refresh_from_db()
 
-        last_timestamp  = degree.data_modified_timestamp
+        last_timestamp = degree.data_modified_timestamp
         taxi.post_submit_url = 'https://post-submit-url.com'
         taxi.save()
 
@@ -1535,7 +1536,7 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         assert last_modified < degree.data_modified_timestamp
 
         last_modified = degree.data_modified_timestamp
-        curr_course_member = factories.CurriculumCourseMembershipFactory(curriculum = curriculum)
+        curr_course_member = factories.CurriculumCourseMembershipFactory(curriculum=curriculum)
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
@@ -1544,9 +1545,8 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
-
         last_modified = degree.data_modified_timestamp
-        curr_program_member = factories.CurriculumProgramMembershipFactory(curriculum = curriculum)
+        curr_program_member = factories.CurriculumProgramMembershipFactory(curriculum=curriculum)
         degree.refresh_from_db()
         assert last_modified < degree.data_modified_timestamp
 
@@ -1564,7 +1564,6 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
             pre_save.disconnect(data_modified_timestamp_update, sender=model)
             pre_delete.disconnect(data_modified_timestamp_update__deletion, sender=model)
 
-
     @ddt.data(
         (factories.DegreeAdditionalMetadataFactory, 'external_url', "https://www.external-url.com/"),
         (factories.IconTextPairingFactory, 'text', 'I am 45 feet tall'),
@@ -1572,7 +1571,9 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         (factories.DegreeDeadlineFactory, 'date', 'September 12, 1520')
     )
     @ddt.unpack
-    def test_degree_reverse_foreign_key_field_update_timestamp(self, related_factory, related_obj_field_name, related_obj_field_val):
+    def test_degree_reverse_foreign_key_field_update_timestamp(
+        self, related_factory, related_obj_field_name, related_obj_field_val
+    ):
         pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
 
         degree = factories.DegreeFactory()
@@ -1599,19 +1600,21 @@ class DataModifiedTimestampUpdateSignalsTests(TestCase):
         ('geolocation', factories.GeoLocationFactory, 'location_name', 'Lahore, PK'),
     )
     @ddt.unpack
-    def test_program_foreign_key_field_update_timestamp(self, field_name, related_factory, related_obj_field_name, related_obj_field_val):
+    def test_program_foreign_key_field_update_timestamp(
+        self, field_name, related_factory, related_obj_field_name, related_obj_field_val
+    ):
         pre_save.connect(data_modified_timestamp_update, sender=related_factory._meta.model)
 
         program = factories.ProgramFactory()
         related_obj = related_factory()
-        setattr(program, field_name, related_obj) 
+        setattr(program, field_name, related_obj)
 
         last_modified = program.data_modified_timestamp
         program.save()
         program.refresh_from_db()
         assert last_modified < program.data_modified_timestamp
 
-        last_modified  = program.data_modified_timestamp
+        last_modified = program.data_modified_timestamp
         related_obj.save()
         program.refresh_from_db()
         assert last_modified == program.data_modified_timestamp

@@ -2375,8 +2375,8 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         }, format='json')
         assert response.status_code == 400
         assert response.data == \
-               ('Switching entitlement types after being reviewed is not supported. Please reach out to your '
-                'project coordinator for additional help if necessary.')
+            ('Switching entitlement types after being reviewed is not supported. Please reach out to your '
+             'project coordinator for additional help if necessary.')
 
     def test_update_fails_if_manual_slug_exists(self):
         response = self.create_course()
@@ -2642,14 +2642,14 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
 
         data = response.json()['actions']['PUT']
         assert data['level_type']['choices'] == \
-               [{'display_name': self.course.level_type.name_t, 'value': self.course.level_type.name_t}]
+            [{'display_name': self.course.level_type.name_t, 'value': self.course.level_type.name_t}]
 
         assert data['entitlements']['child']['children']['mode']['choices'] == \
-               [{'display_name': 'Audit', 'value': 'audit'},
-                {'display_name': 'Credit', 'value': 'credit'},
-                {'display_name': 'Honor', 'value': 'honor'},
-                {'display_name': 'Professional', 'value': 'professional'},
-                {'display_name': 'Verified', 'value': 'verified'}]
+            [{'display_name': 'Audit', 'value': 'audit'},
+             {'display_name': 'Credit', 'value': 'credit'},
+             {'display_name': 'Honor', 'value': 'honor'},
+             {'display_name': 'Professional', 'value': 'professional'},
+             {'display_name': 'Verified', 'value': 'verified'}]
 
         assert data['subjects']['child']['choices'] == [{'display_name': 'Subject1', 'value': 'subject1'}]
         assert 'choices' not in data['partner']

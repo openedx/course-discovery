@@ -59,8 +59,9 @@ from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePubl
 from course_discovery.apps.course_metadata.toggles import (
     IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED
 )
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
+from course_discovery.apps.course_metadata.utils import set_official_state
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -964,13 +965,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                                                   upgrade_deadline=None)
         honor_seat = factories.SeatFactory(course_run=course_run, type=honor_seat_type, upgrade_deadline=None)
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) == \
-               [verified_seat, professional_seat]
+            [verified_seat, professional_seat]
 
         # The method should not care about the course run's start date.
         course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) ==\
-               [verified_seat, professional_seat]
+            [verified_seat, professional_seat]
 
         # Enrollable seats of any type should be returned when no type parameter is specified.
         assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
@@ -2430,6 +2431,7 @@ class ProductValueTests(TestCase):
         program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
         assert program_timestamp == program.data_modified_timestamp
+
     def test_defaults(self):
         product_value = factories.ProductValue()
         assert product_value.per_click_international == product_value.per_click_usa == 5
@@ -2467,7 +2469,6 @@ class GeoLocationTests(TestCase):
         program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
         assert program_timestamp < program.data_modified_timestamp
-
 
         geoloc.save()
         course_timestamp = course.data_modified_timestamp
@@ -2520,6 +2521,7 @@ class CourseLocationRestrictionTests(TestCase):
         program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
         assert program_timestamp == program.data_modified_timestamp
+
 
 class AdditionalMetadataTests(TestCase):
     """ Tests for AdditionalMetadata. """
@@ -2689,7 +2691,7 @@ class TaxiFormTests(TestCase):
         course1 = CourseFactory(additional_metadata=additional_metadata)
         course2 = CourseFactory(additional_metadata=additional_metadata)
 
-        program = ProgramFactory(courses = [course1], refresh=True)
+        program = ProgramFactory(courses=[course1], refresh=True)
 
         program_timestamp = program.data_modified_timestamp
         course1_timestamp = course1.data_modified_timestamp
@@ -2712,7 +2714,7 @@ class TaxiFormTests(TestCase):
         taxi_form = factories.TaxiFormFactory()
         additional_metadata = AdditionalMetadataFactory(taxi_form=taxi_form)
         course = CourseFactory(additional_metadata=additional_metadata)
-        program = ProgramFactory(courses = [course], refresh=True)
+        program = ProgramFactory(courses=[course], refresh=True)
 
         course_timestamp = course.data_modified_timestamp
         program_timestamp = program.data_modified_timestamp
@@ -3135,7 +3137,7 @@ class ProgramTests(TestCase):
         """ Verify the property returns marketing url as it is if marketing_slug contains a slash"""
         self.program.marketing_slug = 'type/subject/org-title'
         assert self.program.marketing_url == f"{self.program.partner.marketing_site_url_root}" \
-                                             f"{self.program.marketing_slug}"
+            f"{self.program.marketing_slug}"
 
     def test_course_runs(self):
         """
@@ -3951,6 +3953,7 @@ class RankingTests(TestCase):
 @ddt.ddt
 class CurriculumTests(TestCase):
     """ Tests of the Curriculum model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -3979,6 +3982,7 @@ class CurriculumTests(TestCase):
 
 class CurriculumProgramMembershipTests(TestCase):
     """ Tests of the CurriculumProgramMembership model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -4014,6 +4018,7 @@ class CurriculumProgramMembershipTests(TestCase):
 
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -4069,6 +4074,7 @@ class CurriculumCourseMembershipTests(TestCase):
 @ddt.ddt
 class DegreeDeadlineTests(TestCase):
     """ Tests the DegreeDeadline model."""
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -4099,6 +4105,7 @@ class DegreeDeadlineTests(TestCase):
 
 class DegreeCostTests(TestCase):
     """ Tests the DegreeCost model."""
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -4221,6 +4228,7 @@ class DegreeTests(TestCase):
         self.degree.save()
         assert self.degree.data_modified_timestamp == last_data_modified
 
+
 class CourseUrlSlugHistoryTest(TestCase):
 
     def test_slug_with_partner_mismatch(self):
@@ -4231,10 +4239,10 @@ class CourseUrlSlugHistoryTest(TestCase):
         with pytest.raises(ValidationError) as validation_error:
             slug_object.save()
         assert validation_error.value.message_dict['partner'] == \
-               ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save'
-                ' url slug {url_slug}'
-                   .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
-                           url_slug=slug_object.url_slug)]
+            ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save'
+             ' url slug {url_slug}'
+             .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
+                     url_slug=slug_object.url_slug)]
 
 
 class TestCourseRecommendations(TestCase):

@@ -1022,16 +1022,17 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
      * A method called update_product_data_modified_stamp which will be implemented by each model
      depending upon its relation with Course/Program.
     """
-    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'): 
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
         instance.update_product_data_modified_timestamp()
 
-def data_modified_timestamp_update__deletion(sender, instance, **kwargs):
+
+def data_modified_timestamp_update__deletion(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Receiver function to trigger update data modified timestamp on Course or Program
     when one of their related models is being deleted. Note that deletion of only a select few
     models will trigger this (see `signals.py`)
     """
-    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):            
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
         instance.update_product_data_modified_timestamp(bypass_has_changed=True)
 
 
