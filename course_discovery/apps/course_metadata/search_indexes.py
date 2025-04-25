@@ -142,7 +142,6 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     org = indexes.CharField()
     course_runs = indexes.MultiValueField()
-    expected_learning_items = indexes.MultiValueField()
 
     prerequisites = indexes.MultiValueField(faceted=True)
 
@@ -151,9 +150,6 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_course_runs(self, obj):
         return [course_run.key for course_run in obj.course_runs.all()]
-
-    def prepare_expected_learning_items(self, obj):
-        return [item.value for item in obj.expected_learning_items.all()]
 
     def prepare_prerequisites(self, obj):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
@@ -176,30 +172,16 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     end = indexes.DateTimeField(model_attr='end', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='enrollment_end', null=True)
-    announcement = indexes.DateTimeField(model_attr='announcement', null=True)
-    min_effort = indexes.IntegerField(model_attr='min_effort', null=True)
-    max_effort = indexes.IntegerField(model_attr='max_effort', null=True)
-    weeks_to_complete = indexes.IntegerField(model_attr='weeks_to_complete', null=True)
     language = indexes.CharField(null=True, faceted=True)
-    transcript_languages = indexes.MultiValueField(faceted=True)
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
-    marketing_url = indexes.CharField(null=True)
-    slug = indexes.CharField(model_attr='slug', null=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     type = indexes.CharField(model_attr='type', null=True, faceted=True)
-    image_url = indexes.CharField(model_attr='image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()
     published = indexes.BooleanField(null=False, faceted=True)
-    hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
-    mobile_available = indexes.BooleanField(model_attr='mobile_available', faceted=True)
     authoring_organization_uuids = indexes.MultiValueField()
-    staff_uuids = indexes.MultiValueField()
-    subject_uuids = indexes.MultiValueField()
     has_enrollable_paid_seats = indexes.BooleanField(null=False)
     first_enrollable_paid_seat_sku = indexes.CharField(null=True)
     paid_seat_enrollment_end = indexes.DateTimeField(null=True)
-    license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
     is_current_and_still_upgradeable = indexes.BooleanField(null=False)
 
@@ -236,20 +218,8 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         course_run_key = CourseKey.from_string(obj.key)
         return course_run_key.org
 
-    def prepare_transcript_languages(self, obj):
-        return [self._prepare_language(language) for language in obj.transcript_languages.all()]
-
-    def prepare_marketing_url(self, obj):
-        return obj.marketing_url
-
     def prepare_program_types(self, obj):
         return obj.program_types
-
-    def prepare_staff_uuids(self, obj):
-        return [str(staff.uuid) for staff in obj.staff.all()]
-
-    def prepare_subject_uuids(self, obj):
-        return [str(subject.uuid) for subject in obj.subjects.all()]
 
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):

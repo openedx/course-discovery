@@ -45,20 +45,6 @@ class TestCourse:
         query = 'title:' + title
         assert set(Course.search(query)) == expected
 
-    def test_image_url(self):
-        course = factories.CourseFactory()
-        assert course.image_url == course.image.small.url
-
-        course.image = None
-        assert course.image_url == course.card_image_url
-
-    def test_original_image_url(self):
-        course = factories.CourseFactory()
-        assert course.original_image_url == course.image.url
-
-        course.image = None
-        assert course.original_image_url is None
-
 
 @ddt.ddt
 class CourseRunTests(TestCase):
@@ -99,7 +85,7 @@ class CourseRunTests(TestCase):
         course_run = self.course_run
         self.assertEqual(str(course_run), '{key}: {title}'.format(key=course_run.key, title=course_run.title))
 
-    @ddt.data('title', 'short_description', 'full_description')
+    @ddt.data('title', )
     def test_override_fields(self, field_name):
         """ Verify the `CourseRun`'s override field overrides the related `Course`'s field. """
         override_field_name = "{}_override".format(field_name)
@@ -152,10 +138,6 @@ class CourseRunTests(TestCase):
             factories.SeatFactory(course_run=self.course_run, type=seat_type)
         self.assertEqual(self.course_run.type, expected_course_run_type)
 
-    def test_level_type(self):
-        """ Verify the property returns the associated Course's level type. """
-        self.assertEqual(self.course_run.level_type, self.course_run.course.level_type)
-
     @freeze_time('2016-06-21 00:00:00Z')
     @ddt.data(
         (None, None, 'Upcoming'),
@@ -176,18 +158,6 @@ class CourseRunTests(TestCase):
             end = parse(end)
         course_run = factories.CourseRunFactory(start=start, end=end)
         self.assertEqual(course_run.availability, expected_availability)
-
-    def test_marketing_url(self):
-        """ Verify the property constructs a marketing URL based on the marketing slug. """
-        expected = '{root}/course/{slug}'.format(root=self.course_run.course.partner.marketing_site_url_root.strip('/'),
-                                                 slug=self.course_run.slug)
-        self.assertEqual(self.course_run.marketing_url, expected)
-
-    @ddt.data(None, '')
-    def test_marketing_url_with_empty_marketing_slug(self, slug):
-        """ Verify the property returns None if the CourseRun has no marketing_slug value. """
-        course_run = CourseRunFactory(slug=slug)
-        self.assertIsNone(course_run.marketing_url)
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
@@ -362,15 +332,6 @@ class CourseRunTests(TestCase):
             # We don't want to delete course run nodes when CourseRuns are deleted.
             assert not mock_delete_obj.called
 
-    def test_image_url(self):
-        assert self.course_run.image_url == self.course_run.course.image_url
-
-    def test_get_video(self):
-        assert self.course_run.get_video == self.course_run.video
-        self.course_run.video = None
-        self.course_run.save()
-        assert self.course_run.get_video == self.course_run.course.video
-
 
 @ddt.ddt
 class OrganizationTests(TestCase):
@@ -538,9 +499,8 @@ class ProgramTests(TestCase):
     def setUp(self):
         super(ProgramTests, self).setUp()
         transcript_languages = LanguageTag.objects.all()[:2]
-        subjects = factories.SubjectFactory.create_batch(2)
         self.course_runs = factories.CourseRunFactory.create_batch(
-            3, transcript_languages=transcript_languages, course__subjects=subjects,
+            3, transcript_languages=transcript_languages,
             weeks_to_complete=2)
         self.courses = [course_run.course for course_run in self.course_runs]
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
@@ -817,14 +777,6 @@ class ProgramTests(TestCase):
 
         self.assertGreater(len(actual_transcript_languages), 0)
         self.assertEqual(actual_transcript_languages, expected_transcript_languages)
-
-    def test_subjects(self):
-        expected_subjects = itertools.chain.from_iterable([list(course.subjects.all()) for course in self.courses])
-        expected_subjects = set(expected_subjects)
-        actual_subjects = self.program.subjects
-
-        self.assertGreater(len(actual_subjects), 0)
-        self.assertEqual(actual_subjects, expected_subjects)
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the

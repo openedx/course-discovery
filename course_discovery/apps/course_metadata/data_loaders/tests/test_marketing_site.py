@@ -475,26 +475,11 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         expected_values = {
             'title': self.loader.clean_html(data['field_course_course_title']['value']),
             'number': data['field_course_code'],
-            'full_description': self.loader.get_description(data),
-            'video': self.loader.get_video(data),
-            'short_description': self.loader.clean_html(data['field_course_sub_title_long']['value']),
-            'level_type': self.loader.get_level_type(data['field_course_level']),
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
-            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
-            'syllabus_raw': (data.get('field_course_syllabus', {}) or {}).get('value'),
-            'prerequisites_raw': (data.get('field_course_prerequisites', {}) or {}).get('value'),
         }
 
         for field, value in expected_values.items():
             self.assertEqual(getattr(course, field), value)
-
-        # Verify the subject and authoring organization relationships
-        data_map = {
-            course.subjects: 'field_course_subject',
-            course.authoring_organizations: 'field_course_school_node',
-        }
-
-        self.validate_relationships(data, data_map)
 
     def assert_no_override_unpublished_course_fields(self, data):
         course = self._get_course(data)
@@ -531,15 +516,10 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'key': data['field_course_id'],
             'title_override': self.loader.clean_html(data['field_course_course_title']['value']),
             'language': language,
-            'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
             'status': self.loader.get_course_run_status(data),
             'start': start,
             'pacing_type': self.loader.get_pacing_type(data),
-            'hidden': self.loader.get_hidden(data),
-            'mobile_available': data['field_course_enrollment_mobile'] or False,
-            'short_description_override': self.loader.clean_html(data['field_course_sub_title_long']['value']) or None,
-            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
         }
 
         if weeks_to_complete:

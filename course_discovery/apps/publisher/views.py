@@ -1415,7 +1415,7 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
             create_course_run = self.request.POST.get('create_course_run')
 
             try:
-                course = CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').get(
+                course = CourseMetaData.objects.select_related('canonical_course_run').get(
                     id=start_id
                 )
                 process_course(course, create_course_run)

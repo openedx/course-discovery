@@ -167,22 +167,6 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.canonical_course_run == discovery_course_run
         assert discovery_course.partner == partner
         assert discovery_course.title == publisher_course.title
-        assert discovery_course.short_description == publisher_course.short_description
-        assert discovery_course.full_description == publisher_course.full_description
-        assert discovery_course.level_type == publisher_course.level_type
-        assert discovery_course.video == Video.objects.get(src=publisher_course.video_link)
-        assert discovery_course.image.name is not None
-        assert discovery_course.image.url is not None
-        assert discovery_course.image.file is not None
-        assert discovery_course.image.small.url is not None
-        assert discovery_course.image.small.file is not None
-        assert discovery_course.outcome == publisher_course.expected_learnings
-        assert discovery_course.prerequisites_raw == publisher_course.prerequisites
-        assert discovery_course.syllabus_raw == publisher_course.syllabus
-        expected = list(publisher_course_run.course.organizations.all())
-        assert list(discovery_course.authoring_organizations.all()) == expected
-        expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
-        assert set(discovery_course.subjects.all()) == expected
 
         common_entitlement_kwargs = {
             'course': discovery_course,

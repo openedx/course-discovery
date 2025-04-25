@@ -387,8 +387,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                     # Only update the course object with published course about page
                     try:
                         course = self.update_course(course_run.course, data)
-                        # self.set_subjects(course, data)
-                        # self.set_authoring_organizations(course, data)
                         logger.info(
                             'Processed course with key [%s] based on the data from courserun [%s]',
                             course.key,
@@ -453,10 +451,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         course, created = Course.objects.get_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
-        if created:
-            self.set_subjects(course, data)
-            self.set_authoring_organizations(course, data)
-
         return (course, created)
 
     def update_course(self, course, data):
@@ -488,21 +482,14 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'uuid': uuid,
             'title_override': self.clean_html(data['field_course_course_title']['value']),
             'language': language,
-            'slug': slug,
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
             'status': self.get_course_run_status(data),
             'start': start,
             'pacing_type': self.get_pacing_type(data),
-            'hidden': self.get_hidden(data),
-            'weeks_to_complete': None,
             'mobile_available': data.get('field_course_enrollment_mobile') or False,
-            'video': course.video,
             'course': course,
             # We want to consume the same value for the override here to stay consistent with the marketing site
             'short_description_override': self.clean_html(data['field_course_sub_title_long']['value']) or None,
-            'min_effort': min_effort,
-            'max_effort': max_effort,
-            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value')
         }
 
         if weeks_to_complete:
@@ -522,49 +509,17 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'key': key,
             'title': self.clean_html(data['field_course_course_title']['value']),
             'number': data['field_course_code'],
-            'full_description': self.get_description(data),
-            'video': self.get_video(data),
-            'short_description': self.clean_html(data['field_course_sub_title_long']['value']),
-            'level_type': self.get_level_type(data['field_course_level']),
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
-            'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
-            'syllabus_raw': (data.get('field_course_syllabus', {}) or {}).get('value'),
-            'prerequisites_raw': (data.get('field_course_prerequisites', {}) or {}).get('value'),
         }
 
         return defaults
 
-    def get_description(self, data):
-        description = (data.get('field_course_body', {}) or {}).get('value')
-        description = description or (data.get('field_course_description', {}) or {}).get('value')
-        description = description or ''
-        description = self.clean_html(description)
-        return description
-
     def get_course_run_status(self, data):
         return CourseRunStatus.Published if bool(int(data['status'])) else CourseRunStatus.Unpublished
-
-    def get_level_type(self, name):
-        level_type = None
-
-        if name:
-            level_type, __ = LevelType.objects.get_or_create(name=name)
-
-        return level_type
-
-    def get_video(self, data):
-        video_url = self._get_nested_url(data.get('field_course_video') or data.get('field_product_video'))
-        image_url = self._get_nested_url(data.get('field_course_image_featured_card'))
-        return self.get_or_create_video(video_url, image_url)
 
     def get_pacing_type(self, data):
         self_paced = data.get('field_course_self_paced', False)
         return CourseRunPacing.Self if self_paced else CourseRunPacing.Instructor
-
-    def get_hidden(self, data):
-        # 'couse' [sic]. The field is misspelled on Drupal. ಠ_ಠ
-        hidden = data.get('field_couse_is_hidden', False)
-        return hidden is True
 
     def get_min_max_effort_per_week(self, data):
         """
@@ -593,16 +548,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def _extract_language_tags(self, raw_objects_data):
         language_names = [_object['name'].strip() for _object in raw_objects_data]
         return self.get_language_tags_from_names(language_names)
-
-    def set_authoring_organizations(self, course, data):
-        schools = self._get_objects_by_uuid(Organization, data['field_course_school_node'])
-        course.authoring_organizations.clear()
-        course.authoring_organizations.add(*schools)
-
-    def set_subjects(self, course, data):
-        subjects = self._get_objects_by_uuid(Subject, data['field_course_subject'])
-        course.subjects.clear()
-        course.subjects.add(*subjects)  # pylint: disable=not-an-iterable
 
     def set_course_run_staff(self, course_run, data):
         staff = self._get_objects_by_uuid(Person, data['field_course_staff'])

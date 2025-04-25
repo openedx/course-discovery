@@ -15,7 +15,7 @@ def execute_query(start_id, end_id, create_course_run):
 
     from course_discovery.apps.course_metadata.models import Course as CourseMetaData
 
-    for course in CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').filter(
+    for course in CourseMetaData.objects.select_related('canonical_course_run').filter(
             id__range=(start_id, end_id)):
 
         process_course(course, create_course_run)
@@ -42,29 +42,9 @@ def process_course(meta_data_course, create_course_run):
 
 def create_or_update_course(meta_data_course, available_organization, create_course_run):
 
-    primary_subject = None
-    secondary_subject = None
-    tertiary_subject = None
-
-    for i, subject in enumerate(meta_data_course.subjects.all()):
-        if i == 0:
-            primary_subject = subject
-        elif i == 1:
-            secondary_subject = subject
-        elif i == 2:
-            tertiary_subject = subject
-
     defaults = {
-        'title': meta_data_course.title, 'number': meta_data_course.number,
-        'short_description': meta_data_course.short_description,
-        'full_description': meta_data_course.full_description,
-        'level_type': meta_data_course.level_type,
-        'primary_subject': primary_subject, 'secondary_subject': secondary_subject,
-        'tertiary_subject': tertiary_subject,
-        'video_link': meta_data_course.video.src if meta_data_course.video else None,
-        'expected_learnings': meta_data_course.outcome,
-        'prerequisites': meta_data_course.prerequisites_raw,
-        'syllabus': meta_data_course.syllabus_raw,
+        'title': meta_data_course.title,
+        'number': meta_data_course.number,
     }
 
     publisher_course, created = Course.objects.update_or_create(
@@ -92,28 +72,6 @@ def create_or_update_course(meta_data_course, available_organization, create_cou
     if create_course_run:
         # create canonical course-run against the course.
         create_course_runs(meta_data_course, publisher_course)
-
-
-def transfer_course_image(meta_data_course, publisher_course):
-    if meta_data_course.image:
-        publisher_course.image.save(
-            meta_data_course.image.name,
-            meta_data_course.image.file
-        )
-    elif meta_data_course.card_image_url:
-        response = requests.get(meta_data_course.card_image_url)
-        if response.status_code == 200:
-            img_name = meta_data_course.card_image_url.split('/')[-1]
-            with io.BytesIO() as fp:
-                fp.write(response.content)
-                publisher_course.image.save(img_name, File(fp))
-        else:
-            logger.error(
-                'Failed to download image for course [%s] from [%s]. Server responded with status [%d].',
-                meta_data_course.uuid,
-                meta_data_course.card_image_url,
-                response.status_code
-            )
 
 
 def create_course_runs(meta_data_course, publisher_course):

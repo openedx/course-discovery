@@ -112,12 +112,7 @@ class CreateCoursesTests(TestCase):
         super(CreateCoursesTests, self).setUp()
 
         transcript_languages = LanguageTag.objects.all()[:2]
-        self.subjects = SubjectFactory.create_batch(3)
-        self.test_image = make_image_file('testimage.jpg')
-        self.course = CourseFactory(
-            subjects=self.subjects,
-            image__from_file=self.test_image
-        )
+        self.course = CourseFactory()
 
         self.command_name = 'import_metadata_courses'
         self.command_args = ['--start_id={}'.format(self.course.id), '--end_id={}'.format(self.course.id)]
@@ -142,7 +137,6 @@ class CreateCoursesTests(TestCase):
         # create org and assign to the course-metadata
         self.forganization_extension = factories.OrganizationExtensionFactory()
         self.organization = self.forganization_extension.organization
-        self.course.authoring_organizations.add(self.organization)
 
     def test_course_run_created_successfully(self):
         """ Verify that publisher course and course_runs successfully."""
@@ -157,33 +151,6 @@ class CreateCoursesTests(TestCase):
 
     def test_course_create_successfully(self):
         """ Verify that publisher course successfully."""
-        call_command(self.command_name, *self.command_args)
-        course = Publisher_Course.objects.all().first()
-
-        self._assert_course(course)
-
-    def test_course_create_without_video(self):
-        """ Verify that publisher course successfully."""
-        self.course.video = None
-        self.course.save()
-        self.command_args.append('--create_run={}'.format(True))
-
-        call_command(self.command_name, *self.command_args)
-        course = Publisher_Course.objects.all().first()
-
-        self._assert_course(course)
-        self._assert_course_run(course.course_runs.first(), self.course.canonical_course_run)
-        self._assert_seats(course.course_runs.first(), self.course.canonical_course_run)
-
-    def test_course_having_multiple_auth_organizations(self):
-        """ Verify that if the course has multiple organization then that course will be
-        imported to publisher but with only 1 organization.
-        """
-        # later that record will be updated with dual org manually.
-
-        org2 = OrganizationFactory()
-        self.course.authoring_organizations.add(org2)
-
         call_command(self.command_name, *self.command_args)
         course = Publisher_Course.objects.all().first()
 
@@ -232,54 +199,6 @@ class CreateCoursesTests(TestCase):
                 ),
             )
 
-    @responses.activate
-    def test_course_with_card_image_url(self):
-        self.course.image.delete()
-        self.test_image.open()
-        responses.add(
-            responses.GET,
-            self.course.card_image_url,
-            body=self.test_image.read(),
-            content_type='image/jpeg'
-        )
-        call_command(self.command_name, *self.command_args)
-        self.test_image.close()
-        publisher_course = Publisher_Course.objects.all().first()
-        self._assert_course(publisher_course)
-
-    @responses.activate
-    def test_course_with_non_existent_card_image_url(self):
-        self.course.image.delete()
-        request_status_code = 404
-        responses.add(
-            responses.GET,
-            self.course.card_image_url,
-            body=None,
-            content_type='image/jpeg',
-            status=request_status_code
-        )
-        with LogCapture(dataloader_logger.name, level=logging.ERROR) as log_capture:
-            call_command(self.command_name, *self.command_args)
-            log_capture.check(
-                (
-                    dataloader_logger.name,
-                    'ERROR',
-                    'Failed to download image for course [{}] from [{}]. Server responded with status [{}].'.format(
-                        self.course.uuid,
-                        self.course.card_image_url,
-                        request_status_code
-                    )
-                )
-            )
-
-    def test_course_without_image(self):
-        self.course.image.delete()
-        self.course.card_image_url = None
-        self.course.save()
-        call_command(self.command_name, *self.command_args)
-        publisher_course = Publisher_Course.objects.all().first()
-        self._assert_course(publisher_course)
-
     def test_course_run_without_seats(self):
         """ Verify that import works fine even if course-run has no seats."""
         self.course.canonical_course_run.seats.all().delete()
@@ -311,12 +230,6 @@ class CreateCoursesTests(TestCase):
                 ),
             )
 
-    def _assert_course_image(self, publisher_course):
-        if self.course.image or self.course.card_image_url:
-            assert publisher_course.image.url is not None
-        else:
-            assert bool(publisher_course.image) is False
-
     def _assert_course(self, publisher_course):
         """ Verify that publisher course  and metadata course has correct values."""
 
@@ -325,23 +238,11 @@ class CreateCoursesTests(TestCase):
 
         self.assertEqual(publisher_course.title, self.course.title)
         self.assertEqual(publisher_course.number, self.course.number)
-        self.assertEqual(publisher_course.short_description, self.course.short_description)
-        self.assertEqual(publisher_course.full_description, self.course.full_description)
-        self.assertEqual(publisher_course.level_type, self.course.level_type)
 
         self.assertEqual(publisher_course.course_metadata_pk, self.course.pk)
-        self.assertEqual(publisher_course.primary_subject, self.subjects[0])
-        self.assertEqual(publisher_course.secondary_subject, self.subjects[1])
-        self.assertEqual(publisher_course.tertiary_subject, self.subjects[2])
 
-        if self.course.video:
-            self.assertEqual(publisher_course.video_link, self.course.video.src)
-        else:
-            self.assertFalse(publisher_course.video_link)
+        self.assertFalse(publisher_course.video_link)
 
-        assert publisher_course.prerequisites == self.course.prerequisites_raw
-        assert publisher_course.syllabus == self.course.syllabus_raw
-        assert publisher_course.expected_learnings == self.course.outcome
         self._assert_course_image(publisher_course)
 
     def _assert_course_run(self, publisher_course_run, metadata_course_run):

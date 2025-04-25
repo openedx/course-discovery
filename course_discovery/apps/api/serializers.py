@@ -870,8 +870,6 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     # required. They're documented at http://wiki.awin.com/index.php/Product_Feed_File_Structure.
     pid = serializers.SerializerMethodField()
     name = serializers.CharField(source='course_run.title')
-    desc = serializers.CharField(source='course_run.full_description')
-    purl = serializers.CharField(source='course_run.marketing_url')
     imgurl = serializers.CharField(source='course_run.card_image_url')
     category = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
@@ -887,7 +885,6 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     custom2 = serializers.SlugRelatedField(source='course_run.level_type', read_only=True, slug_field='name')
     custom3 = serializers.SerializerMethodField()
     custom4 = serializers.SerializerMethodField()
-    custom5 = serializers.CharField(source='course_run.short_description')
 
     class Meta:
         model = Seat
@@ -1064,21 +1061,15 @@ class CourseRunSearchSerializer(HaystackSerializer):
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [search_indexes.CourseRunIndex]
         fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
-            'authoring_organization_uuids',
             'availability',
             'end',
             'enrollment_end',
             'enrollment_start',
             'first_enrollable_paid_seat_sku',
-            'full_description',
             'has_enrollable_seats',
-            'image_url',
             'key',
             'level_type',
             'logo_image_urls',
-            'marketing_url',
-            'max_effort',
-            'min_effort',
             'mobile_available',
             'number',
             'org',
@@ -1086,15 +1077,10 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'partner',
             'program_types',
             'published',
-            'seat_types',
-            'short_description',
-            'staff_uuids',
             'start',
-            'subject_uuids',
             'text',
             'title',
             'type',
-            'weeks_to_complete'
         )
 
 

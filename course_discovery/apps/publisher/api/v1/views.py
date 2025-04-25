@@ -117,41 +117,16 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         publisher_course = course_run.course
         course_key = self.get_course_key(publisher_course)
 
-        video = None
-        if publisher_course.video_link:
-            video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
-
         defaults = {
             'title': publisher_course.title,
-            'short_description': publisher_course.short_description,
-            'full_description': publisher_course.full_description,
-            'level_type': publisher_course.level_type,
-            'video': video,
-            'outcome': publisher_course.expected_learnings,
-            'prerequisites_raw': publisher_course.prerequisites,
-            'syllabus_raw': publisher_course.syllabus,
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
-        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
-        discovery_course.authoring_organizations.clear()
-        discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
-
-        subjects = [subject for subject in [
-            publisher_course.primary_subject,
-            publisher_course.secondary_subject,
-            publisher_course.tertiary_subject
-        ] if subject]
-        subjects = list(OrderedDict.fromkeys(subjects))
-        discovery_course.subjects.clear()
-        discovery_course.subjects.add(*subjects)
 
         defaults = {
             'start': course_run.start,
             'end': course_run.end,
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
-            'min_effort': course_run.min_effort,
-            'max_effort': course_run.max_effort,
             'language': course_run.language,
             'weeks_to_complete': course_run.length,
             'learner_testimonials': publisher_course.learner_testimonial,

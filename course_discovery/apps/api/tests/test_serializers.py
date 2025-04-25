@@ -119,10 +119,6 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'uuid': str(course.uuid),
             'title': course.title,
             'course_runs': MinimalCourseRunSerializer(course.course_runs, many=True, context=context).data,
-            'entitlements': [],
-            'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
-            'image': ImageField().to_representation(course.image_url),
-            'short_description': course.short_description
         }
 
     def test_data(self):
@@ -142,41 +138,12 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     def get_expected_data(cls, course, request):
         expected = super().get_expected_data(course, request)
         expected.update({
-            'short_description': course.short_description,
-            'full_description': course.full_description,
-            'level_type': course.level_type.name,
-            'subjects': [],
-            'prerequisites': [],
-            'expected_learning_items': [],
-            'video': VideoSerializer(course.video).data,
-            'sponsors': OrganizationSerializer(course.sponsoring_organizations, many=True).data,
             'modified': json_date_format(course.modified),  # pylint: disable=no-member
-            'marketing_url': '{url}?{params}'.format(
-                url=course.marketing_url,
-                params=urlencode({
-                    'utm_source': request.user.username,
-                    'utm_medium': request.user.referral_tracking_id,
-                })
-            ),
             'course_runs': CourseRunSerializer(course.course_runs, many=True, context={'request': request}).data,
-            'entitlements': CourseEntitlementSerializer(many=True).data,
-            'owners': OrganizationSerializer(course.authoring_organizations, many=True).data,
-            'prerequisites_raw': course.prerequisites_raw,
-            'syllabus_raw': course.syllabus_raw,
-            'outcome': course.outcome,
-            'original_image': ImageField().to_representation(course.original_image_url),
             'card_image_url': course.card_image_url,
         })
 
         return expected
-
-    def test_exclude_utm(self):
-        request = make_request()
-        course = CourseFactory()
-        CourseRunFactory.create_batch(3, course=course)
-        serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
-
-        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
 
 
 @ddt.ddt
@@ -235,22 +202,12 @@ class MinimalCourseRunSerializerTests(TestCase):
             'key': course_run.key,
             'uuid': str(course_run.uuid),
             'title': course_run.title,
-            'short_description': course_run.short_description,
-            'image': ImageField().to_representation(course_run.image_url),
-            'marketing_url': '{url}?{params}'.format(
-                url=course_run.marketing_url,
-                params=urlencode({
-                    'utm_source': request.user.username,
-                    'utm_medium': request.user.referral_tracking_id,
-                })
-            ),
             'start': json_date_format(course_run.start),
             'end': json_date_format(course_run.end),
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
             'type': course_run.type,
-            'seats': SeatSerializer(course_run.seats, many=True).data,
             'status': course_run.status,
         }
 
@@ -283,25 +240,14 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
             'instructors': [],
-            'staff': [],
-            'seats': [],
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'reporting_type': course_run.reporting_type,
             'status': course_run.status,
-            'license': course_run.license,
-            'outcome': course_run.outcome,
         })
 
         return expected
-
-    def test_exclude_utm(self):
-        request = make_request()
-        course_run = CourseRunFactory()
-        serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1})
-
-        self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):
@@ -458,15 +404,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         serializer_context = {'request': request}
         expected = dict(CourseRunSerializer(course_run, context=serializer_context).data)
         expected.update({
-            'subjects': cls.serialize_items(course.subjects.all(), 'name'),
-            'seats': cls.serialize_seats(course_run),
-            'owners': cls.serialize_items(course.authoring_organizations.all(), 'key'),
-            'sponsors': cls.serialize_items(course.sponsoring_organizations.all(), 'key'),
-            'prerequisites': cls.serialize_items(course.prerequisites.all(), 'name'),
-            'level_type': course_run.level_type.name if course_run.level_type else None,
-            'expected_learning_items': cls.serialize_items(course.expected_learning_items.all(), 'value'),
             'course_key': course.key,
-            'image': ImageField().to_representation(course_run.card_image_url),
         })
 
         # Remove fields found in CourseRunSerializer, but not in FlattenedCourseRunWithCourseSerializer.
@@ -1210,13 +1148,11 @@ class AffiliateWindowSerializerTests(TestCase):
 
         # Verify none of the course run attributes are empty; otherwise, Affiliate Window will report errors.
         # pylint: disable=no-member
-        assert all((course_run.title, course_run.short_description, course_run.marketing_url))
+        assert all((course_run.title,))
 
         expected = {
             'pid': '{}-{}'.format(course_run.key, seat.type),
             'name': course_run.title,
-            'desc': course_run.full_description,
-            'purl': course_run.marketing_url,
             'price': {
                 'actualp': seat.price
             },
@@ -1230,7 +1166,6 @@ class AffiliateWindowSerializerTests(TestCase):
             'custom2': course_run.level_type.name,
             'custom3': ','.join(subject.name for subject in course_run.subjects.all()),
             'custom4': ','.join(org.name for org in course_run.authoring_organizations.all()),
-            'custom5': course_run.short_description,
         }
 
         assert serializer.data == expected
@@ -1302,26 +1237,18 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     @classmethod
     def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
         return {
-            'min_effort': course_run.min_effort,
-            'max_effort': course_run.max_effort,
-            'weeks_to_complete': course_run.weeks_to_complete,
-            'short_description': course_run.short_description,
             'start': serialize_datetime_without_timezone(course_run.start),
             'end': serialize_datetime_without_timezone(course_run.end),
             'enrollment_start': serialize_datetime_without_timezone(course_run.enrollment_start),
             'enrollment_end': serialize_datetime_without_timezone(course_run.enrollment_end),
             'key': course_run.key,
-            'marketing_url': course_run.marketing_url,
             'pacing_type': course_run.pacing_type,
             'mobile_available': course_run.mobile_available,
             'language': serialize_language(course_run.language),
-            'full_description': course_run.full_description,
             'title': course_run.title,
             'content_type': 'courserun',
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
-            'seat_types': course_run.seat_types,
-            'image_url': course_run.image_url,
             'type': course_run.type,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
@@ -1330,10 +1257,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'program_types': course_run.program_types,
             'logo_image_urls': [org.logo_image_url for org in course_run.authoring_organizations.all()],
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
-            'subject_uuids': get_uuids(course_run.subjects.all()),
-            'staff_uuids': get_uuids(course_run.staff.all()),
             'aggregation_key': 'courserun:{}'.format(course_run.course.key),
-            'has_enrollable_seats': course_run.has_enrollable_seats,
             'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
         }
 
@@ -1440,8 +1364,6 @@ class TestTypeaheadCourseRunSearchSerializer:
         return {
             'key': course_run.key,
             'title': course_run.title,
-            'orgs': [org.key for org in course_run.authoring_organizations.all()],
-            'marketing_url': course_run.marketing_url,
         }
 
     def test_data(self):
