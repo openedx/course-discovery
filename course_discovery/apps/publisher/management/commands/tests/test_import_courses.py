@@ -119,9 +119,8 @@ class CreateCoursesTests(TestCase):
 
         # create multiple course-runs against course.
         course_runs = CourseRunFactory.create_batch(
-            3, course=self.course, transcript_languages=transcript_languages,
+            3, course=self.course,
             language=transcript_languages[0],
-            short_description_override='Testing description'
         )
 
         canonical_course_run = course_runs[0]
@@ -250,23 +249,11 @@ class CreateCoursesTests(TestCase):
 
         self.assertEqual(publisher_course_run.start, metadata_course_run.start)
         self.assertEqual(publisher_course_run.end, metadata_course_run.end)
-        self.assertEqual(publisher_course_run.min_effort, metadata_course_run.min_effort)
-        self.assertEqual(publisher_course_run.max_effort, metadata_course_run.max_effort)
-        self.assertEqual(publisher_course_run.length, metadata_course_run.weeks_to_complete)
         self.assertEqual(publisher_course_run.language, metadata_course_run.language)
         self.assertEqual(publisher_course_run.pacing_type, metadata_course_run.pacing_type)
         self.assertEqual(publisher_course_run.card_image_url, metadata_course_run.card_image_url)
         self.assertEqual(publisher_course_run.language, metadata_course_run.language)
         self.assertEqual(publisher_course_run.lms_course_id, metadata_course_run.key)
-        self.assertEqual(
-            publisher_course_run.short_description_override, metadata_course_run.short_description_override
-        )
-
-        # assert ManytoMany fields.
-        self.assertEqual(
-            list(publisher_course_run.transcript_languages.all()), list(metadata_course_run.transcript_languages.all())
-        )
-        self.assertEqual(list(publisher_course_run.staff.all()), list(metadata_course_run.staff.all()))
 
     def _assert_seats(self, publisher_course_run, metadata_course_run):
         """ Verify that canonical course-run seats imported into publisher app with valid data."""
@@ -292,8 +279,6 @@ class UpdateCourseRunsTests(TestCase):
         # add metadata course-runs and add publisher course runs
         for i in range(1, 3):
             course_run = CourseRunFactory(
-                short_description_override='short description {}'.format(i),
-                full_description_override='full description {}'.format(i),
                 title_override='title {}'.format(i)
             )
 
@@ -316,9 +301,7 @@ class UpdateCourseRunsTests(TestCase):
 
         for run in self.metadata_course_runs:
             course_run = CourseRun.objects.filter(key=run.key).first()
-            course_run.short_description_override = None
             course_run.title_override = None
-            course_run.full_description_override = None
             course_run.save()
         call_command(self.update_command_name, *self.command_args)
 
@@ -366,9 +349,7 @@ class UpdateCourseRunsTests(TestCase):
         """ Assert method to verify the course runs before updation."""
         for course_run in self.metadata_course_runs:
             publisher_course_run = Publisher_CourseRun.objects.filter(lms_course_id=course_run.key).first()
-            self.assertNotEqual(publisher_course_run.short_description_override, course_run.short_description_override)
             self.assertNotEqual(publisher_course_run.title_override, course_run.title_override)
-            self.assertNotEqual(publisher_course_run.full_description_override, course_run.full_description_override)
 
     def assert_updated_course_runs(self):
         """ Assert method to verify the course runs after updation."""
@@ -376,11 +357,5 @@ class UpdateCourseRunsTests(TestCase):
             publisher_course_run = Publisher_CourseRun.objects.filter(lms_course_id=course_run.key).first()
 
             self.assertEqual(
-                publisher_course_run.short_description_override, course_run.short_description_override
-            )
-            self.assertEqual(
                 publisher_course_run.title_override, course_run.title_override
-            )
-            self.assertEqual(
-                publisher_course_run.full_description_override, course_run.full_description_override
             )

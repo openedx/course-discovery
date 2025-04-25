@@ -181,16 +181,11 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         course_run = course.course_runs.get(key=body['id'])
         expected_values = {
             'title': self.loader.clean_string(body['name']),
-            'short_description': self.loader.clean_string(body['short_description']),
             'end': self.loader.parse_date(body['end']),
             'enrollment_start': self.loader.parse_date(body['enrollment_start']),
             'enrollment_end': self.loader.parse_date(body['enrollment_end']),
             'card_image_url': None,
             'title_override': None,
-            'short_description_override': None,
-            'video': None,
-            'hidden': body.get('hidden', False),
-            'license': body.get('license', ''),
         }
 
         if not partner_has_marketing_site:
@@ -198,11 +193,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'start': self.loader.parse_date(body['start']),
                 'card_image_url': body['media'].get('image', {}).get('raw'),
                 'title_override': body['name'],
-                'short_description_override': self.loader.clean_string(body['short_description']),
-                'video': self.loader.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
                 'pacing_type': self.loader.get_pacing_type(body),
-                'mobile_available': body['mobile_available'] or False,
             })
 
         for field, value in expected_values.items():

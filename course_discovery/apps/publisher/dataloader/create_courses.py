@@ -82,12 +82,9 @@ def create_course_runs(meta_data_course, publisher_course):
             defaults = {
                 'course': publisher_course,
                 'start': canonical_course_run.start, 'end': canonical_course_run.end,
-                'min_effort': canonical_course_run.min_effort, 'max_effort': canonical_course_run.max_effort,
                 'language': canonical_course_run.language, 'pacing_type': canonical_course_run.pacing_type,
-                'length': canonical_course_run.weeks_to_complete,
                 'card_image_url': canonical_course_run.card_image_url,
                 'lms_course_id': canonical_course_run.key,
-                'short_description_override': canonical_course_run.short_description_override
             }
 
             publisher_course_run, created = CourseRun.objects.update_or_create(
@@ -95,8 +92,6 @@ def create_course_runs(meta_data_course, publisher_course):
             )
 
             # add many to many fields.
-            publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
-            publisher_course_run.staff.add(*canonical_course_run.staff.all())
             publisher_course_run.language = canonical_course_run.language
 
             # Initialize workflow for Course-run.

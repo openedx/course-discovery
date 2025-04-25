@@ -431,7 +431,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         validated_data = self.format_course_run_data(data, course_run.course)
         self._update_instance(course_run, validated_data, suppress_publication=True)
         self.set_course_run_staff(course_run, data)
-        self.set_course_run_transcript_languages(course_run, data)
 
         logger.info('Processed course run with UUID [%s].', course_run.uuid)
 
@@ -440,7 +439,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         course_run = CourseRun.objects.create(**defaults)
         self.set_course_run_staff(course_run, data)
-        self.set_course_run_transcript_languages(course_run, data)
 
         return course_run
 
@@ -467,15 +465,12 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def format_course_run_data(self, data, course):
         uuid = data['uuid']
         key = data['field_course_id']
-        slug = data['url'].split('/')[-1]
         language_tags = self._extract_language_tags(data['field_course_languages'])
         language = language_tags[0] if language_tags else None
         start = data.get('field_course_start_date')
         start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
         end = data.get('field_course_end_date')
         end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
-        weeks_to_complete = data.get('field_course_required_weeks')
-        min_effort, max_effort = self.get_min_max_effort_per_week(data)
 
         defaults = {
             'key': key,
@@ -486,17 +481,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'status': self.get_course_run_status(data),
             'start': start,
             'pacing_type': self.get_pacing_type(data),
-            'mobile_available': data.get('field_course_enrollment_mobile') or False,
             'course': course,
-            # We want to consume the same value for the override here to stay consistent with the marketing site
-            'short_description_override': self.clean_html(data['field_course_sub_title_long']['value']) or None,
         }
-
-        if weeks_to_complete:
-            defaults['weeks_to_complete'] = int(weeks_to_complete)
-        elif start and end:
-            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
-            defaults['weeks_to_complete'] = int(weeks_to_complete)
 
         return defaults
 
@@ -521,26 +507,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         self_paced = data.get('field_course_self_paced', False)
         return CourseRunPacing.Self if self_paced else CourseRunPacing.Instructor
 
-    def get_min_max_effort_per_week(self, data):
-        """
-        Parse effort value from drupal course data which have specific format.
-        """
-        effort_per_week = data.get('field_course_effort', '')
-        min_effort = None
-        max_effort = None
-        # Ignore effort values in minutes
-        if not effort_per_week or 'minutes' in effort_per_week:
-            return min_effort, max_effort
-
-        effort_values = [int(keyword) for keyword in re.split(r'\s|-|–|,|\+|~', effort_per_week) if keyword.isdigit()]
-        if len(effort_values) == 1:
-            max_effort = effort_values[0]
-        if len(effort_values) == 2:
-            min_effort = effort_values[0]
-            max_effort = effort_values[1]
-
-        return min_effort, max_effort
-
     def _get_objects_by_uuid(self, object_type, raw_objects_data):
         uuids = [_object.get('uuid') for _object in raw_objects_data]
         return object_type.objects.filter(uuid__in=uuids)
@@ -553,8 +519,3 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         staff = self._get_objects_by_uuid(Person, data['field_course_staff'])
         course_run.staff.clear()
         course_run.staff.add(*staff)
-
-    def set_course_run_transcript_languages(self, course_run, data):
-        language_tags = self._extract_language_tags(data['field_course_video_locale_lang'])
-        course_run.transcript_languages.clear()
-        course_run.transcript_languages.add(*language_tags)

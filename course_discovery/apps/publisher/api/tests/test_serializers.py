@@ -306,7 +306,6 @@ class CourseRunStateSerializerTests(SiteMixin, TestCase):
         SeatFactory(course_run=self.course_run, type=Seat.AUDIT)
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
-        self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         organization = OrganizationFactory()
         self.course_run.course.organizations.add(organization)

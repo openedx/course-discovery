@@ -759,8 +759,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                 last_run_data['video_language'] = LanguageTag.objects.get(code=video_language_code)
 
             new_run.save()
-            new_run.staff.add(*last_run_data.pop('staff'))
-            new_run.transcript_languages.add(*last_run_data.pop('transcript_languages'))
 
             for attr, value in last_run_data.items():
                 setattr(new_run, attr, value)

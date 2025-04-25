@@ -128,15 +128,12 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'pacing_type': course_run.pacing_type,
             'title_override': course_run.title_override,
             'language': course_run.language,
-            'weeks_to_complete': course_run.length,
-            'learner_testimonials': publisher_course.learner_testimonial,
         }
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,
             key=course_run.lms_course_id,
             defaults=defaults
         )
-        discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
         discovery_course_run.staff.clear()
         discovery_course_run.staff.add(*course_run.staff.all())
 

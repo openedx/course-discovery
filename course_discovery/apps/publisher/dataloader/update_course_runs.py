@@ -19,14 +19,8 @@ def update_course_run(publisher_course_run):
         if publisher_course_run.lms_course_id:
             course_run_metadata = CourseRunMetaData.objects.filter(key=publisher_course_run.lms_course_id).first()
             if (
-                course_run_metadata and
-                (
-                    course_run_metadata.short_description_override or course_run_metadata.full_description_override or
-                    course_run_metadata.title_override
-                )
+                course_run_metadata and course_run_metadata.title_override
             ):
-                publisher_course_run.short_description_override = course_run_metadata.short_description_override
-                publisher_course_run.full_description_override = course_run_metadata.full_description_override
                 publisher_course_run.title_override = course_run_metadata.title_override
 
                 publisher_course_run.save()

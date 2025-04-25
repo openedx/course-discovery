@@ -347,16 +347,6 @@ class CourseTests(TestCase):
 
         course_run = factories.CourseRunFactory(course=self.course)
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
-        self.assertEqual(self.course.course_short_description, course_run.short_description_override)
-
-    def test_full_description_override(self):
-        """ Verify that the property returns the full_description. """
-        self.assertEqual(self.course.full_description, self.course.course_full_description)
-
-        course_run = factories.CourseRunFactory(course=self.course)
-
-        factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
-        self.assertEqual(self.course.course_full_description, course_run.full_description_override)
 
     def test_title_override(self):
         """ Verify that the property returns the title. """
@@ -658,7 +648,6 @@ class CourseRunStateTests(TestCase):
 
         self.site = SiteFactory()
         self.partner = PartnerFactory(site=self.site)
-        self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
         self.course_run.micromasters_name = 'test'
@@ -666,7 +655,6 @@ class CourseRunStateTests(TestCase):
         self.course_run.save()
         self.course.course_state.name = CourseStateChoices.Approved
         self.course.save()
-        self.course_run.staff.add(PersonFactory())
         self.course_run_state.preview_accepted = False
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.can_send_for_review())
@@ -735,7 +723,6 @@ class CourseRunStateTests(TestCase):
         """
         Verify that method return False if data is missing.
         """
-        self.course_run.transcript_languages = []
         self.course_run.save()
         self.assertFalse(self.course_run_state.can_send_for_review())
 

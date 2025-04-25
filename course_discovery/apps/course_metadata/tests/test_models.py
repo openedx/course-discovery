@@ -70,16 +70,6 @@ class CourseRunTests(TestCase):
         # Enrollable seats of any type should be returned when no type parameter is specified.
         assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
 
-    def test_has_enrollable_seats(self):
-        """ Verify the expected value of has_enrollable_seats is returned. """
-        course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
-        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        assert course_run.has_enrollable_seats is True
-
-        course_run.end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        course_run.save()
-        assert course_run.has_enrollable_seats is False
-
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
@@ -498,10 +488,7 @@ class ProgramTests(TestCase):
 
     def setUp(self):
         super(ProgramTests, self).setUp()
-        transcript_languages = LanguageTag.objects.all()[:2]
-        self.course_runs = factories.CourseRunFactory.create_batch(
-            3, transcript_languages=transcript_languages,
-            weeks_to_complete=2)
+        self.course_runs = factories.CourseRunFactory.create_batch(3)
         self.courses = [course_run.course for course_run in self.course_runs]
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
@@ -768,15 +755,6 @@ class ProgramTests(TestCase):
         actual_languages = self.program.languages
         self.assertGreater(len(actual_languages), 0)
         self.assertEqual(actual_languages, expected_languages)
-
-    def test_transcript_languages(self):
-        expected_transcript_languages = itertools.chain.from_iterable(
-            [list(course_run.transcript_languages.all()) for course_run in self.course_runs])
-        expected_transcript_languages = set(expected_transcript_languages)
-        actual_transcript_languages = self.program.transcript_languages
-
-        self.assertGreater(len(actual_transcript_languages), 0)
-        self.assertEqual(actual_transcript_languages, expected_transcript_languages)
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the

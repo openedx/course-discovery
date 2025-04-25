@@ -57,10 +57,6 @@ class CourseRunWrapper(BaseWrapper):
         return [seat for seat in self.wrapped_obj.seats.all() if seat.type != Seat.CREDIT]
 
     @property
-    def transcript_languages(self):
-        return ', '.join([lang.name for lang in self.wrapped_obj.transcript_languages.all()])
-
-    @property
     def persons(self):
         return ', '.join([person.full_name for person in self.wrapped_obj.staff.all()])
 
@@ -112,10 +108,6 @@ class CourseRunWrapper(BaseWrapper):
     @property
     def learner_testimonial(self):
         return self.wrapped_obj.course.learner_testimonial
-
-    @property
-    def syllabus(self):
-        return self.wrapped_obj.course.syllabus
 
     @property
     def subjects(self):

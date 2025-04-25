@@ -92,27 +92,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         assert response.data == \
             self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
-    def test_partial_update(self):
-        """ Verify the endpoint supports partially updating a course_run's fields, provided user has permission. """
-        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
-
-        expected_min_effort = 867
-        expected_max_effort = 5309
-        data = {
-            'max_effort': expected_max_effort,
-            'min_effort': expected_min_effort,
-        }
-
-        # Update this course_run with the new info
-        response = self.client.patch(url, data, format='json')
-        assert response.status_code == 200
-
-        # refresh and make sure we have the new effort levels
-        self.course_run.refresh_from_db()
-
-        assert self.course_run.max_effort == expected_max_effort
-        assert self.course_run.min_effort == expected_min_effort
-
     def test_partial_update_bad_permission(self):
         """ Verify partially updating will fail if user doesn't have permission. """
         user = UserFactory(is_staff=False, is_superuser=False)

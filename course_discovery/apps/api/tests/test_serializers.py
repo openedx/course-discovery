@@ -229,21 +229,10 @@ class CourseRunSerializerTests(MinimalCourseRunSerializerTests):
             'course': course_run.course.key,
             'key': course_run.key,
             'title': course_run.title,  # pylint: disable=no-member
-            'full_description': course_run.full_description,  # pylint: disable=no-member
-            'announcement': json_date_format(course_run.announcement),
-            'video': VideoSerializer(course_run.video).data,
-            'mobile_available': course_run.mobile_available,
-            'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
-            'hidden': course_run.hidden,
             'content_language': course_run.language.code,
-            'min_effort': course_run.min_effort,
-            'max_effort': course_run.max_effort,
-            'weeks_to_complete': course_run.weeks_to_complete,
             'instructors': [],
             'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
-            'level_type': course_run.level_type.name,
             'availability': course_run.availability,
-            'reporting_type': course_run.reporting_type,
             'status': course_run.status,
         })
 
@@ -1243,22 +1232,16 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'enrollment_end': serialize_datetime_without_timezone(course_run.enrollment_end),
             'key': course_run.key,
             'pacing_type': course_run.pacing_type,
-            'mobile_available': course_run.mobile_available,
             'language': serialize_language(course_run.language),
             'title': course_run.title,
             'content_type': 'courserun',
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
             'type': course_run.type,
-            'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'published': course_run.status == CourseRunStatus.Published,
             'partner': course_run.course.partner.short_code,
-            'program_types': course_run.program_types,
-            'logo_image_urls': [org.logo_image_url for org in course_run.authoring_organizations.all()],
-            'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'aggregation_key': 'courserun:{}'.format(course_run.course.key),
-            'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
         }
 
 

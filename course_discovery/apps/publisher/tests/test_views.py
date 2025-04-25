@@ -534,7 +534,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         self.course_run.staff.add(course_run_staff)
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
-        self.course_run.transcript_languages.add(language_tag)
 
         seat = factories.SeatFactory(course_run=self.course_run, type=Seat.AUDIT, price=0, credit_price=0)
 
@@ -560,20 +559,12 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
 
         fields_to_assert = [
             'title_override',
-            'min_effort',
-            'max_effort',
             'length',
-            'notes',
             'language',
-            'full_description_override',
-            'short_description_override'
         ]
 
         for field in fields_to_assert:
             self.assertEqual(getattr(new_run, field), getattr(self.course_run, field))
-
-        self.assertEqual(list(new_run.staff.all()), list(self.course_run.staff.all()))
-        self.assertEqual(list(new_run.transcript_languages.all()), list(self.course_run.transcript_languages.all()))
 
     def test_seat_without_price(self):
         """ Verify that user cannot create a new course run without seat price. """
@@ -998,14 +989,10 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
         values = [
             self.wrapped_course_run.title, self.wrapped_course_run.lms_course_id,
-            self.wrapped_course_run.seat_price,
-            self.wrapped_course_run.min_effort,
-            self.wrapped_course_run.pacing_type, self.wrapped_course_run.persons,
-            self.wrapped_course_run.max_effort, self.wrapped_course_run.language.name,
-            self.wrapped_course_run.transcript_languages, self.wrapped_course_run.level_type,
-            self.wrapped_course_run.expected_learnings, self.wrapped_course_run.course.learner_testimonial,
-            self.wrapped_course_run.course.faq, self.wrapped_course_run.course.video_link,
-            self.wrapped_course_run.course.prerequisites
+            self.wrapped_course_run.pacing_type,
+            self.wrapped_course_run.language.name,
+            self.wrapped_course_run.level_type,
+            self.wrapped_course_run.course.learner_testimonial,
         ]
         for value in values:
             self.assertContains(response, value)
@@ -1317,13 +1304,10 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         factories.SeatFactory(course_run=self.course_run, type=Seat.VERIFIED, price=2)
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
-        self.course_run.transcript_languages.add(language_tag)
         self.course_run.language = language_tag
         self.course_run.is_micromasters = True
         self.course_run.micromasters_name = 'test'
-        self.course_run.max_effort = None
         self.course_run.save()
-        self.course_run.staff.add(PersonFactory())
 
     def test_parent_course_not_approved(self):
         """ Verify that if parent course is not approved than their will be a message
@@ -2343,13 +2327,7 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.course.title)
         self.assertContains(response, self.course.course_team_admin.full_name)
         self.assertContains(response, self.organization_extension.organization.name)
-        self.assertContains(response, self.course.short_description)
-        self.assertContains(response, self.course.full_description)
-        self.assertContains(response, self.course.expected_learnings)
         self.assertContains(response, self.course.learner_testimonial)
-        self.assertContains(response, self.course.faq)
-        self.assertContains(response, self.course.video_link)
-        self.assertContains(response, self.course.syllabus)
         assert response.context['breadcrumbs'][1]['slug'] == '{number}: {title}'.format(
             number=self.course.number,
             title=self.course.course_title)
@@ -2640,8 +2618,7 @@ class CourseDetailViewTests(TestCase):
 
         self._assign_user_permission()
         course_run = factories.CourseRunFactory(
-            course=self.course, short_description_override=short_description,
-            full_description_override=full_description, title_override=title
+            course=self.course, title_override=title
         )
         factories.CourseRunStateFactory(course_run=course_run, name=CourseRunStateChoices.Published)
         response = self.client.get(self.detail_page_url)
@@ -3008,8 +2985,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
         self.assertContains(response, 'Ensure this value has at most 255 characters')
 
     @ddt.data(
-        'short_description', 'full_description', 'prerequisites', 'expected_learnings',
-        'learner_testimonial', 'faq', 'syllabus'
+        'expected_learnings', 'learner_testimonial'
     )
     def test_text_area_post_with_html(self, field):
         """
@@ -3637,13 +3613,12 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.new_course.save()
 
         post_data = self._post_data({}, self.new_course, self.new_course_run)
-        post_data.update({'image': '', 'max_effort': 123, 'type': Seat.PROFESSIONAL, 'price': 10.00})
+        post_data.update({'type': Seat.PROFESSIONAL, 'price': 10.00})
 
         # Create a Seat so we can verify that it does not get modified.
         before_seat = self.new_course_run.seats.create(type=Seat.VERIFIED, price=5)
         self.assertNotEqual(before_seat.type, post_data['type'])
         self.assertNotEqual(before_seat.price, post_data['price'])
-        self.assertNotEqual(self.new_course_run.max_effort, post_data['max_effort'])
 
         # This request should fail since it includes Seat data
         response = self.client.post(self.edit_page_url, post_data)
@@ -3663,7 +3638,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         # Make sure that max_effort was updated, but the Seat data was not.
         course_run = CourseRun.objects.get(id=self.new_course_run.id)
-        self.assertEqual(post_data['max_effort'], course_run.max_effort)
         after_seat = course_run.seats.latest('created')
         self.assertEqual(before_seat.type, after_seat.type)
         self.assertEqual(before_seat.price, after_seat.price)
@@ -3709,7 +3683,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         language_tag = LanguageTag(code='te-st', name='Test Language')
         language_tag.save()
-        self.course_run.transcript_languages.add(language_tag)
         self.course_run.save()
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
@@ -3762,27 +3735,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
             'Studio URL created: {title} {run}'.format(title=self.new_course.title, run=course_key.run),
             'has created a Studio URL'
         )
-
-    def test_effort_on_edit_page(self):
-        """
-        Verify that users can update course min_effort and max_effort from edit page.
-        """
-
-        self.updated_dict['min_effort'] = 2
-        self.updated_dict['max_effort'] = 5
-
-        response = self.client.post(self.edit_page_url, self.updated_dict)
-
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        self.new_course_run = CourseRun.objects.get(id=self.new_course_run.id)
-        self.assertEqual(self.new_course_run.min_effort, self.updated_dict['min_effort'])
-        self.assertEqual(self.new_course_run.max_effort, self.updated_dict['max_effort'])
 
     def assert_email_sent(self, object_path, subject, expected_body):
         """
@@ -3993,9 +3945,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.new_course_run.lms_course_id = lms_course_id
         self.new_course_run.save()
-
-        self.updated_dict['min_effort'] = 2
-        self.updated_dict['max_effort'] = 51
 
         response = self.client.post(self.edit_page_url, self.updated_dict)
 

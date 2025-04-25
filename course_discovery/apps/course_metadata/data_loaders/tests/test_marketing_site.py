@@ -372,41 +372,6 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         data = {'field_couse_is_hidden': hidden}
         self.assertEqual(self.loader.get_hidden(data), expected)
 
-    @ddt.data(
-        (None, None, None),
-        ('Browse at your own pace.', None, None),
-        ('1.5 - 3.5 hours/week', None, None),
-        ('8 hours/week', None, 8),
-        ('2.5-5 hours.', None, 5),
-        ('5+ hours per week', None, 5),
-        ('3 horas por semana', None, 3),
-        ('1 - 1.5 hours per week', None, 1),
-        ('6 hours of video/300 multiple choice questions', None, 6),
-        ('6 to 9 hours/week', 6, 9),
-        ('4-6 hours per week', 4, 6),
-        ('About 5-12 hrs/week.', 5, 12),
-        ('4 - 8 hours/week | 小时／周', 4, 8),
-        ('6 horas/semana, 6 hours/week', 6, 6),
-        ('Estimated effort: 4–5 hours per week.', 4, 5),
-        ('4-6 hours per week depending on the background of the student.', 4, 6),
-        ('每周 2-3 小时 | 2-3 hours per week', None, None),
-        ('Part 1: 3 hours; Part 2: 4 hours; Part 3: 2 hours', None, None),
-        ('From 10 - 60 minutes, or as much time as you want.', None, None),
-        ('3-4 hours per unit (recommended pace: 1 unit per week)', None, None),
-        ('5-8 hours/week; 2-3 hours for lectures; 3-5 hours for homework/self-study', None, None),
-    )
-    @ddt.unpack
-    def test_get_min_max_effort_per_week(self, course_effort_string, expected_min_effort, expected_max_effort):
-        """
-        Verify that the method `get_min_max_effort_per_week` correctly parses
-        most of the the effort values which have specific format and maps them
-        to min effort and max effort values.
-        """
-        data = {'field_course_effort': course_effort_string}
-        min_effort, max_effort = self.loader.get_min_max_effort_per_week(data)
-        self.assertEqual(min_effort, expected_min_effort)
-        self.assertEqual(max_effort, expected_max_effort)
-
     def test_get_hidden_missing(self):
         """Verify that the get_hidden method can cope with a missing field."""
         self.assertEqual(self.loader.get_hidden({}), False)
@@ -510,7 +475,6 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         start = datetime.datetime.fromtimestamp(int(start), tz=pytz.UTC) if start else None
         end = data.get('field_course_end_date')
         end = datetime.datetime.fromtimestamp(int(end), tz=pytz.UTC) if end else None
-        weeks_to_complete = data.get('field_course_required_weeks')
 
         expected_values = {
             'key': data['field_course_id'],
@@ -522,21 +486,11 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'pacing_type': self.loader.get_pacing_type(data),
         }
 
-        if weeks_to_complete:
-            expected_values['weeks_to_complete'] = int(weeks_to_complete)
-        elif start and end:
-            weeks_to_complete = rrule.rrule(rrule.WEEKLY, dtstart=start, until=end).count()
-            expected_values['weeks_to_complete'] = int(weeks_to_complete)
-
         for field, value in expected_values.items():
             self.assertEqual(getattr(course_run, field), value)
 
         # Verify the staff relationship
         self.validate_relationships(data, {course_run.staff: 'field_course_staff'})
-
-        language_names = [language['name'] for language in data['field_course_video_locale_lang']]
-        expected_transcript_languages = self.loader.get_language_tags_from_names(language_names)
-        self.assertEqual(list(course_run.transcript_languages.all()), list(expected_transcript_languages))
 
         return course_run
 

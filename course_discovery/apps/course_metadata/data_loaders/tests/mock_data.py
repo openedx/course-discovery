@@ -35,12 +35,7 @@ COURSES_API_BODIES = [
         'name': 'Making Science and Engineering Pictures: A Practical Guide to Presenting Your Work',
         'number': '0.111x',
         'org': 'MITx',
-        'short_description': '',
         'start': '2015-06-15T13:00:00Z',
-        'pacing': 'self',
-        'mobile_available': True,
-        'hidden': False,
-        'license': '',
     },
     {
         'effort': None,
@@ -62,9 +57,6 @@ COURSES_API_BODIES = [
         'short_description': '',
         'start': '2015-10-29T09:00:00Z',
         'pacing': 'instructor,',
-        'mobile_available': False,
-        'hidden': False,
-        'license': 'all-rights-reserved',
     },
     {
         # Add a second run of KyotoUx+000x (3T2016) to test merging data across
@@ -87,8 +79,6 @@ COURSES_API_BODIES = [
         'org': 'KyotoUx',
         'short_description': '',
         'start': None,
-        'mobile_available': None,
-        'hidden': True,
     },
 ]
 
@@ -111,8 +101,6 @@ COURSES_API_BODY_ORIGINAL = {
     'org': 'KyotoUx',
     'short_description': '',
     'start': None,
-    'mobile_available': None,
-    'hidden': False,
 }
 
 COURSES_API_BODY_SECOND = {
@@ -134,8 +122,6 @@ COURSES_API_BODY_SECOND = {
     'org': 'KyotoUx',
     'short_description': '',
     'start': None,
-    'mobile_available': None,
-    'hidden': False,
 }
 
 COURSES_API_BODY_UPDATED = {
@@ -157,8 +143,6 @@ COURSES_API_BODY_UPDATED = {
     'org': 'KyotoUx',
     'short_description': '',
     'start': None,
-    'mobile_available': None,
-    'hidden': True,
 }
 
 ECOMMERCE_API_BODIES = [

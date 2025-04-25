@@ -457,7 +457,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course',
             'modified',
-            'reporting_type'
         )
 
 
@@ -1066,16 +1065,13 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'enrollment_end',
             'enrollment_start',
             'first_enrollable_paid_seat_sku',
-            'has_enrollable_seats',
             'key',
             'level_type',
             'logo_image_urls',
-            'mobile_available',
             'number',
             'org',
             'pacing_type',
             'partner',
-            'program_types',
             'published',
             'start',
             'text',
@@ -1091,13 +1087,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
         field_options = {
             'content_type': {},
             'level_type': {},
-            'mobile_available': {},
-            'organizations': {'size': settings.SEARCH_FACET_LIMIT},
             'pacing_type': {},
-            'prerequisites': {},
-            'seat_types': {},
-            'subjects': {},
-            'transcript_languages': {},
             'type': {},
         }
         field_queries = {
