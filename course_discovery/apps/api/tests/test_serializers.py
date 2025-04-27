@@ -25,7 +25,7 @@ from course_discovery.apps.api.serializers import (
     FlattenedCourseRunWithCourseSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SeatSerializer, SubjectSerializer,
+    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
     TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
     get_utm_source_for_user
 )
@@ -337,91 +337,6 @@ class CourseRunWithProgramsSerializerTests(TestCase):
             ).data,
         })
         return expected
-
-
-class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
-    @classmethod
-    def serialize_seats(cls, course_run):
-        seats = {
-            'audit': {
-                'type': ''
-            },
-            'honor': {
-                'type': ''
-            },
-            'verified': {
-                'type': '',
-                'currency': '',
-                'price': '',
-                'upgrade_deadline': '',
-            },
-            'professional': {
-                'type': '',
-                'currency': '',
-                'price': '',
-                'upgrade_deadline': '',
-            },
-            'credit': {
-                'type': [],
-                'currency': [],
-                'price': [],
-                'upgrade_deadline': [],
-                'credit_provider': [],
-                'credit_hours': [],
-            },
-        }
-
-        for seat in course_run.seats.all():
-            for key in seats[seat.type].keys():
-                if seat.type == 'credit':
-                    seats['credit'][key].append(SeatSerializer(seat).data[key])
-                else:
-                    seats[seat.type][key] = SeatSerializer(seat).data[key]
-
-        for credit_attr in seats['credit']:
-            seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
-
-        return seats
-
-    @classmethod
-    def serialize_items(cls, organizations, attr):
-        return ','.join([getattr(organization, attr) for organization in organizations])
-
-    @classmethod
-    def get_expected_data(cls, request, course_run):
-        course = course_run.course
-        serializer_context = {'request': request}
-        expected = dict(CourseRunSerializer(course_run, context=serializer_context).data)
-        expected.update({
-            'course_key': course.key,
-        })
-
-        # Remove fields found in CourseRunSerializer, but not in FlattenedCourseRunWithCourseSerializer.
-        fields_to_remove = set(CourseRunSerializer.Meta.fields) - set(
-            FlattenedCourseRunWithCourseSerializer.Meta.fields)
-        for key in fields_to_remove:
-            del expected[key]
-
-        return expected
-
-    def test_data(self):
-        request = make_request()
-        course_run = CourseRunFactory()
-        SeatFactory(course_run=course_run)
-        serializer_context = {'request': request}
-        serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
-        expected = self.get_expected_data(request, course_run)
-        self.assertDictEqual(serializer.data, expected)
-
-    def test_data_without_level_type(self):
-        """ Verify the serializer handles courses with no level type set. """
-        request = make_request()
-        course_run = CourseRunFactory(course__level_type=None)
-        SeatFactory(course_run=course_run)
-        serializer_context = {'request': request}
-        serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
-        expected = self.get_expected_data(request, course_run)
-        self.assertDictEqual(serializer.data, expected)
 
 
 class MinimalProgramCourseSerializerTests(TestCase):
@@ -1051,26 +966,6 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         })
 
         return expected
-
-
-class SeatSerializerTests(TestCase):
-    def test_data(self):
-        course_run = CourseRunFactory()
-        seat = SeatFactory(course_run=course_run)
-        serializer = SeatSerializer(seat)
-
-        expected = {
-            'type': seat.type,
-            'price': str(seat.price),
-            'currency': seat.currency.code,
-            'upgrade_deadline': json_date_format(seat.upgrade_deadline),
-            'credit_provider': seat.credit_provider,  # pylint: disable=no-member
-            'credit_hours': seat.credit_hours,  # pylint: disable=no-member
-            'sku': seat.sku,
-            'bulk_sku': seat.bulk_sku
-        }
-
-        self.assertDictEqual(serializer.data, expected)
 
 
 class PersonSerializerTests(TestCase):

@@ -312,31 +312,6 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
         fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
 
 
-class SeatSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Seat`` model."""
-    type = serializers.ChoiceField(
-        choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
-    )
-    price = serializers.DecimalField(
-        decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
-        max_digits=Seat.PRICE_FIELD_CONFIG['max_digits']
-    )
-    currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
-    upgrade_deadline = serializers.DateTimeField()
-    credit_provider = serializers.CharField()
-    credit_hours = serializers.IntegerField()
-    sku = serializers.CharField()
-    bulk_sku = serializers.CharField()
-
-    @classmethod
-    def prefetch_queryset(cls):
-        return Seat.objects.all().select_related('currency')
-
-    class Meta(object):
-        model = Seat
-        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku', 'bulk_sku')
-
-
 class CourseEntitlementSerializer(serializers.ModelSerializer):
     """Serializer for the ``CourseEntitlement`` model."""
     price = serializers.DecimalField(
@@ -1192,15 +1167,3 @@ class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
 class TypeaheadSearchSerializer(serializers.Serializer):
     course_runs = TypeaheadCourseRunSearchSerializer(many=True)
     programs = TypeaheadProgramSearchSerializer(many=True)
-
-
-class TopicSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Topic`` model."""
-
-    @classmethod
-    def prefetch_queryset(cls):
-        return Topic.objects.filter()
-
-    class Meta(object):
-        model = Topic
-        fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')

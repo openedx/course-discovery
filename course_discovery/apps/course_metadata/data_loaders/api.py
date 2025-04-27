@@ -129,7 +129,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     @property
     def is_loading_all_courses(self):
-        return not self.modified_x_min_ago
+        return not self.modified_x_min_ago and not self.target_course_key
 
     def delete_expired_courses(self):
         if self.is_loading_all_courses:
@@ -198,7 +198,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         for body in results:
             course_run_id = body['id']
 
-            if self.is_loading_all_courses:
+            if self.is_loading_all_courses or self.target_course_key:
                 # Loading course key Only...
                 self.loaded_course_keys.add(course_run_id)
 

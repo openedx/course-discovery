@@ -82,9 +82,6 @@ class SerializationMixin:
     def serialize_subject(self, subject, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.SubjectSerializer, subject, many, format, extra_context)
 
-    def serialize_topic(self, topic, many=False, format=None, extra_context=None):
-        return self._serialize_object(serializers.TopicSerializer, topic, many, format, extra_context)
-
 
 class TypeaheadSerializationMixin:
     def serialize_course_run_search(self, run):

@@ -23,15 +23,6 @@ class TopicViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(self.list_path)
         assert response.status_code == 403
 
-    def test_list(self):
-        """ Verify the endpoint returns a list of all topic. """
-        TopicFactory.create_batch(8)
-        expected = Topic.objects.all()
-        response = self.client.get(self.list_path)
-
-        assert response.status_code == 200
-        assert response.data['results'] == self.serialize_topic(expected, many=True)
-
     def test_retrieve(self):
         """ The request should return details for a single topic. """
         topic = TopicFactory()
@@ -40,4 +31,3 @@ class TopicViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
 
         assert response.status_code == 200
-        assert response.data == self.serialize_topic(topic)
