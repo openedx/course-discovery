@@ -439,9 +439,8 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
     class Meta:
         model = CourseRun
         fields = (
-            'key', 'uuid', 'title',
-            'start', 'end', 'enrollment_start', 'enrollment_end',
-            'pacing_type', 'status'
+            'key', 'uuid', 'title', 'status',
+            'start', 'end', 'enrollment_start', 'enrollment_end'
         )
 
 
@@ -940,8 +939,7 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         fields = (
             'key', 'title',
             'start', 'end', 'enrollment_start', 'enrollment_end',
-            'pacing_type', 'course_key',
-            'modified'
+            'course_key', 'modified'
         )
 
 
@@ -1029,9 +1027,7 @@ class CourseSearchSerializer(HaystackSerializer):
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [search_indexes.CourseIndex]
         fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
-            'full_description',
             'key',
-            'short_description',
             'title',
             'card_image_url',
         )
@@ -1041,12 +1037,6 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
-        field_options = {
-            'level_type': {},
-            'organizations': {},
-            'prerequisites': {},
-            'subjects': {},
-        }
 
 
 class CourseRunSearchSerializer(HaystackSerializer):
@@ -1064,13 +1054,8 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'end',
             'enrollment_end',
             'enrollment_start',
-            'first_enrollable_paid_seat_sku',
             'key',
-            'level_type',
-            'logo_image_urls',
-            'number',
             'org',
-            'pacing_type',
             'partner',
             'published',
             'start',
@@ -1086,9 +1071,6 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
         ignore_fields = COMMON_IGNORED_FIELDS
         field_options = {
             'content_type': {},
-            'level_type': {},
-            'pacing_type': {},
-            'type': {},
         }
         field_queries = {
             'availability_current': {'query': 'start:<now AND end:>now'},

@@ -286,10 +286,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
         if not self.partner.has_marketing_site:
             defaults.update({
                 'start': self.parse_date(body['start']),
-                'card_image_url': body['media'].get('image', {}).get('raw'),
                 'title_override': body['name'],
                 'status': CourseRunStatus.Published,
-                'pacing_type': self.get_pacing_type(body)
             })
 
         if course:
@@ -306,19 +304,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
             defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
 
         return defaults
-
-    def get_pacing_type(self, body):
-        pacing = body.get('pacing')
-
-        if pacing:
-            pacing = pacing.lower()
-
-        if pacing == 'instructor':
-            return CourseRunPacing.Instructor
-        elif pacing == 'self':
-            return CourseRunPacing.Self
-        else:
-            return None
 
 
 class ProgramsApiDataLoader(AbstractDataLoader):
