@@ -2,12 +2,19 @@
 Unit tests for utils.
 """
 
+from unittest import mock
+
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.utils import (
     format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials
 )
+
+
+class MockExceptionWithResponse(Exception):
+    def __init__(self, response_content):
+        self.response = mock.Mock(content=response_content)
 
 
 class FormattingTests(TestCase):
