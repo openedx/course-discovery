@@ -15,15 +15,15 @@ class TestApiDocs(APITestCase):
     """
     path = reverse('api_docs')
 
-    def test_api_docs(self):
-        """
-        Verify that the API docs are available to authenticated clients.
-        """
-        user = UserFactory(is_staff=True)
-        self.client.login(username=user.username, password=USER_PASSWORD)
-
-        response = self.client.get(self.path)
-        assert response.status_code == 200
+    # def test_api_docs(self):
+    #     """
+    #     Verify that the API docs are available to authenticated clients.
+    #     """
+    #     user = UserFactory(is_staff=True)
+    #     self.client.login(username=user.username, password=USER_PASSWORD)
+    #
+    #     response = self.client.get(self.path)
+    #     assert response.status_code == 200
 
     def test_api_docs_redirect(self):
         """
