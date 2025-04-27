@@ -4,7 +4,6 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 """
 import csv
 import logging
-from functools import cache
 
 import unicodecsv
 from django.conf import settings
@@ -20,29 +19,13 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
-from course_discovery.apps.course_metadata.models import (
-    AdditionalMetadata, Collaborator, Course, CourseRun, CourseType, Organization, Person, ProgramType, Source, Subject
-)
+from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType, Person
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
 
 
 class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
-
-    PROGRAM_TYPES = [
-        ProgramType.XSERIES,
-        ProgramType.MASTERS,
-        ProgramType.BACHELORS,
-        ProgramType.DOCTORATE,
-        ProgramType.LICENSE,
-        ProgramType.CERTIFICATE,
-        ProgramType.MICROMASTERS,
-        ProgramType.MICROBACHELORS,
-        ProgramType.PROFESSIONAL_PROGRAM_WL,
-        ProgramType.PROFESSIONAL_CERTIFICATE
-    ]
 
     # list of data fields present as CSV columns that should be present in each row for successful CSV Data ingestion.
     BASE_REQUIRED_DATA_FIELDS = [
@@ -51,12 +34,6 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
-
-    # Addition of a user agent to allow access to data CDNs
-    REQUEST_USER_AGENT_HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                      '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
-    }
 
     def __init__(
         self, partner, api_url=None, max_workers=None, is_threadsafe=False,
@@ -85,28 +62,19 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         self.ingestion_summary = self._initialize_ingestion_summary()
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         self.product_type = product_type
-        self.product_source = self._get_product_source(product_source)
-        self.reader = self._initialize_csv_reader(csv_path, csv_file, use_gspread_client)
+        self.product_source = self.get_product_source(product_source)
+        self.reader = self.initialize_csv_reader(
+            csv_path, csv_file, use_gspread_client, self.product_type, self.product_source
+        )
         self.ingestion_summary['total_products_count'] = len(self.reader)
 
-    def _initialize_ingestion_summary(self):
-        """Initialize the ingestion summary dictionary."""
-        return {
-            'total_products_count': 0,
-            'success_count': 0,
-            'failure_count': 0,
-            'updated_products_count': 0,
-            'created_products': [],
-            'archived_products': []
-        }
-
-    def _initialize_csv_reader(self, csv_path, csv_file, use_gspread_client):
+    def initialize_csv_reader(self, csv_path, csv_file, use_gspread_client, product_type=None, product_source=None):
         """
         Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
         """
         try:
             if use_gspread_client:
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[self.product_type][self.product_source.slug]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][product_source.slug]
                 gspread_client = GspreadClient()
                 return list(gspread_client.read_data(product_type_config))
             else:
@@ -119,15 +87,16 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             logger.exception(f"Error reading input data source: {e}")
             raise
 
-    def _get_product_source(self, product_source):
-        """
-        Retrieve the product source or raise an exception if product source doesn't exist already
-        """
-        try:
-            return Source.objects.get(slug=product_source)
-        except Source.DoesNotExist:
-            logger.exception(f"Unable to locate source with slug '{product_source}'")
-            raise
+    def _initialize_ingestion_summary(self):
+        """Initialize the ingestion summary dictionary."""
+        return {
+            'total_products_count': 0,
+            'success_count': 0,
+            'failure_count': 0,
+            'updated_products_count': 0,
+            'created_products': [],
+            'archived_products': []
+        }
 
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
@@ -172,7 +141,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_ingestion_error(
+                    self.log_ingestion_error(
                         CSVIngestionErrors.COURSE_CREATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_CREATE_ERROR.format(
                             course_title=course_title,
@@ -195,7 +164,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     row['image'],
                     headers=self.REQUEST_USER_AGENT_HEADERS)
                 if not is_downloaded:
-                    self._log_ingestion_error(
+                    self.log_ingestion_error(
                         CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE,
                         CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
                     )
@@ -209,7 +178,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_ingestion_error(
+                    self.log_ingestion_error(
                         CSVIngestionErrors.COURSE_UPDATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
                             course_title=course_title, exception_message=exception_message
@@ -226,7 +195,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                         headers=self.REQUEST_USER_AGENT_HEADERS
                     )
                     if not is_logo_downloaded:
-                        self._log_ingestion_error(
+                        self.log_ingestion_error(
                             CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE,
                             CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
                                 course_title=course_title
@@ -241,7 +210,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                 except Exception as exc:  # pylint: disable=broad-except
                     exception_message = exc
                     if hasattr(exc, 'response'):
-                        self._log_ingestion_error(
+                        self.log_ingestion_error(
                             CSVIngestionErrors.COURSE_UPDATE_ERROR,
                             CSVIngestionErrorMessages.COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR.format(
                                 course_title=course_title, exception_message=exception_message
@@ -257,7 +226,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     exception_message = exc
                     if hasattr(exc, 'response'):
                         exception_message = exc.response.content.decode('utf-8')
-                    self._log_ingestion_error(
+                    self.log_ingestion_error(
                         CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
                         CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
                             course_title=course_title, exception_message=exception_message
@@ -289,7 +258,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
 
-        self._render_error_logs()
+        self.render_error_logs(self.error_logs)
         self._render_course_uuids()
         self.clear_caches()
 
@@ -310,146 +279,6 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
 
     def _get_course_run_restriction(self, row):
         return None if row.get('restriction_type', None) == 'None' else row.get('restriction_type', None)
-
-    @staticmethod
-    @cache
-    def _validate_organization(org_key):
-        """
-        Helper method to validate the organization key
-
-        Args:
-            org_key (str): Organization key
-
-        Returns:
-            bool: True if the organization exists, False otherwise
-        """
-        return Organization.objects.filter(key=org_key).exists()
-
-    def validate_organization(self, org_key, course_title):
-        """
-        Wrapper method to validate the organization key and log an error if the organization does not exist.
-
-        Args:
-            org_key (str): Organization key
-            course_title (str): Course title
-
-        Returns:
-            bool: True if the organization exists, False otherwise
-        """
-        if not self._validate_organization(org_key):
-            self._log_ingestion_error(
-                CSVIngestionErrors.MISSING_ORGANIZATION,
-                CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
-                    course_title=course_title, org_key=org_key
-                )
-            )
-            return False
-        return True
-
-    @staticmethod
-    @cache
-    def get_course_type(course_type_name):
-        """
-        Retrieve a CourseType object, using a cache to avoid redundant queries.
-
-        Args:
-            course_type_name (str): Course type name
-
-        Returns:
-            CourseType: CourseType object
-        """
-        try:
-            return CourseType.objects.get(name=course_type_name)
-        except CourseType.DoesNotExist:
-            return None
-
-    def _validate_and_process_row(self, row, course_title, org_key):
-        """
-        Validate the row data and process the row if it is valid.
-
-        Args:
-            row (dict): course data row
-            course_title (str): Course title
-            org_key (str): Organization key
-
-        Returns:
-            bool: True if the row is valid, False otherwise
-            CourseType: CourseType object
-            CourseRunType: CourseRunType object
-        """
-        if not self.validate_organization(org_key, course_title):
-            return False, None, None
-
-        def validate_course_and_course_run_types(row, course_title):
-            """
-            Helper method to validate course and course run types.
-
-            Args:
-                row (dict): Course data row
-                course_title (str): Course title
-
-            Returns:
-                bool: True if course and course run types are valid, False otherwise
-                CourseType: CourseType object
-                CourseRunType: CourseRunType object
-            """
-            course_type = self.get_course_type(row["course_enrollment_track"])
-            if not course_type:
-                self._log_ingestion_error(
-                    CSVIngestionErrors.MISSING_COURSE_TYPE,
-                    CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
-                        course_title=course_title, course_type=row["course_enrollment_track"]
-                    ),
-                )
-                return False, None, None
-
-            course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
-            if not course_run_type:
-                self._log_ingestion_error(
-                    CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
-                    CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
-                        course_title=course_title, course_run_type=row["course_run_enrollment_track"]
-                    ),
-                )
-                return False, None, None
-
-            return True, course_type, course_run_type
-
-        is_valid, course_type, course_run_type = validate_course_and_course_run_types(row, course_title)
-        if not is_valid:
-            return False, course_type, course_run_type
-
-        missing_fields = self.validate_course_data(course_type, row)
-        if missing_fields:
-            self._log_ingestion_error(
-                CSVIngestionErrors.MISSING_REQUIRED_DATA,
-                CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
-                    course_title=course_title, missing_data=missing_fields
-                )
-            )
-            return False, course_type, course_run_type
-
-        return True, course_type, course_run_type
-
-    def _log_ingestion_error(self, error_code, message):
-        """
-        Log the error message and continue the ingestion process.
-
-        Args:
-            error_code: Error code
-            message (str): Error message
-        """
-        logger.error(message)
-        self._register_ingestion_error(error_code, message)
-
-    @classmethod
-    def clear_caches(cls):
-        """
-        Clears all LRU caches associated with the class.
-        """
-        cls.get_course_type.cache_clear()
-        cls.get_course_run_type.cache_clear()
-        cls._validate_organization.cache_clear()
 
     def _get_or_create_course_run(self, data, course, course_type, course_run_type_uuid):
         """
@@ -502,7 +331,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     variant_id=variant_id,
                     exception_message=exception_message
                 )
-                self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_CREATE_ERROR, exception_message)
+                self.register_ingestion_error(CSVIngestionErrors.COURSE_RUN_CREATE_ERROR, exception_message)
                 raise Exception(error_message)  # pylint: disable=raise-missing-from
         if not course_run and is_course_run_created:
             course_run = CourseRun.objects.filter_drafts(course=course).order_by('created').last()
@@ -536,22 +365,13 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             return ', '.join(missing_fields)
         return ''
 
-    def _render_error_logs(self):
-        if any(list(self.error_logs.values())):
-            logger.info("Summarized errors:")
-            for error_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
-                for msg in self.error_logs[error_key]:
-                    logger.error(msg)
-        else:
-            logger.info("No errors reported in the ingestion")
-
     def _render_course_uuids(self):
         if self.course_uuids:
             logger.info("Course UUIDs:")
             for course_uuid, course_dict in self.course_uuids.items():
                 logger.info(f"{course_uuid}:{course_dict['title']}")
 
-    def _register_ingestion_error(self, error_key, error_message):
+    def register_ingestion_error(self, error_key, error_message):
         """
         Helper method to register error log and increase count of ingestion errors.
         """
@@ -627,7 +447,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         """
         Create and return the request data for making a patch call to update the course.
         """
-        collaborator_uuids = self.process_collaborators(course_data.get('collaborators', ''), course.key)
+        collaborator_uuids = self.process_collaborators(course_data.get('collaborators', ''))
         price = (
             self.get_pricing_representation(course_data['verified_price'], course.type)
             if course_data.get('restriction_type', 'None') != CourseRunRestrictionType.CustomB2BEnterprise.value else {}
@@ -710,25 +530,6 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             update_course_run_data.update({'restriction_type': restriction_type})
         return update_course_run_data
 
-    def verify_and_get_language_tags(self, language_str):
-        """
-        Given a string of language tags or names, verify their existence in the database
-        and return a list of language codes.
-        """
-        languages_codes_list = []
-        languages_list = language_str.split(",")
-        for language in languages_list:
-            language = language.strip()
-            language_obj = LanguageTag.objects.filter(
-                Q(name=language) | Q(code=language)
-            ).first()
-            if not language_obj:
-                raise Exception(  # pylint: disable=broad-exception-raised
-                    f"Language {language} from provided string {language_str} is either missing or an invalid ietf language"  # pylint: disable=line-too-long
-                )
-            languages_codes_list.append(language_obj.code)
-        return languages_codes_list
-
     def _update_course_entitlement_price(self, data, course_uuid, course_type, is_draft=False):
         """
         Helper method to update the entitlement price for a course if the verified price differs from the current price
@@ -769,43 +570,6 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         ).lower() in ['yes', '1', 'true']
         ofac_comment = data.get('ofac_comment', '')
         course_run.complete_review_phase(has_ofac_restrictions, ofac_comment)
-
-    def get_subject_slugs(self, *subjects):
-        """
-        Given a list of subject names, convert the subject names into their
-        slug representation.
-        """
-        subject_slugs = []
-        subjects = [subject for subject in subjects if subject]
-        for subject in subjects:
-            try:
-                sub_obj = Subject.objects.get(translations__name=subject, translations__language_code='en')
-                subject_slugs.append(sub_obj.slug)
-            except Subject.DoesNotExist:
-                logger.exception(f"Unable to locate subject {subject} in the database. Skipping subject association")
-                raise
-
-        return subject_slugs
-
-    def process_collaborators(self, collaborators, course_key):
-        """
-        Given a comma-separated string of collaborator names, return the list of collaborator
-        uuids after processing.
-
-        Processing involves the following
-            * Checking if the collaborator value is valid
-            * Checking for existence of collaborator in DB
-            * Create collaborator if not present
-        """
-        collaborators = collaborators.split(',')
-        collaborators = [collaborator.strip() for collaborator in collaborators if collaborator.strip()]
-        collaborator_uuids = []
-        for collaborator in collaborators:
-            collaborator_obj, created = Collaborator.objects.get_or_create(name=collaborator)
-            collaborator_uuids.append(str(collaborator_obj.uuid))
-            if created:
-                logger.info(f"Collaborator {collaborator} created for course {course_key}")
-        return collaborator_uuids
 
     def process_staff_names(self, staff_names, course_run_key):
         """

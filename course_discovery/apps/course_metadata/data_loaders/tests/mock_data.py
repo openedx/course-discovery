@@ -3239,6 +3239,55 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     "taxi_form_id": "test-form-id"
 }
 
+MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT = {
+    'Organization': 'edx',
+    'Title': 'CSV Course',
+    'Number': 'csv-123',
+    'Course Enrollment Track': 'Audit Only',
+    'Start Date': '01/25/2020',
+    'End Date': '02/25/2020',
+    'Course Pacing': 'self-paced',
+    'Course Run Enrollment Track': 'Audit Only',
+}
+
+VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT = {
+    "Organization": "edx",
+    "Title": "Intro to Course Loader",
+    "Number": "CSL-603",
+    "Start Date": "2025-04-04",
+    "End Date": "2025-12-11",
+    "Course Pacing": "Self-paced",
+    "Course Enrollment Track": "Verified and Audit",
+    "Course Run Enrollment Track": "Verified and Audit",
+    "Primary Subject": "Computer Science",
+    "Secondary Subject": "Social Sciences",
+    "Tertiary Subject": "",
+    "Publish Date": "2025-04-21",
+    "Start Time": "00:00:00",
+    "End Time": "00:00:00",
+    "Length": "8",
+    "Content Language": "English - United States",
+    "Transcript Languages": "English - United States",
+    "Verified Price": "500",
+    'Image': 'https://example.com/image.jpg',
+    "Short Description": "Learn the basics of course loader.",
+    "Long Description": "A comprehensive introduction to course loader.",
+    "What will you Learn": "Variables, Loops, Functions",
+    "Level Type": "Intermediate",
+    "Syllabus": "Less go",
+    "About Video Link": "",
+    "Prerequisites": "",
+    "Learner Testimonials": "123 - Me",
+    "Additional Information": "hmm",
+    "Organization Short Code Override": "UCS",
+    "Reg Close Date": "2025-04-11",
+    "Reg Close Time": "00:00:00",
+    "Minimum Effort": "4",
+    "Maximum Effort": "6",
+    "Move to Legal Review": "True"
+}
+
+
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization': 'edx',
     'title': 'CSV Course',
