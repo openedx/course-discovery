@@ -1,7 +1,5 @@
 import datetime
-import itertools
 import logging
-from collections import defaultdict
 try:
     from urllib.parse import urljoin
 except:
@@ -13,9 +11,6 @@ import waffle
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models.query_utils import Q
-from django.utils.functional import cached_property
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
@@ -30,15 +25,13 @@ from taggit_autosuggest.managers import TaggableManager
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import (
     CourseRunPacing, CourseRunStatus,
-    ProgramStatus, ProgramVisibility,
-    ReportingType
+    ProgramStatus, ProgramVisibility
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 
