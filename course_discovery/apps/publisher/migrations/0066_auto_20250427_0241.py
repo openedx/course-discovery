@@ -77,6 +77,14 @@ class Migration(migrations.Migration):
             name='video_link',
         ),
         migrations.RemoveField(
+            model_name='course',
+            name='number',
+        ),
+        migrations.RemoveField(
+            model_name='course',
+            name='keywords',
+        ),
+        migrations.RemoveField(
             model_name='courserun',
             name='certificate_generation',
         ),
@@ -175,6 +183,14 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='courserun',
             name='xseries_name',
+        ),
+        migrations.RemoveField(
+            model_name='courserun',
+            name='pacing_type',
+        ),
+        migrations.RemoveField(
+            model_name='courserun',
+            name='card_image_url',
         ),
         migrations.RemoveField(
             model_name='historicalcourse',
@@ -323,5 +339,13 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='historicalcourserun',
             name='xseries_name',
+        ),
+        migrations.RemoveField(
+            model_name='historicalcourserun',
+            name='pacing_type',
+        ),
+        migrations.RemoveField(
+            model_name='historicalcourserun',
+            name='card_image_url',
         ),
     ]

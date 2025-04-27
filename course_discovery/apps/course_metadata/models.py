@@ -347,13 +347,6 @@ class Course(TimeStampedModel):
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     card_image_url = models.URLField(max_length=1024, null=True, blank=True)
 
-    # TODO Remove this field.
-    number = models.CharField(
-        max_length=50, null=True, blank=True, help_text=_(
-            'Course number format e.g CS002x, BIO1.1x, BIO1.2x'
-        )
-    )
-
     objects = CourseQuerySet.as_manager()
 
     class Meta:
@@ -429,13 +422,6 @@ class CourseRun(TimeStampedModel):
     end = models.DateTimeField(null=True, blank=True, db_index=True)
     enrollment_start = models.DateTimeField(null=True, blank=True)
     enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)
-    pacing_type = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True,
-        choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator]
-    )
-
-    # TODO Ditch this, and fallback to the course
-    card_image_url = models.URLField(max_length=1024, null=True, blank=True)
 
     objects = CourseRunQuerySet.as_manager()
 

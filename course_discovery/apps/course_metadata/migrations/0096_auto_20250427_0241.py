@@ -69,6 +69,10 @@ class Migration(migrations.Migration):
             name='video',
         ),
         migrations.RemoveField(
+            model_name='course',
+            name='number',
+        ),
+        migrations.RemoveField(
             model_name='courserun',
             name='announcement',
         ),
@@ -151,5 +155,13 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='courserun',
             name='weeks_to_complete',
+        ),
+        migrations.RemoveField(
+            model_name='courserun',
+            name='pacing_type',
+        ),
+        migrations.RemoveField(
+            model_name='courserun',
+            name='card_image_url',
         ),
     ]

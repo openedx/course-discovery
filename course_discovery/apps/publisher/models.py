@@ -51,9 +51,6 @@ class Course(TimeStampedModel, ChangedByMixin):
     ENTITLEMENT_VERSION = 1
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
-    number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
-
-    keywords = TaggableManager(blank=True, verbose_name='keywords')
 
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
@@ -98,14 +95,6 @@ class Course(TimeStampedModel, ChangedByMixin):
             return self.course_user_roles.get(user=user).role
         except CourseUserRole.DoesNotExist:
             return None
-
-    @property
-    def keywords_data(self):
-        keywords = self.keywords.all()
-        if keywords:
-            return ', '.join(k.name for k in keywords)
-
-        return None
 
     @property
     def project_coordinator(self):
@@ -184,10 +173,6 @@ class Course(TimeStampedModel, ChangedByMixin):
     def discovery_counterpart(self):
         return DiscoveryCourse.objects.get(partner=self.partner, key=self.key)
 
-    @cached_property
-    def key(self):
-        return '{org}+{number}'.format(org=self.organizations.first().key, number=self.number)
-
 
 class CourseRun(TimeStampedModel, ChangedByMixin):
     """ Publisher CourseRun model. It contains fields related to the course run intake form."""
@@ -207,22 +192,15 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
-
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
-    pacing_type = models.CharField(
-        max_length=255, db_index=True, null=True, blank=True, choices=CourseRunPacing.choices,
-        validators=[CourseRunPacing.validator]
-    )
-
-    # temporary field to save the canonical course run image. In 2nd script this url field
-    # will be used to download the image and save into course model --> course image.
-    card_image_url = models.URLField(null=True, blank=True, verbose_name='canonical course run image')
 
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
-            "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
+            "Title specific for this run of a course. Leave this value blank to default to the parent course's title."
+        )
+    )
 
     history = HistoricalRecords()
 
@@ -618,7 +596,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         course_run = self.course_run
         return all([
             course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
-            course_run.pacing_type, course_run.has_valid_staff, course_run.is_valid_micromasters,
+            course_run.has_valid_staff, course_run.is_valid_micromasters,
             course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
             course_run.lms_course_id
         ])
