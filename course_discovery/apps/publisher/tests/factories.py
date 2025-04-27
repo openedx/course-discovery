@@ -29,7 +29,6 @@ class CourseRunFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
 
     class Meta:
         model = CourseRun

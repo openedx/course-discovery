@@ -777,10 +777,6 @@ class Program(TimeStampedModel):
                 yield canonical_course_run
 
     @property
-    def seat_types(self):
-        return set(seat.type for seat in self.seats)
-
-    @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
         if not self.course_runs:

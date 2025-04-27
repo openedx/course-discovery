@@ -92,8 +92,6 @@ class CourseRunFactory(factory.DjangoModelFactory):
     end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    card_image_url = FuzzyURL()
-    pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
 
     class Meta:
         model = CourseRun

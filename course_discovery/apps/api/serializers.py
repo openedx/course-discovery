@@ -1086,7 +1086,6 @@ class ProgramFacetSerializer(BaseHaystackFacetSerializer):
         field_options = {
             'status': {},
             'type': {},
-            'seat_types': {},
         }
         fields = search_indexes.BASE_PROGRAM_FIELDS + (
             'organizations',
@@ -1146,13 +1145,7 @@ class AggregateSearchModelSerializer(HaystackSerializer):
 
 
 class TypeaheadBaseSearchSerializer(serializers.Serializer):
-    orgs = serializers.SerializerMethodField()
     title = serializers.CharField()
-    marketing_url = serializers.CharField()
-
-    def get_orgs(self, result):
-        authoring_organizations = [json.loads(org) for org in result.authoring_organization_bodies]
-        return [org['key'] for org in authoring_organizations]
 
 
 class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):

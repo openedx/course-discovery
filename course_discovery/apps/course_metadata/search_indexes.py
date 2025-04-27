@@ -102,37 +102,6 @@ class BaseIndex(indexes.SearchIndex):
 class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     key = indexes.CharField(model_attr='key', stored=True)
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
-    title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
-    authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
-    authoring_organization_bodies = indexes.MultiValueField()
-    short_description = indexes.CharField(model_attr='short_description', null=True)
-    full_description = indexes.CharField(model_attr='full_description', null=True)
-    subjects = indexes.MultiValueField(faceted=True)
-    organizations = indexes.MultiValueField(faceted=True)
-    authoring_organizations = indexes.MultiValueField(faceted=True)
-    logo_image_urls = indexes.MultiValueField()
-    sponsoring_organizations = indexes.MultiValueField(faceted=True)
-    level_type = indexes.CharField(null=True, faceted=True)
-    partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
-
-    def prepare_logo_image_urls(self, obj):
-        orgs = obj.authoring_organizations.all()
-        return [org.logo_image_url for org in orgs]
-
-    def prepare_subjects(self, obj):
-        return [subject.name for subject in obj.subjects.all()]
-
-    def prepare_organizations(self, obj):
-        return self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj)
-
-    def prepare_authoring_organizations(self, obj):
-        return self._prepare_organizations(obj.authoring_organizations.all())
-
-    def prepare_sponsoring_organizations(self, obj):
-        return self._prepare_organizations(obj.sponsoring_organizations.all())
-
-    def prepare_level_type(self, obj):
-        return obj.level_type.name if obj.level_type else None
 
 
 class CourseIndex(BaseCourseIndex, indexes.Indexable):
@@ -142,8 +111,6 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     org = indexes.CharField()
     course_runs = indexes.MultiValueField()
-
-    prerequisites = indexes.MultiValueField(faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -166,48 +133,18 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     course_key = indexes.CharField(model_attr='course__key', stored=True)
     org = indexes.CharField()
-    number = indexes.CharField()
     status = indexes.CharField(model_attr='status', faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     end = indexes.DateTimeField(model_attr='end', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='enrollment_end', null=True)
-    language = indexes.CharField(null=True, faceted=True)
-    pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
-    type = indexes.CharField(model_attr='type', null=True, faceted=True)
-    partner = indexes.CharField(null=True, faceted=True)
-    program_types = indexes.MultiValueField()
-    published = indexes.BooleanField(null=False, faceted=True)
-    authoring_organization_uuids = indexes.MultiValueField()
-    has_enrollable_paid_seats = indexes.BooleanField(null=False)
-    first_enrollable_paid_seat_sku = indexes.CharField(null=True)
-    paid_seat_enrollment_end = indexes.DateTimeField(null=True)
-    is_current_and_still_upgradeable = indexes.BooleanField(null=False)
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
         return 'courserun:{}'.format(obj.course.key)
 
-    def prepare_has_enrollable_paid_seats(self, obj):
-        return obj.has_enrollable_paid_seats()
-
-    def prepare_first_enrollable_paid_seat_sku(self, obj):
-        return obj.first_enrollable_paid_seat_sku()
-
-    def prepare_is_current_and_still_upgradeable(self, obj):
-        return obj.is_current_and_still_upgradeable()
-
-    def prepare_paid_seat_enrollment_end(self, obj):
-        return obj.get_paid_seat_enrollment_end()
-
-    def prepare_partner(self, obj):
-        return obj.course.partner.short_code
-
     def prepare_published(self, obj):
         return obj.status == CourseRunStatus.Published
-
-    def prepare_language(self, obj):
-        return self._prepare_language(obj.language)
 
     def prepare_number(self, obj):
         course_run_key = CourseKey.from_string(obj.key)
@@ -216,9 +153,6 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     def prepare_org(self, obj):
         course_run_key = CourseKey.from_string(obj.key)
         return course_run_key.org
-
-    def prepare_program_types(self, obj):
-        return obj.program_types
 
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
@@ -234,15 +168,12 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     authoring_organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
     authoring_organization_uuids = indexes.MultiValueField()
-    subject_uuids = indexes.MultiValueField()
-    staff_uuids = indexes.MultiValueField()
     authoring_organization_bodies = indexes.MultiValueField()
     credit_backing_organizations = indexes.MultiValueField(faceted=True)
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
     min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
@@ -261,12 +192,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     def prepare_organizations(self, obj):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
 
-    def prepare_subject_uuids(self, obj):
-        return set([str(subject.uuid) for course in obj.courses.all() for subject in course.subjects.all()])
-
-    def prepare_staff_uuids(self, obj):
-        return set([str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()])
-
     def prepare_credit_backing_organizations(self, obj):
         return self._prepare_organizations(obj.credit_backing_organizations.all())
 
@@ -274,4 +199,4 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
         return obj.marketing_url
 
     def prepare_language(self, obj):
-        return [self._prepare_language(language) for language in obj.languages]
+        return [self._prepare_language(language) for language in obj.languages] if obj.languages else []

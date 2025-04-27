@@ -111,14 +111,7 @@ class CourseRunQuerySet(models.QuerySet):
             QuerySet
          """
 
-        return self.exclude(
-            slug__isnull=True
-        ).exclude(
-            slug=''
-        ).exclude(
-            # This will exclude any course run without seats (e.g., CCX runs).
-            seats__isnull=True
-        ).filter(
+        return self.filter(
             status=CourseRunStatus.Published
         )
 
