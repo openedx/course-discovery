@@ -426,7 +426,6 @@ class CSVLoaderMixin:
             title_case_key = key.replace('_', ' ').title()
             header = '{}{},'.format(header, title_case_key)
         header = f"{header[:-1]}\n"
-
         for line_dict in lines_dict_list:
             for key in headers:
                 lines = '{}"{}",'.format(lines, line_dict[key])

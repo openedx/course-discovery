@@ -3239,6 +3239,103 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     "taxi_form_id": "test-form-id"
 }
 
+VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_MINIMAL_CSV_DICT = {
+    'organization': 'edx',
+    'title': 'CSV Course',
+    'number': 'csv-123',
+    'course_enrollment_track': 'Audit Only',
+    'start_date': '01/25/2020',
+    'end_date': '02/25/2020',
+    'course_pacing': 'self-paced',
+    'course_run_enrollment_track': 'Audit Only',
+}
+
+COURSE_LOADER_MINIMAL_CSV_HEADERS = [
+    'organization',
+    'title',
+    'number',
+    'course_enrollment_track',
+    'start_date',
+    'end_date',
+    'course_pacing',
+    'course_run_enrollment_track',
+]
+
+VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT = {
+    "Organization": "edx",
+    "Title": "Intro to Course Loader",
+    "Number": "CSL-603",
+    "Start Date": "2025-04-04",
+    "End Date": "2025-12-11",
+    "Course Pacing": "Self-paced",
+    "Course Enrollment Track": "Verified and Audit",
+    "Course Run Enrollment Track": "Verified and Audit",
+    "Primary Subject": "Computer Science",
+    "Secondary Subject": "Social Sciences",
+    "Tertiary Subject": "",
+    "Publish Date": "2025-04-21",
+    "Start Time": "00:00:00",
+    "End Time": "00:00:00",
+    "Length": "8",
+    "Content Language": "English - United States",
+    "Transcript Languages": "English - United States",
+    "Verified Price": "500",
+    'Image': 'https://example.com/image.jpg',
+    "Short Description": "Learn the basics of course loader.",
+    "Long Description": "A comprehensive introduction to course loader.",
+    "What you will Learn": "Variables, Loops, Functions",
+    "Level Type": "Intermediate",
+    "Syllabus": "Less go",
+    "About Video Link": "",
+    "Prerequisites": "",
+    "Learner Testimonials": "123 - Me",
+    "Additional Information": "hmm",
+    "Organization Short Code Override": "UCS",
+    "Reg Close Date": "2025-04-11",
+    "Reg Close Time": "00:00:00",
+    "Minimum Effort": "4",
+    "Maximum Effort": "6",
+    "Move to Legal Review": "True"
+}
+
+COURSE_LOADER_CSV_HEADERS = [
+    "Organization",
+    "Title",
+    "Number",
+    "Start Date",
+    "End Date",
+    "Course Pacing",
+    "Course Enrollment Track",
+    "Course Run Enrollment Track",
+    "Primary Subject",
+    "Secondary Subject",
+    "Publish Date",
+    "Start Time",
+    "End Time",
+    "Length",
+    "Content Language",
+    "Transcript Languages",
+    "Verified Price",
+    "Image",
+    "Short Description",
+    "Long Description",
+    "What you will Learn",
+    "Level Type",
+    "Syllabus",
+    "About Video Link",
+    "Prerequisites",
+    "Learner Testimonials",
+    "Additional Information",
+    "Organization Short Code Override",
+    "Reg Close Date",
+    "Reg Close Time",
+    "Minimum Effort",
+    "Maximum Effort",
+    "Verified Price",
+    "Move to Legal Review"
+]
+
+
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization': 'edx',
     'title': 'CSV Course',
