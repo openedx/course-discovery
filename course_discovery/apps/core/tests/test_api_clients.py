@@ -29,6 +29,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
 
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()
+        self.partner.site.partner = self.partner
         self.lms = lms.LMSAPIClient(self.partner.site)
         self.response = {
             'id': 1,
