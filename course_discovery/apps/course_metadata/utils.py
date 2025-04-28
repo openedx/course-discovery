@@ -1026,6 +1026,16 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
         instance.update_product_data_modified_timestamp()
 
 
+def data_modified_timestamp_update__deletion(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Receiver function to trigger update data modified timestamp on Course or Program
+    when one of their related models is being deleted. Note that deletion of only a select few
+    models will trigger this (see `signals.py`)
+    """
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
+        instance.update_product_data_modified_timestamp(bypass_has_changed=True)
+
+
 def is_valid_slug_format(val):
     """
     Checks whether a given value follows the slug format, taking into account the selected slug format based on the

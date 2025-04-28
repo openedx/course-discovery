@@ -47,7 +47,7 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.signals import (
-    connect_course_data_modified_timestamp_related_models, disconnect_course_data_modified_timestamp_related_models
+    connect_product_data_modified_timestamp_related_models, disconnect_product_data_modified_timestamp_related_models
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -61,6 +61,7 @@ from course_discovery.apps.course_metadata.toggles import (
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
+from course_discovery.apps.course_metadata.utils import set_official_state
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -75,11 +76,11 @@ class TestCourse(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_str(self):
@@ -338,10 +339,16 @@ class TestCourse(TestCase):
         Verify data modified timestamp does not change for non-draft course change.
         """
         course = factories.CourseFactory(draft=False)
+        program = factories.ProgramFactory(courses=[course], refresh=True)
+
         data_modified_timestamp = course.data_modified_timestamp
+        prog_modified_timestamp = program.data_modified_timestamp
+
         course.short_description = 'Testing change'
         course.save()
+        program.refresh_from_db()
         assert data_modified_timestamp == course.data_modified_timestamp
+        assert prog_modified_timestamp == program.data_modified_timestamp
 
     def test_data_modified_timestamp_model_related_field_change(self):
         """
@@ -351,10 +358,14 @@ class TestCourse(TestCase):
             draft=True,
             additional_metadata=AdditionalMetadataFactory(external_identifier='identifier_1')
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
         data_modified_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         course.additional_metadata = AdditionalMetadataFactory(external_identifier='identifier_2')
         course.save()
+        program.refresh_from_db()
         assert data_modified_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
     def test_data_modified_timestamp_no_change(self):
         """
@@ -589,6 +600,7 @@ class TestCourse(TestCase):
         """
         draft_course = CourseFactory(draft=True, title="Test course")
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        program = ProgramFactory(courses=[non_draft_course], refresh=True)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
         # Need to clear cache explicitly as marketing_url creation, that uses active_url_slug, sets the
@@ -596,6 +608,7 @@ class TestCourse(TestCase):
         RequestCache("active_url_cache").clear()
         draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
         non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         with LogCapture(LOGGER_PATH) as logger:
             draft_course.set_active_url_slug("new_slug")
         logger.check_present(
@@ -607,11 +620,13 @@ class TestCourse(TestCase):
         )
         draft_course.refresh_from_db()
         non_draft_course.refresh_from_db()
+        program.refresh_from_db()
         assert draft_course.active_url_slug == "new_slug"
         assert non_draft_course.active_url_slug is None
         assert list(draft_course.url_slug_history.all().values_list('url_slug')) == [('new_slug',)]
         assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
         assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
     def test_set_active_url_slug__draft_with_official_version_matching_slug(self):
         """
@@ -658,11 +673,13 @@ class TestCourse(TestCase):
         """
         draft_course = CourseFactory(draft=True, title="Test course")
         non_draft_course = CourseFactory(draft_version=draft_course, title=draft_course.title, key=draft_course.key)
+        program = ProgramFactory(courses=[non_draft_course], refresh=True)
         draft_course.url_slug_history.all().delete()
         non_draft_course.url_slug_history.all().delete()
 
         draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
         non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         CourseUrlSlugFactory(course=draft_course, is_active=True, url_slug='test-course')
         non_draft_slug_obj_1 = CourseUrlSlugFactory(
             course=non_draft_course, is_active=True, is_active_on_draft=False, url_slug='slug1'
@@ -681,6 +698,7 @@ class TestCourse(TestCase):
         )
         draft_course.refresh_from_db()
         non_draft_course.refresh_from_db()
+        program.refresh_from_db()
         non_draft_slug_obj_1.refresh_from_db()
         non_draft_slug_obj_2.refresh_from_db()
         assert draft_course.active_url_slug == 'slug3'  # new slug obj sets is_active_on_draft=True
@@ -697,17 +715,22 @@ class TestCourse(TestCase):
 
         assert draft_previous_data_modified_timestamp < draft_course.data_modified_timestamp
         assert non_draft_previous_data_modified_timestamp < non_draft_course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         # Setting the same slug does not create any new objects in history
         draft_previous_data_modified_timestamp = draft_course.data_modified_timestamp
         non_draft_previous_data_modified_timestamp = non_draft_course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
+
         non_draft_course.set_active_url_slug("slug3")
         draft_course.refresh_from_db()
         non_draft_course.refresh_from_db()
+        program.refresh_from_db()
 
         assert non_draft_course.url_slug_history.count() == 3
         assert draft_previous_data_modified_timestamp == draft_course.data_modified_timestamp
         assert non_draft_previous_data_modified_timestamp == non_draft_course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
@@ -916,11 +939,11 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):
@@ -942,13 +965,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                                                   upgrade_deadline=None)
         honor_seat = factories.SeatFactory(course_run=course_run, type=honor_seat_type, upgrade_deadline=None)
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) == \
-               [verified_seat, professional_seat]
+            [verified_seat, professional_seat]
 
         # The method should not care about the course run's start date.
         course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
         assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) ==\
-               [verified_seat, professional_seat]
+            [verified_seat, professional_seat]
 
         # Enrollable seats of any type should be returned when no type parameter is specified.
         assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
@@ -1639,15 +1662,22 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         for Course.
         """
         course_run = CourseRunFactory(draft=True, max_effort=9)
+        program = ProgramFactory(courses=[course_run.course], refresh=True)
         course_timestamp = course_run.course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         course_run.max_effort = 10
         course_run.update_product_data_modified_timestamp()
+        program.refresh_from_db()
         assert course_timestamp < course_run.course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         course_run.save()
 
         course_timestamp = course_run.course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         course_run.update_product_data_modified_timestamp()
+        program.refresh_from_db()
         assert course_timestamp == course_run.course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -2219,11 +2249,11 @@ class CertificateInfoTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_str(self):
@@ -2248,17 +2278,24 @@ class CertificateInfoTests(TestCase):
                 certificate_info=cert_info
             )
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         cert_info.heading = 'updated heading'
         cert_info.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
-        cert_info.save()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
+        cert_info.save()
         cert_info.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class ProductMetaTests(TestCase):
@@ -2267,11 +2304,11 @@ class ProductMetaTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2286,28 +2323,39 @@ class ProductMetaTests(TestCase):
                 product_meta=product_meta
             )
         )
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
         course_timestamp = course.data_modified_timestamp
+        course.refresh_from_db()
+        assert course_timestamp == course.data_modified_timestamp
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
+        course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         product_meta.title = 'updated heading'
         with LogCapture(LOGGER_PATH) as log:
             product_meta.update_product_data_modified_timestamp()
 
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         log.check_present(
             (
                 LOGGER_PATH,
                 'INFO',
                 f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
         )
 
-        product_meta.save()
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
+        product_meta.save()
         product_meta.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
     def test_update_product_data_modified_timestamp__bypass_has_changed(self):
         """
@@ -2321,17 +2369,22 @@ class ProductMetaTests(TestCase):
                 product_meta=product_meta
             )
         )
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         with LogCapture(LOGGER_PATH) as log:
             product_meta.update_product_data_modified_timestamp(bypass_has_changed=True)
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_PATH,
                 'INFO',
                 f"ProductMeta update_product_data_modified_timestamp triggered for {product_meta.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
         )
 
@@ -2342,11 +2395,11 @@ class ProductValueTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2359,17 +2412,25 @@ class ProductValueTests(TestCase):
             draft=True,
             in_year_value=product_value
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
+
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
         product_value.per_lead_usa = 100
         product_value.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
-        product_value.save()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
+        product_value.save()
         product_value.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
     def test_defaults(self):
         product_value = factories.ProductValue()
@@ -2382,11 +2443,11 @@ class GeoLocationTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2399,17 +2460,24 @@ class GeoLocationTests(TestCase):
             draft=True,
             geolocation=geoloc
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         geoloc.location_name = 'location 2'
         geoloc.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         geoloc.save()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         geoloc.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class CourseLocationRestrictionTests(TestCase):
@@ -2417,11 +2485,11 @@ class CourseLocationRestrictionTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_update_product_data_modified_timestamp(self):
@@ -2434,17 +2502,25 @@ class CourseLocationRestrictionTests(TestCase):
             draft=True,
             location_restriction=location_restriction
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
         location_restriction.restriction_type = 'blacklist'
         location_restriction.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         location_restriction.save()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
+
         location_restriction.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class AdditionalMetadataTests(TestCase):
@@ -2453,11 +2529,11 @@ class AdditionalMetadataTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def test_taxi_form(self):
@@ -2478,26 +2554,34 @@ class AdditionalMetadataTests(TestCase):
             draft=True,
             additional_metadata=additional_metadata
         )
+        program = factories.ProgramFactory(courses=[course], refresh=True)
+
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         additional_metadata.course_term_override = 'Programme'
         with LogCapture(LOGGER_PATH) as log:
             additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_PATH,
                 'INFO',
                 f"AdditionalMetadata update_product_data_modified_timestamp triggered "
-                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related products."
             )
         )
 
         additional_metadata.save()
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         additional_metadata.update_product_data_modified_timestamp()
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
     def test_update_product_data_modified_timestamp__bypass_has_changed(self):
         """
@@ -2509,17 +2593,25 @@ class AdditionalMetadataTests(TestCase):
             draft=True,
             additional_metadata=additional_metadata
         )
+
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
+
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
+
         with LogCapture(LOGGER_PATH) as log:
             additional_metadata.update_product_data_modified_timestamp(bypass_has_changed=True)
         course.refresh_from_db()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
         log.check_present(
             (
                 LOGGER_PATH,
                 'INFO',
                 f"AdditionalMetadata update_product_data_modified_timestamp triggered "
-                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related courses."
+                f"for {additional_metadata.external_identifier}.Updating data modified timestamp for related products."
             )
         )
 
@@ -2565,11 +2657,11 @@ class TaxiFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):
@@ -2599,6 +2691,9 @@ class TaxiFormTests(TestCase):
         course1 = CourseFactory(additional_metadata=additional_metadata)
         course2 = CourseFactory(additional_metadata=additional_metadata)
 
+        program = ProgramFactory(courses=[course1], refresh=True)
+
+        program_timestamp = program.data_modified_timestamp
         course1_timestamp = course1.data_modified_timestamp
         course2_timestamp = course2.data_modified_timestamp
 
@@ -2608,24 +2703,30 @@ class TaxiFormTests(TestCase):
 
         course1.refresh_from_db()
         course2.refresh_from_db()
+        program.refresh_from_db()
 
         assert course1_timestamp < course1.data_modified_timestamp
         assert course2_timestamp < course2.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
     def test_update_product_data_modified_timestamp_no_change(self):
         """ Verify TaxiForm update doesn't change data_modified_timestamp if no fields changed """
         taxi_form = factories.TaxiFormFactory()
         additional_metadata = AdditionalMetadataFactory(taxi_form=taxi_form)
         course = CourseFactory(additional_metadata=additional_metadata)
+        program = ProgramFactory(courses=[course], refresh=True)
 
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
 
         taxi_form.update_product_data_modified_timestamp()
         taxi_form.save()
 
         course.refresh_from_db()
+        program.refresh_from_db()
 
         assert course.data_modified_timestamp == course_timestamp
+        assert program.data_modified_timestamp == program_timestamp
 
     def test_update_product_data_modified_timestamp_no_related_courses(self):
         """ Verify TaxiForm update doesn't cause issues when there are no related courses """
@@ -3036,7 +3137,7 @@ class ProgramTests(TestCase):
         """ Verify the property returns marketing url as it is if marketing_slug contains a slash"""
         self.program.marketing_slug = 'type/subject/org-title'
         assert self.program.marketing_url == f"{self.program.partner.marketing_site_url_root}" \
-                                             f"{self.program.marketing_slug}"
+            f"{self.program.marketing_slug}"
 
     def test_course_runs(self):
         """
@@ -3168,6 +3269,8 @@ class ProgramTests(TestCase):
         data_modified_timestamp = program.data_modified_timestamp
         program.geolocation.location_name = 'New Location name'
         program.save()
+        program.geolocation.save()
+        program.refresh_from_db()
         assert data_modified_timestamp < program.data_modified_timestamp
 
     def test_data_modified_timestamp_no_change(self):
@@ -3242,7 +3345,7 @@ class ProgramTests(TestCase):
         assert self.program.start == expected_start
 
         # Verify start is None for programs with no courses.
-        self.program.courses.clear()
+        self.program.courses.set([])
         assert self.program.start is None
 
         # Verify start is None if no course runs have a start date.
@@ -3752,11 +3855,11 @@ class CourseEntitlementTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        disconnect_course_data_modified_timestamp_related_models()
+        disconnect_product_data_modified_timestamp_related_models()
 
     @classmethod
     def tearDownClass(cls):
-        connect_course_data_modified_timestamp_related_models()
+        connect_product_data_modified_timestamp_related_models()
         super().tearDownClass()
 
     def setUp(self):
@@ -3778,16 +3881,24 @@ class CourseEntitlementTests(TestCase):
         will be updated.
         """
         course = factories.CourseFactory(draft=True)
+        official_course = set_official_state(Course.everything.get(pk=course.pk), Course)
+        program = factories.ProgramFactory(courses=[official_course], refresh=True)
         entitlement = factories.CourseEntitlementFactory(course=course, mode=self.mode, draft=True, price=50)
         course_timestamp = course.data_modified_timestamp
+        program_timestamp = program.data_modified_timestamp
         entitlement.price = 100
         entitlement.update_product_data_modified_timestamp()
+        program.refresh_from_db()
         assert course_timestamp < course.data_modified_timestamp
+        assert program_timestamp < program.data_modified_timestamp
 
         entitlement.save()
+        program_timestamp = program.data_modified_timestamp
         course_timestamp = course.data_modified_timestamp
         entitlement.update_product_data_modified_timestamp()
+        program.refresh_from_db()
         assert course_timestamp == course.data_modified_timestamp
+        assert program_timestamp == program.data_modified_timestamp
 
 
 class EndorsementTests(TestCase):
@@ -3842,6 +3953,7 @@ class RankingTests(TestCase):
 @ddt.ddt
 class CurriculumTests(TestCase):
     """ Tests of the Curriculum model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -3870,6 +3982,7 @@ class CurriculumTests(TestCase):
 
 class CurriculumProgramMembershipTests(TestCase):
     """ Tests of the CurriculumProgramMembership model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -3905,6 +4018,7 @@ class CurriculumProgramMembershipTests(TestCase):
 
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model. """
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -3960,6 +4074,7 @@ class CurriculumCourseMembershipTests(TestCase):
 @ddt.ddt
 class DegreeDeadlineTests(TestCase):
     """ Tests the DegreeDeadline model."""
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -3990,6 +4105,7 @@ class DegreeDeadlineTests(TestCase):
 
 class DegreeCostTests(TestCase):
     """ Tests the DegreeCost model."""
+
     def setUp(self):
         super().setUp()
         self.course_run = factories.CourseRunFactory()
@@ -4098,6 +4214,21 @@ class DegreeTests(TestCase):
         self.assertEqual(degree.specializations.count(), 1)
         self.assertEqual(degree.specializations.first().value, specialization.value)
 
+    def test_degree_timestamp_update_simple_changes(self):
+        """Verify that changes on the Degree model update the data_modified_timestamp"""
+        self.degree.refresh_from_db()
+
+        last_data_modified = self.degree.data_modified_timestamp
+
+        self.degree.apply_url = "https://www.apply-url.com/"
+        self.degree.save()
+
+        assert self.degree.data_modified_timestamp > last_data_modified
+
+        last_data_modified = self.degree.data_modified_timestamp
+        self.degree.save()
+        assert self.degree.data_modified_timestamp == last_data_modified
+
 
 class CourseUrlSlugHistoryTest(TestCase):
 
@@ -4109,10 +4240,10 @@ class CourseUrlSlugHistoryTest(TestCase):
         with pytest.raises(ValidationError) as validation_error:
             slug_object.save()
         assert validation_error.value.message_dict['partner'] == \
-               ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save'
-                ' url slug {url_slug}'
-                   .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
-                           url_slug=slug_object.url_slug)]
+            ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save'
+             ' url slug {url_slug}'
+             .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
+                     url_slug=slug_object.url_slug)]
 
 
 class TestCourseRecommendations(TestCase):

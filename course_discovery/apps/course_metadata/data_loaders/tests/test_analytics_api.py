@@ -47,7 +47,7 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Create a program with all of the courses we created
         program = ProgramFactory()
-        program.courses.set(courses.values())
+        program.courses.set(list(courses.values()))
 
     def _mock_course_summaries(self, data):
         url = f'{self.api_url}course_summaries/'

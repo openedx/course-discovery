@@ -933,14 +933,12 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         # The course_code key field is technically useless, so we must build the course list from the
         # associated course runs.
         courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
-        program.courses.clear()
-        program.courses.add(*courses)
+        program.courses.set(courses)
 
         # Do a diff of all the course runs and the explicitly-associated course runs to determine
         # which course runs should be explicitly excluded.
         excluded_course_runs = CourseRun.objects.filter(course__in=courses).exclude(key__in=course_run_keys)
-        program.excluded_course_runs.clear()
-        program.excluded_course_runs.add(*excluded_course_runs)
+        program.excluded_course_runs.set(excluded_course_runs)
 
     def _update_program_organizations(self, body, program):
         uuid = self._get_uuid(body)
@@ -950,8 +948,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         if len(org_keys) != organizations.count():
             logger.error('Organizations for program [%s] are invalid!', uuid)
 
-        program.authoring_organizations.clear()
-        program.authoring_organizations.add(*organizations)
+        program.authoring_organizations.set(organizations)
 
     def _get_banner_image_url(self, body):
         image_key = f'w{self.image_width}h{self.image_height}'

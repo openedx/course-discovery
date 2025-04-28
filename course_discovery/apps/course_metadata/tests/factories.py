@@ -753,6 +753,14 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.curricula, extracted)
 
+    # This hook must be the last one as it is responsible for refreshing the
+    # object to pick up any changes that may have been made in the database
+    # while running the other postgen hooks (e.g in signal handlers)
+    @factory.post_generation
+    def refresh(self, create, extracted, **kwargs):
+        if create and extracted:  # pragma: no cover
+            self.refresh_from_db()
+
 
 class ProgramFactory(ProgramBaseFactory):
     status = ProgramStatus.Active

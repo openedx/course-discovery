@@ -301,8 +301,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
         Handle organization data for a degree.
         """
-        degree.authoring_organizations.clear()
-        degree.authoring_organizations.add(org)
+        degree.authoring_organizations.set([org])
 
     def _handle_image_fields(self, data, degree):
         """
@@ -373,13 +372,14 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
         specializations_data = data.get('specializations', '')
         if specializations_data:
-            degree.specializations.clear()
             specializations_data = specializations_data.split('|')
+            new_specializations = []
             for specialization in specializations_data:
                 specialization = specialization.strip()
                 if specialization:
                     specialization_obj, _ = Specialization.objects.get_or_create(value=specialization)
-                    degree.specializations.add(specialization_obj)
+                    new_specializations.append(specialization_obj)
+            degree.specializations.set(new_specializations)
 
     def _get_object(self, model, key, value, degree_slug):
         """
