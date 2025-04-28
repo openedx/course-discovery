@@ -1,4 +1,5 @@
 import logging
+import csv
 
 from course_discovery.apps.course_metadata.choices import BulkOperationType, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
