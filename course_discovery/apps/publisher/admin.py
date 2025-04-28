@@ -96,8 +96,8 @@ class CourseRunStateAdmin(SimpleHistoryAdmin):
 @admin.register(Course)
 class CourseAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('changed_by',)
-    list_display = ['title']
-    search_fields = ['title']
+    list_display = ['title', 'number']
+    search_fields = ['title', 'number']
 
 
 @admin.register(CourseRun)

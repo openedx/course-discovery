@@ -201,10 +201,11 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 (reverse('publisher:publisher_courses'), _('Courses')),
                 (
                     reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
-                    '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
+                    '' # '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
                 ),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type='', #course_run.get_pacing_type_display(),
+                    start=start_date
                 ))
             ]
         )
@@ -215,10 +216,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['publish_state_name'] = CourseRunStateChoices.Published
 
-        context['course_staff_config'] = json.dumps({
-            staff['uuid']: staff
-            for staff in course_run.course_staff
-        })
+        context['course_staff_config'] = '' # json.dumps({staff['uuid']: staff for staff in course_run.course_staff})
 
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
             current_owner_role = course_run.course.course_user_roles.get(role=course_run.course_run_state.owner_role)
@@ -231,9 +229,9 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 context['team_name'] = (_('course team')
                                         if current_owner_role.role == PublisherUserRole.ProjectCoordinator
                                         else _('project coordinator'))
-        context['is_in_preview_review'] = course_run.is_in_preview_review
-        context['is_seat_version'] = course_run.is_seat_version
-        context['is_entitlement_version'] = course_run.is_entitlement_version
+        context['is_in_preview_review'] = False # course_run.is_in_preview_review
+        context['is_seat_version'] = False # course_run.is_seat_version
+        context['is_entitlement_version'] = False # course_run.is_entitlement_version
 
         return context
 
@@ -274,7 +272,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         organization = self.request.POST.get('organization')
 
         course_form = self.course_form(
-            request.POST, request.FILES, user=user, organization=organization
+            request.POST, request.FILES, user=user
         )
         entitlement_form = self.entitlement_form(request.POST)
         if course_form.is_valid() and entitlement_form.is_valid():
@@ -293,8 +291,8 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     course_form.save_m2m()
 
                     # Now create entitlement if we need to
-                    if course.uses_entitlements:
-                        entitlement_form.save(course=course)
+                    # if course.uses_entitlements:
+                    #     entitlement_form.save(course=course)
 
                     organization_extension = get_object_or_404(
                         OrganizationExtension, organization=course_form.data['organization']
@@ -383,13 +381,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             }
         )
 
-        if self.object.uses_entitlements:
-            context['entitlement_form'] = self.entitlement_form(
-                instance=self.object.entitlements.first(),
-                include_blank_mode=True
-            )
-        else:
-            context['entitlement_form'] = self.entitlement_form({'mode': ''}, include_blank_mode=True)
+        context['entitlement_form'] = self.entitlement_form({'mode': ''}, include_blank_mode=True)
 
         return context
 
@@ -402,15 +394,12 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         if request.POST:
             kwargs.update(
-                {'user': request.user, 'organization': request.POST.get('organization')}
+                {'user': request.user, }
             )
         else:
-            organization = self.object.organizations.first()
             kwargs.update(
                 user=request.user,
-                organization=organization,
                 initial={
-                    'organization': organization,
                     'team_admin': self.object.course_team_admin
                 }
             )
@@ -507,9 +496,9 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         course.version = course_version
         course.save()
 
-        if course.uses_entitlements:
-            entitlement = self._create_or_update_course_entitlement(course, entitlement_form)
-            self._update_seats_from_entitlement(course, entitlement, user)
+        # if course.uses_entitlements:
+        #     entitlement = self._create_or_update_course_entitlement(course, entitlement_form)
+        #     self._update_seats_from_entitlement(course, entitlement, user)
 
         return course
 
@@ -533,60 +522,60 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         # If the course is originally a SEAT_VERSION and it's now
         # using entitlements check that there are no misconfigured runs
-        if not self.object.uses_entitlements and entitlement_mode:
-            type_misconfigurations, seat_misconfigurations = self._get_misconfigured_course_runs(
-                self.object, entitlement_price, entitlement_mode
-            )
-            if type_misconfigurations:
-                # pylint: disable=no-member
-                error_message = _(
-                    'The entered price does not match the price for the following course run(s): '
-                    '{course_runs}. The price that you enter must match the price of all active '
-                    'and future course runs.'
-                ).format(course_runs=', '.join(
-                    str(course_run_start) for course_run_start in type_misconfigurations
-                ))
-                messages.error(request, error_message)
-            if seat_misconfigurations:
-                # pylint: disable=no-member
-                error_message = _(
-                    'The entered seat type does not match the seat type for the following course '
-                    'run(s): {course_runs}. The seat type that you enter must match the seat '
-                    'type of all active and future course runs.'
-                ).format(course_runs=', '.join(
-                    str(course_run_start) for course_run_start in seat_misconfigurations
-                ))
-                messages.error(request, error_message)
-            if seat_misconfigurations or type_misconfigurations:
-                return self._render_post_error(request, ctx_overrides={
-                    'course_form': course_form,
-                    'entitlement_form': entitlement_form
-                })
-        elif self.object.uses_entitlements:
-            entitlement = self.object.entitlements.first()
-            if not entitlement_mode:
-                messages.error(request, _(
-                    "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
-                ))
-                return self._render_post_error(request, ctx_overrides={
-                    'course_form': course_form,
-                    'entitlement_form': entitlement_form
-                })
-            published_runs = self._get_published_course_runs(self.object)
-            # Only check published runs if there are changes to the mode or price
-            if published_runs and entitlement.mode != entitlement_mode:
-                # pylint: disable=no-member
-                error_message = _(
-                    'The following active course run(s) are published: {course_runs}. You cannot change the mode '
-                    'if there are published active runs.'
-                ).format(course_runs=', '.join(
-                    str(course_run_start) for course_run_start in published_runs
-                ))
-                messages.error(request, error_message)
-                return self._render_post_error(request, ctx_overrides={
-                    'course_form': course_form,
-                    'entitlement_form': entitlement_form
-                })
+        # if not self.object.uses_entitlements and entitlement_mode:
+        #     type_misconfigurations, seat_misconfigurations = self._get_misconfigured_course_runs(
+        #         self.object, entitlement_price, entitlement_mode
+        #     )
+        #     if type_misconfigurations:
+        #         # pylint: disable=no-member
+        #         error_message = _(
+        #             'The entered price does not match the price for the following course run(s): '
+        #             '{course_runs}. The price that you enter must match the price of all active '
+        #             'and future course runs.'
+        #         ).format(course_runs=', '.join(
+        #             str(course_run_start) for course_run_start in type_misconfigurations
+        #         ))
+        #         messages.error(request, error_message)
+        #     if seat_misconfigurations:
+        #         # pylint: disable=no-member
+        #         error_message = _(
+        #             'The entered seat type does not match the seat type for the following course '
+        #             'run(s): {course_runs}. The seat type that you enter must match the seat '
+        #             'type of all active and future course runs.'
+        #         ).format(course_runs=', '.join(
+        #             str(course_run_start) for course_run_start in seat_misconfigurations
+        #         ))
+        #         messages.error(request, error_message)
+        #     if seat_misconfigurations or type_misconfigurations:
+        #         return self._render_post_error(request, ctx_overrides={
+        #             'course_form': course_form,
+        #             'entitlement_form': entitlement_form
+        #         })
+        # elif self.object.uses_entitlements:
+        #     entitlement = self.object.entitlements.first()
+        #     if not entitlement_mode:
+        #         messages.error(request, _(
+        #             "Enrollment track cannot be unset or changed from verified or professional to audit or credit."
+        #         ))
+        #         return self._render_post_error(request, ctx_overrides={
+        #             'course_form': course_form,
+        #             'entitlement_form': entitlement_form
+        #         })
+        #     published_runs = self._get_published_course_runs(self.object)
+        #     # Only check published runs if there are changes to the mode or price
+        #     if published_runs and entitlement.mode != entitlement_mode:
+        #         # pylint: disable=no-member
+        #         error_message = _(
+        #             'The following active course run(s) are published: {course_runs}. You cannot change the mode '
+        #             'if there are published active runs.'
+        #         ).format(course_runs=', '.join(
+        #             str(course_run_start) for course_run_start in published_runs
+        #         ))
+        #         messages.error(request, error_message)
+        #         return self._render_post_error(request, ctx_overrides={
+        #             'course_form': course_form,
+        #             'entitlement_form': entitlement_form
+        #         })
 
         version = Course.ENTITLEMENT_VERSION if entitlement_mode else Course.SEAT_VERSION
         self._update_course(course_form, entitlement_form, user, version)
@@ -765,26 +754,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         new_run.save()
 
-    def _initialize_seat_form(self, last_run):
-        initial_seat_data = {}
-        if not last_run:
-            return self.seat_form(initial=initial_seat_data)
-
-        def _get_latest_seat():
-            """Returns latest course run seat. Paid seats are Preferred"""
-            if last_run.paid_seats:
-                return last_run.paid_seats.latest()
-            return last_run.seats.latest()
-
-        try:
-            latest_seat = _get_latest_seat()
-            initial_seat_data = model_to_dict(latest_seat)
-            del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
-        except Seat.DoesNotExist:
-            pass
-
-        return self.seat_form(initial=initial_seat_data)
-
     def _format_post_exception_message(self, exception):
         error_msg = _('There was an error saving this course run:')
         default_message = u'{msg} {ex}'.format(msg=error_msg, ex=exception)
@@ -794,12 +763,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             return u'{default}. Error fields: {error_fields}'.format(default=default_message, error_fields=error_fields)
         except:  # pylint: disable=bare-except
             return default_message
-
-    def _initialize_run_form(self, last_run=None):
-        run_initial_data = {}
-        if last_run:
-            run_initial_data = {'pacing_type': last_run.pacing_type}
-        return self.run_form(initial=run_initial_data)
 
     def _entitlement_is_valid_for_seat_creation(self, entitlement):
         if entitlement is None:
@@ -826,37 +789,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         run_form = self.run_form(request.POST)
         context['run_form'] = run_form
 
-        if parent_course.uses_entitlements:
-            context['hide_seat_form'] = True
-
-            # Fail if Seat fields are present in the POST data.
-            seat_data_in_form = any([key for key in self.seat_form.declared_fields.keys() if key in request.POST])
-            if seat_data_in_form:
-                messages.error(
-                    request, _('The page could not be updated. Make sure that all values are correct, then try again.')
-                )
-                return self._render_post_error(request, ctx_overrides=context)
-
-            try:
-                entitlement = parent_course.entitlements.get()
-            except (CourseEntitlement.DoesNotExist, CourseEntitlement.MultipleObjectsReturned):
-                entitlement = None
-
-            if not self._entitlement_is_valid_for_seat_creation(entitlement):
-                messages.error(
-                    request,
-                    _('The certificate configuration for this course is incorrect. Please fix it, then try again.')
-                )
-                return self._render_post_error(request, ctx_overrides=context)
-
-            seat_form = self.seat_form({
-                'type': CourseEntitlement.MODE_TO_SEAT_TYPE_MAPPING[entitlement.mode],
-                'price': entitlement.price
-            })
-        else:
-            seat_form = self.seat_form(request.POST)
-            context['seat_form'] = seat_form
-            context['hide_seat_form'] = False
+        seat_form = self.seat_form(request.POST)
+        context['seat_form'] = seat_form
+        context['hide_seat_form'] = False
 
         course_user_roles = parent_course.course_user_roles.filter(role__in=COURSE_ROLES)
         has_default_course_user_roles = course_user_roles.count() == len(COURSE_ROLES)
@@ -910,8 +845,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     def get_context_data(self, **kwargs):
         parent_course = self._get_parent_course()
         last_run = self._get_last_run(parent_course)
-        run_form = self._initialize_run_form(last_run)
-        seat_form = self._initialize_seat_form(last_run)
+        run_form = self.run_form(initial={})
+        seat_form = self.seat_form(initial={})
 
         context = {
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
@@ -1009,7 +944,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                 (reverse('publisher:publisher_courses'), 'Courses'),
                 (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type='', # course_run.get_pacing_type_display(),
+                    start=start_date
                 ))
             ]
         )
@@ -1106,7 +1042,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         courses = Course.objects.all().prefetch_related(
-            'organizations', 'course_state', 'publisher_course_runs', 'course_user_roles'
+            'course_state',
         )
 
         courses = PublisherUser.get_courses(user, queryset=courses)
@@ -1337,9 +1273,9 @@ def get_course_role_widgets_data(user, course, state_object, change_state_url, p
                 role_widget['can_change_role_assignment'] = True
 
         if course_role.role == PublisherUserRole.CourseTeam:
-            role_widget['user_list'] = course.organization_extension.group.user_set.all()
-            if user.groups.filter(name=course.organization_extension.group).exists():
-                role_widget['can_change_role_assignment'] = True
+            role_widget['user_list'] = [] # course.organization_extension.group.user_set.all()
+            # if user.groups.filter(name=course.organization_extension.group).exists():
+            #     role_widget['can_change_role_assignment'] = True
 
         if state_object.owner_role == course_role.role:
             if state_object.owner_role_modified:

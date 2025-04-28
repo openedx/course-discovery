@@ -51,6 +51,7 @@ class Course(TimeStampedModel, ChangedByMixin):
     ENTITLEMENT_VERSION = 1
 
     title = models.CharField(max_length=255, default=None, null=True, blank=True, verbose_name=_('Course title'))
+    # number = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Course number'))
 
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
@@ -59,13 +60,6 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     def __str__(self):
         return self.title
-
-    @property
-    def uses_entitlements(self):
-        """
-        Returns a bool indicating whether or not this Course has been configured to use entitlement products.
-        """
-        return self.version == self.ENTITLEMENT_VERSION
 
     @property
     def post_back_url(self):

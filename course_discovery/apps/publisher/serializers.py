@@ -14,17 +14,11 @@ from course_discovery.apps.publisher.utils import has_role_for_course
 
 class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     course_title = serializers.SerializerMethodField()
-    number = serializers.SerializerMethodField()
-    organization_name = serializers.SerializerMethodField()
-    project_coordinator_name = serializers.SerializerMethodField()
     publisher_course_runs_count = serializers.SerializerMethodField()
     course_team_status = serializers.SerializerMethodField()
     internal_user_status = serializers.SerializerMethodField()
     edit_url = serializers.SerializerMethodField()
     last_state_change = serializers.SerializerMethodField()
-
-    def get_number(self, course):
-        return course.number
 
     def get_course_title(self, course):
         publisher_hide_features_for_pilot = self.context['publisher_hide_features_for_pilot']
@@ -34,13 +28,6 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
                 'publisher:publisher_course_detail', kwargs={'pk': course.id}
             )
         }
-
-    def get_organization_name(self, course):
-        return course.organization_name
-
-    def get_project_coordinator_name(self, course):
-        project_coordinator = course.project_coordinator
-        return project_coordinator.full_name if project_coordinator else ''
 
     def get_publisher_course_runs_count(self, course):
         try:

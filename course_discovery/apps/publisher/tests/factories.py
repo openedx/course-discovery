@@ -7,7 +7,6 @@ from pytz import UTC
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
@@ -18,6 +17,7 @@ from course_discovery.apps.publisher.models import (
 
 class CourseFactory(factory.DjangoModelFactory):
     title = FuzzyText()
+    # number = FuzzyText()
 
     class Meta:
         model = Course

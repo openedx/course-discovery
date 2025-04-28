@@ -69,11 +69,15 @@ class BaseForm(forms.ModelForm):
 
 class CourseForm(BaseForm):
     title = forms.CharField(label=_('Course Title'), required=True)
+    # number = forms.CharField(
+    #     label=_('Course Number'), required=True,
+    #     validators=[validate_text_count(max_length=50)]
+    # )
 
     class Meta:
         model = Course
         fields = (
-            'title',
+            'title', #'number'
         )
 
     def __init__(self, *args, **kwargs):
@@ -87,6 +91,16 @@ class CourseForm(BaseForm):
         to the corresponding unicode characters
         """
         return html.unescape(self.cleaned_data.get('title'))
+
+    def clean_number(self):
+        """
+        Validate that number doesn't consist of any special characters other than period, underscore or hyphen
+        """
+        number = self.cleaned_data.get('number')
+        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(number):
+            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
+                                    'underscore or hyphen.'))
+        return number
 
     def clean(self):
         cleaned_data = self.cleaned_data
