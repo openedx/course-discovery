@@ -137,7 +137,7 @@ class DataLoaderMixin(ABC):
             json=data,
             headers={'content-type': 'application/json'}
         )
-        if not response.ok:
+        if not response.ok: 
             logger.info("API request failed for url {} with response: {}".format(url, response.content.decode('utf-8')))
         response.raise_for_status()
         return response

@@ -209,11 +209,9 @@ class TestDataLoaderMixin(TestCase):
 
         # Adjusted to match the actual log message with dynamically generated URL
         mock_logger.info.assert_called_with(
-            'API request failed for url %s with response: %s',
-            'http://localhost:18381/api/v1/courses/',
-            '{"error":"bad request"}'
+            'API request failed for url http://localhost:18381/api/v1/courses/ with response: {"error":"bad request"}'
         )
-
+        
     @patch(f'{LOGGER_PATH}.logger')
     def test_update_course_failure_logs(self, mock_logger):
         """
@@ -232,9 +230,8 @@ class TestDataLoaderMixin(TestCase):
 
         # Adjusted to match the actual log message with dynamically generated URL
         mock_logger.info.assert_called_with(
-            'API request failed for url %s with response: %s',
-            f'http://localhost:18381/api/v1/courses/{course.uuid}/?exclude_utm=1',
-            '{"error":"bad update"}'
+        f'API request failed for url http://localhost:18381/api/v1/courses/{course.uuid}/?exclude_utm=1 '
+        'with response: {"error":"bad update"}'
         )
 
     def test_create_course_success(self):
