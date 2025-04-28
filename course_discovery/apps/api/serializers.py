@@ -643,7 +643,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
             'authoring_organizations', 'visibility',
-            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
+            'courses', 'card_image_url', 'duration', 'language',
             'start', 'end', 'enrollment_start', 'enrollment_end', 'languages'
         )
         read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
@@ -1070,7 +1070,6 @@ class ProgramSearchSerializer(HaystackSerializer):
             'authoring_organization_uuids',
             'authoring_organizations',
             'hidden',
-            'is_program_eligible_for_one_click_purchase',
             'max_hours_effort_per_week',
             'min_hours_effort_per_week',
             'staff_uuids',

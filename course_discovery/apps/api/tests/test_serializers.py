@@ -370,7 +370,6 @@ class MinimalProgramSerializerTests(TestCase):
                 }).data,
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'card_image_url': program.card_image_url,
-            'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'languages': program.languages,
             'visibility': program.visibility,
             'partner': program.partner,

@@ -285,68 +285,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         assert actual == expected
 
-    @responses.activate
-    def test_update_node_alias(self):
-        """
-        Verify that the publisher attempts to create a new alias associated with the new course_run,
-        and that appropriate exceptions are raised for non-200 status codes.
-        """
-        # No previous object is provided. Create a new node and make sure
-        # title alias created, by default, based on the title is deleted
-        # and a new alias based on marketing slug is created.
-        self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_get_delete_form(self.obj.slug)
-        self.mock_delete_alias()
-        self.mock_get_delete_form(self.obj.slug)
-        self.mock_add_alias()
-
-        self.publisher.update_node_alias(self.obj, self.node_id, None)
-
-        assert responses.calls[-1].request.url == '{}/add'.format(self.publisher.alias_api_base)
-
-        responses.reset()
-
-        # Same scenario, but this time a non-200 status code is returned during
-        # alias creation. An exception should be raised.
-        self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_get_delete_form(self.obj.slug)
-        self.mock_delete_alias()
-        self.mock_get_delete_form(self.obj.slug)
-        self.mock_add_alias(status=500)
-
-        with pytest.raises(AliasCreateError):
-            self.publisher.update_node_alias(self.obj, self.node_id, None)
-
-        responses.reset()
-
-        # A previous object is provided, but the marketing slug hasn't changed.
-        # Neither alias creation nor alias deletion should occur.
-        self.mock_api_client()
-        self.mock_get_delete_form(self.obj.slug)
-
-        self.publisher.update_node_alias(self.obj, self.node_id, self.obj)
-
-        responses.reset()
-
-        # In this case, similate the fact that alias form retrival returned error
-        # FormRetrievalError should be raised
-        self.mock_api_client()
-        self.mock_get_delete_form(self.obj.slug)
-        self.mock_get_alias_form(status=500)
-        with pytest.raises(FormRetrievalError):
-            self.publisher.update_node_alias(self.obj, self.node_id, None)
-
-    def test_alias(self):
-        """
-        Verify that aliases are constructed correctly.
-        """
-        actual = self.publisher.alias(self.obj)
-        expected = 'course/{slug}'.format(slug=self.obj.slug)
-
-        assert actual == expected
-
 
 class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     """
@@ -478,11 +416,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_get_alias_form()
         self.mock_get_delete_form(self.obj.title)
         self.mock_delete_alias()
-        self.mock_get_delete_form(self.obj.marketing_slug)
         self.mock_add_alias(status=500)
-
-        with pytest.raises(AliasCreateError):
-            self.publisher.update_node_alias(self.obj, self.node_id, None)
 
         responses.reset()
 

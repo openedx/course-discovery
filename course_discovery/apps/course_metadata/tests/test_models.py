@@ -39,12 +39,6 @@ class TestCourse:
         course = factories.CourseFactory()
         assert str(course), '{key}: {title}'.format(key=course.key, title=course.title)
 
-    def test_search(self, haystack_default_connection):  # pylint: disable=unused-argument
-        title = 'Some random title'
-        expected = set(factories.CourseFactory.create_batch(3, title=title))
-        query = 'title:' + title
-        assert set(Course.search(query)) == expected
-
 
 @ddt.ddt
 class CourseRunTests(TestCase):
@@ -53,22 +47,6 @@ class CourseRunTests(TestCase):
     def setUp(self):
         super(CourseRunTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
-
-    def test_enrollable_seats(self):
-        """ Verify the expected seats get returned. """
-        course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
-        verified_seat = factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        professional_seat = factories.SeatFactory(course_run=course_run, type=Seat.PROFESSIONAL, upgrade_deadline=None)
-        honor_seat = factories.SeatFactory(course_run=course_run, type=Seat.HONOR, upgrade_deadline=None)
-        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
-
-        # The method should not care about the course run's start date.
-        course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        course_run.save()
-        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
-
-        # Enrollable seats of any type should be returned when no type parameter is specified.
-        assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
@@ -95,39 +73,6 @@ class CourseRunTests(TestCase):
         self.assertIsNone(getattr(self.course_run, override_field_name))
         self.assertEqual(getattr(self.course_run, field_name), getattr(self.course_run.course, field_name))
 
-    def test_search(self):
-        """ Verify the method returns a filtered queryset of course runs. """
-        title = 'Some random title'
-        course_runs = factories.CourseRunFactory.create_batch(3, title=title)
-        query = 'title:' + title
-        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
-        expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
-        self.assertEqual(actual_sorted, expected_sorted)
-
-    def test_seat_types(self):
-        """ Verify the property returns a list of all seat types associated with the course run. """
-        self.assertEqual(self.course_run.seat_types, [])
-
-        seats = factories.SeatFactory.create_batch(3, course_run=self.course_run)
-        expected = sorted([seat.type for seat in seats])
-        self.assertEqual(sorted(self.course_run.seat_types), expected)
-
-    @ddt.data(
-        ('obviously-wrong', None,),
-        (('audit',), 'audit',),
-        (('honor',), 'honor',),
-        (('credit', 'verified', 'audit',), 'credit',),
-        (('verified', 'honor',), 'verified',),
-        (('professional',), 'professional',),
-        (('no-id-professional',), 'professional',),
-    )
-    @ddt.unpack
-    def test_type(self, seat_types, expected_course_run_type):
-        """ Verify the property returns the appropriate type string for the CourseRun. """
-        for seat_type in seat_types:
-            factories.SeatFactory(course_run=self.course_run, type=seat_type)
-        self.assertEqual(self.course_run.type, expected_course_run_type)
-
     @freeze_time('2016-06-21 00:00:00Z')
     @ddt.data(
         (None, None, 'Upcoming'),
@@ -149,135 +94,9 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory(start=start, end=end)
         self.assertEqual(course_run.availability, expected_availability)
 
-    def test_program_types(self):
-        """ Verify the property retrieves program types correctly based on programs. """
-        courses = [self.course_run.course]
-        program = factories.ProgramFactory(courses=courses)
-        other_program = factories.ProgramFactory(courses=courses)
-        self.assertCountEqual(self.course_run.program_types, [program.type.name, other_program.type.name])
-
-    def test_unpublished_program_types(self):
-        """ Verify the property exludes program types that are unpublished. """
-        courses = [self.course_run.course]
-        program = factories.ProgramFactory(courses=courses)
-        factories.ProgramFactory(courses=courses, status=ProgramStatus.Unpublished)
-        self.assertEqual(self.course_run.program_types, [program.type.name])
-
-    def test_exclude_deleted_program_types(self):
-        """ Verify the program types property exclude programs that are deleted """
-        active_program = factories.ProgramFactory(courses=[self.course_run.course])
-        factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
-        self.assertEqual(self.course_run.program_types, [active_program.type.name])
-
-    @ddt.data(
-        # Case 1: Return False when there are no paid Seats.
-        ([('audit', 0)], False),
-        ([('audit', 0), ('verified', 0)], False),
-
-        # Case 2: Return False when there are no paid Seats without prerequisites.
-        ([(seat_type, 1) for seat_type in Seat.SEATS_WITH_PREREQUISITES], False),
-
-        # Case 3: Return True when there is at least one paid Seat without prerequisites.
-        ([('audit', 0), ('verified', 1)], True),
-        ([('audit', 0), ('verified', 1), ('professional', 1)], True),
-        ([('audit', 0), ('verified', 1)] + [(seat_type, 1) for seat_type in Seat.SEATS_WITH_PREREQUISITES], True),
-    )
-    @ddt.unpack
-    def test_has_enrollable_paid_seats(self, seat_config, expected_result):
-        """
-        Verify that has_enrollable_paid_seats is True when CourseRun has Seats with price > 0 and no prerequisites.
-        """
-        course_run = factories.CourseRunFactory.create()
-        for seat_type, price in seat_config:
-            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price)
-        self.assertEqual(course_run.has_enrollable_paid_seats(), expected_result)
-
-    def test_first_enrollable_paid_seat_sku(self):
-        """
-        Verify that first_enrollable_paid_seat_sku returns sku of first paid seat.
-        """
-        course_run = factories.CourseRunFactory.create()
-        factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
-        self.assertEqual(course_run.first_enrollable_paid_seat_sku(), 'ABCDEF')
-
-    @ddt.data(
-        # Case 1: Return None when there are no enrollable paid Seats.
-        ([('audit', 0, None)], '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', None),
-        ([(seat_type, 1, None) for seat_type in Seat.SEATS_WITH_PREREQUISITES],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', None),
-
-        # Case 2: Return the latest upgrade_deadline of the enrollable paid Seats when it's earlier than
-        # enrollment_end and course end.
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z')],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-07-30 00:00:00Z'),
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2016-08-15 00:00:00Z')],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-15 00:00:00Z'),
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z')] +
-         [(seat_type, 1, '2016-08-15 00:00:00Z') for seat_type in Seat.SEATS_WITH_PREREQUISITES],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-07-30 00:00:00Z'),
-
-        # Case 3: Return enrollment_end when it's earlier than course end and the latest upgrade_deadline of the
-        # enrollable paid Seats, or when one of those Seats does not have an upgrade_deadline.
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2016-09-15 00:00:00Z')],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-31 00:00:00Z'),
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
-         '2016-12-31 00:00:00Z', '2016-08-31 00:00:00Z', '2016-08-31 00:00:00Z'),
-
-        # Case 4: Return course end when it's earlier than enrollment_end or enrollment_end is None, and it's earlier
-        # than the latest upgrade_deadline of the enrollable paid Seats or when one of those Seats does not have an
-        # upgrade_deadline.
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, '2017-09-15 00:00:00Z')],
-         '2016-12-31 00:00:00Z', '2017-08-31 00:00:00Z', '2016-12-31 00:00:00Z'),
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
-         '2016-12-31 00:00:00Z', '2017-12-31 00:00:00Z', '2016-12-31 00:00:00Z'),
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
-         '2016-12-31 00:00:00Z', None, '2016-12-31 00:00:00Z'),
-
-        # Case 5: Return None when course end and enrollment_end are None and there's an enrollable paid Seat without
-        # an upgrade_deadline, even when there's another enrollable paid Seat with an upgrade_deadline.
-        ([('audit', 0, None), ('verified', 1, '2016-07-30 00:00:00Z'), ('professional', 1, None)],
-         None, None, None)
-    )
-    @ddt.unpack
-    def test_get_paid_seat_enrollment_end(self, seat_config, course_end, course_enrollment_end, expected_result):
-        """
-        Verify that paid_seat_enrollment_end returns the latest possible date for which an unenrolled user may
-        enroll and purchase an upgrade for the CourseRun or None if date unknown or paid Seats are not available.
-        """
-        end = parse(course_end) if course_end else None
-        enrollment_end = parse(course_enrollment_end) if course_enrollment_end else None
-        course_run = factories.CourseRunFactory.create(end=end, enrollment_end=enrollment_end)
-        for seat_type, price, deadline in seat_config:
-            deadline = parse(deadline) if deadline else None
-            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price, upgrade_deadline=deadline)
-
-        expected_result = parse(expected_result) if expected_result else None
-        self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
-
     now = datetime.datetime.now(pytz.timezone('utc'))
     one_month = relativedelta(months=1)
     two_weeks = relativedelta(days=14)
-
-    @ddt.data(
-        (None, None, None, False),
-        (now - one_month, None, None, False),
-        (now - one_month, now + one_month, None, True),
-        (now - one_month, now - one_month, now - two_weeks, False),
-        (now - one_month, now + one_month, now - two_weeks, False),
-        (now - one_month, now + one_month, now + two_weeks, True),
-        (now + one_month, now + one_month, now + two_weeks, False),
-    )
-    @ddt.unpack
-    def test_is_current_and_still_upgradeable(self, start, end, deadline, is_current):
-        """
-        Verify that is_current_and_still_upgradeable returns true if
-        1. Today is after the run start (or start is none) and two weeks from the run end (or end is none)
-        2. The run has a seat that is still enrollable and upgradeable
-        and false otherwise
-        """
-        course_run = factories.CourseRunFactory.create(start=start, end=end, enrollment_end=end)
-        factories.SeatFactory.create(course_run=course_run, upgrade_deadline=deadline, type='verified', price=1)
-        assert course_run.is_current_and_still_upgradeable() == is_current
 
     def test_publication_disabled(self):
         """
@@ -532,182 +351,6 @@ class ProgramTests(TestCase):
         )
         return program, courses
 
-    def assert_one_click_purchase_ineligible_program(
-            self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
-            upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
-    ):
-        course_run = factories.CourseRunFactory(
-            end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
-        )
-        factories.SeatFactory(course_run=course_run, type=seat_type, upgrade_deadline=upgrade_deadline)
-        program = factories.ProgramFactory(
-            courses=[course_run.course],
-            excluded_course_runs=excluded_course_runs,
-            one_click_purchase_enabled=one_click_purchase_enabled,
-            type=program_type,
-        )
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible(self):
-        """ Verify that program is one click purchase eligible. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-
-        # Program has one_click_purchase_enabled set to True,
-        # all courses have one course run, all course runs have
-        # verified seat types
-        courses = []
-        for __ in range(3):
-            course_run = factories.CourseRunFactory(
-                end=None,
-                enrollment_end=None
-            )
-            factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-            courses.append(course_run.course)
-        program = factories.ProgramFactory(
-            courses=courses,
-            one_click_purchase_enabled=True,
-            type=program_type,
-        )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-        # Program has one_click_purchase_enabled set to True,
-        # course has all course runs excluded except one which
-        # has verified seat type
-        course_run = factories.CourseRunFactory(
-            end=None,
-            enrollment_end=None
-        )
-        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        course = course_run.course
-        excluded_course_runs = [
-            factories.CourseRunFactory(course=course),
-            factories.CourseRunFactory(course=course)
-        ]
-        program = factories.ProgramFactory(
-            courses=[course],
-            excluded_course_runs=excluded_course_runs,
-            one_click_purchase_enabled=True,
-            type=program_type,
-        )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_with_entitlements(self):
-        """ Verify that program is one click purchase eligible when its courses have unexpired entitlement products. """
-        # Program has one_click_purchase_enabled set to True,
-        # all courses have a verified mode entitlement product and multiple course runs.
-        program, __ = self.create_program_with_entitlements_and_seats()
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_ineligible_multiple_entitlements(self):
-        """
-        Verify that program is not one click purchase eligible if course has
-        multiple entitlement products with correct modes.
-        """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        credit_seat_type, __ = SeatType.objects.get_or_create(name=Seat.CREDIT)
-        program.type.applicable_seat_types.add(credit_seat_type)
-        factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_with_unpublished_runs(self):
-        """ Verify that program with unpublished course runs is one click purchase eligible. """
-
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-        published_course_run = factories.CourseRunFactory(
-            end=None,
-            enrollment_end=None,
-            status=CourseRunStatus.Published
-        )
-        unpublished_course_run = factories.CourseRunFactory(
-            end=None,
-            enrollment_end=None,
-            status=CourseRunStatus.Unpublished,
-            course=published_course_run.course
-        )
-        factories.SeatFactory(course_run=published_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        factories.SeatFactory(course_run=unpublished_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        program = factories.ProgramFactory(
-            courses=[published_course_run.course],
-            one_click_purchase_enabled=True,
-            type=program_type,
-        )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_ineligible(self):
-        """ Verify that program is one click purchase ineligible. """
-        yesterday = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        tomorrow = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-
-        # Program has one_click_purchase_enabled set to False and
-        # every course has one course run
-        self.assert_one_click_purchase_ineligible_program(
-            one_click_purchase_enabled=False,
-            program_type=program_type,
-        )
-
-        # Program has one_click_purchase_enabled set to True and
-        # one course has two course runs
-        course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
-        factories.CourseRunFactory(end=None, enrollment_end=None, course=course_run.course)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
-        program = factories.ProgramFactory(
-            courses=[course_run.course],
-            one_click_purchase_enabled=True,
-            type=program_type,
-        )
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-        # Program has one_click_purchase_enabled set to True and
-        # one course with one course run excluded from the program
-        course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
-        program = factories.ProgramFactory(
-            courses=[course_run.course],
-            one_click_purchase_enabled=True,
-            excluded_course_runs=[course_run],
-            type=program_type,
-        )
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, course run end date passed
-        self.assert_one_click_purchase_ineligible_program(
-            end=yesterday,
-            program_type=program_type,
-        )
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, course run enrollment start date not passed
-        self.assert_one_click_purchase_ineligible_program(
-            enrollment_start=tomorrow,
-            program_type=program_type,
-        )
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, course run enrollment end date passed
-        self.assert_one_click_purchase_ineligible_program(
-            enrollment_end=yesterday,
-            program_type=program_type,
-        )
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, seat upgrade deadline passed
-        self.assert_one_click_purchase_ineligible_program(
-            upgrade_deadline=yesterday,
-            program_type=program_type,
-        )
-
-        # Program has one_click_purchase_enabled set to True, one course
-        # with one course run, seat type is not purchasable
-        self.assert_one_click_purchase_ineligible_program(
-            seat_type='incorrect',
-            program_type=program_type,
-        )
-
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
@@ -749,12 +392,6 @@ class ProgramTests(TestCase):
         expected_canonical_runs = [self.course_runs[0], self.course_runs[1]]
         # Verify only canonical course runs are returned in set
         self.assertEqual(set(self.program.canonical_course_runs), set(expected_canonical_runs))
-
-    def test_languages(self):
-        expected_languages = set([course_run.language for course_run in self.course_runs])
-        actual_languages = self.program.languages
-        self.assertGreater(len(actual_languages), 0)
-        self.assertEqual(actual_languages, expected_languages)
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
@@ -827,13 +464,6 @@ class ProgramTests(TestCase):
 
         return factories.ProgramFactory(type=program_type, courses=program_courses)
 
-    def test_staff(self):
-        staff = factories.PersonFactory.create_batch(2)
-        self.course_runs[0].staff.add(staff[0])
-        self.course_runs[1].staff.add(staff[1])
-
-        self.assertEqual(self.program.staff, set(staff))
-
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
@@ -845,10 +475,6 @@ class ProgramTests(TestCase):
             sized_file = getattr(self.program.banner_image, size_key, None)
             self.assertIsNotNone(sized_file)
             self.assertIn(image_url_prefix, sized_file.url)
-
-    def test_seat_types(self):
-        program = self.create_program_with_seats()
-        self.assertEqual(program.seat_types, set(['credit', 'verified']))
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):

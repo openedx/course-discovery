@@ -18,8 +18,6 @@ from course_discovery.apps.publisher.models import (
 
 class CourseFactory(factory.DjangoModelFactory):
     title = FuzzyText()
-    number = FuzzyText()
-    version = Course.SEAT_VERSION
 
     class Meta:
         model = Course

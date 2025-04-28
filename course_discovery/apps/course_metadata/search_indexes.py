@@ -179,9 +179,6 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
     language = indexes.MultiValueField(faceted=True)
     hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
-    is_program_eligible_for_one_click_purchase = indexes.BooleanField(
-        model_attr='is_program_eligible_for_one_click_purchase', null=False
-    )
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)

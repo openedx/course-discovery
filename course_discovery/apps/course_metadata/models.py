@@ -732,20 +732,6 @@ class Program(TimeStampedModel):
         return self.title
 
     @property
-    def is_program_eligible_for_one_click_purchase(self):
-        """
-        Checks if the program is eligible for one click purchase.
-
-        To pass the check the program must have one_click_purchase field enabled
-        and all its courses must contain only one course run and the remaining
-        not excluded course run must contain a purchasable seat.
-        """
-        if not self.one_click_purchase_enabled or not self.type:
-            return False
-
-        return False
-
-    @property
     def marketing_url(self):
         if self.marketing_slug:
             type_node = 'empty_type' if not self.type else self.type.slug.lower()
