@@ -40,8 +40,12 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             product_source (str): The source of the product for the courses.
             task_type (str): The type of task to be performed (e.g., 'course_create', 'course_partial_update').
         """
-        super().__init__(partner, api_url, max_workers, is_threadsafe)
-        DataLoaderMixin.__init__(self, self.api_client)
+        super().__init__(
+            partner=partner,
+            api_url=api_url,
+            max_workers=max_workers,
+            is_threadsafe=is_threadsafe
+        )
         self.error_logs = {key: [] for key in CSV_LOADER_ERROR_LOG_SEQUENCE}
         self.ingestion_summary = self._initialize_ingestion_summary()
         self.product_source = product_source
