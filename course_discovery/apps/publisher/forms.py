@@ -69,10 +69,6 @@ class BaseForm(forms.ModelForm):
 
 class CourseForm(BaseForm):
     title = forms.CharField(label=_('Course Title'), required=True)
-    number = forms.CharField(
-        label=_('Course Number'), required=True,
-        validators=[validate_text_count(max_length=50)]
-    )
 
     class Meta:
         model = Course
@@ -92,26 +88,13 @@ class CourseForm(BaseForm):
         """
         return html.unescape(self.cleaned_data.get('title'))
 
-    def clean_number(self):
-        """
-        Validate that number doesn't consist of any special characters other than period, underscore or hyphen
-        """
-        number = self.cleaned_data.get('number')
-        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(number):
-            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
-                                    'underscore or hyphen.'))
-        return number
-
     def clean(self):
         cleaned_data = self.cleaned_data
         title = cleaned_data.get('title')
-        number = cleaned_data.get('number')
         instance = getattr(self, 'instance', None)
         if not instance.pk:
             if Course.objects.filter(title=title).exists():
                 raise ValidationError({'title': _('This course title already exists')})
-            if Course.objects.filter(number=number).exists():
-                raise ValidationError({'number': _('This course number already exists')})
         return cleaned_data
 
 

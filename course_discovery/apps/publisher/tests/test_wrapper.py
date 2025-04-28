@@ -21,8 +21,7 @@ class CourseRunWrapperTests(TestCase):
 
     def setUp(self):
         super(CourseRunWrapperTests, self).setUp()
-        organization = OrganizationFactory()
-        self.course_run = factories.CourseRunFactory(course__organizations=[organization])
+        self.course_run = factories.CourseRunFactory()
         self.course = self.course_run.course
 
         self.wrapped_course_run = CourseRunWrapper(self.course_run)
@@ -30,13 +29,6 @@ class CourseRunWrapperTests(TestCase):
     def test_title(self):
         """ Verify that the wrapper can override course_run title. """
         self.assertEqual(self.wrapped_course_run.title, self.course_run.course.title)
-
-    def test_partner(self):
-        """ Verify that the wrapper can return partner values. """
-        organization = OrganizationFactory()
-        self.course.organizations.add(organization)
-        partner = "/".join([org.key for org in self.course_run.course.organizations.all()])
-        self.assertEqual(self.wrapped_course_run.partner, partner)
 
     def test_model_attr(self):
         """ Verify that the wrapper passes through object values not defined on wrapper. """
@@ -67,13 +59,6 @@ class CourseRunWrapperTests(TestCase):
         wrapper_object = CourseRunWrapper(self.course_run)
         self.assertEqual(wrapper_object.course_type, course_type)
 
-    def test_organization_key(self):
-        """ Verify that the wrapper return the organization key. """
-        organization = OrganizationFactory()
-        course_run = factories.CourseRunFactory(course__organizations=[organization])
-        wrapped_course_run = CourseRunWrapper(course_run)
-        self.assertEqual(wrapped_course_run.organization_key, organization.key)
-
     def test_seat_price(self):
         """ Verify that the wrapper return the seat price. """
         self.assertEqual(self.wrapped_course_run.seat_price, None)
@@ -100,27 +85,12 @@ class CourseRunWrapperTests(TestCase):
         wrapped_course_run = CourseRunWrapper(self.course_run)
         self.assertEqual(wrapped_course_run.credit_seat, seat)
 
-    def test_organization_name(self):
-        """ Verify that the wrapper return the organization name. """
-        organization = OrganizationFactory()
-        course_run = factories.CourseRunFactory(course__organizations=[organization])
-        wrapped_course_run = CourseRunWrapper(course_run)
-        self.assertEqual(wrapped_course_run.organization_name, organization.name)
-
     def test_is_authored_in_studio(self):
         """ Verify that the wrapper return the is_authored_in_studio. """
         self.assertFalse(self.wrapped_course_run.is_authored_in_studio)
         self.course_run.lms_course_id = 'test/course/id'
         self.course_run.save()
         self.assertTrue(self.wrapped_course_run.is_authored_in_studio)
-
-    def test_is_multiple_partner_course(self):
-        """ Verify that the wrapper return the is_multiple_partner_course. """
-        self.assertFalse(self.wrapped_course_run.is_multiple_partner_course)
-        organization = OrganizationFactory()
-        self.course.organizations.add(organization)
-
-        self.assertTrue(self.wrapped_course_run.is_multiple_partner_course)
 
     def test_is_self_paced(self):
         """ Verify that the wrapper return the is_self_paced. """
@@ -139,13 +109,6 @@ class CourseRunWrapperTests(TestCase):
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
 
-    def test_keywords(self):
-        """ Verify that the wrapper return the course keywords. """
-        self.assertEqual(
-            self.wrapped_course_run.keywords,
-            self.course.keywords_data
-        )
-
     @ddt.data(True, False)
     def test_is_seo_reviews(self, is_seo_review):
         """ Verify that the wrapper return the is_seo_review. """
@@ -160,49 +123,6 @@ class CourseRunWrapperTests(TestCase):
     def test_course_team_admin(self):
         """ Verify that the wrapper return the course team admin. """
         self.assertEqual(self.wrapped_course_run.course_team_admin, self.course.course_team_admin)
-
-    def test_course_staff(self):
-        """Verify that the wrapper return staff list."""
-        staff = PersonFactory()
-        staff.profile_image_url = None
-        staff.save()
-
-        # another staff with position by default staff has no position associated.
-        staff_2 = PersonFactory()
-        position = PositionFactory(person=staff_2)
-
-        self.course_run.staff = [staff, staff_2]
-        self.course_run.save()
-
-        facebook = PersonSocialNetworkFactory(person=staff_2, type='facebook')
-        twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter')
-
-        expected = [
-            {
-                'uuid': str(staff.uuid),
-                'full_name': staff.full_name,
-                'image_url': staff.get_profile_image_url,
-                'profile_url': staff.profile_url,
-                'social_networks': {},
-                'bio': staff.bio,
-                'is_new': True,
-                'email': staff.email
-            },
-            {
-                'uuid': str(staff_2.uuid),
-                'full_name': staff_2.full_name,
-                'image_url': staff_2.get_profile_image_url,
-                'position': position.title,
-                'organization': position.organization_name,
-                'profile_url': staff.profile_url,
-                'is_new': False,
-                'social_networks': {'facebook': facebook.value, 'twitter': twitter.value},
-                'bio': staff_2.bio,
-                'email': staff_2.email
-            }
-        ]
-
-        self.assertEqual(self.wrapped_course_run.course_staff, expected)
 
     def _change_state_and_owner(self, course_run_state):
         """

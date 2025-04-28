@@ -381,7 +381,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
         )
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
 
         self.course_run_dict = model_to_dict(self.course_run)

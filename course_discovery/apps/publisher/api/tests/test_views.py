@@ -45,7 +45,6 @@ class CourseRoleAssignmentViewTests(SiteMixin, TestCase):
         self.internal_user_group.user_set.add(*self.other_internal_users)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
 
         # Create three internal user course roles for internal users against a course
         # so we can test change role assignment on these roles.
@@ -459,7 +458,6 @@ class ChangeCourseStateViewTests(SiteMixin, TestCase):
         self.course.save()
 
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
         factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
         toggle_switch('enable_publisher_email_notifications', True)
 
@@ -882,7 +880,6 @@ class CoursesAutoCompleteTests(SiteMixin, TestCase):
         self.course = factories.CourseFactory(title='Test course 1')
         self.course2 = factories.CourseFactory(title='Test course 2')
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
         assign_perm(
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension

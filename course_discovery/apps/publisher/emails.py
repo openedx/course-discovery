@@ -46,7 +46,6 @@ def send_email_for_studio_instance_created(course_run, site):
             'course_team_name': course_team_admin.get_full_name() or course_team_admin.username,
             'project_coordinator_name': project_coordinator.get_full_name() or project_coordinator.username,
             'contact_us_email': project_coordinator.email,
-            'studio_url': course_run.studio_url
         }
 
         txt_template_path = 'publisher/email/studio_instance_created.txt'
@@ -203,7 +202,6 @@ def send_course_workflow_email(course, user, subject, txt_template, html_templat
             {
                 'recipient_name': recipient_user.full_name or recipient_user.username if recipient_user else '',
                 'sender_name': user.full_name or user.username,
-                'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'course_page_url': 'https://{host}{path}'.format(
                     host=site.domain.strip('/'), path=course_page_path
@@ -253,7 +251,6 @@ def send_email_for_send_for_review_course_run(course_run, user, site):
             'page_url': 'https://{host}{path}'.format(
                 host=site.domain.strip('/'), path=page_path
             ),
-            'studio_url': course_run.studio_url
         }
 
         send_course_workflow_email(course, user, subject, txt_template, html_template, context, recipient_user, site)
@@ -389,7 +386,6 @@ def send_email_preview_accepted(course_run, site):
                 'run_number': course_key.run,
                 'publisher_role_name': PublisherUserRole.Publisher,
                 'course_team': course.course_team_admin,
-                'org_name': course.organizations.all().first().name,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
                 'page_url': 'https://{host}{path}'.format(
                     host=site.domain.strip('/'), path=page_path
@@ -491,7 +487,6 @@ def send_course_run_published_email(course_run, site):
             context = {
                 'sender_role': PublisherUserRole.Publisher,
                 'course_name': course_run.course.title,
-                'preview_url': course_run.preview_url,
                 'course_run_number': course_key.run,
                 'recipient_name': course_team_user.get_full_name() or course_team_user.username,
                 'contact_us_email': project_coordinator.email if project_coordinator else '',
@@ -602,7 +597,6 @@ def send_email_for_seo_review(course, site):
             'course_name': course.title,
             'sender_team': _('Course team'),
             'recipient_name': _('Legal Team'),
-            'org_name': course.organizations.all().first().name,
             'contact_us_email': project_coordinator.email,
             'course_page_url': 'https://{host}{path}'.format(
                 host=site.domain.strip('/'), path=course_page_path

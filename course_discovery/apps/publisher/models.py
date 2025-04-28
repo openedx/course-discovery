@@ -128,11 +128,6 @@ class Course(TimeStampedModel, ChangedByMixin):
             return None
 
     @property
-    def partner(self):
-        organization = self.organizations.all().first()
-        return organization.partner if organization else None
-
-    @property
     def marketing_reviewer(self):
         """
         Return course marketing reviewer user.
@@ -141,14 +136,6 @@ class Course(TimeStampedModel, ChangedByMixin):
             return self.course_user_roles.get(role=PublisherUserRole.MarketingReviewer).user
         except CourseUserRole.DoesNotExist:
             return None
-
-    @property
-    def organization_extension(self):
-        organization = self.organizations.all().first()
-        if organization:
-            return organization.organization_extension
-
-        return None
 
     @property
     def publisher(self):
@@ -475,9 +462,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         """
         course = self.course
         return all([
-            course.title, course.number, course.short_description, course.full_description,
-            course.organizations.first(), course.level_type, course.expected_learnings,
-            course.primary_subject, course.image, course.course_team_admin
+            course.title,
         ])
 
     @transition(field=name, source='*', target=CourseStateChoices.Draft)
@@ -595,9 +580,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         """
         course_run = self.course_run
         return all([
-            course_run.course.course_state.is_approved, course_run.has_valid_seats, course_run.start, course_run.end,
-            course_run.has_valid_staff, course_run.is_valid_micromasters,
-            course_run.is_valid_professional_certificate, course_run.is_valid_xseries, course_run.language,
+            course_run.course.course_state.is_approved, course_run.start, course_run.end,
             course_run.lms_course_id
         ])
 
@@ -727,11 +710,12 @@ class PublisherUser(User):
         elif is_internal_user(user):
             return queryset.filter(course_user_roles__user=user).distinct()
         else:
-            organizations = get_objects_for_user(
-                user,
-                OrganizationExtension.VIEW_COURSE,
-                OrganizationExtension,
-                use_groups=True,
-                with_superuser=False
-            ).values_list('organization')
-            return queryset.filter(organizations__in=organizations)
+            return queryset
+            # organizations = get_objects_for_user(
+            #     user,
+            #     OrganizationExtension.VIEW_COURSE,
+            #     OrganizationExtension,
+            #     use_groups=True,
+            #     with_superuser=False
+            # ).values_list('organization')
+            # return queryset.filter(organizations__in=organizations)

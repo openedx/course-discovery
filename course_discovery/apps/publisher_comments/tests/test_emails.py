@@ -35,8 +35,6 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.course_run = self.seat.course_run
         self.course = self.course_run.course
 
-        self.course.organizations.add(self.organization_extension.organization)
-
         # NOTE: We intentionally do NOT create an attribute for user_2.
         # By default this user WILL receive email notifications.
 

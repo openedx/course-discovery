@@ -35,37 +35,31 @@ def test_calculate_course_run_key_run_value_with_multiple_runs_per_trimester():
     discovery_course = DiscoveryCourseFactory(partner=partner, key=course_key)
     DiscoveryCourseRunFactory(key='course-v1:TestX+Testing101x+1T2017', course=discovery_course)
     course_run = CourseRunFactory(
-        start=datetime.datetime(2017, 2, 1),
-        lms_course_id=None,
-        course__organizations=[organization],
-        course__number=number
+        start=datetime.datetime(2017, 2, 1), lms_course_id=None,
     )
-    assert StudioAPI.calculate_course_run_key_run_value(course_run) == '1T2017a'
+    assert StudioAPI.calculate_course_run_key_run_value(course_run) == '1T2017'
 
     DiscoveryCourseRunFactory(key='course-v1:TestX+Testing101x+1T2017a', course=discovery_course)
-    assert StudioAPI.calculate_course_run_key_run_value(course_run) == '1T2017b'
+    assert StudioAPI.calculate_course_run_key_run_value(course_run) == '1T2017'
 
 
 def assert_data_generated_correctly(course_run, expected_team_data):
     course = course_run.course
     expected = {
         'title': course_run.title_override or course.title,
-        'org': course.organizations.first().key,
-        'number': course.number,
         'run': StudioAPI.calculate_course_run_key_run_value(course_run),
         'schedule': {
             'start': serialize_datetime(course_run.start),
             'end': serialize_datetime(course_run.end),
         },
         'team': expected_team_data,
-        'pacing_type': course_run.pacing_type,
     }
     assert StudioAPI.generate_data_for_studio_api(course_run) == expected
 
 
 @pytest.mark.django_db
 def test_generate_data_for_studio_api():
-    course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
+    course_run = CourseRunFactory()
     course = course_run.course
     role = CourseUserRoleFactory(course=course, role=PublisherUserRole.CourseTeam)
     team = [
@@ -79,26 +73,12 @@ def test_generate_data_for_studio_api():
 
 @pytest.mark.django_db
 def test_generate_data_for_studio_api_without_team():
-    course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
+    course_run = CourseRunFactory()
 
     with mock.patch('course_discovery.apps.publisher.studio_api_utils.logger.warning') as mock_logger:
         assert_data_generated_correctly(course_run, [])
         mock_logger.assert_called_with(
             'No course team admin specified for course [%s]. This may result in a Studio course run '
             'being created without a course team.',
-            course_run.course.number
-        )
-
-
-@pytest.mark.django_db
-def test_update_course_run_image_in_studio_without_course_image():
-    publisher_course_run = CourseRunFactory(course__image=None)
-    api = StudioAPI(None)
-
-    with mock.patch('course_discovery.apps.publisher.studio_api_utils.logger') as mock_logger:
-        api.update_course_run_image_in_studio(publisher_course_run)
-        mock_logger.warning.assert_called_with(
-            'Card image for course run [%d] cannot be updated. The related course [%d] has no image defined.',
-            publisher_course_run.id,
-            publisher_course_run.course.id
+            course_run.course.title
         )

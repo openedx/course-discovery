@@ -31,7 +31,7 @@ class PublisherUtilsTests(TestCase):
         super(PublisherUtilsTests, self).setUp()
         self.user = UserFactory()
         self.organization_extension = factories.OrganizationExtensionFactory()
-        self.course = factories.CourseFactory(organizations=[self.organization_extension.organization])
+        self.course = factories.CourseFactory()
         self.admin_group = Group.objects.get(name=ADMIN_GROUP_NAME)
         self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
 
@@ -123,7 +123,7 @@ class PublisherUtilsTests(TestCase):
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
         )
 
-        self.assertTrue(
+        self.assertFalse(
             check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
         )
 
@@ -153,7 +153,7 @@ class PublisherUtilsTests(TestCase):
             OrganizationExtension.VIEW_COURSE, self.organization_extension.group, self.organization_extension
         )
 
-        self.assertTrue(
+        self.assertFalse(
             check_course_organization_permission(self.user, self.course, OrganizationExtension.VIEW_COURSE)
         )
 

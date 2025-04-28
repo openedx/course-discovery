@@ -61,15 +61,6 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         instance.lms_course_id = response['id']
         instance.save()
 
-        try:
-            api.update_course_run_image_in_studio(instance)
-        except SlumberBaseException as ex:
-            logger.exception(
-                'Failed to update Studio image for course run [%s]: %s', instance.lms_course_id, ex.content
-            )
-        except:  # pylint: disable=bare-except
-            logger.exception('Failed to update Studio image for course run [%s]', instance.lms_course_id)
-
         logger.info('Completed creation of course run [%s] on Studio.', instance.lms_course_id)
 
 
