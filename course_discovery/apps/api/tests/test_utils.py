@@ -150,7 +150,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
     def test_update_run(self):
         run = CourseRunFactory()
 
-        expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
+        expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False, add_enrollment_dates=True)
         responses.add(responses.PATCH, f'{self.studio_url}api/v1/course_runs/{run.key}/',
                       match=[responses.matchers.json_params_matcher(expected_data)])
 

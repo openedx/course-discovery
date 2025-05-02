@@ -188,6 +188,16 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         """
         Create and return the request data for making a patch call to update the course run.
         """
+        def get_datetime_field(date_field, time_field, default_time='00:00:00'):
+            """
+            Helper function to get the formatted datetime string for a given date and time key.
+            """
+            date = course_run_data.get(date_field)
+            time = course_run_data.get(time_field, default_time) if time_field else ''
+            if date:
+                return self.get_formatted_datetime_string(f"{date} {time}".strip())
+            return None
+
         program_type = course_run_data.get('expected_program_type')
         content_language = self.verify_and_get_language_tags(course_run_data.get('content_language', 'en-us'))
         transcript_language = self.verify_and_get_language_tags(course_run_data.get('transcript_languages', 'en-us'))
@@ -216,11 +226,17 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         if max_effort := course_run_data.get('maximum_effort', ''):
             update_course_run_data.update({'max_effort': max_effort})
 
-        if course_run_data.get('enrollment_end_date', ''):
-            update_course_run_data.update({'enrollment_end': self.get_formatted_datetime_string(
-                f"{course_run_data.get('enrollment_end_date', '')} "
-                f"{course_run_data.get('enrollment_end_time', '')}".strip()
-            )})
+        for field_map in [
+            ('start_date', 'start_time', 'start'),
+            ('end_date', 'end_time', 'end'),
+            ('enrollment_start_date', 'enrollment_start_time', 'enrollment_start'),
+            ('enrollment_end_date', 'enrollment_end_time', 'enrollment_end'),
+        ]:
+            date_field, time_field, db_field_name = field_map
+            value = get_datetime_field(date_field, time_field)
+            if value:
+                update_course_run_data[db_field_name] = value
+
         return update_course_run_data
 
     def download_course_image_assets(self, data, course):
@@ -289,7 +305,6 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 self.ingestion_summary['others'].append(
                     f'Course with key {course_key} already exists. Skipping creation.'
                 )
-                continue
             else:
                 try:
                     _ = self.create_course(row, course_type, course_run_type.uuid, product_source=self.product_source)
@@ -304,60 +319,61 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                         )
                     )
                     continue
-                course = Course.objects.filter_drafts(
-                    key=course_key, partner=self.partner
-                ).select_related('type').first()
-                course_run = CourseRun.objects.filter_drafts(course=course).select_related('type').first()
-                is_draft = self.get_draft_flag(course=course)
-                logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
-                is_course_image_download, is_organization_logo_override_download = self.download_course_image_assets(
-                    data=row, course=course
-                )
-                if not (is_course_image_download and is_organization_logo_override_download):
-                    continue
-                try:
-                    self.update_course(row, course, is_draft)
-                except Exception as exc:  # pylint: disable=broad-except
-                    exception_message = exc
-                    if hasattr(exc, 'response'):
-                        exception_message = exc.response.content.decode('utf-8')
-                    self.log_ingestion_error(
-                        CSVIngestionErrors.COURSE_UPDATE_ERROR,
-                        CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
-                            course_title=course_title, exception_message=exception_message
-                        )
-                    )
-                    continue
 
-                try:
-                    self.update_course_run(row, course_run, course_type, is_draft)
-                except Exception as exc:  # pylint: disable=broad-except
-                    exception_message = exc
-                    if hasattr(exc, 'response'):
-                        exception_message = exc.response.content.decode('utf-8')
-                    self.log_ingestion_error(
-                        CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
-                        CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
-                            course_title=course_title, exception_message=exception_message
-                        )
+            course = Course.objects.filter_drafts(
+                key=course_key, partner=self.partner
+            ).select_related('type').first()
+            course_run = CourseRun.objects.filter_drafts(course=course).select_related('type').first()
+            is_draft = self.get_draft_flag(course=course)
+            logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
+            is_course_image_download, is_organization_logo_override_download = self.download_course_image_assets(
+                data=row, course=course
+            )
+            if not (is_course_image_download and is_organization_logo_override_download):
+                continue
+            try:
+                self.update_course(row, course, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                        course_title=course_title, exception_message=exception_message
                     )
-                    continue
-
-                if (
-                    course_run.status == CourseRunStatus.Unpublished and
-                    row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
-                ):
-                    # Pushing the run into LegalReview is necessary to ensure that the
-                    # url slug is correctly generated in subdirectory format
-                    course_run.status = CourseRunStatus.LegalReview
-                    course_run.save(update_fields=["status"], send_emails=True)
-                created_courses.append(
-                    {
-                        'course': f'{course.uuid} - {course.title} ({course.key})',
-                    }
                 )
-                self.ingestion_summary['success_count'] += 1
-                self.ingestion_summary['created_products'].append(f'{course.uuid} - {course.title} ({course.key})')
+                continue
+
+            try:
+                self.update_course_run(row, course_run, course_type, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                        course_title=course_title, exception_message=exception_message
+                    )
+                )
+                continue
+
+            if (
+                course_run.status == CourseRunStatus.Unpublished and
+                row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
+            ):
+                # Pushing the run into LegalReview is necessary to ensure that the
+                # url slug is correctly generated in subdirectory format
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=["status"], send_emails=True)
+            created_courses.append(
+                {
+                    'course': f'{course.uuid} - {course.title} ({course.key})',
+                }
+            )
+            self.ingestion_summary['success_count'] += 1
+            self.ingestion_summary['created_products'].append(f'{course.uuid} - {course.title} ({course.key})')
 
         self.render_error_logs(self.error_logs)
         self.clear_caches()
