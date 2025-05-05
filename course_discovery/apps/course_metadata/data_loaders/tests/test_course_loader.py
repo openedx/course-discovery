@@ -17,8 +17,8 @@ from course_discovery.apps.course_metadata.data_loaders.course_loader import Cou
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.data_loaders.tests.test_utils import MockExceptionWithResponse
-from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseType
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseTypeFactory
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType, CourseType
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, CourseTypeFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.course_loader'
 MIXIN_LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.mixins'
@@ -110,34 +110,40 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
+        _ = self.mock_image_response()
 
         csv_data = {
-            **mock_data.MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
+            **mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
         }
-        CourseFactory.create(
+        course = CourseFactory.create(
             key=f"{csv_data['Organization']}+{csv_data['Number']}",
             partner=self.partner,
             title=csv_data['Title'],
             type=CourseType.objects.get(name=csv_data['Course Enrollment Track']),
         )
+        CourseRunFactory.create(
+            course=course,
+            draft=True,
+            pacing_type=csv_data['Course Pacing'],
+            type=CourseRunType.objects.get(name=csv_data['Course Run Enrollment Track']),
+        )
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
                 csv, [csv_data],
-                headers=mock_data.MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT.keys()
+                headers=mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT.keys()
             )
-            course_key = csv_data['Organization'] + '+' + csv_data['Number']
+            course_key = f"{csv_data['Organization']}+{csv_data['Number']}"
             with LogCapture(LOGGER_PATH) as log_capture:
-                with mock.patch.object(
-                        CourseLoader,
-                        'call_course_api',
-                        self.mock_call_course_api
-                ):
+                with mock.patch.object(CourseLoader, "call_course_api", self.mock_call_course_api), mock.patch.object(
+                    CourseLoader, "create_course"
+                ) as mock_create_course:
                     loader = CourseLoader(
                         self.partner, csv_path=csv.name,
                         product_source=self.source.slug,
                         task_type=BulkOperationType.CourseCreate
                     )
                     loader.ingest()
+                    mock_create_course.assert_not_called()
                     log_capture.check_present(
                         (
                             LOGGER_PATH,
@@ -153,7 +159,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self.assertEqual(loader.ingestion_summary['others'], [
                         f'Course with key {course_key} already exists. Skipping creation.'
                     ])
-                    self.assertEqual(loader.ingestion_summary['success_count'], 0)
+                    self.assertEqual(loader.ingestion_summary['success_count'], 1)
 
     def test_course_loader_ingest_for_course_creation_with_attributes_required_for_review(
         self, mock_jwt_decode_handler
@@ -480,3 +486,44 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 loader.register_ingestion_error.reset_mock()
                 method_mock.reset_mock()
                 method_mock.side_effect = None
+
+    @responses.activate
+    def test_exception_flow_for_course_run_update_method(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the course update fails if an exception is raised while updating the course run.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        _ = self.mock_image_response()
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with mock.patch.object(
+                CourseLoader, "call_course_api", self.mock_call_course_api
+            ):
+                loader = CourseLoader(
+                    self.partner, csv_path=csv.name,
+                    product_source=self.source.slug,
+                    task_type=BulkOperationType.CourseCreate
+                )
+                loader.register_ingestion_error = mock.MagicMock()
+                loader.update_course_run = mock.MagicMock()
+
+                loader.update_course_run.side_effect = MockExceptionWithResponse(b"Update course run error")
+
+                with LogCapture(LOGGER_PATH):
+                    loader.ingest()
+
+                    expected_error_message = CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                        course_title=mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT["title"],
+                        exception_message="Update course run error",
+                    )
+                    loader.register_ingestion_error.assert_called_once_with(
+                        CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, expected_error_message
+                    )
+
+                loader.register_ingestion_error.reset_mock()
+                loader.update_course_run.reset_mock()
+                loader.update_course_run.side_effect = None
+                loader.register_ingestion_error.side_effect = None
