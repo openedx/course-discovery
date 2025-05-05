@@ -4,6 +4,7 @@ from rest_framework import routers
 
 from course_discovery.apps.api.v1.views import search as search_views
 from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet, ProgramsAffiliateWindowViewSet
+from course_discovery.apps.api.v1.views.bulk_operation_tasks import BulkOperationTaskViewSet
 from course_discovery.apps.api.v1.views.catalog_queries import CatalogQueryContainsViewSet
 from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
 from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
@@ -51,6 +52,7 @@ router.register(r'course_recommendations', CourseRecommendationViewSet, basename
 router.register(r'course_editors', CourseEditorViewSet, basename='course_editor')
 router.register(r'course_review', CourseReviewViewSet, basename='course-review')
 router.register(r'course_runs', CourseRunViewSet, basename='course_run')
+router.register(r'bulk_operation_tasks', BulkOperationTaskViewSet, basename='bulkoperationtask')
 router.register(r'collaborators', CollaboratorViewSet, basename='collaborator')
 router.register(r'organizations', OrganizationViewSet, basename='organization')
 router.register(r'sources', SourceViewSet, basename='source')

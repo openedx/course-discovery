@@ -16,22 +16,22 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
-    CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
-    CourseLocationRestrictionSerializer, CourseRecommendationSerializer, CourseReviewSerializer, CourseRunSerializer,
-    CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
-    CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
-    DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer, IconTextPairingSerializer, ImageSerializer,
-    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
-    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SourceSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, BulkOperationTaskSerializer,
+    CatalogSerializer, CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer,
+    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
+    CourseEntitlementSerializer, CourseLocationRestrictionSerializer, CourseRecommendationSerializer,
+    CourseReviewSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
+    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer,
+    DegreeAdditionalMetadataSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer,
+    FactSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer,
+    IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer, MinimalCourseRunSerializer,
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer,
+    PositionSerializer, PrerequisiteSerializer, ProductMetaSerializer, ProductValueSerializer,
+    ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SourceSerializer,
+    SubjectSerializer, TaxiFormSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
@@ -53,8 +53,8 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
-    CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
+    AdditionalMetadataFactory, AdditionalPromoAreaFactory, BulkOperationTaskFactory, CertificateInfoFactory,
+    CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
     CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CourseTypeFactory,
     CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
     DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
@@ -2103,6 +2103,29 @@ class CertificateInfoSerializerTests(TestCase):
         expected = {
             'heading': certificate_info.heading,
             'blurb': certificate_info.blurb,
+        }
+        assert serializer.data == expected
+
+
+class BulkOperationTaskSerializerTests(TestCase):
+    serializer_class = BulkOperationTaskSerializer
+
+    def test_data(self):
+        """
+        Test that the BulkOperationTaskSerializer returns the expected data.
+        """
+        bulk_operation = BulkOperationTaskFactory()
+        serializer = BulkOperationTaskSerializer(bulk_operation)
+        expected = {
+            'id': bulk_operation.id,
+            'uploaded_by': bulk_operation.uploaded_by.username,
+            'created': json_date_format(bulk_operation.created),
+            'modified': json_date_format(bulk_operation.modified),
+            'csv_file': bulk_operation.csv_file.url,
+            'task_summary': bulk_operation.task_summary,
+            'task_type': bulk_operation.task_type,
+            'status': bulk_operation.status,
+            'task_id': bulk_operation.task_id,
         }
         assert serializer.data == expected
 

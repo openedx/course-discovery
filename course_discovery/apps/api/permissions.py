@@ -105,3 +105,11 @@ class CanAppointCourseEditor(BasePermission):
             # We could do a lookup on the course from the request above, but the logic already exists in the view so we
             # use that to avoid writing it twice
             return CourseEditor.is_course_editable(request.user, view.course)
+
+
+class IsStaffOrSuperuser(BasePermission):
+    """
+    Permission class to check if the user is a superuser or staff.
+    """
+    def has_permission(self, request, view):
+        return request.user and (request.user.is_staff or request.user.is_superuser)
