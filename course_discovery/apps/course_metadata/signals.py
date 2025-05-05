@@ -1,3 +1,4 @@
+import functools
 import inspect
 import logging
 import time
@@ -5,11 +6,12 @@ from datetime import datetime, timezone
 
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
-from celery import shared_task
+from celery import shared_task, uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
@@ -21,16 +23,18 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalMetadata, CertificateInfo, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun,
-    Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost,
-    DegreeDeadline, Fact, GeoLocation, IconTextPairing, Organization, ProductMeta, ProductValue, Program,
-    ProgramLocationRestriction, Ranking, Seat, Specialization, TaxiForm
+    AdditionalMetadata, BulkOperationTask, CertificateInfo, Course, CourseEditor, CourseEntitlement,
+    CourseLocationRestriction, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree,
+    DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Fact, GeoLocation, IconTextPairing, Organization, ProductMeta,
+    ProductValue, Program, ProgramLocationRestriction, Ranking, Seat, Specialization, TaxiForm
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
-from course_discovery.apps.course_metadata.tasks import update_org_program_and_courses_ent_sub_inclusion
+from course_discovery.apps.course_metadata.tasks import (
+    process_bulk_operation, update_org_program_and_courses_ent_sub_inclusion
+)
 from course_discovery.apps.course_metadata.utils import (
     data_modified_timestamp_update, data_modified_timestamp_update__deletion, get_salesforce_util
 )
@@ -739,6 +743,28 @@ def handle_organization_group_removal(sender, instance, action, pk_set, reverse,
                 f"User {instance.username} no longer holds editor privileges "
                 f"for course {course_editor_instance.course.title}"
             )
+
+
+def queue_bulk_operation_celery_task(bulk_operation_task):
+    """
+    Queues a celery task to process the given BulkOperationTask instance
+    """
+    task_uuid = uuid()
+    bulk_operation_task.task_id = task_uuid
+    bulk_operation_task.save()
+    process_bulk_operation.apply_async(args=[bulk_operation_task.id], task_id=task_uuid)
+
+
+@receiver(post_save, sender=BulkOperationTask)
+def on_bulk_operation_create(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+    """
+    When a new BulkOperationTask instance is created, schedule a Celery task to process it.
+    Use on_commit hooks to prevent any race conditions between the transaction commit and the
+    celery worker picking up the task
+    """
+    if created:
+        logger.info(f"BulkOperationTask with id {instance.id} created. Scheduling a celery task for its processing")
+        transaction.on_commit(functools.partial(queue_bulk_operation_celery_task, bulk_operation_task=instance))
 
 
 connect_product_data_modified_timestamp_related_models()
