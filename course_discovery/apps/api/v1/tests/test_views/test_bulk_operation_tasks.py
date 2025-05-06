@@ -6,9 +6,13 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
 from course_discovery.apps.course_metadata.models import BulkOperationTask
+from course_discovery.apps.course_metadata.tests.factories import BulkOperationTaskFactory
 
 
-class BulkOperationTaskTests(OAuth2Mixin, APITestCase):
+class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
+    """
+    Test Suite for BulkOperationTaskViewSet.
+    """
     def setUp(self):
         super().setUp()
         self.mock_access_token()
@@ -42,7 +46,7 @@ class BulkOperationTaskTests(OAuth2Mixin, APITestCase):
         """
         Test that the uploaded_by field in the response is the username of the user who created the task.
         """
-        task = BulkOperationTask.objects.create(
+        task = BulkOperationTaskFactory(
             csv_file=self.csv_file,
             uploaded_by=self.user,
             task_type=BulkOperationType.CourseCreate,
@@ -54,7 +58,7 @@ class BulkOperationTaskTests(OAuth2Mixin, APITestCase):
         self.assertEqual(response.data['uploaded_by'], self.user.username)
         self.assertTrue(response.data['csv_file'].endswith('.csv'))
 
-    def test_authentication_required(self):
+    def test_bulk_operation_task_enpoints_no_auth(self):
         """
         Test that authentication is required to access the create endpoint
         """
@@ -62,9 +66,9 @@ class BulkOperationTaskTests(OAuth2Mixin, APITestCase):
         response = self.client.get(self.create_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_file_upload_validates_csv(self):
+    def test_bulk_operation_task_create_invalid_file(self):
         """
-        Test that the uploaded file is validated as a CSV file.
+        Test that BulkOperationTaskViewSet rejects invalid file types and returns a bad request error.
         """
         invalid_file = SimpleUploadedFile("test.txt", b"not,a,csv", content_type="text/plain")
         response = self.client.post(self.create_url, {
@@ -75,3 +79,93 @@ class BulkOperationTaskTests(OAuth2Mixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('csv_file', response.data)
+
+    def test_bulk_operation_task_order_by_status(self):
+        """
+        Test that the BulkOperationTask can be ordered by status field.
+        """
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Completed,
+        )
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Pending,
+        )
+
+        url = f"{self.create_url}?ordering=status"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertTrue(response.data['results'][0]['status'] == BulkOperationStatus.Completed)
+        self.assertTrue(response.data['results'][1]['status'] == BulkOperationStatus.Pending)
+
+    def test_bulk_operation_task_order_by_created_field(self):
+        """
+        Test that the BulkOperationTask can be ordered by created field.
+        """
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Pending,
+        )
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Completed,
+        )
+
+        url = f"{self.create_url}?ordering=-created"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['results'][0]['created'] >= response.data['results'][1]['created'])
+
+        url = f"{self.create_url}?ordering=created"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['results'][0]['created'] <= response.data['results'][1]['created'])
+
+    def test_bulk_operation_task_filter_by_status(self):
+        """
+        Test that the BulkOperationTask can be filtered by status field.
+        """
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Pending,
+        )
+        BulkOperationTaskFactory(
+            csv_file=self.csv_file,
+            uploaded_by=self.user,
+            task_type=BulkOperationType.CourseCreate,
+            status=BulkOperationStatus.Completed,
+        )
+
+        url = f"{self.create_url}?status={BulkOperationStatus.Pending}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['status'], BulkOperationStatus.Pending)
+
+    def test_bulk_operation_task_viewset_permissions(self):
+        """
+        Test isStaffOrSuperuser permission is required to access the BulkOperationTaskViewSet.
+        """
+        non_staff_user = UserFactory(is_staff=False, is_superuser=False)
+        self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
+
+        response = self.client.post(self.create_url, {
+            'csv_file': self.csv_file,
+            'task_type': BulkOperationType.CourseCreate,
+            'status': BulkOperationStatus.Pending,
+        }, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
