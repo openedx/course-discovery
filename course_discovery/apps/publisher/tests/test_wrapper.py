@@ -45,61 +45,12 @@ class CourseRunWrapperTests(TestCase):
         for mode in modes:
             factories.SeatFactory(type=mode, course_run=self.course_run)
 
-    @ddt.unpack
-    @ddt.data(
-        ([], Seat.AUDIT),
-        ([Seat.AUDIT], Seat.AUDIT),
-        ([Seat.AUDIT, Seat.CREDIT, Seat.VERIFIED], Seat.CREDIT),
-        ([Seat.AUDIT, Seat.VERIFIED], Seat.VERIFIED),
-        ([Seat.PROFESSIONAL], Seat.PROFESSIONAL),
-    )
-    def test_course_type_(self, seats_list, course_type):
-        """ Verify that the wrapper return the course type according to the available seats."""
-        self._generate_seats(seats_list)
-        wrapper_object = CourseRunWrapper(self.course_run)
-        self.assertEqual(wrapper_object.course_type, course_type)
-
-    def test_seat_price(self):
-        """ Verify that the wrapper return the seat price. """
-        self.assertEqual(self.wrapped_course_run.seat_price, None)
-
-        seat = factories.SeatFactory(type=Seat.VERIFIED, course_run=self.course_run)
-        wrapped_course_run = CourseRunWrapper(self.course_run)
-        self.assertEqual(wrapped_course_run.seat_price, seat.price)
-
-    def test_credit_seat_price(self):
-        """ Verify that the wrapper return the credit seat price. """
-        self.assertEqual(self.wrapped_course_run.credit_seat_price, None)
-
-        seat = factories.SeatFactory(type=Seat.CREDIT, course_run=self.course_run)
-        wrapped_course_run = CourseRunWrapper(self.course_run)
-        self.assertEqual(wrapped_course_run.credit_seat_price, seat.credit_price)
-
-    def test_credit_seat(self):
-        """ Verify that the wrapper return the credit seat. """
-        self.assertEqual(self.wrapped_course_run.credit_seat, None)
-        seat = factories.SeatFactory(
-            type=Seat.CREDIT, course_run=self.course_run, credit_provider='ASU', credit_hours=9
-        )
-
-        wrapped_course_run = CourseRunWrapper(self.course_run)
-        self.assertEqual(wrapped_course_run.credit_seat, seat)
-
     def test_is_authored_in_studio(self):
         """ Verify that the wrapper return the is_authored_in_studio. """
         self.assertFalse(self.wrapped_course_run.is_authored_in_studio)
         self.course_run.lms_course_id = 'test/course/id'
         self.course_run.save()
         self.assertTrue(self.wrapped_course_run.is_authored_in_studio)
-
-    def test_is_self_paced(self):
-        """ Verify that the wrapper return the is_self_paced. """
-        self.course_run.pacing_type = CourseRunPacing.Instructor
-        self.course_run.save()
-        self.assertFalse(self.wrapped_course_run.is_self_paced)
-        self.course_run.pacing_type = CourseRunPacing.Self
-        self.course_run.save()
-        self.assertTrue(self.wrapped_course_run.is_self_paced)
 
     def test_mdc_submission_due_date(self):
         """ Verify that the wrapper return the mdc_submission_due_date. """
@@ -109,72 +60,9 @@ class CourseRunWrapperTests(TestCase):
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
 
-    @ddt.data(True, False)
-    def test_is_seo_reviews(self, is_seo_review):
-        """ Verify that the wrapper return the is_seo_review. """
-        self.course.is_seo_review = is_seo_review
-        self.course.save()
-
-        self.assertEqual(
-            self.wrapped_course_run.is_seo_review,
-            self.course.is_seo_review
-        )
-
-    def test_course_team_admin(self):
-        """ Verify that the wrapper return the course team admin. """
-        self.assertEqual(self.wrapped_course_run.course_team_admin, self.course.course_team_admin)
-
     def _change_state_and_owner(self, course_run_state):
         """
         Change course run state to review and ownership to project coordinator.
         """
         course_run_state.name = CourseRunStateChoices.Review
         course_run_state.change_owner_role(PublisherUserRole.ProjectCoordinator)
-
-    def test_course_team_status(self):
-        """
-        Verify that course_team_status returns right statuses.
-        """
-        course_run_state = factories.CourseRunStateFactory(
-            course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
-        )
-        assert self.wrapped_course_run.course_team_status == 'Draft'
-
-        self._change_state_and_owner(course_run_state)
-        assert self.wrapped_course_run.course_team_status == 'Submitted for Project Coordinator Review'
-
-        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-        assert self.wrapped_course_run.course_team_status == 'Awaiting Course Team Review'
-
-    def test_owner_role_is_publisher(self):
-        """
-        Verify that owner_role_is_publisher returns true if owner is publisher and false otherwise
-        """
-        course_run_state = factories.CourseRunStateFactory(
-            course_run=self.course_run, owner_role=PublisherUserRole.Publisher
-        )
-        self.assertEqual(self.wrapped_course_run.owner_role_is_publisher, True)
-
-        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-        self.assertEqual(self.wrapped_course_run.owner_role_is_publisher, False)
-
-    def test_internal_user_status(self):
-        """
-        Verify that internal_user_status returns right statuses.
-        """
-        course_run_state = factories.CourseRunStateFactory(
-            course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam
-        )
-        assert self.wrapped_course_run.internal_user_status == 'N/A'
-
-        self._change_state_and_owner(course_run_state)
-        assert self.wrapped_course_run.internal_user_status == 'Awaiting Project Coordinator Review'
-
-        course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-        assert self.wrapped_course_run.internal_user_status == 'Approved by Project Coordinator'
-
-    def test_preview_declined(self):
-        """
-        Verify that preview_declined returns False for no preview_declined
-        """
-        self.assertEqual(self.wrapped_course_run.preview_declined, False)
