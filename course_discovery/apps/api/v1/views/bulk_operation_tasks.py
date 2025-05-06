@@ -1,26 +1,23 @@
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins, viewsets
+from rest_framework.filters import OrderingFilter
 
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
+from course_discovery.apps.api.filters import BulkOperationTaskFilter
+from course_discovery.apps.api.permissions import IsStaffOrSuperuser
 from course_discovery.apps.api.serializers import BulkOperationTaskSerializer
 from course_discovery.apps.course_metadata.models import BulkOperationTask
 
 
-class BulkOperationTaskViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
+class BulkOperationTaskViewSet(CompressedCacheResponseMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                               mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = BulkOperationTask.objects.all()
     serializer_class = BulkOperationTaskSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """
-        Overriding get_queryset to filter tasks based on the user. If the user is a superuser or staff,
-        they can see all tasks. Otherwise, they can only see their own tasks.
-        """
-        if self.request.user.is_superuser or self.request.user.is_staff:
-            return super().get_queryset()
-        return self.queryset.filter(uploaded_by=self.request.user)
+    permission_classes = [IsStaffOrSuperuser]
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    filterset_class = BulkOperationTaskFilter
+    ordering_fields = ('created', 'status')
+    ordering = ('-created',)
 
     def perform_create(self, serializer):
         """
