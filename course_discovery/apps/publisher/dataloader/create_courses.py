@@ -52,8 +52,6 @@ def create_or_update_course(meta_data_course, available_organization, create_cou
         defaults=defaults
     )
 
-    transfer_course_image(meta_data_course, publisher_course)
-
     if created:
         if available_organization:
             publisher_course.organizations.add(available_organization)

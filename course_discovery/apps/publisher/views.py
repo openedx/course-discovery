@@ -201,10 +201,10 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                 (reverse('publisher:publisher_courses'), _('Courses')),
                 (
                     reverse('publisher:publisher_course_detail', kwargs={'pk': course_run.course.id}),
-                    '' # '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
+                    '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
                 ),
                 (None, '{type}: {start}'.format(
-                    type='', #course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_display(),
                     start=start_date
                 ))
             ]
