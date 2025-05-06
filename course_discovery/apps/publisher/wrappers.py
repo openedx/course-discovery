@@ -42,10 +42,6 @@ class CourseRunWrapper(BaseWrapper):
         return self.wrapped_obj.course.title
 
     @property
-    def partner(self):
-        return '/'.join([org.key for org in self.wrapped_obj.course.organizations.all()])
-
-    @property
     def is_seat_version(self):
         return self.wrapped_obj.course.version == Course.SEAT_VERSION
 
