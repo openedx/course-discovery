@@ -907,7 +907,6 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
 class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
     course_key = serializers.SlugRelatedField(read_only=True, source='course', slug_field='key')
-    image = ImageField(read_only=True, source='card_image_url')
 
     class Meta:
         model = CourseRun

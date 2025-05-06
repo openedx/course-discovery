@@ -17,7 +17,6 @@ class CourseRunCSVRenderer(CSVStreamingRenderer):
     header = [
         'key',
         'title',
-        'pacing_type',
         'start',
         'end',
         'enrollment_start',

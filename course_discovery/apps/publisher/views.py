@@ -944,7 +944,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                 (reverse('publisher:publisher_courses'), 'Courses'),
                 (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
                 (None, '{type}: {start}'.format(
-                    type='', # course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_display(),
                     start=start_date
                 ))
             ]
