@@ -1,8 +1,9 @@
 """Mixins related to Data Loaders"""
+import csv
 import logging
-from abc import ABC, abstractmethod
 from functools import cache
 
+import unicodecsv
 from dateutil.parser import parse
 from django.conf import settings
 from django.db.models import Q
@@ -13,6 +14,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
+from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Collaborator, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, ProgramType, Source, Subject
 )
@@ -21,7 +23,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 logger = logging.getLogger(__name__)
 
 
-class DataLoaderMixin(ABC):
+class DataLoaderMixin:
     """
     Mixin having all the commonly used utility functions for data loaders.
     """
@@ -50,6 +52,26 @@ class DataLoaderMixin(ABC):
 
         if not hasattr(self, 'api_client') or self.api_client is None:
             raise ValueError("api_client must be set before using DataLoaderMixin.")
+
+    @staticmethod
+    def initialize_csv_reader(csv_path, csv_file, use_gspread_client=None, product_type=None, product_source=None):
+        """
+        Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
+        """
+        try:
+            if use_gspread_client:
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][product_source.slug]
+                gspread_client = GspreadClient()
+                return list(gspread_client.read_data(product_type_config))
+            else:
+                # read the file from the provided path; otherwise, use the file received from the config model.
+                return list(csv.DictReader(open(csv_path, 'r'))) if csv_path else list(unicodecsv.DictReader(csv_file))
+        except FileNotFoundError:
+            logger.exception(f"Error opening CSV file at path: {csv_path}")
+            raise
+        except Exception as e:
+            logger.exception(f"Error reading input data source: {e}")
+            raise
 
     @staticmethod
     def transform_dict_keys(data):
@@ -91,23 +113,24 @@ class DataLoaderMixin(ABC):
             prices[seat.type.slug] = f"{seat.price:.2f}"
         return prices
 
-    def create_course_run(self, data, course, course_type, course_run_type_uuid, rerun=None):
+    def create_course_run(self, data, course, course_run_type_uuid, course_type=None, rerun=None):
         """
         Make a course run entry through course run api.
         """
         url = f"{settings.DISCOVERY_BASE_URL}{reverse('api:v1:course_run-list')}"
-        request_data = self.create_course_run_api_request_data(data, course, course_type, course_run_type_uuid, rerun)
+        request_data = self.create_course_run_api_request_data(data, course, course_run_type_uuid, course_type, rerun)
         response = self.call_course_api('POST', url, request_data)
         if response.status_code not in (200, 201):
             logger.info(f"Course run creation response: {response.content}")
         return response.json()
 
-    def create_course_run_api_request_data(self, data, course, course_type, course_run_type_uuid, rerun=None):
+    def create_course_run_api_request_data(self, data, course, course_run_type_uuid, course_type=None, rerun=None):
         """
         Given a data dictionary, return a reduced data representation in dict
         which will be used as input for course run creation via course run api.
         """
-        pricing = self.get_pricing_representation(data['verified_price'], course_type)
+        pricing = self.get_pricing_representation(data['verified_price'], course_type) if not data.get('prices') \
+            else data['prices']
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
             'start': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
@@ -251,13 +274,13 @@ class DataLoaderMixin(ABC):
             logger.info(f"Course run update response: {response.content}")
         return response.json()
 
-    @abstractmethod
-    def update_course_api_request_data(self, course_data, course, is_draft):
+    def update_course_api_request_data(self, course_data, course, is_draft):  # pylint: disable=unused-argument
         """Update the course API request data based on the course and draft state."""
+        return course_data
 
-    @abstractmethod
-    def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
+    def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):  # pylint: disable=unused-argument
         """Update the course run API request data based on the run, type, and draft state."""
+        return course_run_data
 
     @staticmethod
     def get_draft_flag(course):
@@ -398,7 +421,7 @@ class DataLoaderMixin(ABC):
         if not is_valid:
             return False, course_type, course_run_type
 
-        missing_fields = self.validate_course_data(course_type, row)  # pylint: disable=assignment-from-no-return
+        missing_fields = self.validate_course_data(row, course_type)  # pylint: disable=assignment-from-no-return
         if missing_fields:
             self.log_ingestion_error(
                 CSVIngestionErrors.MISSING_REQUIRED_DATA,
@@ -410,7 +433,7 @@ class DataLoaderMixin(ABC):
 
         return True, course_type, course_run_type
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, data, course_type=None):
         """
         Override this method to validate course data.
         """
@@ -448,11 +471,6 @@ class DataLoaderMixin(ABC):
                     logger.error(msg)
         else:
             logger.info("No errors reported in the ingestion")
-
-    def initialize_csv_reader(self, csv_path, csv_file, use_gspread_client, product_type=None, product_source=None):
-        """
-        Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
-        """
 
     def process_collaborators(self, collaborators):
         """

@@ -73,9 +73,10 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             products_count=len(self.reader)
         )
 
+    @staticmethod
     def initialize_csv_reader(
-        self, csv_path, csv_file, use_gspread_client=False, product_type=None, product_source=None
-    ):  # pylint: disable=unused-argument
+        csv_path, csv_file, use_gspread_client=False, product_type=None, product_source=None
+    ):
         """
         Initialize the CSV reader based on the input source (csv_path, csv_file).
         """
@@ -115,7 +116,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             f"Task type {self.task_type} is not implemented in CourseLoader."
         )
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, data, course_type=None):
         """
         Verify the required data key-values for a course type are present in the provided
         data dictionary. It dynamically adjusts the required fields based on the course type
