@@ -422,7 +422,7 @@ class DataLoaderMixin(ABC):
         if not is_valid:
             return False, course_type, course_run_type
 
-        missing_fields = self.validate_course_data(course_type, row)  # pylint: disable=assignment-from-no-return
+        missing_fields = self.validate_course_data(row, course_type)  # pylint: disable=assignment-from-no-return
         if missing_fields:
             self.log_ingestion_error(
                 CSVIngestionErrors.MISSING_REQUIRED_DATA,
@@ -434,7 +434,7 @@ class DataLoaderMixin(ABC):
 
         return True, course_type, course_run_type
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, data, course_type=None):
         """
         Override this method to validate course data.
         """

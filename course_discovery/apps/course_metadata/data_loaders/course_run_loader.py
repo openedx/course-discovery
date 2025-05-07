@@ -125,11 +125,11 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
             'errors': self.error_logs,
         }
 
-    def validate_course_data(self, csv_data):
+    def validate_course_data(self, data, course_type=None):
         """
         Check if required fields are present and non-empty in a CSV row.
         """
-        missing = [field for field in self.BASE_REQUIRED_DATA_FIELDS if not csv_data.get(field)]
+        missing = [field for field in self.BASE_REQUIRED_DATA_FIELDS if not data.get(field)]
         return ', '.join(missing) if missing else ''
 
     def log_ingestion_error(self, error_code, message):
@@ -139,12 +139,12 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
         logger.error(message)
         self.register_ingestion_error(error_code, message)
 
-    def register_ingestion_error(self, error_code, message):
+    def register_ingestion_error(self, error_key, error_message):
         """
         Track ingestion failure in the summary and error logs.
         """
         self.ingestion_summary['failure_count'] += 1
-        self.error_logs[error_code].append(message)
+        self.error_logs[error_key].append(error_message)
 
     def update_course_api_request_data(self, course_data, course, is_draft):
         pass

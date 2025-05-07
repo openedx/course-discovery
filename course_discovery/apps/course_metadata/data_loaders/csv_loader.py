@@ -315,7 +315,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             course_run = CourseRun.objects.filter_drafts(course=course).order_by('created').last()
         return course_run, is_course_run_created
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, data, course_type=None):
         """
         Verify the required data key-values for a course type are present in the provided
         data dictionary and return a comma separated string of missing data fields.
