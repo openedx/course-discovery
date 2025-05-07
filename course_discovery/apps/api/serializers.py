@@ -19,7 +19,7 @@ from rest_framework.fields import (
 )
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Partner
@@ -384,18 +384,6 @@ class CatalogSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Catalog
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
-
-
-class NestedProgramSerializer(serializers.ModelSerializer):
-    """
-    Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
-    the basic details of the Program and none of the details about its related entities (e.g. courses).
-    """
-
-    class Meta:
-        model = Program
-        fields = ('uuid', 'title',)
-        read_only_fields = ('uuid',)
 
 
 class MinimalCourseRunSerializer(TimestampModelSerializer):

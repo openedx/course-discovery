@@ -1,14 +1,10 @@
 # pylint: disable=no-member,test-inherits-tests
 import datetime
-import itertools
-from urllib.parse import urlencode
 
 import ddt
 import mock
 import pytest
-import responses
 from django.test import TestCase
-from django.utils.text import slugify
 from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
@@ -16,33 +12,31 @@ from rest_framework.test import APIRequestFactory
 from waffle.models import Switch
 from waffle.testutils import override_switch
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer,
-    CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer,
-    CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer, EndorsementSerializer, FAQSerializer,
+    CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+    ContentTypeSerializer, CorporateEndorsementSerializer,
+    CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
+    CourseSearchSerializer, CourseSerializer, EndorsementSerializer, FAQSerializer,
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
+    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer,
     get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import Partner, User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
-from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
+    ImageFactory, OrganizationFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
 )
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 def json_date_format(datetime_obj):
@@ -560,19 +554,6 @@ class CorporateEndorsementSerializerTests(TestCase):
                 corporate_endorsement.individual_endorsements,
                 many=True
             ).data
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class NestedProgramSerializerTests(TestCase):
-    def test_data(self):
-        program = ProgramFactory()
-        serializer = NestedProgramSerializer(program)
-
-        expected = {
-            'uuid': str(program.uuid),
-            'title': program.title,
         }
 
         self.assertDictEqual(serializer.data, expected)
