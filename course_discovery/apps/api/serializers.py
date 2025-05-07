@@ -128,14 +128,6 @@ class NamedModelSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
-class FAQSerializer(serializers.ModelSerializer):
-    """Serializer for the ``FAQ`` model."""
-
-    class Meta(object):
-        model = FAQ
-        fields = ('question', 'answer',)
-
-
 class SubjectSerializer(serializers.ModelSerializer):
     """Serializer for the ``Subject`` model."""
 
@@ -294,42 +286,6 @@ class EndorsementSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Endorsement
         fields = ('endorser', 'quote',)
-
-
-class CorporateEndorsementSerializer(serializers.ModelSerializer):
-    """Serializer for the ``CorporateEndorsement`` model."""
-    image = ImageSerializer()
-    individual_endorsements = EndorsementSerializer(many=True)
-
-    @classmethod
-    def prefetch_queryset(cls):
-        return CorporateEndorsement.objects.all().select_related('image').prefetch_related(
-            Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
-        )
-
-    class Meta(object):
-        model = CorporateEndorsement
-        fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
-
-
-class CourseEntitlementSerializer(serializers.ModelSerializer):
-    """Serializer for the ``CourseEntitlement`` model."""
-    price = serializers.DecimalField(
-        decimal_places=CourseEntitlement.PRICE_FIELD_CONFIG['decimal_places'],
-        max_digits=CourseEntitlement.PRICE_FIELD_CONFIG['max_digits']
-    )
-    currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
-    sku = serializers.CharField()
-    mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all())
-    expires = serializers.DateTimeField()
-
-    @classmethod
-    def prefetch_queryset(cls):
-        return CourseEntitlement.objects.all().select_related('currency', 'mode')
-
-    class Meta(object):
-        model = CourseEntitlement
-        fields = ('mode', 'price', 'currency', 'sku', 'expires')
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):

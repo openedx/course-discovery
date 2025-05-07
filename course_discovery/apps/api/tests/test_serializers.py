@@ -15,9 +15,9 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    ContentTypeSerializer, CorporateEndorsementSerializer,
+    ContentTypeSerializer,
     CourseRunSearchSerializer, CourseRunSerializer,
-    CourseSearchSerializer, CourseSerializer, EndorsementSerializer, FAQSerializer,
+    CourseSearchSerializer, CourseSerializer, EndorsementSerializer,
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
     OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
@@ -361,13 +361,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'video': VideoSerializer(program.video).data,
             'credit_redemption_overview': program.credit_redemption_overview,
             'applicable_seat_types': list(program.type.applicable_seat_types.values_list('slug', flat=True)),
-            'corporate_endorsements': CorporateEndorsementSerializer(program.corporate_endorsements, many=True).data,
             'credit_backing_organizations': OrganizationSerializer(
                 program.credit_backing_organizations,
                 many=True
             ).data,
             'expected_learning_items': [item.value for item in program.expected_learning_items.all()],
-            'faq': FAQSerializer(program.faq, many=True).data,
             'individual_endorsements': EndorsementSerializer(
                 program.individual_endorsements, many=True, context={'request': request}
             ).data,
@@ -536,24 +534,6 @@ class ImageSerializerTests(TestCase):
             'description': image.description,
             'height': image.height,
             'width': image.width
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class CorporateEndorsementSerializerTests(TestCase):
-    def test_data(self):
-        corporate_endorsement = CorporateEndorsementFactory()
-        serializer = CorporateEndorsementSerializer(corporate_endorsement)
-
-        expected = {
-            'corporation_name': corporate_endorsement.corporation_name,
-            'statement': corporate_endorsement.statement,
-            'image': ImageSerializer(corporate_endorsement.image).data,
-            'individual_endorsements': EndorsementSerializer(
-                corporate_endorsement.individual_endorsements,
-                many=True
-            ).data
         }
 
         self.assertDictEqual(serializer.data, expected)
