@@ -16,7 +16,7 @@ from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer,
-    CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
+    CourseRunSearchSerializer, CourseRunSerializer,
     CourseSearchSerializer, CourseSerializer, EndorsementSerializer, FAQSerializer,
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
@@ -188,7 +188,7 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         self.serializer_context = {'request': self.request}
 
     def test_data(self):
-        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        serializer = CourseRunSerializer(self.course_run, context=self.serializer_context)
         ProgramFactory(courses=[self.course_run.course])
         self.assertDictEqual(serializer.data, self.get_expected_data(self.course_run, self.request))
 
@@ -197,7 +197,7 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         If a course run is excluded on a program, that program should not be
         returned for that course run on the course run endpoint.
         """
-        serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
+        serializer = CourseRunSerializer(self.course_run, context=self.serializer_context)
         ProgramFactory(courses=[self.course_run.course])
         expected = CourseRunSerializer(self.course_run, context=self.serializer_context).data
         assert serializer.data == expected

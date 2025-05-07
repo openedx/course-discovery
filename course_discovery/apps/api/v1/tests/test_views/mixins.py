@@ -43,7 +43,7 @@ class SerializationMixin:
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
-        return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)
+        return self._serialize_object(serializers.CourseRunSerializer, run, many, format, extra_context)
 
     def serialize_course_run_search(self, run, serializer=None):
         obj = self._get_search_result(CourseRun, key=run.key)

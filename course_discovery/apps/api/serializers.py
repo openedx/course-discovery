@@ -421,20 +421,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         )
 
 
-class CourseRunWithProgramsSerializer(CourseRunSerializer):
-    """A ``CourseRunSerializer`` which includes programs derived from parent course."""
-
-    @classmethod
-    def prefetch_queryset(cls, queryset=None):
-        queryset = super().prefetch_queryset(queryset=queryset)
-
-        return queryset.prefetch_related('course__programs__excluded_course_runs')
-
-    class Meta(CourseRunSerializer.Meta):
-        model = CourseRun
-        fields = CourseRunSerializer.Meta.fields
-
-
 class ContainedCourseRunsSerializer(serializers.Serializer):
     """Serializer used to represent course runs contained by a catalog."""
     course_runs = serializers.DictField(
@@ -1077,9 +1063,9 @@ class CourseSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer
         fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields
 
 
-class CourseRunSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseRunWithProgramsSerializer):
-    class Meta(CourseRunWithProgramsSerializer.Meta):
-        fields = ContentTypeSerializer.Meta.fields + CourseRunWithProgramsSerializer.Meta.fields
+class CourseRunSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseRunSerializer):
+    class Meta(CourseRunSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + CourseRunSerializer.Meta.fields
 
 
 class ProgramSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, ProgramSerializer):

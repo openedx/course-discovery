@@ -24,7 +24,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     ordering_fields = ('start',)
     permission_classes = (IsAuthenticated, DjangoModelPermissions)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
-    serializer_class = serializers.CourseRunWithProgramsSerializer
+    serializer_class = serializers.CourseRunSerializer
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
