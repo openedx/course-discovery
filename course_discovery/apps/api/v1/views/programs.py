@@ -108,8 +108,6 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished
-        if 'marketing_slug' not in input_data:
-            input_data['marketing_slug'] = input_data.get('title').replace(' ', '+')
 
         program_writer = self.get_serializer_class()  # ProgramSerializer
         writer = program_writer(
@@ -396,10 +394,6 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         course_uuid = self.request.data['course_uuid']
         target_order = int(request.data['order_no'])    # Zero based index !
         program = self.get_queryset().first()
-        if program.order_courses_by_start_date:
-            raise ValidationError(
-                'Please assign `order_courses_by_start_date=False` first'
-            )
         course_id_ = program.courses.get(uuid=course_uuid).id
         # Get courses ids & orders vector
         with connection.cursor() as cur:

@@ -9,7 +9,6 @@ from django.views.generic import TemplateView, UpdateView, View
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.forms import CourseRunSelectionForm
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 
@@ -20,33 +19,6 @@ class QueryPreviewView(TemplateView):
 
 class SearchDemoView(TemplateView):
     template_name = 'demo/search.html'
-
-
-# pylint: disable=attribute-defined-outside-init
-class CourseRunSelectionAdmin(UpdateView):
-    """ Create Course View."""
-    model = Program
-    template_name = 'admin/course_metadata/course_run.html'
-    form_class = CourseRunSelectionForm
-
-    def get_context_data(self, **kwargs):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
-            context = super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
-            context.update({
-                'program_id': self.object.id,
-                'title': _('Update excluded course runs')
-            })
-            return context
-        raise Http404
-
-    def form_valid(self, form):
-        self.object = form.save()
-        message = _('The program was changed successfully.')
-        messages.add_message(self.request, messages.SUCCESS, message)
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse('admin:course_metadata_program_change', args=(self.object.id,))
 
 
 class CourseMetadataRefresher(View):

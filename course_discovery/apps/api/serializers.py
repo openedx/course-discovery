@@ -612,9 +612,7 @@ def _validate_comma_separated_languages_list(value):
 
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
-    authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     courses = serializers.SerializerMethodField()
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = _PartnerSlugRelatedField(slug_field='name', queryset=Partner.objects.all())
     languages = ListField(validators=[_validate_comma_separated_languages_list])
 
@@ -625,13 +623,10 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 
-        return Program.objects.filter(**filters).select_related('type', 'partner').prefetch_related(
-            'excluded_course_runs',
+        return Program.objects.filter(**filters).select_related('partner').prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
-            'type__applicable_seat_types',
-            'authoring_organizations',
             Prefetch(
                 'courses',
                 queryset=MinimalProgramCourseSerializer.prefetch_queryset()
@@ -641,12 +636,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
-            'authoring_organizations', 'visibility',
+            'uuid', 'title', 'status', 'partner', 'visibility',
             'courses', 'card_image_url', 'duration', 'language',
             'start', 'end', 'enrollment_start', 'enrollment_end', 'languages'
         )
-        read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
+        read_only_fields = ('uuid', 'enrollment_start', 'enrollment_end')
 
     def get_courses(self, program):
         draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
@@ -682,10 +676,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
                     marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
                 course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
 
-            if program.order_courses_by_start_date:
-                courses = self.sort_courses(program, course_runs)
-            else:
-                courses = program.courses.all()
+            courses = program.courses.all()
 
         course_serializer = MinimalProgramCourseSerializer(
             courses,
@@ -758,15 +749,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(MinimalProgramSerializer):
-    video = VideoSerializer(read_only=True)
-    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    faq = FAQSerializer(many=True, read_only=True)
-    credit_backing_organizations = OrganizationSerializer(many=True, read_only=True)
-    corporate_endorsements = CorporateEndorsementSerializer(many=True, read_only=True)
-    job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    individual_endorsements = EndorsementSerializer(many=True, read_only=True)
-    instructor_ordering = PersonSerializer(many=True, read_only=True)
-    applicable_seat_types = serializers.SerializerMethodField(read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, partners, *args, **kwargs):
@@ -782,23 +764,13 @@ class ProgramSerializer(MinimalProgramSerializer):
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 
-        return Program.objects.filter(**filters).select_related('type', 'video', 'partner').prefetch_related(
-            'excluded_course_runs',
-            'expected_learning_items',
-            'faq',
-            'job_outlook_items',
-            'instructor_ordering',
+        return Program.objects.filter(**filters).select_related('partner').prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
-            'type__applicable_seat_types',
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
             Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partners=partners)),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partners)),
-            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset(partners)),
-            Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
-            Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
 
     def get_applicable_seat_types(self, obj):
@@ -810,12 +782,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
         fields = MinimalProgramSerializer.Meta.fields + (
-            'overview',
-            'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
-            'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
-            'individual_endorsements', 'languages',
-            'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
-            'description', 'duration', 'language', 'created', 'modified', 'creator_id', 'released_date'
+            'languages', 'description', 'duration', 'language', 'created', 'modified', 'creator_id', 'released_date'
         )
 
 

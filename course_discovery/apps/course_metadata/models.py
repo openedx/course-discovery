@@ -632,79 +632,13 @@ class Program(TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
-    subtitle = models.CharField(
-        help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
-    type = models.ForeignKey(ProgramType, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
         choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
-    marketing_slug = models.CharField(
-        help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
     courses = SortedManyToManyField(Course, related_name='programs')
-    order_courses_by_start_date = models.BooleanField(
-        default=False, verbose_name='Order Courses By Start Date',
-        help_text=_('If this box is not checked, courses will be ordered as in the courses select box above.')
-    )
-    # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
-    # with related Courses are stored.
-    excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
     partner = models.ForeignKey(Partner, null=True, blank=False)
-    overview = models.TextField(null=True, blank=True)
-    total_hours_of_effort = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        help_text='Total estimated time needed to complete all courses belonging to this program. This field is '
-                  'intended for display on program certificates.')
-    # The weeks_to_complete field is now deprecated
-    weeks_to_complete = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        help_text=_('This field is now deprecated (ECOM-6021).'
-                    'Estimated number of weeks needed to complete a course run belonging to this program.'))
-    min_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
-    max_hours_effort_per_week = models.PositiveSmallIntegerField(null=True, blank=True)
-    authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_programs')
-    banner_image = StdImageField(
-        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/banner_images'),
-        blank=True,
-        null=True,
-        variations={
-            'large': (1440, 480),
-            'medium': (726, 242),
-            'small': (435, 145),
-            'x-small': (348, 116),
-        },
-        render_variations=custom_render_variations
-    )
-    banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     card_image_url = models.CharField(null=True, blank=True, max_length=1024)
-    video = models.ForeignKey(Video, default=None, null=True, blank=True)
-    expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
-    faq = SortedManyToManyField(FAQ, blank=True)
-    instructor_ordering = SortedManyToManyField(
-        Person,
-        blank=True,
-        help_text=_('This field can be used by API clients to determine the order in which instructors will be '
-                    'displayed on program pages. Instructors in this list should appear before all others associated '
-                    'with this programs courses runs.')
-    )
-
-    credit_backing_organizations = SortedManyToManyField(
-        Organization, blank=True, related_name='credit_backed_programs'
-    )
-    corporate_endorsements = SortedManyToManyField(CorporateEndorsement, blank=True)
-    job_outlook_items = SortedManyToManyField(JobOutlookItem, blank=True)
-    individual_endorsements = SortedManyToManyField(Endorsement, blank=True)
-    credit_redemption_overview = models.TextField(
-        help_text=_('The description of credit redemption for courses in program'),
-        blank=True, null=True
-    )
-    one_click_purchase_enabled = models.BooleanField(
-        default=True,
-        help_text=_('Allow courses in this program to be purchased in a single transaction')
-    )
-    hidden = models.BooleanField(
-        default=False, db_index=True,
-        help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
     description = models.TextField(
         default=None, null=True, blank=True,
         help_text=_(
@@ -746,21 +680,15 @@ class Program(TimeStampedModel):
         Warning! Only call this method after retrieving programs from `ProgramSerializer.prefetch_queryset()`.
         Otherwise, this method will incur many, many queries when fetching related courses and course runs.
         """
-        excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-
         for course in self.courses.all():
             for run in course.course_runs.all():
-                if run.id not in excluded_course_run_ids:
-                    yield run
+                yield run
 
     @property
     def canonical_course_runs(self):
-        excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-
         for course in self.courses.all():
-            canonical_course_run = course.canonical_course_run
-            if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
-                yield canonical_course_run
+            if course.canonical_course_run:
+                yield course.canonical_course_run
 
     @property
     def start(self):

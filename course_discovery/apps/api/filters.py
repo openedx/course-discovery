@@ -157,15 +157,12 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 
 
 class ProgramFilter(FilterSetMixin, filters.FilterSet):
-    marketable = filters.BooleanFilter(method='filter_marketable')
     status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = filters.CharFilter(name='type__name', lookup_expr='iexact')
-    types = CharListFilter(name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
         model = Program
-        fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types',)
+        fields = ('status',)
 
 
 class OrganizationFilter(filters.FilterSet):
