@@ -140,13 +140,6 @@ class SubjectSerializer(serializers.ModelSerializer):
         fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
 
 
-class PrerequisiteSerializer(NamedModelSerializer):
-    """Serializer for the ``Prerequisite`` model."""
-
-    class Meta(NamedModelSerializer.Meta):
-        model = Prerequisite
-
-
 class PositionSerializer(serializers.ModelSerializer):
     """Serializer for the ``Position`` model."""
 
@@ -913,25 +906,12 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
 
 
 class ProgramSearchSerializer(HaystackSerializer):
-    authoring_organizations = serializers.SerializerMethodField()
-
-    def get_authoring_organizations(self, program):
-        organizations = program.authoring_organization_bodies
-        return [json.loads(organization) for organization in organizations] if organizations else []
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [search_indexes.ProgramIndex]
-        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + search_indexes.BASE_PROGRAM_FIELDS + (
-            'authoring_organization_uuids',
-            'authoring_organizations',
-            'hidden',
-            'max_hours_effort_per_week',
-            'min_hours_effort_per_week',
-            'staff_uuids',
-            'subject_uuids',
-        )
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + search_indexes.BASE_PROGRAM_FIELDS
 
 
 class ProgramFacetSerializer(BaseHaystackFacetSerializer):

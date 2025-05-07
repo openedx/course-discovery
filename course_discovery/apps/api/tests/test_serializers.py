@@ -20,7 +20,7 @@ from course_discovery.apps.api.serializers import (
     CourseSearchSerializer, CourseSerializer,
     MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    OrganizationSerializer, PersonSerializer, PositionSerializer,
     ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
     TypeaheadProgramSearchSerializer,
     get_utm_source_for_user
@@ -464,23 +464,6 @@ class ContentTypeSerializerTests(TestCase):
             'content_type': expected_content_type
         }
         assert serializer.data == expected
-
-
-@ddt.ddt
-class NamedModelSerializerTests(TestCase):
-    @ddt.data(
-        (PrerequisiteFactory, PrerequisiteSerializer),
-    )
-    @ddt.unpack
-    def test_data(self, factory_class, serializer_class):
-        link_object = factory_class()
-        serializer = serializer_class(link_object)
-
-        expected = {
-            'name': link_object.name
-        }
-
-        self.assertDictEqual(serializer.data, expected)
 
 
 class SubjectSerializerTests(TestCase):
