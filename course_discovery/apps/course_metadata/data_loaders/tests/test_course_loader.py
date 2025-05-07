@@ -259,8 +259,8 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
             row = loader.transform_dict_keys(csv_data)
             missing_field = loader.validate_course_data(
-                CourseType.objects.get(name=course_type_name),
-                row
+                row,
+                CourseType.objects.get(name=course_type_name)
             )
             assert missing_field == ''
 
@@ -300,7 +300,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
             row = loader.transform_dict_keys(csv_data)
             course_type = CourseType.objects.get(slug='masters')
-            missing_fields = loader.validate_course_data(course_type, row)
+            missing_fields = loader.validate_course_data(row, course_type)
 
             # Validate returned missing fields
             for expected_missing in [
