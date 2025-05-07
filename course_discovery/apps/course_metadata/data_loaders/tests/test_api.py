@@ -1,25 +1,22 @@
 import datetime
-import json
-from decimal import Decimal
 
 import ddt
 import mock
 import responses
 from django.test import TestCase
-from pytz import UTC
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    AbstractDataLoader, CoursesApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
+    AbstractDataLoader, CoursesApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
+    Course, CourseRun, Organization, Program, ProgramType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory,
+    CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory,
     VideoFactory
 )
 
@@ -71,79 +68,6 @@ class AbstractDataLoaderTest(TestCase):
 
         for content, expected in data:
             self.assertEqual(AbstractDataLoader.clean_html(content), expected)
-
-
-@ddt.ddt
-class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
-    loader_class = OrganizationsApiDataLoader
-
-    @property
-    def api_url(self):
-        return self.partner.organizations_api_url
-
-    def mock_api(self):
-        bodies = mock_data.ORGANIZATIONS_API_BODIES
-        url = self.api_url + 'organizations/'
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-        return bodies
-
-    def assert_organization_loaded(self, body, partner_has_marketing_site=True):
-        """ Assert an Organization corresponding to the specified data body was properly loaded into the database. """
-        organization = Organization.objects.get(key=AbstractDataLoader.clean_string(body['short_name']))
-        if not partner_has_marketing_site:
-            self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
-            self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
-            self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
-            self.assertEqual(organization.certificate_logo_image_url, AbstractDataLoader.clean_string(body['logo']))
-
-    @responses.activate
-    @ddt.data(True, False)
-    def test_ingest(self, partner_has_marketing_site):
-        """ Verify the method ingests data from the Organizations API. """
-        api_data = self.mock_api()
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
-            self.partner.save()
-
-        self.assertEqual(Organization.objects.count(), 0)
-
-        self.loader.ingest()
-
-        # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
-
-        # Verify the Organizations were created correctly
-        expected_num_orgs = len(api_data)
-        self.assertEqual(Organization.objects.count(), expected_num_orgs)
-
-        for datum in api_data:
-            self.assert_organization_loaded(datum, partner_has_marketing_site)
-
-        # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
-
-    @responses.activate
-    def test_ingest_respects_partner(self):
-        """
-        Existing organizations with the same key but linked to different partners
-        shouldn't cause organization data loading to fail.
-        """
-        api_data = self.mock_api()
-        key = api_data[1]['short_name']
-
-        OrganizationFactory(key=key, partner=self.partner)
-        OrganizationFactory(key=key)
-
-        assert Organization.objects.count() == 2
-
-        self.loader.ingest()
-
-        assert Organization.objects.count() == len(api_data) + 1
 
 
 @ddt.ddt
@@ -325,147 +249,3 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             self.assertEqual(actual.src, expected_video_src)
         else:
             self.assertIsNone(actual)
-
-
-@ddt.ddt
-class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
-    loader_class = ProgramsApiDataLoader
-
-    @property
-    def api_url(self):
-        return self.partner.programs_api_url
-
-    def create_mock_organizations(self, programs):
-        for program in programs:
-            for organization in program.get('organizations', []):
-                OrganizationFactory(key=organization['key'], partner=self.partner)
-
-    def create_mock_courses_and_runs(self, programs):
-        for program in programs:
-            for course_code in program.get('course_codes', []):
-                key = '{org}+{course}'.format(org=course_code['organization']['key'], course=course_code['key'])
-                course = CourseFactory(key=key, partner=self.partner)
-
-                for course_run in course_code['run_modes']:
-                    CourseRunFactory(course=course, key=course_run['course_key'])
-
-                # Add an additional course run that should be excluded
-                CourseRunFactory(course=course)
-
-    def mock_api(self):
-        bodies = mock_data.PROGRAMS_API_BODIES
-        self.create_mock_organizations(bodies)
-        self.create_mock_courses_and_runs(bodies)
-
-        url = self.api_url + 'programs/'
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-
-        # We exclude the one invalid item
-        return bodies[:-1]
-
-    def assert_program_loaded(self, body):
-        """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
-        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
-
-        self.assertEqual(program.title, body['name'])
-        for attr in ('subtitle', 'status', 'marketing_slug',):
-            self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
-
-        self.assertEqual(program.type, ProgramType.objects.get(name='XSeries'))
-
-        keys = [org['key'] for org in body['organizations']]
-        expected_organizations = list(Organization.objects.filter(key__in=keys))
-        self.assertEqual(keys, [org.key for org in expected_organizations])
-        self.assertListEqual(list(program.authoring_organizations.all()), expected_organizations)
-
-        banner_image_url = body.get('banner_image_urls', {}).get('w1440h480')
-        self.assertEqual(program.banner_image_url, banner_image_url)
-
-        course_run_keys = set()
-        course_codes = body.get('course_codes', [])
-        for course_code in course_codes:
-            course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
-
-        courses = list(Course.objects.filter(course_runs__key__in=course_run_keys).distinct().order_by('key'))
-        self.assertEqual(list(program.courses.order_by('key')), courses)
-
-        # Verify the additional course runs added in create_mock_courses_and_runs are excluded.
-        self.assertEqual(program.excluded_course_runs.count(), len(course_codes))
-
-    def assert_program_banner_image_loaded(self, body):
-        """ Assert a program corresponding to the specified data body has banner image loaded into DB """
-        program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
-        banner_image_url = body.get('banner_image_urls', {}).get('w1440h480')
-        if banner_image_url:
-            for size_key in program.banner_image.field.variations:
-                # Get different sizes specs from the model field
-                # Then get the file path from the available files
-                sized_image = getattr(program.banner_image, size_key, None)
-                self.assertIsNotNone(sized_image)
-                if sized_image:
-                    path = getattr(program.banner_image, size_key).url
-                    self.assertIsNotNone(path)
-                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['width'])
-                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['height'])
-
-    @responses.activate
-    def test_ingest(self):
-        """ Verify the method ingests data from the Organizations API. """
-        api_data = self.mock_api()
-        self.assertEqual(Program.objects.count(), 0)
-
-        self.loader.ingest()
-
-        # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
-
-        # Verify the Programs were created correctly
-        self.assertEqual(Program.objects.count(), len(api_data))
-
-        for datum in api_data:
-            self.assert_program_loaded(datum)
-
-        self.loader.ingest()
-
-    @responses.activate
-    def test_ingest_with_missing_organizations(self):
-        api_data = self.mock_api()
-        Organization.objects.all().delete()
-
-        self.assertEqual(Program.objects.count(), 0)
-        self.assertEqual(Organization.objects.count(), 0)
-
-        with mock.patch(LOGGER_PATH) as mock_logger:
-            self.loader.ingest()
-            calls = [mock.call('Organizations for program [%s] are invalid!', datum['uuid']) for datum in api_data]
-            mock_logger.error.assert_has_calls(calls)
-
-        self.assertEqual(Program.objects.count(), len(api_data))
-        self.assertEqual(Organization.objects.count(), 0)
-
-    @responses.activate
-    def test_ingest_with_existing_banner_image(self):
-        programs = self.mock_api()
-
-        for program_data in programs:
-            banner_image_url = program_data.get('banner_image_urls', {}).get('w1440h480')
-            if banner_image_url:
-                responses.add_callback(
-                    responses.GET,
-                    banner_image_url,
-                    callback=mock_jpeg_callback(),
-                    content_type=JPEG
-                )
-
-        self.loader.ingest()
-        # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
-
-        for program in programs:
-            self.assert_program_loaded(program)
-            self.assert_program_banner_image_loaded(program)

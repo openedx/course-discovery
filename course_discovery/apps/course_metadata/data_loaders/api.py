@@ -1,20 +1,13 @@
 import concurrent.futures
-from datetime import datetime
 import logging
-import math
 import time
-from decimal import Decimal
-from io import BytesIO
 
-import requests
-from django.core.files import File
 from opaque_keys.edx.keys import CourseKey
 
-from course_discovery.apps.core.models import Currency
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
+    Course, CourseRun, Organization
 )
 
 logger = logging.getLogger(__name__)
@@ -304,119 +297,3 @@ class CoursesApiDataLoader(AbstractDataLoader):
             defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
 
         return defaults
-
-
-class ProgramsApiDataLoader(AbstractDataLoader):
-    """ Loads programs from the Programs API. """
-    image_width = 1440
-    image_height = 480
-    XSERIES = None
-
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(ProgramsApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
-        self.XSERIES = ProgramType.objects.get(name='XSeries')
-
-    def ingest(self):
-        api_url = self.partner.programs_api_url
-        count = None
-        page = 1
-
-        logger.info('Refreshing programs from %s...', api_url)
-
-        while page:
-            response = self.api_client.programs.get(page=page, page_size=self.PAGE_SIZE)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d programs...', len(results))
-
-            if response['next']:
-                page += 1
-            else:
-                page = None
-
-            for program in results:
-                program = self.clean_strings(program)
-                self.update_program(program)
-
-        logger.info('Retrieved %d programs from %s.', count, api_url)
-
-    def _get_uuid(self, body):
-        return body['uuid']
-
-    def update_program(self, body):
-        uuid = self._get_uuid(body)
-
-        try:
-            defaults = {
-                'uuid': uuid,
-                'title': body['name'],
-                'subtitle': body['subtitle'],
-                'type': self.XSERIES,
-                'status': body['status'],
-                'banner_image_url': self._get_banner_image_url(body),
-            }
-
-            program, __ = Program.objects.update_or_create(
-                marketing_slug=body['marketing_slug'],
-                partner=self.partner,
-                defaults=defaults
-            )
-            self._update_program_organizations(body, program)
-            self._update_program_courses_and_runs(body, program)
-            self._update_program_banner_image(body, program)
-            program.save()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception('Failed to load program %s', uuid)
-
-    def _update_program_courses_and_runs(self, body, program):
-        course_run_keys = set()
-        for course_code in body.get('course_codes', []):
-            course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
-
-        # The course_code key field is technically useless, so we must build the course list from the
-        # associated course runs.
-        courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
-        program.courses.clear()
-        program.courses.add(*courses)
-
-        # Do a diff of all the course runs and the explicitly-associated course runs to determine
-        # which course runs should be explicitly excluded.
-        excluded_course_runs = CourseRun.objects.filter(course__in=courses).exclude(key__in=course_run_keys)
-        program.excluded_course_runs.clear()
-        program.excluded_course_runs.add(*excluded_course_runs)
-
-    def _update_program_organizations(self, body, program):
-        uuid = self._get_uuid(body)
-        org_keys = [org['key'] for org in body['organizations']]
-        organizations = Organization.objects.filter(key__in=org_keys, partner=self.partner)
-
-        if len(org_keys) != organizations.count():
-            logger.error('Organizations for program [%s] are invalid!', uuid)
-
-        program.authoring_organizations.clear()
-        program.authoring_organizations.add(*organizations)
-
-    def _get_banner_image_url(self, body):
-        image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
-        image_url = body.get('banner_image_urls', {}).get(image_key)
-        return image_url
-
-    def _update_program_banner_image(self, body, program):
-        image_url = self._get_banner_image_url(body)
-        if not image_url:
-            logger.warning('There are no banner image url for program %s', program.title)
-            return
-
-        r = requests.get(image_url)
-        if r.status_code == 200:
-            banner_downloaded = File(BytesIO(r.content))
-            program.banner_image.save(
-                'banner.jpg',
-                banner_downloaded
-            )
-            program.save()
-        else:
-            logger.exception('Loading the banner image %s for program %s failed', image_url, program.title)

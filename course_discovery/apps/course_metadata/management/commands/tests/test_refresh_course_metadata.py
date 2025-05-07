@@ -10,7 +10,7 @@ from django.test import TransactionTestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
@@ -37,9 +37,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
-            (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
         self.kwargs = {'username': 'bob'}
         self.mock_access_token_api()
@@ -206,9 +204,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     SponsorMarketingSiteDataLoader,
                     PersonMarketingSiteDataLoader,
                     CourseMarketingSiteDataLoader,
-                    OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
-                    ProgramsApiDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)
