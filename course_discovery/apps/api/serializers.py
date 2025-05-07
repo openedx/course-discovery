@@ -147,31 +147,6 @@ class PrerequisiteSerializer(NamedModelSerializer):
         model = Prerequisite
 
 
-class MediaSerializer(serializers.ModelSerializer):
-    """Serializer for models inheriting from ``AbstractMediaModel``."""
-    src = serializers.CharField()
-    description = serializers.CharField()
-
-
-class ImageSerializer(MediaSerializer):
-    """Serializer for the ``Image`` model."""
-    height = serializers.IntegerField()
-    width = serializers.IntegerField()
-
-    class Meta(object):
-        model = Image
-        fields = ('src', 'description', 'height', 'width')
-
-
-class VideoSerializer(MediaSerializer):
-    """Serializer for the ``Video`` model."""
-    image = ImageSerializer()
-
-    class Meta(object):
-        model = Video
-        fields = ('src', 'description', 'image',)
-
-
 class PositionSerializer(serializers.ModelSerializer):
     """Serializer for the ``Position`` model."""
 
@@ -273,19 +248,6 @@ class PersonSerializer(serializers.ModelSerializer):
             PersonSocialNetwork.TWITTER: self.get_social_network_url(PersonSocialNetwork.TWITTER, obj),
             PersonSocialNetwork.BLOG: self.get_social_network_url(PersonSocialNetwork.BLOG, obj),
         }
-
-
-class EndorsementSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Endorsement`` model."""
-    endorser = PersonSerializer()
-
-    @classmethod
-    def prefetch_queryset(cls):
-        return Endorsement.objects.all().select_related('endorser')
-
-    class Meta(object):
-        model = Endorsement
-        fields = ('endorser', 'quote',)
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):

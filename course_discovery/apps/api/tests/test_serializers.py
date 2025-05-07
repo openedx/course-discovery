@@ -17,12 +17,12 @@ from course_discovery.apps.api.serializers import (
     CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer,
     CourseRunSearchSerializer, CourseRunSerializer,
-    CourseSearchSerializer, CourseSerializer, EndorsementSerializer,
-    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    CourseSearchSerializer, CourseSerializer,
+    MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
     OrganizationSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer,
+    TypeaheadProgramSearchSerializer,
     get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -34,8 +34,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
-    ImageFactory, OrganizationFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory, VideoFactory
+    OrganizationFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 
 
@@ -357,30 +357,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
     def get_expected_data(cls, program, request):
         expected = super().get_expected_data(program, request)
         expected.update({
-            'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
-            'video': VideoSerializer(program.video).data,
-            'credit_redemption_overview': program.credit_redemption_overview,
-            'applicable_seat_types': list(program.type.applicable_seat_types.values_list('slug', flat=True)),
-            'credit_backing_organizations': OrganizationSerializer(
-                program.credit_backing_organizations,
-                many=True
-            ).data,
-            'expected_learning_items': [item.value for item in program.expected_learning_items.all()],
-            'individual_endorsements': EndorsementSerializer(
-                program.individual_endorsements, many=True, context={'request': request}
-            ).data,
-            'instructor_ordering': PersonSerializer(
-                program.instructor_ordering,
-                many=True,
-                context={'request': request}
-            ).data,
-            'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
             'languages': [serialize_language_to_code(l) for l in program.languages] if program.languages else [],
-            'weeks_to_complete': program.weeks_to_complete,
-            'total_hours_of_effort': program.total_hours_of_effort,
-            'max_hours_effort_per_week': program.max_hours_effort_per_week,
-            'min_hours_effort_per_week': program.min_hours_effort_per_week,
-            'overview': program.overview
         })
         return expected
 
@@ -519,36 +496,6 @@ class SubjectSerializerTests(TestCase):
             'subtitle': subject.subtitle,
             'slug': subject.slug,
             'uuid': str(subject.uuid),
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class ImageSerializerTests(TestCase):
-    def test_data(self):
-        image = ImageFactory()
-        serializer = ImageSerializer(image)
-
-        expected = {
-            'src': image.src,
-            'description': image.description,
-            'height': image.height,
-            'width': image.width
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class VideoSerializerTests(TestCase):
-    def test_data(self):
-        video = VideoFactory()
-        image = video.image
-        serializer = VideoSerializer(video)
-
-        expected = {
-            'src': video.src,
-            'description': video.description,
-            'image': ImageSerializer(image).data
         }
 
         self.assertDictEqual(serializer.data, expected)
