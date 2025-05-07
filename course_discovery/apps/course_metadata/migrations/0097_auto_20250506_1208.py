@@ -108,4 +108,8 @@ class Migration(migrations.Migration):
             model_name='program',
             name='weeks_to_complete',
         ),
+        migrations.RemoveField(
+            model_name='program',
+            name='language',
+        ),
     ]

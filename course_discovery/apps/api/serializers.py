@@ -624,8 +624,8 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         model = Program
         fields = (
             'uuid', 'title', 'status', 'partner', 'visibility',
-            'courses', 'card_image_url', 'duration', 'language',
-            'start', 'end', 'enrollment_start', 'enrollment_end', 'languages'
+            'courses', 'card_image_url', 'duration', 'languages',
+            'start', 'end', 'enrollment_start', 'enrollment_end'
         )
         read_only_fields = ('uuid', 'enrollment_start', 'enrollment_end')
 
@@ -769,7 +769,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
         fields = MinimalProgramSerializer.Meta.fields + (
-            'languages', 'description', 'duration', 'language', 'created', 'modified', 'creator_id', 'released_date'
+            'languages', 'description', 'duration', 'created', 'modified', 'creator_id', 'released_date'
         )
 
 

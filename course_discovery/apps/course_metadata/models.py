@@ -651,7 +651,6 @@ class Program(TimeStampedModel):
         choices=ProgramVisibility.choices, validators=[ProgramVisibility.validator],
         help_text=_('Visibility of program')
     )
-    language = LanguageField(default='en', null=True, blank=True, db_index=True)
     languages = CommaSeparatedLanguagesField(max_length=128, null=True, blank=True)
     creator_id = models.IntegerField(
         null=True, blank=False,
