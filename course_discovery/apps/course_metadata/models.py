@@ -642,7 +642,9 @@ class Program(TimeStampedModel):
     description = models.TextField(
         default=None, null=True, blank=True,
         help_text=_(
-            "Description specific for this program. It would be displayed on the Program's details page."))
+            "Description specific for this program. It would be displayed on the Program's details page."
+        )
+    )
     duration = models.IntegerField(null=False, blank=False, default=0, help_text=_('Time spend of program'))
     visibility = models.IntegerField(
         null=False, blank=False, default=0,

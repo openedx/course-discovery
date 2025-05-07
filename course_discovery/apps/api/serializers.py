@@ -391,12 +391,11 @@ class NestedProgramSerializer(serializers.ModelSerializer):
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
     the basic details of the Program and none of the details about its related entities (e.g. courses).
     """
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url',)
-        read_only_fields = ('uuid', 'marketing_url',)
+        fields = ('uuid', 'title',)
+        read_only_fields = ('uuid',)
 
 
 class MinimalCourseRunSerializer(TimestampModelSerializer):
@@ -1119,7 +1118,6 @@ class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):
 
 class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
     uuid = serializers.CharField()
-    type = serializers.CharField()
 
 
 class TypeaheadSearchSerializer(serializers.Serializer):

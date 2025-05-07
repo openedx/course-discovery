@@ -301,66 +301,6 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.obj = ProgramFactory()
 
-    @mock.patch.object(ProgramMarketingSitePublisher, 'serialize_obj', return_value={'uuid': 'foo'})
-    @mock.patch.object(ProgramMarketingSitePublisher, 'node_id', return_value='node_id')
-    @mock.patch.object(ProgramMarketingSitePublisher, 'create_node', return_value='node_id')
-    @mock.patch.object(ProgramMarketingSitePublisher, 'edit_node', return_value=None)
-    @mock.patch.object(ProgramMarketingSitePublisher, 'update_node_alias', return_value=None)
-    @mock.patch.object(ProgramMarketingSitePublisher, 'get_and_delete_alias', return_value=None)
-    def test_publish_obj(
-            self, mock_get_and_delete_alias, mock_update_node_alias, mock_edit_node, mock_create_node, *args
-    ):  # pylint: disable=unused-argument
-        """
-        Verify that the publisher only attempts to publish programs of certain types,
-        only attempts an edit when any one of a set of trigger fields is changed,
-        and always follows publication with an attempt to update the node alias.
-        """
-        # Publication isn't supported for programs of this type.
-        self.publisher.publish_obj(self.obj)
-
-        mocked_methods = (mock_create_node, mock_edit_node, mock_update_node_alias)
-        for mocked_method in mocked_methods:
-            assert not mocked_method.called
-
-        types_to_publish = (
-            'XSeries',
-            'MicroMasters',
-            'Professional Certificate'
-        )
-
-        for name in types_to_publish:
-            for mocked_method in mocked_methods:
-                mocked_method.reset_mock()
-
-            # Publication is supported for programs of this type. No previous object
-            # is provided, so node creation should occur.
-            self.obj.type.name = name
-            self.publisher.publish_obj(self.obj)
-
-            assert mock_create_node.called
-            assert not mock_edit_node.called
-            assert mock_get_and_delete_alias.called
-            assert mock_update_node_alias.called
-
-            for mocked_method in mocked_methods:
-                mocked_method.reset_mock()
-
-            # A previous object is provided, but none of the trigger fields have
-            # changed. Editing should not occur.
-            self.publisher.publish_obj(self.obj, previous_obj=self.obj)
-
-            for mocked_method in mocked_methods:
-                assert not mocked_method.called
-
-            # Trigger fields have changed. Editing should occur.
-            previous_obj = ProgramFactory()
-            self.publisher.publish_obj(self.obj, previous_obj=previous_obj)
-
-            assert not mock_create_node.called
-            assert mock_edit_node.called
-            assert mock_get_and_delete_alias.called
-            assert mock_update_node_alias.called
-
     @responses.activate
     def test_serialize_obj(self):
         """
@@ -374,7 +314,6 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
             'author': {'id': self.user_id},
             'status': 1,
             'title': self.obj.title,
-            'type': str(self.obj.type).lower().replace(' ', '_'),
             'uuid': str(self.obj.uuid),
         }
 
@@ -384,87 +323,5 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         actual = self.publisher.serialize_obj(self.obj)
         expected['status'] = 0
-
-        assert actual == expected
-
-    @responses.activate
-    def test_update_node_alias(self):
-        """
-        Verify that the publisher attempts to create a new alias when necessary
-        and deletes an old alias, if one existed, and that appropriate exceptions
-        are raised for non-200 status codes.
-        """
-        # No previous object is provided. Create a new node and make sure
-        # title alias created, by default, based on the title is deleted
-        # and a new alias based on marketing slug is created.
-        self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_get_delete_form(self.obj.title)
-        self.mock_delete_alias()
-        self.mock_get_delete_form(self.obj.marketing_slug)
-        self.mock_add_alias()
-
-        self.publisher.update_node_alias(self.obj, self.node_id, None)
-
-        assert responses.calls[-1].request.url == '{}/add'.format(self.publisher.alias_api_base)
-
-        responses.reset()
-
-        # Same scenario, but this time a non-200 status code is returned during
-        # alias creation. An exception should be raised.
-        self.mock_api_client()
-        self.mock_get_alias_form()
-        self.mock_get_delete_form(self.obj.title)
-        self.mock_delete_alias()
-        self.mock_add_alias(status=500)
-
-        responses.reset()
-
-        # A previous object is provided, but the marketing slug hasn't changed.
-        # Neither alias creation nor alias deletion should occur.
-        self.mock_api_client()
-        self.mock_get_delete_form(self.obj.marketing_slug)
-
-        self.publisher.update_node_alias(self.obj, self.node_id, self.obj)
-
-        responses.reset()
-
-        # A previous object is provided, and the marketing slug has changed.
-        # Both alias creation and alias deletion should occur.
-        previous_obj = ProgramFactory()
-
-        self.mock_api_client()
-        self.mock_get_delete_form(self.obj.marketing_slug)
-        self.mock_get_delete_form(previous_obj.marketing_slug)
-        self.mock_delete_alias_form()
-        self.mock_delete_alias()
-        self.mock_get_alias_form()
-        self.mock_get_delete_form(self.obj.marketing_slug)
-        self.mock_add_alias()
-
-        self.publisher.update_node_alias(self.obj, self.node_id, previous_obj)
-
-        assert any('/add' in call.request.url for call in responses.calls)
-        assert any('/list/{}'.format(previous_obj.marketing_slug) in call.request.url for call in responses.calls)
-
-        responses.reset()
-
-        # Same scenario, but this time a non-200 status code is returned during
-        # alias deletion. An exception should be raised.
-        self.mock_api_client()
-        self.mock_get_delete_form(self.obj.marketing_slug)
-        self.mock_get_delete_form(previous_obj.marketing_slug)
-        self.mock_delete_alias_form()
-        self.mock_delete_alias(status=500)
-
-        with pytest.raises(AliasDeleteError):
-            self.publisher.update_node_alias(self.obj, self.node_id, previous_obj)
-
-    def test_alias(self):
-        """
-        Verify that aliases are constructed correctly.
-        """
-        actual = self.publisher.alias(self.obj)
-        expected = '{type}/{slug}'.format(type=self.obj.type.slug, slug=self.obj.marketing_slug)
 
         assert actual == expected

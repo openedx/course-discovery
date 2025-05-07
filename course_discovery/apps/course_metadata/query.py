@@ -122,8 +122,4 @@ class ProgramQuerySet(models.QuerySet):
 
         return self.filter(
             status=ProgramStatus.Active
-        ).exclude(
-            marketing_slug__isnull=True
-        ).exclude(
-            marketing_slug=''
         )

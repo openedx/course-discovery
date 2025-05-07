@@ -85,9 +85,6 @@ class BaseIndex(indexes.SearchIndex):
     def index_queryset(self, using=None):
         return self.model.objects.all()
 
-    def prepare_authoring_organization_uuids(self, obj):
-        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
-
     def _prepare_language(self, language):
         if language:
             # ECOM-5466: Render the macro language for all languages except Chinese
@@ -155,45 +152,27 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         return course_run_key.org
 
 
-class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
+class ProgramIndex(BaseIndex, indexes.Indexable):
     model = Program
 
     uuid = indexes.CharField(model_attr='uuid')
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
-    subtitle = indexes.CharField(model_attr='subtitle')
-    type = indexes.CharField(model_attr='type__name', faceted=True)
-    marketing_url = indexes.CharField(null=True)
-    organizations = indexes.MultiValueField(faceted=True)
-    authoring_organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
     authoring_organization_uuids = indexes.MultiValueField()
     authoring_organization_bodies = indexes.MultiValueField()
-    credit_backing_organizations = indexes.MultiValueField(faceted=True)
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
-    min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
-    max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
     language = indexes.MultiValueField(faceted=True)
-    hidden = indexes.BooleanField(model_attr='hidden', faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'program:{}'.format(obj.uuid)
 
     def prepare_published(self, obj):
         return obj.status == ProgramStatus.Active
-
-    def prepare_organizations(self, obj):
-        return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
-
-    def prepare_credit_backing_organizations(self, obj):
-        return self._prepare_organizations(obj.credit_backing_organizations.all())
-
-    def prepare_marketing_url(self, obj):
-        return obj.marketing_url
 
     def prepare_language(self, obj):
         return [self._prepare_language(language) for language in obj.languages] if obj.languages else []

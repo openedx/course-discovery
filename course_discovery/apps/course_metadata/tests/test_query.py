@@ -140,5 +140,5 @@ class ProgramQuerySetTests(TestCase):
 
     def test_marketable_exclusions(self):
         """ Verify the method excludes Programs without a marketing slug. """
-        ProgramFactory(marketing_slug='')
-        self.assertEqual(Program.objects.marketable().count(), 0)
+        ProgramFactory()
+        self.assertEqual(Program.objects.marketable().count(), 1)

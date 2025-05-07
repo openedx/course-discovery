@@ -58,19 +58,9 @@ class ProgramAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProgramAdminForm, self).__init__(*args, **kwargs)
-        self.fields['type'].required = True
-        self.fields['marketing_slug'].required = True
         self.fields['courses'].required = False
 
     def clean(self):
-        status = self.cleaned_data.get('status')
-        banner_image = self.cleaned_data.get('banner_image')
-
-        if status == ProgramStatus.Active and not banner_image:
-            raise ValidationError(_(
-                'Programs can only be activated if they have a banner image.'
-            ))
-
         return self.cleaned_data
 
 

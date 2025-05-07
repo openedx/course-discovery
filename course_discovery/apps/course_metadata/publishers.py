@@ -408,10 +408,8 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                 node_id = self.create_node(node_data)
             else:
                 trigger_fields = (
-                    'marketing_slug',
                     'status',
                     'title',
-                    'type',
                 )
 
                 if any(getattr(obj, field) != getattr(previous_obj, field) for field in trigger_fields):
@@ -441,6 +439,5 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
             **data,
             'status': 1 if obj.is_active else 0,
             'title': obj.title,
-            'type': str(obj.type).lower().replace(' ', '_'),
             'uuid': str(obj.uuid),
         }

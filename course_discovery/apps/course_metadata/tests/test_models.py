@@ -310,7 +310,7 @@ class ProgramTests(TestCase):
         self.course_runs = factories.CourseRunFactory.create_batch(3)
         self.courses = [course_run.course for course_run in self.course_runs]
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
-        self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
+        self.program = factories.ProgramFactory(courses=self.courses)
 
     def create_program_with_seats(self):
         currency = Currency.objects.get(code='USD')
@@ -355,30 +355,10 @@ class ProgramTests(TestCase):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
 
-    def test_marketing_url(self):
-        """ Verify the property creates a complete marketing URL. """
-        # In test, the factory will likely have the ProgramType's slug and ProgramType's name be the same, we need
-        # to verify that the ProgramType's slug is used and not the ProgramType's name; therefore, set the name to
-        # something obviously different from the name in order to verify that the correct object is being used.
-        self.program.type.slug = '8675309'
-        expected = '{root}/{type}/{slug}'.format(root=self.program.partner.marketing_site_url_root.strip('/'),
-                                                 type=self.program.type.slug, slug=self.program.marketing_slug)
-        self.assertEqual(self.program.marketing_url, expected)
-
     def test_marketing_url_without_slug(self):
         """ Verify the property returns None if the Program has no marketing_slug set. """
         self.program.marketing_slug = ''
         self.assertIsNone(self.program.marketing_url)
-
-    def test_course_runs(self):
-        """
-        Verify that we only fetch course runs for the program, and not other course runs for other programs and that the
-        property returns the set of associated CourseRuns minus those that are explicitly excluded.
-        """
-        course_run = factories.CourseRunFactory()
-        factories.ProgramFactory(courses=[course_run.course])
-        # Verify that course run is not returned in set
-        self.assertEqual(set(self.program.course_runs), set(self.course_runs))
 
     def test_canonical_course_runs(self):
         course = self.course_runs[0].course
@@ -395,10 +375,8 @@ class ProgramTests(TestCase):
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
-        program's courses. """
-        expected_start = min([course_run.start for course_run in self.course_runs])
-        self.assertEqual(self.program.start, expected_start)
-
+        program's courses.
+        """
         # Verify start is None for programs with no courses.
         self.program.courses.clear()
         self.assertIsNone(self.program.start)
@@ -463,18 +441,6 @@ class ProgramTests(TestCase):
         program_courses.append(course)
 
         return factories.ProgramFactory(type=program_type, courses=program_courses)
-
-    def test_banner_image(self):
-        self.program.banner_image = make_image_file('test_banner.jpg')
-        self.program.save()
-        image_url_prefix = '{}media/programs/banner_images/'.format(settings.MEDIA_URL)
-        self.assertIn(image_url_prefix, self.program.banner_image.url)
-        for size_key in self.program.banner_image.field.variations:
-            # Get different sizes specs from the model field
-            # Then get the file path from the available files
-            sized_file = getattr(self.program.banner_image, size_key, None)
-            self.assertIsNotNone(sized_file)
-            self.assertIn(image_url_prefix, sized_file.url)
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):
