@@ -16,7 +16,6 @@ from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.data_loaders.api import OrganizationsApiDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
 
