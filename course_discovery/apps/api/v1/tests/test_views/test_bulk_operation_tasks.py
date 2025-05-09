@@ -59,7 +59,7 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
         self.assertEqual(response.data['uploaded_by'], self.user.username)
         self.assertTrue(response.data['csv_file'].endswith('.csv'))
 
-    def test_bulk_operation_task_enpoints_no_auth(self):
+    def test_no_auth(self):
         """
         Test that authentication is required to access the create endpoint
         """
