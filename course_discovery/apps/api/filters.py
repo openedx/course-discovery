@@ -11,9 +11,10 @@ from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import BulkOperationStatus, CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, CourseType, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
+    BulkOperationTask, Course, CourseEditor, CourseRun, CourseType, LevelType, Organization, Person, Program,
+    ProgramType, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -233,3 +234,14 @@ class CourseEditorFilter(filters.FilterSet):
     class Meta:
         model = CourseEditor
         fields = ('course',)
+
+
+class BulkOperationTaskFilter(filters.FilterSet):
+    """
+    FilterSet for BulkOperationTask.
+    """
+    status = filters.ChoiceFilter(choices=BulkOperationStatus.choices)
+
+    class Meta:
+        model = BulkOperationTask
+        fields = ['status']
