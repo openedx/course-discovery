@@ -171,7 +171,7 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @data(('task_type',),('csv_file',))
+    @data(('task_type',), ('csv_file',))
     @unpack
     def test_missing_required_fields(self, missing_field):
         """
