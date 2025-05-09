@@ -2777,6 +2777,9 @@ class CourseReviewSerializer(serializers.ModelSerializer):
         )
 
 class BulkOperationTaskSerializer(serializers.ModelSerializer):
+    """
+    Serializer for BulkOperationTask model.
+    """
     uploaded_by = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

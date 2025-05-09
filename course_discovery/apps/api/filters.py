@@ -237,6 +237,9 @@ class CourseEditorFilter(filters.FilterSet):
 
 
 class BulkOperationTaskFilter(filters.FilterSet):
+    """
+    FilterSet for BulkOperationTask.
+    """
     status = filters.ChoiceFilter(choices=BulkOperationStatus.choices)
 
     class Meta:

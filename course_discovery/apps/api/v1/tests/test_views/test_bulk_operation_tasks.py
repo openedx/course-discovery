@@ -1,6 +1,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from rest_framework import status
+from ddt import ddt, data, unpack
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -8,11 +9,13 @@ from course_discovery.apps.course_metadata.choices import BulkOperationStatus, B
 from course_discovery.apps.course_metadata.models import BulkOperationTask
 from course_discovery.apps.course_metadata.tests.factories import BulkOperationTaskFactory
 
-
+@ddt
 class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
     """
     Test Suite for BulkOperationTaskViewSet.
     """
+    CREATE_BULK_OPERATION_TASK_URL = reverse('api:v1:bulkoperationtask-list')
+
     def setUp(self):
         super().setUp()
         self.mock_access_token()
@@ -24,14 +27,12 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
             content_type="text/csv"
         )
 
-        self.create_url = reverse('api:v1:bulkoperationtask-list')
-
     def test_create_bulk_task_assigns_uploaded_by(self):
         """
         Test that the BulkOperationTask is created with the correct uploaded_by user.
         The uploaded_by field should be set to the user who created the task.
         """
-        response = self.client.post(self.create_url, {
+        response = self.client.post(self.CREATE_BULK_OPERATION_TASK_URL, {
             'csv_file': self.csv_file,
             'task_type': BulkOperationType.CourseCreate,
             'status': BulkOperationStatus.Pending,
@@ -63,7 +64,7 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
         Test that authentication is required to access the create endpoint
         """
         self.client.logout()
-        response = self.client.get(self.create_url)
+        response = self.client.get(self.CREATE_BULK_OPERATION_TASK_URL)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_bulk_operation_task_create_invalid_file(self):
@@ -71,7 +72,7 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
         Test that BulkOperationTaskViewSet rejects invalid file types and returns a bad request error.
         """
         invalid_file = SimpleUploadedFile("test.txt", b"not,a,csv", content_type="text/plain")
-        response = self.client.post(self.create_url, {
+        response = self.client.post(self.CREATE_BULK_OPERATION_TASK_URL, {
             'csv_file': invalid_file,
             'task_type': BulkOperationType.CourseCreate,
             'status': BulkOperationStatus.Pending,
@@ -97,12 +98,12 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
             status=BulkOperationStatus.Pending,
         )
 
-        url = f"{self.create_url}?ordering=status"
+        url = f"{self.CREATE_BULK_OPERATION_TASK_URL}?ordering=status"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertTrue(response.data['results'][0]['status'] == BulkOperationStatus.Completed)
-        self.assertTrue(response.data['results'][1]['status'] == BulkOperationStatus.Pending)
+        self.assertEqual(response.data['results'][0]['status'], BulkOperationStatus.Completed)
+        self.assertEqual(response.data['results'][1]['status'], BulkOperationStatus.Pending)
 
     def test_bulk_operation_task_order_by_created_field(self):
         """
@@ -121,12 +122,12 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
             status=BulkOperationStatus.Completed,
         )
 
-        url = f"{self.create_url}?ordering=-created"
+        url = f"{self.CREATE_BULK_OPERATION_TASK_URL}?ordering=-created"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['results'][0]['created'] >= response.data['results'][1]['created'])
 
-        url = f"{self.create_url}?ordering=created"
+        url = f"{self.CREATE_BULK_OPERATION_TASK_URL}?ordering=created"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['results'][0]['created'] <= response.data['results'][1]['created'])
@@ -148,7 +149,7 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
             status=BulkOperationStatus.Completed,
         )
 
-        url = f"{self.create_url}?status={BulkOperationStatus.Pending}"
+        url = f"{self.CREATE_BULK_OPERATION_TASK_URL}?status={BulkOperationStatus.Pending}"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -162,10 +163,26 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
         non_staff_user = UserFactory(is_staff=False, is_superuser=False)
         self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
 
-        response = self.client.post(self.create_url, {
+        response = self.client.post(self.CREATE_BULK_OPERATION_TASK_URL, {
             'csv_file': self.csv_file,
             'task_type': BulkOperationType.CourseCreate,
             'status': BulkOperationStatus.Pending,
         }, format='multipart')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @data(('task_type',),('csv_file',))
+    @unpack
+    def test_missing_required_fields(self, missing_field):
+        """
+        Test that the BulkOperationTaskViewSet returns a 400 error when required fields are missing.
+        """
+        request_data = {
+            'csv_file': self.csv_file,
+            'task_type': BulkOperationType.CourseCreate,
+        }
+        request_data.pop(missing_field)
+        with self.subTest(missing_field=missing_field):
+            response = self.client.post(self.CREATE_BULK_OPERATION_TASK_URL, request_data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn(missing_field, response.data)

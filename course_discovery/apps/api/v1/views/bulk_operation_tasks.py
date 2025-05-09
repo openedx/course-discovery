@@ -1,3 +1,4 @@
+""" ViewSet for BulkOperationTask model. """
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.filters import OrderingFilter
@@ -18,6 +19,7 @@ class BulkOperationTaskViewSet(CompressedCacheResponseMixin, mixins.CreateModelM
     filterset_class = BulkOperationTaskFilter
     ordering_fields = ('created', 'status')
     ordering = ('-created',)
+    search_fields = ('task_type', 'uploaded_by__username')
 
     def perform_create(self, serializer):
         """
