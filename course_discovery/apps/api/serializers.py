@@ -40,14 +40,14 @@ from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
-    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseReview, CourseRun,
-    CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
-    Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing,
-    Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position,
-    Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription,
-    ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic,
-    Track, Video
+    FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, BulkOperationTask, CertificateInfo,
+    Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction,
+    CourseReview, CourseRun, CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
+    GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
+    PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction,
+    ProgramSubscription, ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization,
+    Subject, TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 from course_discovery.apps.course_metadata.utils import (
@@ -2775,3 +2775,21 @@ class CourseReviewSerializer(serializers.ModelSerializer):
             'most_common_goal_learners_percentage',
             'total_enrollments'
         )
+
+
+class BulkOperationTaskSerializer(serializers.ModelSerializer):
+    """
+    Serializer for BulkOperationTask model.
+    """
+    uploaded_by = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = BulkOperationTask
+        fields = '__all__'
+        read_only_fields = ('task_id',)
+
+    def get_uploaded_by(self, obj):
+        """
+        Return the username of the user who uploaded the task.
+        """
+        return obj.uploaded_by.username if obj.uploaded_by else None
