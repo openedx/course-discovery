@@ -63,7 +63,7 @@ six==1.17.0
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
     #   python-dateutil
-snowballstemmer==2.2.0
+snowballstemmer==3.0.1
     # via sphinx
 soupsieve==2.7
     # via beautifulsoup4

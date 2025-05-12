@@ -40,7 +40,7 @@ asn1crypto==1.5.1
     # via
     #   -r requirements/base.txt
     #   snowflake-connector-python
-astroid==3.3.9
+astroid==3.3.10
     # via
     #   pylint
     #   pylint-celery
@@ -71,12 +71,12 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.38.8
+boto3==1.38.13
     # via
     #   -r requirements/base.txt
     #   django-ses
     #   snowflake-connector-python
-botocore==1.38.8
+botocore==1.38.13
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -123,7 +123,7 @@ charset-normalizer==3.4.2
     #   -r requirements/base.txt
     #   requests
     #   snowflake-connector-python
-click==8.1.8
+click==8.2.0
     # via
     #   -r requirements/base.txt
     #   celery
@@ -192,7 +192,7 @@ dill==0.4.0
     # via pylint
 distlib==0.3.9
     # via virtualenv
-django==4.2.20
+django==4.2.21
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -292,7 +292,7 @@ django-filter==25.1
     #   taxonomy-connector
 django-fsm==3.0.0
     # via -r requirements/base.txt
-django-guardian==2.4.0
+django-guardian==3.0.0
     # via -r requirements/base.txt
 django-libsass==0.9
     # via -r requirements/base.txt
@@ -472,7 +472,7 @@ frozenlist==1.6.0
     #   -r requirements/base.txt
     #   aiohttp
     #   aiosignal
-getsmarter-api-clients==0.6.1
+getsmarter-api-clients==0.6.3
     # via -r requirements/base.txt
 glom==22.1.0
     # via semgrep
@@ -482,7 +482,7 @@ google-api-core==2.24.2
     #   google-api-python-client
 google-api-python-client==2.169.0
     # via -r requirements/base.txt
-google-auth==2.39.0
+google-auth==2.40.1
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -614,7 +614,7 @@ openai==0.28.1
     #   taxonomy-connector
 openedx-atlas==0.7.0
     # via -r requirements/base.txt
-openedx-events==10.1.0
+openedx-events==10.2.0
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
@@ -647,7 +647,7 @@ pillow==9.5.0
     #   -r requirements/base.txt
     #   cairosvg
     #   django-stdimage
-platformdirs==4.3.7
+platformdirs==4.3.8
     # via
     #   -r requirements/base.txt
     #   pylint
@@ -783,7 +783,7 @@ python-slugify==8.0.4
     # via
     #   -r requirements/base.txt
     #   code-annotations
-python-stdnum==1.20
+python-stdnum==2.0
     # via
     #   -r requirements/base.txt
     #   django-localflavor
@@ -938,7 +938,7 @@ stevedore==5.4.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.2.1
+taxonomy-connector==2.2.2
     # via -r requirements/base.txt
 testfixtures==8.3.0
     # via -r requirements/test.in
@@ -1009,7 +1009,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.30.0
+virtualenv==20.31.2
     # via tox
 walrus==0.9.4
     # via

@@ -294,7 +294,7 @@ CORS_ALLOW_HEADERS = corsheaders_default_headers + (
 
 # Guardian settings
 ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
-GUARDIAN_MONKEY_PATCH = False  # Use the mixin on the User model instead of monkey-patching.
+GUARDIAN_MONKEY_PATCH_USER = False  # Use the mixin on the User model instead of monkey-patching.
 
 ENABLE_AUTO_AUTH = False
 AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
