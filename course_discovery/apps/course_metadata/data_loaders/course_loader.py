@@ -166,10 +166,10 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'key': course.key,
             'uuid': str(course.uuid),
             'url_slug': course_data.get('url_slug') if course_data.get('url_slug') else course.active_url_slug,
-            'type': str(course.type.uuid),
+            'type': str((self.get_course_type(course_data.get('course_enrollment_track')) or course.type).uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
-
+            'prices': self.get_pricing_representation(course_data.get('verified_price'), course.type),
             'title': course_data['title'],
             'syllabus_raw': course_data.get('syllabus', ''),
             'level_type': course_data.get('level_type', ''),
@@ -200,15 +200,16 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             return None
 
         program_type = course_run_data.get('expected_program_type')
-        content_language = self.verify_and_get_language_tags(course_run_data.get('content_language', 'en-us'))
-        transcript_language = self.verify_and_get_language_tags(course_run_data.get('transcript_languages', 'en-us'))
+        content_language = self.verify_and_get_language_tags(course_run_data.get('content_language') or 'en-us')
+        transcript_language = self.verify_and_get_language_tags(course_run_data.get('transcript_languages') or 'en-us')
 
         update_course_run_data = {
-            'run_type': str(course_run.type.uuid),
+            'run_type': str(
+                (self.get_course_run_type(course_run_data.get('course_run_enrollment_track')) or course_run.type).uuid
+            ),
             'key': course_run.key,
             'prices': self.get_pricing_representation(course_run_data.get('verified_price'), course_type),
             'draft': is_draft,
-
             'content_language': content_language[0],
             'expected_program_name': course_run_data.get('expected_program_name', ''),
             'transcript_languages': transcript_language,
