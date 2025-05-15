@@ -50,17 +50,23 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         return obj
 
     def get_queryset(self):
-        partner = self.request.site.partner
+        partners = self.request.site.partner_set.all()
         q = self.request.query_params.get('q')
 
         if q:
             queryset = Course.search(q)
-            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
+            queryset = self.get_serializer_class().prefetch_queryset(
+                queryset=queryset, partners=[p.id for p in partners]
+            )
         else:
             if get_query_param(self.request, 'include_hidden_course_runs'):
-                course_runs = CourseRun.objects.filter(course__partner=partner)
+                course_runs = CourseRun.objects.filter(
+                    course__partner__in=partners
+                )
             else:
-                course_runs = CourseRun.objects.filter(course__partner=partner).exclude(hidden=True)
+                course_runs = CourseRun.objects.filter(
+                    course__partner__in=partners
+                )
 
             if get_query_param(self.request, 'marketable_course_runs_only'):
                 course_runs = course_runs.marketable().active()
@@ -74,7 +80,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=self.queryset,
                 course_runs=course_runs,
-                partner=partner
+                partners=[p.id for p in partners]
             )
 
         s_title = self.request.query_params.get('title')
