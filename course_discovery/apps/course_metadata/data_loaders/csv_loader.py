@@ -2,10 +2,8 @@
 Data loader responsible for creating course and course runs entries in discovery Database,
 creating and updating related objects in Studio, and ecommerce, provided a csv containing the required information.
 """
-import csv
 import logging
 
-import unicodecsv
 from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
@@ -18,7 +16,6 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
-from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType, Person
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 
@@ -67,25 +64,6 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             csv_path, csv_file, use_gspread_client, self.product_type, self.product_source
         )
         self.ingestion_summary['total_products_count'] = len(self.reader)
-
-    def initialize_csv_reader(self, csv_path, csv_file, use_gspread_client, product_type=None, product_source=None):
-        """
-        Initialize the CSV reader based on the input source (csv_path, csv_file or gspread_client)
-        """
-        try:
-            if use_gspread_client:
-                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type][product_source.slug]
-                gspread_client = GspreadClient()
-                return list(gspread_client.read_data(product_type_config))
-            else:
-                # read the file from the provided path; otherwise, use the file received from CSVDataLoaderConfiguration
-                return list(csv.DictReader(open(csv_path, 'r'))) if csv_path else list(unicodecsv.DictReader(csv_file))
-        except FileNotFoundError:
-            logger.exception(f"Error opening CSV file at path: {csv_path}")
-            raise
-        except Exception as e:
-            logger.exception(f"Error reading input data source: {e}")
-            raise
 
     def _initialize_ingestion_summary(self):
         """Initialize the ingestion summary dictionary."""
@@ -320,7 +298,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             )
             try:
                 last_run = course_runs.last()
-                _ = self.create_course_run(data, course, course_type, course_run_type_uuid, last_run.key)
+                _ = self.create_course_run(data, course, course_run_type_uuid, course_type, last_run.key)
                 is_course_run_created = True
             except Exception as exc:
                 exception_message = exc
@@ -337,7 +315,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             course_run = CourseRun.objects.filter_drafts(course=course).order_by('created').last()
         return course_run, is_course_run_created
 
-    def validate_course_data(self, course_type, data):
+    def validate_course_data(self, data, course_type=None):
         """
         Verify the required data key-values for a course type are present in the provided
         data dictionary and return a comma separated string of missing data fields.

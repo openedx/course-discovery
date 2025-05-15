@@ -3418,3 +3418,14 @@ VALID_PRODUCT_VALUE_CSV_DICT = {
     'PER LEAD USA': 10,
     'PER LEAD INTERNATIONAL': 10,
 }
+
+VALID_COURSE_RERUN_DATA = {
+    'last_active_run_key': 'course-v1:edx+csv_123+1T2020',
+    'start_date': '04/01/2025',
+    'end_date': '07/01/2025',
+    'start_time': '09:00:00',
+    'end_time': '17:00:00',
+    'run_type': 'Audit Only',
+    'pacing_type': 'Self-Paced',
+    'move_to_legal_review': 'FALSE'
+}

@@ -4374,7 +4374,14 @@ class RestrictedCourseRunTests(TestCase):
         self.assertEqual(str(restricted_course_run), "course-v1:SC+BreadX+3T2015: <custom-b2b-enterprise>")
 
 
+@ddt.ddt
 class BulkOperationTaskTest(TransactionTestCase):
+    """
+    Unit Test class for testing Celery Tasks and their functionality.
+    """
+    def setUp(self):
+        PartnerFactory(short_code='test', id=settings.DEFAULT_PARTNER_ID)
+
     def test_create_queues_task(self):
         """
         Verify that creation of a BulkOperationTask queues a celery task for its processing
@@ -4391,33 +4398,36 @@ class BulkOperationTaskTest(TransactionTestCase):
                 bulk_operation_task.save()
                 self.assertEqual(mocked_apply_async.call_count, 1)
 
-    def test_bulk_operation_celery_task__success(self):
-        """
-        Verify that the celery task triggered on creation of a BulkOperationTask appropriately
-        modified the state(status and summary) of the BulkOperationTask
-        """
-        with mock.patch('course_discovery.apps.course_metadata.tasks.CourseLoader') as mock_loader:
-            mock_loader.return_value.ingest.return_value = {"success_count": 23, "failure_count": 2}
-            PartnerFactory(short_code='edx')
-            bulk_operation_task = BulkOperationTaskFactory(task_type=BulkOperationType.CourseCreate)
-            bulk_operation_task.refresh_from_db()
+    @ddt.data(
+        ("CourseLoader", BulkOperationType.CourseCreate, True, {"success_count": 23, "failure_count": 2},
+         BulkOperationStatus.Completed),
+        ("CourseLoader", BulkOperationType.CourseCreate, False, None, BulkOperationStatus.Failed),
+        ("CourseRunDataLoader", BulkOperationType.CourseRerun, True, {"success_count": 23, "failure_count": 2},
+         BulkOperationStatus.Completed),
+        ("CourseRunDataLoader", BulkOperationType.CourseRerun, False, None, BulkOperationStatus.Failed),
+    )
+    @ddt.unpack
+    @mock.patch("course_discovery.apps.course_metadata.tasks.CourseLoader")
+    @mock.patch("course_discovery.apps.course_metadata.tasks.CourseRunDataLoader")
+    def test_bulk_operation_task_loader_execution(
+            self, loader_class_name, task_type, should_succeed, expected_summary, expected_status,
+            mock_course_run_loader, mock_course_loader
+    ):
+        mock_loader = mock_course_loader if loader_class_name == "CourseLoader" else mock_course_run_loader
+        # import pdb
+        # pdb.set_trace()
+        if should_succeed:
+            mock_loader.return_value.ingest.return_value = expected_summary
+        else:
+            mock_loader.return_value.ingest.side_effect = KeyError("Simulated failure")
 
-            self.assertEqual(bulk_operation_task.status, BulkOperationStatus.Completed)
-            self.assertEqual(bulk_operation_task.task_summary, {"success_count": 23, "failure_count": 2})
+        bulk_operation_task = BulkOperationTaskFactory(task_type=task_type)
+        bulk_operation_task.refresh_from_db()
 
-    def test_bulk_operation_celery_task__failure(self):
-        """
-        Verify that the celery task triggered on creation of a BulkOperationTask appropriately
-        modified the state(status and summary) of the BulkOperationTask in the case that it fails
-        """
-        with mock.patch('course_discovery.apps.course_metadata.tasks.CourseLoader') as mock_loader:
-            mock_loader.return_value.ingest.side_effect = KeyError("Can not find short_description")
-            PartnerFactory(short_code='edx')
-            bulk_operation_task = BulkOperationTaskFactory(task_type=BulkOperationType.CourseCreate)
-            bulk_operation_task.refresh_from_db()
-
-            self.assertEqual(bulk_operation_task.status, BulkOperationStatus.Failed)
-            self.assertEqual(bulk_operation_task.task_summary, None)
+        mock_loader.assert_called_once()
+        mock_loader.return_value.ingest.assert_called_once()
+        self.assertEqual(bulk_operation_task.status, expected_status)
+        self.assertEqual(bulk_operation_task.task_summary, expected_summary)
 
     def test_bulk_operation_task_creation(self):
         """

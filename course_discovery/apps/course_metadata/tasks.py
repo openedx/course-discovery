@@ -4,10 +4,12 @@ Celery tasks for course metadata.
 import logging
 
 from celery import shared_task
+from django.conf import settings
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
 from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
+from course_discovery.apps.course_metadata.data_loaders.course_run_loader import CourseRunDataLoader
 from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, Program, ProgramType
 
 LOGGER = logging.getLogger(__name__)
@@ -59,15 +61,19 @@ def select_and_init_bulk_operation_loader(bulk_operation_task):
     """
     Identifies and instantiates the appropriate data loader for a given BulkOperationTask.
     """
+    partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
     if bulk_operation_task.task_type == BulkOperationType.CourseCreate:
-        partner = Partner.objects.get(short_code='edx')
-        loader = CourseLoader(
+        return CourseLoader(
             partner,
             csv_file=bulk_operation_task.csv_file,
             product_source='edx',
             task_type=BulkOperationType.CourseCreate,
         )
-        return loader
+    elif bulk_operation_task.task_type == BulkOperationType.CourseRerun:
+        return CourseRunDataLoader(
+            partner,
+            csv_file=bulk_operation_task.csv_file,
+        )
     else:
         raise ValueError(f"Cannot find loader for task type {bulk_operation_task.task_type}")
 
