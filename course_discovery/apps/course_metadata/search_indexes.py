@@ -108,6 +108,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     org = indexes.CharField()
     course_runs = indexes.MultiValueField()
+    partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
