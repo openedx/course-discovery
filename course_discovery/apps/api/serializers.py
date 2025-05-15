@@ -24,11 +24,10 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata import search_indexes
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
-    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
-    Video
+    Course, CourseRun, Organization, Person,
+    PersonSocialNetwork, PersonWork, Position, Program, ProgramType, Seat, Subject,
 )
 
 User = get_user_model()
@@ -384,9 +383,21 @@ class CourseSerializer(MinimalCourseSerializer):
         )
 
 
+class NestedProgramSerializer(serializers.ModelSerializer):
+    """
+    Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
+    the basic details of the Program and none of the details about its related entities (e.g. courses).
+    """
+    class Meta:
+        model = Program
+        fields = ('uuid', 'title')
+        read_only_fields = ('uuid',)
+
+
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
     course_runs = serializers.SerializerMethodField()
+    programs = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partners, queryset=None, course_runs=None):
@@ -410,8 +421,17 @@ class CourseWithProgramsSerializer(CourseSerializer):
             }
         ).data
 
+    def get_programs(self, obj):
+        if self.context.get('include_deleted_programs'):
+            eligible_programs = obj.programs.all()
+        else:
+            eligible_programs = obj.programs.exclude(status=ProgramStatus.Deleted)
+
+        return NestedProgramSerializer(eligible_programs, many=True).data
+
     class Meta(CourseSerializer.Meta):
         model = Course
+        fields = CourseSerializer.Meta.fields + ('programs',)
 
 
 class CatalogCourseSerializer(CourseSerializer):
