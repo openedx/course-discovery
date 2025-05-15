@@ -359,6 +359,26 @@ class Course(TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
+    @classmethod
+    def search(cls, query):
+        """ Queries the search index.
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+        Returns:
+            QuerySet
+        """
+        query = clean_query(query)
+        results = SearchQuerySet().models(cls).raw_search(query)
+        ids = {result.pk for result in results}
+
+        if waffle.switch_is_active('log_course_search_queries'):
+            logger.info('Course search query {query} returned the following ids: {course_ids}'.format(
+                query=query,
+                course_ids=ids
+            ))
+
+        return cls.objects.filter(pk__in=ids)
+
 
 class LanguageField(models.CharField):
     """Represents a language from the ISO 639-2 language set."""

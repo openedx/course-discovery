@@ -42,15 +42,21 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               multiple: false
         """
         q = self.request.query_params.get('q')
-        partner = self.request.site.partner
+        partners = self.request.site.partner_set.all()
 
         if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
+            qs = SearchQuerySetWrapper(
+                CourseRun.search(q).filter(
+                    partner__in=[partner.id for partner in partners]
+                )
+            )
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
         else:
-            queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
+            queryset = super(CourseRunViewSet, self).get_queryset().filter(
+                course__partner__in=[partner.id for partner in partners]
+            )
             return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
     def get_serializer_context(self, *args, **kwargs):
@@ -135,7 +141,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """ Retrieve details for a course run. """
         return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
 
-    @list_route()
+    @list_route(methods=['get'])
     def contains(self, request):
         """
         Determine if course runs are found in the query results.
@@ -166,12 +172,13 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
-        partner = self.request.site.partner
+        partners = self.request.site.partner_set.all()
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
-                values_list('key', flat=True)
+            course_runs = CourseRun.search(query).filter(
+                partner__in=[partner.id for partner in partners]
+            ).filter(key__in=course_run_ids).values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
             instance = {'course_runs': contains}

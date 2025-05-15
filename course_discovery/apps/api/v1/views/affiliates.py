@@ -39,13 +39,8 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
         seats = Seat.objects.filter(type__in=[Seat.VERIFIED, Seat.PROFESSIONAL]).filter(course_run__in=course_runs)
         seats = seats.select_related(
             'course_run',
-            'course_run__language',
             'course_run__course',
-            'course_run__course__level_type',
             'course_run__course__partner',
-        ).prefetch_related(
-            'course_run__course__authoring_organizations',
-            'course_run__course__subjects',
         )
 
         serializer = serializers.AffiliateWindowSerializer(seats, many=True)
