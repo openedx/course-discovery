@@ -61,9 +61,10 @@ from course_discovery.apps.course_metadata.toggles import (
     IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
-    get_course_run_statuses, get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, validate_ai_languages
+    UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
+    custom_render_variations, get_course_run_statuses, get_slug_for_course, is_ocm_course,
+    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
+    validate_ai_languages
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -5032,7 +5033,7 @@ class BulkOperationTask(TimeStampedModel):
     Model to store information related to bulk operations.
     """
     csv_file = models.FileField(
-        upload_to='bulk_operations/uploads/%Y-%m/',
+        upload_to=bulk_operation_upload_to_path,
         validators=[FileExtensionValidator(allowed_extensions=['csv'])],
         help_text=_("It expects the data will be provided in a csv file format "
                     "with first row containing all the headers."),

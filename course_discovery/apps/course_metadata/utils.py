@@ -1283,3 +1283,10 @@ def validate_ai_languages(ai_langs):
         jsonschema.validate(ai_langs, AI_LANG_SCHEMA)
     except Exception as exc:
         raise ValidationError("Could not validate ai_languages field") from exc
+
+
+def bulk_operation_upload_to_path(instance, filename):  # pylint: disable=unused-argument
+    """
+    Utility method used on BulkOperationTask csv_file field to generate unique file names.
+    """
+    return f"bulk_operations/uploads/{str(uuid.uuid4())}-{filename}"

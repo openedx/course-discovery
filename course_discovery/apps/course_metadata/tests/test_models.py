@@ -18,7 +18,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.test import TestCase, override_settings
 from django_celery_results.models import TaskResult
 from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
@@ -4288,7 +4288,7 @@ class RestrictedCourseRunTests(TestCase):
 
 
 @ddt.ddt
-class BulkOperationTaskTest(TransactionTestCase):
+class BulkOperationTaskTest(TestCase):
 
     def test_bulk_operation_task_creation(self):
         """
@@ -4296,36 +4296,47 @@ class BulkOperationTaskTest(TransactionTestCase):
         """
         bulk_operation_task = factories.BulkOperationTaskFactory()
         assert bulk_operation_task.task_type == BulkOperationType.CourseCreate
-        self.assertIsNotNone(bulk_operation_task.uploaded_by)
-        self.assertTrue(bulk_operation_task.csv_file.name.endswith('.csv'))
+        assert bulk_operation_task.uploaded_by is not None
+        assert bulk_operation_task.csv_file.name.endswith('.csv')
+
+    def test_bulk_operation_task_creation__unique_file_names(self):
+        """
+        Verify that the bulk operation task is created with the correct attributes.
+        """
+        bulk_operation_task_1 = factories.BulkOperationTaskFactory()
+        bulk_operation_task_2 = factories.BulkOperationTaskFactory()
+        assert bulk_operation_task_1.csv_file.name.endswith('.csv')
+        assert bulk_operation_task_2.csv_file.name.endswith('.csv')
+        assert bulk_operation_task_1.csv_file.name != bulk_operation_task_2.csv_file.name
 
     def test_task_result_property_with_existing_result(self):
         """
         Verify that the task_result method returns the correct TaskResult object
         """
         with mock.patch('course_discovery.apps.course_metadata.signals.uuid', return_value='test-task-123'):
-            bulk_operation = factories.BulkOperationTaskFactory()
             task_result = TaskResult.objects.create(
                 task_id="test-task-123",
                 status="SUCCESS",
                 result='{"message": "Task completed"}'
             )
+            bulk_operation = factories.BulkOperationTaskFactory(task_id='test-task-123')
+
         result = bulk_operation.task_result
-        self.assertEqual(result, task_result)
+        assert result == task_result
 
     def test_task_result_property_with_no_task_result(self):
         """
         Verify that the task_result method handles if no task result is found.
         """
         bulk_operation = factories.BulkOperationTaskFactory(task_id="non-existent-task")
-        self.assertIsNone(bulk_operation.task_result)
+        assert bulk_operation.task_result is None
 
     def test_task_result_property_with_no_task_id(self):
         """
         Verify that the task_result method handles if no task ID is associated with the bulk operation.
         """
         bulk_operation = factories.BulkOperationTaskFactory(task_id=None)
-        self.assertIsNone(bulk_operation.task_result)
+        assert bulk_operation.task_result is None
 
     def test_str_representation(self):
         """
@@ -4333,7 +4344,7 @@ class BulkOperationTaskTest(TransactionTestCase):
         """
         bulk_operation = factories.BulkOperationTaskFactory()
         string_output = str(bulk_operation)
-        self.assertIn(bulk_operation.uploaded_by.username, string_output)
+        assert bulk_operation.uploaded_by.username in string_output
 
     def test_save_assigns_uploaded_by(self):
         """
@@ -4342,7 +4353,7 @@ class BulkOperationTaskTest(TransactionTestCase):
         user = factories.UserFactory()
         bulk_operation = factories.BulkOperationTaskFactory.build(uploaded_by=None)
         bulk_operation.save(user=user)
-        self.assertEqual(bulk_operation.uploaded_by, user)
+        assert bulk_operation.uploaded_by == user
 
     def test_bulk_operation_task_save_raises_error_without_user_or_uploaded_by(self):
         """
