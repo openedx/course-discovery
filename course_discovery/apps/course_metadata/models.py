@@ -5032,7 +5032,7 @@ class BulkOperationTask(TimeStampedModel):
     Model to store information related to bulk operations.
     """
     csv_file = models.FileField(
-        upload_to=UploadToFieldNamePath(populate_from='created', path='bulk_operations'),
+        upload_to='bulk_operations/uploads/%Y-%m/',
         validators=[FileExtensionValidator(allowed_extensions=['csv'])],
         help_text=_("It expects the data will be provided in a csv file format "
                     "with first row containing all the headers."),
