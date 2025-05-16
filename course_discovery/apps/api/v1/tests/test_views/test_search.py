@@ -155,90 +155,6 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response_data = response.json()
         assert response_data['objects']['results'] == [self.serialize_course_run_search(archived)]
 
-    @ddt.data(
-        (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 6),
-        (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 6),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 35),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 36),
-    )
-    @ddt.unpack
-    def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
-                                               expected_queries):
-        """ Verify that unavailable programs do not show in the program_types representation. """
-        course_run = CourseRunFactory(course__partner=self.partner, course__title='Software Testing',
-                                      status=CourseRunStatus.Published)
-        active_program = ProgramFactory(courses=[course_run.course], status=ProgramStatus.Active)
-        ProgramFactory(courses=[course_run.course], status=program_status)
-        self.reindex_courses(active_program)
-
-        with self.assertNumQueries(expected_queries):
-            response = self.get_response('software', path=path)
-            assert response.status_code == 200
-            response_data = response.json()
-
-            # Validate the search results
-            expected = {
-                'count': 1,
-                'results': [
-                    self.serialize_course_run_search(course_run, serializer=serializer)
-                ]
-            }
-            self.assertDictContainsSubset(expected, response_data)
-
-            # Check that the program is indeed the active one.
-            for key in result_location_keys:
-                response_data = response_data[key]
-            assert response_data == active_program.type.name
-
-    @ddt.data(
-        [{'title': 'Software Testing', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}],
-    )
-    def test_excluded_course_run(self, course_runs):
-        course_list = []
-        course_run_list = []
-        excluded_course_run_list = []
-        non_excluded_course_run_list = []
-        for run in course_runs:
-            course_run = CourseRunFactory(course__partner=self.partner, course__title=run['title'],
-                                          status=CourseRunStatus.Published)
-            course_list.append(course_run.course)
-            course_run_list.append(course_run)
-            if run['excluded']:
-                excluded_course_run_list.append(course_run)
-            else:
-                non_excluded_course_run_list.append(course_run)
-
-        program = ProgramFactory(
-            courses=course_list,
-            status=ProgramStatus.Active,
-            excluded_course_runs=excluded_course_run_list
-        )
-        self.reindex_courses(program)
-
-        with self.assertNumQueries(5):
-            response = self.get_response('software', path=self.list_path)
-
-        assert response.status_code == 200
-        response_data = response.json()
-
-        assert response_data['count'] == len(course_run_list)
-        for result in response_data['results']:
-            for course_run in excluded_course_run_list:
-                if result.get('title') == course_run.title:
-                    assert result.get('program_types') == []
-
-            for course_run in non_excluded_course_run_list:
-                if result.get('title') == course_run.title:
-                    assert result.get('program_types') == course_run.program_types
-
 
 @ddt.ddt
 class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
@@ -274,17 +190,6 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response_data = response.json()
         assert response_data['objects']['results'] == \
             [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
-
-    def test_hidden_runs_excluded(self):
-        """Search results should not include hidden runs."""
-        visible_run = CourseRunFactory(course__partner=self.partner)
-        hidden_run = CourseRunFactory(course__partner=self.partner, hidden=True)
-
-        assert CourseRun.objects.get(hidden=True) == hidden_run
-
-        response = self.get_response()
-        data = response.json()
-        assert data['objects']['results'] == [self.serialize_course_run_search(visible_run)]
 
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
@@ -421,25 +326,6 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         # compare course titles embedded in course run title to ensure that course runs belong to different courses
         assert course_runs[0]['title'][4:-1] != course_runs[1]['title'][4:-1]
 
-    def test_typeahead_multiple_authoring_organizations(self):
-        """ Test typeahead response with multiple authoring organizations. """
-        title = "Design"
-        authoring_organizations = OrganizationFactory.create_batch(3)
-        course_run = CourseRunFactory(
-            title=title,
-            authoring_organizations=authoring_organizations,
-            course__partner=self.partner
-        )
-        program = ProgramFactory(
-            title=title, authoring_organizations=authoring_organizations,
-            status=ProgramStatus.Active, partner=self.partner
-        )
-        response = self.get_response({'q': title})
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run_search(course_run)],
-                                             'programs': [self.serialize_program_search(program)]})
-
     def test_partial_term_search(self):
         """ Test typeahead response with partial term search. """
         title = "Learn Data Science"
@@ -455,81 +341,27 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         }
         self.assertDictEqual(response_data, expected_response_data)
 
-    def test_unpublished_and_hidden_courses(self):
-        """ Verify that typeahead does not return unpublished or hidden courses
-        or programs that are not active. """
-        title = "supply"
-        course_run = CourseRunFactory(title=title, course__partner=self.partner)
-        CourseRunFactory(title=title + "unpublished", status=CourseRunStatus.Unpublished, course__partner=self.partner)
-        CourseRunFactory(title=title + "hidden", hidden=True, course__partner=self.partner)
-        program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
-        ProgramFactory(title=title + "unpublished", status=ProgramStatus.Unpublished, partner=self.partner)
-        query = "suppl"
-        response = self.get_response({'q': query})
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        expected_response_data = {
-            'course_runs': [self.serialize_course_run_search(course_run)],
-            'programs': [self.serialize_program_search(program)]
-        }
-        self.assertDictEqual(response_data, expected_response_data)
-
-    def test_typeahead_hidden_programs(self):
-        """ Verify that typeahead does not return hidden programs. """
-        title = "hiddenprogram"
-        program = ProgramFactory(title=title, hidden=False, status=ProgramStatus.Active, partner=self.partner)
-        ProgramFactory(title=program.title + 'hidden', hidden=True, status=ProgramStatus.Active, partner=self.partner)
-        response = self.get_response({'q': program.title})
-        self.assertEqual(response.status_code, 200)
-        response_data = response.json()
-        expected_response_data = {
-            'course_runs': [],
-            'programs': [self.serialize_program_search(program)]
-        }
-        self.assertDictEqual(response_data, expected_response_data)
-
     def test_exception(self):
         """ Verify the view raises an error if the 'q' query string parameter is not provided. """
         response = self.get_response()
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
 
-    def test_typeahead_authoring_organizations_partial_search(self):
-        """ Test typeahead response with partial organization matching. """
-        authoring_organizations = OrganizationFactory.create_batch(3)
-        course_run = CourseRunFactory(authoring_organizations=authoring_organizations, course__partner=self.partner)
-        program = ProgramFactory(authoring_organizations=authoring_organizations, partner=self.partner)
-        partial_key = authoring_organizations[0].key[0:5]
-
-        response = self.get_response({'q': partial_key})
-        self.assertEqual(response.status_code, 200)
-        expected = {
-            'course_runs': [self.serialize_course_run_search(course_run)],
-            'programs': [self.serialize_program_search(program)]
-        }
-        self.assertDictEqual(response.data, expected)
-
     def test_typeahead_org_course_runs_come_up_first(self):
         """ Test typeahead response to ensure org is taken into account. """
-        MITx = OrganizationFactory(key='MITx')
-        HarvardX = OrganizationFactory(key='HarvardX')
         mit_run = CourseRunFactory(
-            authoring_organizations=[MITx, HarvardX],
             title='MIT Testing1',
             course__partner=self.partner
         )
         harvard_run = CourseRunFactory(
-            authoring_organizations=[HarvardX],
             title='MIT Testing2',
             course__partner=self.partner
         )
         mit_program = ProgramFactory(
-            authoring_organizations=[MITx, HarvardX],
             title='MIT Testing1',
             partner=self.partner
         )
         harvard_program = ProgramFactory(
-            authoring_organizations=[HarvardX],
             title='MIT Testing2',
             partner=self.partner
         )

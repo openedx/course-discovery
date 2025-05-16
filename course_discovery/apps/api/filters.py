@@ -93,7 +93,7 @@ class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
 
         # Return data for the default partner, if no partner is requested
         if not any(field in filters for field in ('partner', 'partner_exact')):
-            filters['partner'] = request.site.partner.short_code
+            filters['partner__in'] = [p.short_code for p in request.site.partner_set.all()]
 
         return filters
 

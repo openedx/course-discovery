@@ -127,16 +127,14 @@ class TypeaheadSearchView(APIView):
     RESULT_COUNT = 3
     permission_classes = (IsAuthenticated,)
 
-    def get_results(self, query, partner):
+    def get_results(self, query, partners):
         sqs = SearchQuerySet()
         clean_query = sqs.query.clean(query)
 
         course_runs = sqs.models(CourseRun).filter(
-            SQ(title_autocomplete=clean_query) |
-            SQ(course_key=clean_query) |
-            SQ(authoring_organizations_autocomplete=clean_query)
+            SQ(course_key=clean_query)
         )
-        course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner=partner.short_code)
+        course_runs = course_runs.filter(published=True).exclude(hidden=True).filter(partner__in=partners)
 
         # Get first three results after deduplicating by course key.
         seen_course_keys, course_run_list = set(), []
@@ -153,10 +151,9 @@ class TypeaheadSearchView(APIView):
                 break
 
         programs = sqs.models(Program).filter(
-            SQ(title_autocomplete=clean_query) |
-            SQ(authoring_organizations_autocomplete=clean_query)
+            SQ(title_autocomplete=clean_query)
         )
-        programs = programs.filter(status=ProgramStatus.Active).exclude(hidden=True).filter(partner=partner.short_code)
+        programs = programs.filter(status=ProgramStatus.Active).exclude(hidden=True).filter(partner__in=partners)
         programs = programs[:self.RESULT_COUNT]
 
         return course_run_list, programs
@@ -184,10 +181,10 @@ class TypeaheadSearchView(APIView):
               type: string
         """
         query = request.query_params.get('q')
-        partner = request.site.partner
+        partners = request.site.partner_set.all()
         if not query:
             raise ValidationError("The 'q' querystring parameter is required for searching.")
-        course_runs, programs = self.get_results(query, partner)
+        course_runs, programs = self.get_results(query, partners)
         data = {'course_runs': course_runs, 'programs': programs}
         serializer = serializers.TypeaheadSearchSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)

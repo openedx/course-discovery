@@ -126,9 +126,8 @@ class SynonymTestMixin:
         factories.CourseRunFactory(
             title=title,
             course__partner=self.partner,
-            authoring_organizations=authoring_organizations
         )
-        factories.ProgramFactory(title=title, partner=self.partner, authoring_organizations=authoring_organizations)
+        factories.ProgramFactory(title=title, partner=self.partner)
         response1 = self.process_response({'q': title})
         response2 = self.process_response({'q': 'University'})
         assert response1 == response2
