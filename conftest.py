@@ -22,7 +22,7 @@ TTC = ['course_discovery/apps/course_metadata/management/commands/tests/test_ref
        'RefreshCourseMetadataCommandTests',
        'course_discovery/apps/course_metadata/tests/test_admin.py::ProgramAdminFunctionalTests',
        'course_discovery/apps/tagging/tests/test_views.py::CourseTaggingDetailViewJSTests',
-       'course_discovery/apps/course_metadata/tests/test_models.py::BulkOperationTaskTest']
+       'course_discovery/apps/course_metadata/tests/test_tasks.py::ProcessBulkOperationsTest']
 
 
 class LoadScopeSchedulingDjangoOrdered(LoadScopeScheduling):
