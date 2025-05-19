@@ -1289,4 +1289,4 @@ def bulk_operation_upload_to_path(instance, filename):  # pylint: disable=unused
     """
     Utility method used on BulkOperationTask csv_file field to generate unique file names.
     """
-    return f"bulk_operations/uploads/{str(uuid.uuid4())}-{filename}"
+    return f"bulk_operations/uploads/{str(uuid.uuid4())}/{filename}"
