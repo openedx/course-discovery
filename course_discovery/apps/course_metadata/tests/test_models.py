@@ -17,6 +17,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
 from django_celery_results.models import TaskResult
@@ -4301,10 +4302,13 @@ class BulkOperationTaskTest(TestCase):
 
     def test_bulk_operation_task_creation__unique_file_names(self):
         """
-        Verify that the bulk operation task is created with the correct attributes.
+        Verify that unique file paths are created for two bulk operations with same uploaded filename.
         """
-        bulk_operation_task_1 = factories.BulkOperationTaskFactory()
-        bulk_operation_task_2 = factories.BulkOperationTaskFactory()
+        csv_file = SimpleUploadedFile(
+            "test.csv", b"header1,header2\nvalue1,value2", content_type="text/csv"
+        )
+        bulk_operation_task_1 = factories.BulkOperationTaskFactory(csv_file=csv_file)
+        bulk_operation_task_2 = factories.BulkOperationTaskFactory(csv_file=csv_file)
         assert bulk_operation_task_1.csv_file.name.endswith('.csv')
         assert bulk_operation_task_2.csv_file.name.endswith('.csv')
         assert bulk_operation_task_1.csv_file.name != bulk_operation_task_2.csv_file.name
