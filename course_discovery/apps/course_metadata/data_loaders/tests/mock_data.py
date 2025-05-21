@@ -192,10 +192,11 @@ ECOMMERCE_API_BODIES = [
                 "structure": "child",
                 "expires": None,
                 "attribute_values": [],
+                "price": "0.00",
                 "stockrecords": [
                     {
                         "price_currency": "USD",
-                        "price": "0.00",
+                        "price_excl_tax": "0.00",
                         "partner_sku": "sku001",
                     }
                 ]
@@ -242,7 +243,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "EUR",
-                        "price": "25.00",
+                        "price_excl_tax": "25.00",
                         "partner_sku": "sku003",
                     }
                 ]
@@ -260,7 +261,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "EUR",
-                        "price": "250.00",
+                        "price_excl_tax": "250.00",
                         "partner_sku": "mobile.android.sku003",
                     }
                 ]
@@ -304,7 +305,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "USD",
-                        "price": "0.00",
+                        "price_excl_tax": "0.00",
                         "partner_sku": "sku005",
                     }
                 ]
@@ -321,7 +322,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "USD",
-                        "price": "25.00",
+                        "price_excl_tax": "25.00",
                         "partner_sku": "sku006",
                     }
                 ]
@@ -350,7 +351,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "USD",
-                        "price": "250.00",
+                        "price_excl_tax": "250.00",
                         "partner_sku": "sku007",
                     }
                 ]
@@ -404,7 +405,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "123",
-                        "price": "0.00",
+                        "price_excl_tax": "0.00",
                         "partner_sku": "sku009",
                     }
                 ]
@@ -429,7 +430,7 @@ ECOMMERCE_API_BODIES = [
                 "stockrecords": [
                     {
                         "price_currency": "USD",
-                        "price": "0.00",
+                        "price_excl_tax": "0.00",
                         "partner_sku": "sku010",
                     }
                 ]
