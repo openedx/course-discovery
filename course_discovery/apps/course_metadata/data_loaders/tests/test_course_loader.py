@@ -161,24 +161,25 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     ])
                     self.assertEqual(loader.ingestion_summary['success_count'], 1)
 
+    @data(
+        mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
+        mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT_WITH_OPTIONAL_FIELDS,
+    )
     def test_course_loader_ingest_for_course_creation_with_attributes_required_for_review(
-        self, mock_jwt_decode_handler
+            self, csv_data, mock_jwt_decode_handler
     ):  # pylint: disable=unused-argument
         """
-        Test Course Loader for course creation.
+        Test Course Loader for course creation using both required-only and full datasets.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
         self.mock_image_response()
 
-        csv_data = {
-            **mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
-        }
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
                 csv, [csv_data],
-                headers=mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT.keys()
+                headers=csv_data.keys()
             )
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
@@ -204,9 +205,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self.assertEqual(course.title, csv_data['Title'])
                     self.assertEqual(course.partner, self.partner)
                     self.assertEqual(course.type, CourseType.objects.get(name=csv_data['Course Enrollment Track']))
-                    course_run = CourseRun.everything.get(
-                        course=course,
-                    )
+                    course_run = CourseRun.everything.get(course=course)
                     self.assertEqual(course_run.status, CourseRunStatus.LegalReview)
 
     @data(
@@ -454,8 +453,13 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_studio_calls(self.partner)
         _ = self.mock_image_response()
 
+        VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': 'Audit Only'
+        }
+
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            csv = self._write_csv(csv, [VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
 
             with mock.patch.object(CourseLoader, "call_course_api", self.mock_call_course_api):
                 loader = CourseLoader(
@@ -496,8 +500,13 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_studio_calls(self.partner)
         _ = self.mock_image_response()
 
+        VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': 'Audit Only'
+        }
+
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            csv = self._write_csv(csv, [VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
 
             with mock.patch.object(
                 CourseLoader, "call_course_api", self.mock_call_course_api

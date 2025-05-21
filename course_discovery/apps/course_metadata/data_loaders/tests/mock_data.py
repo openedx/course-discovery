@@ -3258,22 +3258,29 @@ VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT = {
     "End Date": "2025-12-11",
     "Course Pacing": "Self-paced",
     "Course Enrollment Track": "Verified and Audit",
+    "Image": "https://example.com/image.jpg",
     "Course Run Enrollment Track": "Verified and Audit",
     "Primary Subject": "Computer Science",
-    "Secondary Subject": "Social Sciences",
-    "Tertiary Subject": "",
     "Publish Date": "2025-04-21",
-    "Start Time": "00:00:00",
-    "End Time": "00:00:00",
     "Length": "8",
-    "Content Language": "English - United States",
-    "Transcript Languages": "English - United States",
     "Verified Price": "500",
-    'Image': 'https://example.com/image.jpg',
     "Short Description": "Learn the basics of course loader.",
     "Long Description": "A comprehensive introduction to course loader.",
     "What will you Learn": "Variables, Loops, Functions",
     "Level Type": "Intermediate",
+    "Minimum Effort": "4",
+    "Maximum Effort": "6",
+    "Move to Legal Review": "True"
+}
+
+VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT_WITH_OPTIONAL_FIELDS = {
+    **VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
+    "Secondary Subject": "Social Sciences",
+    "Tertiary Subject": "",
+    "Start Time": "00:00:00",
+    "End Time": "00:00:00",
+    "Content Language": "English - United States",
+    "Transcript Languages": "English - United States",
     "Syllabus": "Less go",
     "About Video Link": "",
     "Prerequisites": "",
@@ -3282,9 +3289,6 @@ VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT = {
     "Organization Short Code Override": "UCS",
     "Reg Close Date": "2025-04-11",
     "Reg Close Time": "00:00:00",
-    "Minimum Effort": "4",
-    "Maximum Effort": "6",
-    "Move to Legal Review": "True"
 }
 
 
