@@ -856,7 +856,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for product in products:
             stock_record = product['stockrecords'][0]
             price_currency = stock_record['price_currency']
-            price = Decimal(stock_record['price'])
+            price = Decimal(stock_record.get('price') or stock_record.get('price_excl_tax'))
             sku = stock_record['partner_sku']
             certificate_type = Seat.AUDIT
             credit_provider = None
