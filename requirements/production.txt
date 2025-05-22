@@ -525,8 +525,6 @@ multidict==6.4.4
     #   yarl
 mysqlclient==2.2.7
     # via -r requirements/production.in
-newrelic==10.12.0
-    # via -r requirements/production.in
 oauthlib==3.2.2
     # via
     #   -r requirements/base.txt
