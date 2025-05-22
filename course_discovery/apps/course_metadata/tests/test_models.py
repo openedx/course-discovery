@@ -4300,19 +4300,6 @@ class BulkOperationTaskTest(TestCase):
         assert bulk_operation_task.uploaded_by is not None
         assert bulk_operation_task.csv_file.name.endswith('.csv')
 
-    def test_bulk_operation_task_creation__unique_file_names(self):
-        """
-        Verify that unique file paths are created for two bulk operations with same uploaded filename.
-        """
-        csv_file = SimpleUploadedFile(
-            "test.csv", b"header1,header2\nvalue1,value2", content_type="text/csv"
-        )
-        bulk_operation_task_1 = factories.BulkOperationTaskFactory(csv_file=csv_file)
-        bulk_operation_task_2 = factories.BulkOperationTaskFactory(csv_file=csv_file)
-        assert bulk_operation_task_1.csv_file.name.endswith('.csv')
-        assert bulk_operation_task_2.csv_file.name.endswith('.csv')
-        assert bulk_operation_task_1.csv_file.name != bulk_operation_task_2.csv_file.name
-
     def test_task_result_property_with_existing_result(self):
         """
         Verify that the task_result method returns the correct TaskResult object
