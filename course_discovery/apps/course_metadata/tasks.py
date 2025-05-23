@@ -5,12 +5,16 @@ import logging
 
 from celery import shared_task
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
 from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
 from course_discovery.apps.course_metadata.data_loaders.course_run_loader import CourseRunDataLoader
-from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, Program, ProgramType
+from course_discovery.apps.course_metadata.emails import send_course_deadline_email
+from course_discovery.apps.course_metadata.models import (
+    BulkOperationTask, Course, CourseRun, CourseType, Program, ProgramType
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -99,3 +103,26 @@ def process_bulk_operation(bulk_operation_task_id):
         bulk_operation_task.status = BulkOperationStatus.Failed
         bulk_operation_task.save()
         raise exc
+
+
+@shared_task
+def process_send_course_deadline_email(course_key, course_run_key, recipients, email_variant=None):
+    """
+    Task to send course deadline emails to recipients (e.g., Project Coordinators and Course Editors).
+    """
+    try:
+        course = Course.objects.get(key=course_key)
+        course_run = CourseRun.objects.get(key=course_run_key)
+
+        LOGGER.info(
+            f"Sending course deadline email for course '{course.title} ({course.key})' to recipients: {recipients}"
+        )
+        send_course_deadline_email(course, course_run, recipients, email_variant)
+
+    except ObjectDoesNotExist as exc:
+        LOGGER.error(f"Course or CourseRun not found: {exc}")
+        raise
+
+    except Exception as e:
+        LOGGER.error(f"Failed to send course deadline email for course {course.key}: {e}")
+        raise e

@@ -8,17 +8,22 @@ import pytest
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.test import TestCase, TransactionTestCase
+from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
-from course_discovery.apps.course_metadata.models import BulkOperationTask, CourseType, Organization, ProgramType
+from course_discovery.apps.course_metadata.models import (
+    BulkOperationTask, Course, CourseType, Organization, ProgramType
+)
 from course_discovery.apps.course_metadata.signals import (
     on_bulk_operation_create, update_enterprise_inclusion_for_courses_and_programs
 )
 from course_discovery.apps.course_metadata.tasks import (
-    process_bulk_operation, update_org_program_and_courses_ent_sub_inclusion
+    process_bulk_operation, process_send_course_deadline_email, update_org_program_and_courses_ent_sub_inclusion
 )
 from course_discovery.apps.course_metadata.tests import factories
+
+LOGGER_PATH = 'course_discovery.apps.course_metadata.tasks'
 
 
 @ddt.ddt
@@ -190,3 +195,75 @@ class EnterpriseSubscriptionInclusionTests(OAuth2Mixin, TestCase):
 
         program.refresh_from_db()
         assert program.enterprise_subscription_inclusion is False
+
+
+class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
+    """
+    Test suite for process_send_course_deadline_email task.
+    """
+    def setUp(self):
+        self.course = factories.CourseFactory()
+        self.course_run = factories.CourseRunFactory(course=self.course)
+        self.recipients = ['pc@example.com', 'editor@example.com']
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.send_course_deadline_email')
+    def test_process_send_course_deadline_email_success(self, mock_send_email):
+        """
+        Test that the process_send_course_deadline_email task calls the send_course_deadline_email method
+        with the correct parameters.
+        """
+        with LogCapture(LOGGER_PATH) as log_capture:
+            process_send_course_deadline_email(
+                self.course.key,
+                self.course_run.key,
+                self.recipients,
+                email_variant='seven_days_reminder',
+            )
+            log_capture.check(
+                (
+                    LOGGER_PATH, 'INFO',
+                    f"Sending course deadline email for course "
+                    f"'{self.course.title} ({self.course.key})' to recipients: {self.recipients}"
+                ),
+            )
+
+        assert mock_send_email.called is True
+        mock_send_email.assert_called_once_with(
+            self.course,
+            self.course_run,
+            self.recipients,
+            'seven_days_reminder',
+        )
+
+    def test_process_send_course_deadline_email__does_not_exist_error(self):
+        """
+        Test that the process_send_course_deadline_email task raises a Course.DoesNotExist error
+        when the course does not exist.
+        """
+        invalid_key = 'non-existent-key'
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            with self.assertRaises(Course.DoesNotExist):
+                process_send_course_deadline_email(
+                    invalid_key,
+                    self.course_run.key,
+                    self.recipients,
+                    email_variant='seven_days_reminder',
+                )
+            log_capture.check(
+                (LOGGER_PATH, 'ERROR', "Course or CourseRun not found: Course matching query does not exist."),
+            )
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.send_course_deadline_email')
+    def test_process_send_course_deadline_email_generic_exception(self, mock_send_email):
+        mock_send_email.side_effect = ValueError("Unexpected error during email sending")
+
+        with self.assertRaises(ValueError) as context:
+            process_send_course_deadline_email(
+                self.course.key,
+                self.course_run.key,
+                self.recipients,
+                email_variant='seven_days_reminder',
+            )
+
+        self.assertIn("Unexpected error", str(context.exception))

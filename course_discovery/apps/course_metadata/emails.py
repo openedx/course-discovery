@@ -444,3 +444,39 @@ def send_email_for_course_archival(report, csv_report, to_users):
     email.attach("report.csv", csv_report, "text/csv")
     email.content_subtype = "html"
     email.send()
+
+
+def send_course_deadline_email(course, course_run, recipients, deadline_email_variant=None):
+    """
+    Send course deadline email to the recipients.
+    """
+    html_template = 'course_metadata/email/course_deadline.html'
+    template = get_template(html_template)
+    subject_lookup = {
+        "course_ended": f"Reminder: {course.title} has ended",
+        "two_days_reminder": f"Reminder: {course.title} ends in 2 days",
+        "seven_days_reminder": f"Reminder: {course.title} ends in 7 days",
+    }
+
+    subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
+
+    context = {
+        "course_uuid": course.uuid,
+        "course_name": course.title,
+        "course_key": course.key,
+        "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
+        "days_to_expire": '2 days' if deadline_email_variant == "two_days_reminder" else '7 days' if deadline_email_variant == "seven_days_reminder" else 'course ended',  # pylint: disable=line-too-long
+        "publisher_url": course.partner.publisher_url,
+        "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
+        "partner_marketing_site_url": course.partner.marketing_site_url_root,
+    }
+    html_content = template.render(context)
+    email = EmailMessage(
+        subject,
+        html_content,
+        settings.PUBLISHER_FROM_EMAIL,
+        recipients,
+    )
+    email.content_subtype = "html"
+    email.send()
+    logger.info(f"Course deadline email sent to {recipients} for course {course.title}")
