@@ -11,6 +11,7 @@ from course_discovery.apps.course_metadata.choices import BulkOperationStatus, B
 from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
 from course_discovery.apps.course_metadata.data_loaders.course_run_loader import CourseRunDataLoader
 from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, Program, ProgramType
+from course_discovery.apps.course_metadata.emails import send_course_deadline_email
 
 LOGGER = logging.getLogger(__name__)
 
@@ -99,3 +100,14 @@ def process_bulk_operation(bulk_operation_task_id):
         bulk_operation_task.status = BulkOperationStatus.Failed
         bulk_operation_task.save()
         raise exc
+
+@shared_task
+def process_send_course_deadline_email(course, recipients, email_variant=None):
+    """
+    Send course deadline email to the recipients.
+    """
+    try:
+        send_course_deadline_email(course, recipients, email_variant)
+    except Exception as e:
+        LOGGER.error(f"Failed to send course deadline email for course {course.key}: {e}")
+        raise e

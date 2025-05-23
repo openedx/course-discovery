@@ -1,0 +1,34 @@
+{% load i18n %}
+
+{% if recipent_role == 'course_editors' %}
+    {% blocktrans %} Hi Course Team,{% endblocktrans %}
+{% elif recipent_role == 'project_coordinators' %}
+    {% blocktrans %} Hi Project Coordinator,{% endblocktrans %}
+{% endif %}
+
+{% blocktrans %}
+{% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
+This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to go live on {{ course_publish_date }} is scheduled to end in {{ deadline_email_variant }} days on {{ course_end_date }}
+{% elif deadline_email_variant == -1 %}
+This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
+{% endblocktrans %}
+
+
+{% blocktrans %}
+{% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
+    To ensure uninterrupted learner access and enrollment, please take one of the following actions:
+{% elif deadline_email_variant == -1 %}
+    If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:
+{% endif %}
+{% endblocktrans %}
+
+- Extend the current course run’s end date if the same course is meant to remain available.
+- Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners.
+
+You can review and modify the course end settings here: {{ course_schedule_settings_url }}
+{% if deadline_email_variant == -1 %}
+    {% blocktrans trimmed %}
+    If no action is taken, the course will close automatically after the current end date.
+    {% endblocktrans %}
+{% endif %}
+Thanks
