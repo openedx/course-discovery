@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
-from celery import shared_task, uuid
+from celery import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -201,7 +201,6 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):
             util.update_publisher_organization(instance)
 
 
-@shared_task
 @receiver(post_save, sender=Organization)
 def update_enterprise_inclusion_for_courses_and_programs(instance, created, **kwargs):  # pylint: disable=unused-argument
     update_org_program_and_courses_ent_sub_inclusion.delay(
