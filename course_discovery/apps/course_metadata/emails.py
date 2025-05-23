@@ -444,3 +444,38 @@ def send_email_for_course_archival(report, csv_report, to_users):
     email.attach("report.csv", csv_report, "text/csv")
     email.content_subtype = "html"
     email.send()
+
+
+def send_course_deadline_email(course, recipients, deadline_email_variant=None):
+    """
+    Send course deadline email to the recipients.
+    """
+    html_template = 'course_metadata/email/course_deadline.html'
+    template = get_template(html_template)
+
+    subject = (
+        f"Reminder: {course.title} ends in {deadline_email_variant} days"
+        if deadline_email_variant != -1
+        else f"Reminder: {course.title} has ended"
+    )
+
+    for recipient_role, recipients_emails in recipients.items():
+        context = {
+            'course_name': course.title,
+            'course_key': course.key,
+            'course_end_date': course.advertised_course_run.end.strftime("%m/%d/%Y") if course.advertised_course_run.end else None,
+            'deadline_email_variant': deadline_email_variant,
+            'recipient_role': recipient_role,
+            'course_schedule_settings_url': f'{settings.STUDIO_BASE_URL}/settings/details/{course.advertised_course_run.key}#schedule'
+        }
+        html_content = template.render(context)
+
+        email = EmailMessage(
+            subject,
+            html_content,
+            settings.PUBLISHER_FROM_EMAIL,
+            [recipients_emails],
+        )
+        email.content_subtype = "html"
+        email.send()
+        logger.info(f"Course deadline email sent to {recipients_emails} for course {course.title}")
