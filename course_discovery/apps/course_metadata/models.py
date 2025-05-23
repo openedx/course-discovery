@@ -2804,25 +2804,25 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
                 raise ValidationError(_('Switching seat types after being reviewed is not supported. Please reach out '
                                         'to your project coordinator for additional help if necessary.'))
 
-    def get_seat_upgrade_deadline(self, seat_type):
+    def get_seat_upgrade_deadline(self, seat_type, upgrade_deadline_override):
         deadline = None
+        default_deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         # only verified seats have a deadline specified
         if seat_type.slug == Seat.VERIFIED:
-            seats = self.seats.filter(type=seat_type)
-            if seats:
-                deadline = seats[0].upgrade_deadline
+            if upgrade_deadline_override is None:
+                deadline = default_deadline
             else:
-                deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+                seats = self.seats.filter(type=seat_type)
+                deadline = seats[0].upgrade_deadline if seats else default_deadline
         return deadline
 
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
-        defaults = {
-            'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
-        }
+        default_deadline = self.get_seat_upgrade_deadline(seat_type, upgrade_deadline_override)
+        defaults = {'upgrade_deadline': default_deadline}
+
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
-
-        if upgrade_deadline_override and seat_type.slug == Seat.VERIFIED:
+        if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
 
         seat, __ = Seat.everything.update_or_create(
