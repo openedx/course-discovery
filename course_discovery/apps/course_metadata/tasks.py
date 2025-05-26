@@ -104,11 +104,12 @@ def process_bulk_operation(bulk_operation_task_id):
 @shared_task
 def process_send_course_deadline_email(course_key, course_run_key, recipients, email_variant=None):
     """
-    Send course deadline email to the recipients.
+    Task to send course deadline emails to its recipients (Project Coordinators and Course Editors).
     """
     course = Course.objects.get(key=course_key)
     course_run = CourseRun.objects.get(key=course_run_key)
     try:
+        LOGGER.info(f"Sending course deadline email for course '{course.title} ({course.key})' to recipients: {recipients}")
         send_course_deadline_email(course, course_run, recipients, email_variant)
     except Exception as e:
         LOGGER.error(f"Failed to send course deadline email for course {course.key}: {e}")

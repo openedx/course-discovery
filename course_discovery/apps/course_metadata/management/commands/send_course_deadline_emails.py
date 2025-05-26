@@ -4,13 +4,13 @@ such as course run end dates. The command retrieves all active course runs with 
 it sends an email to the course editors and PCs.
 """
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
-from course_discovery.apps.course_metadata.models import CourseRun, Course
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.publisher.models import OrganizationUserRole
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.course_metadata.tasks import process_send_course_deadline_email
@@ -27,6 +27,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info("Initalizing course deadline email management command.")
+        courses_with_deadlines = []
         now = datetime.now(timezone.utc)
         courses_with_self_paced_runs = Course.objects.filter(
             course_runs__pacing_type=CourseRunPacing.Self,
@@ -42,6 +43,7 @@ class Command(BaseCommand):
                     active_runs = course.active_course_runs.all()
                     if not active_runs.filter(status=CourseRunStatus.Reviewed).exists():
                         self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
+                        courses_with_deadlines.append(course)
                         logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                     else:
                         logger.info(f'Course {course.title} ({course.key}) has an active course run with status Scheduled.')
@@ -53,10 +55,13 @@ class Command(BaseCommand):
                     days_since_end = (last_course_run.end - now).days
                     if days_since_end == LAST_RUN_END_DELTA:
                         self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
+                        courses_with_deadlines.append(course)
                     else:
                         logger.info(f'Course {course.title} ({course.key}) has no course run whose end date is not within the specified range.')
             else:
                 logger.info(f'Course {course.title} ({course.key}) has no course run or the end date is not within the specified range.')
+        
+        self.log_courses_with_deadlines(courses_with_deadlines)
 
     def handle_send_email_to_pcs_and_editors(self, course, course_run, email_variant=None):
         course_editors = list(course.editors.values_list('user__email', flat=True).distinct())
@@ -72,3 +77,9 @@ class Command(BaseCommand):
         process_send_course_deadline_email.apply_async(
             args=[course.key, course_run.key, recipients, email_variant],
         )
+
+    def log_courses_with_deadlines(self, courses):
+        if courses:
+            logger.info(f'Sccheduled course deadline emails for the following courses:\n {"\n".join([course.title for course in courses])}')
+        else:
+            logger.info('No courses with deadline within the specified range were found.')
