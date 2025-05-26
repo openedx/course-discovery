@@ -27,40 +27,54 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info("Initalizing course deadline email management command.")
-        courses_with_deadlines = []
         now = datetime.now(timezone.utc)
+        courses_with_deadlines = []
         courses_with_self_paced_runs = Course.objects.filter(
             course_runs__pacing_type=CourseRunPacing.Self,
             product_source__slug='edx',
         ).distinct()
         logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
         courses_with_self_paced_runs = courses_with_self_paced_runs.iterator()
+
         for course in courses_with_self_paced_runs:
             advertised_run = course.advertised_course_run
+
             if advertised_run and advertised_run.end:
                 days_until_end = (advertised_run.end - now).days
+
                 if days_until_end in EMAIL_DELTA_DAYS:
                     active_runs = course.active_course_runs.all()
+
                     if not active_runs.filter(status=CourseRunStatus.Reviewed).exists():
                         self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
                         courses_with_deadlines.append(course)
                         logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                     else:
-                        logger.info(f'Course {course.title} ({course.key}) has an active course run with status Scheduled.')
+                        logger.info(
+                            f"Course {course.title} ({course.key}) has an active course run with status Scheduled."
+                        )
+
                 else:
-                    logger.info(f'Course {course.title} ({course.key}) has no advertised course run or the end date is not within the specified range.')
+                    logger.info(
+                        f"Course '{course.title} ({course.key})' has no advertised course run "
+                        f"with end date within the specified range."
+                    )
+
             elif not advertised_run:
                 last_course_run = course.course_runs.last()
+
                 if last_course_run and last_course_run.end:
                     days_since_end = (last_course_run.end - now).days
+
                     if days_since_end == LAST_RUN_END_DELTA:
                         self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
                         courses_with_deadlines.append(course)
                     else:
-                        logger.info(f'Course {course.title} ({course.key}) has no course run whose end date is not within the specified range.')
-            else:
-                logger.info(f'Course {course.title} ({course.key}) has no course run or the end date is not within the specified range.')
-        
+                        logger.info(
+                            f"Course '{course.title} ({course.key})' has no course run "
+                            f"with end date within the specified range."
+                        )
+
         self.log_courses_with_deadlines(courses_with_deadlines)
 
     def handle_send_email_to_pcs_and_editors(self, course, course_run, email_variant=None):
@@ -69,17 +83,20 @@ class Command(BaseCommand):
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
         ).values_list('user__email', flat=True).distinct())
+
         recipients = {
             'course_editors': course_editors,
             'project_coordinators': pcs,
         }
 
+        logger.info(f"Scheduling deadline email for course {course.title} ({course.key}).")
         process_send_course_deadline_email.apply_async(
             args=[course.key, course_run.key, recipients, email_variant],
         )
 
     def log_courses_with_deadlines(self, courses):
         if courses:
-            logger.info(f'Sccheduled course deadline emails for the following courses:\n {"\n".join([course.title for course in courses])}')
+            titles = "\n".join([f"- {course.title}" for course in courses])
+            logger.info(f"Scheduled course deadline emails for:\n{titles}")
         else:
             logger.info('No courses with deadline within the specified range were found.')

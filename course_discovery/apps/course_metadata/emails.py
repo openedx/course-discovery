@@ -454,29 +454,31 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
     template = get_template(html_template)
 
     subject = (
-        f"Reminder: {course.title} ends in {deadline_email_variant} days"
-        if deadline_email_variant != -1
-        else f"Reminder: {course.title} has ended"
+        f"Reminder: {course.title} has ended"
+        if deadline_email_variant == -1
+        else f"Reminder: {course.title} ends in {deadline_email_variant} days"
     )
 
     for recipient_role, recipients_emails in recipients.items():
         context = {
-            'course_uuid': course.uuid,
-            'course_name': course.title,
-            'course_key': course.key,
-            'course_end_date': course.advertised_course_run.end.strftime("%m/%d/%Y") if course.advertised_course_run.end else None,
-            'deadline_email_variant': deadline_email_variant,
-            'recipient_role': recipient_role,
-            'publisher_url': course.partner.publisher_url,
-            'course_schedule_settings_url': f'{course.partner.studio.url}/settings/details/{course_run.key}#schedule'
+            "course_uuid": course.uuid,
+            "course_name": course.title,
+            "course_key": course.key,
+            "course_end_date": (
+                course.advertised_course_run.end.strftime("%m/%d/%Y") if course.advertised_course_run.end
+                else None
+            ),
+            "deadline_email_variant": deadline_email_variant,
+            "recipient_role": recipient_role,
+            "publisher_url": course.partner.publisher_url,
+            "course_schedule_settings_url": f"{course.partner.studio.url}/settings/details/{course_run.key}#schedule",
         }
         html_content = template.render(context)
-
         email = EmailMessage(
             subject,
             html_content,
             settings.PUBLISHER_FROM_EMAIL,
-            [recipients_emails],
+            recipients_emails,
         )
         email.content_subtype = "html"
         email.send()
