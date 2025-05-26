@@ -1,8 +1,8 @@
 {% load i18n %}
 
-{% if recipent_role == 'course_editors' %}
+{% if recipient_role == 'course_editors' %}
     {% blocktrans %} Hi Course Team,{% endblocktrans %}
-{% elif recipent_role == 'project_coordinators' %}
+{% elif recipient_role == 'project_coordinators' %}
     {% blocktrans %} Hi Project Coordinator,{% endblocktrans %}
 {% endif %}
 
