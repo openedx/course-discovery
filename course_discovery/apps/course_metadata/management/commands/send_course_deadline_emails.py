@@ -26,7 +26,10 @@ class Command(BaseCommand):
     help = 'Send course deadline emails to Project Coordinators and Course Editors.'
 
     def handle(self, *args, **options):
-        logger.info("Initalizing course deadline email management command.")
+        """
+        Example usage: ./manage.py send_course_deadline_emails
+        """
+        logger.info("Initializing course deadline email management command.")
         now = datetime.now(timezone.utc)
         courses_with_deadlines = []
         courses_with_self_paced_runs = Course.objects.filter(
@@ -69,6 +72,7 @@ class Command(BaseCommand):
                     if days_since_end == LAST_RUN_END_DELTA:
                         self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
                         courses_with_deadlines.append(course)
+                        logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                     else:
                         logger.info(
                             f"Course '{course.title} ({course.key})' has no course run "
@@ -78,6 +82,11 @@ class Command(BaseCommand):
         self.log_courses_with_deadlines(courses_with_deadlines)
 
     def handle_send_email_to_pcs_and_editors(self, course, course_run, email_variant=None):
+        """
+        Schedule the sending of course deadline emails to Project Coordinators and Course Editors.
+        This method retrieves the email addresses of course editors and project coordinators associated with the course
+        and schedules the email to be sent using the `process_send_course_deadline_email` task.
+        """
         course_editors = list(course.editors.values_list('user__email', flat=True).distinct())
         pcs = list(OrganizationUserRole.objects.filter(
             organization__in=course.authoring_organizations.all(),
@@ -95,6 +104,9 @@ class Command(BaseCommand):
         )
 
     def log_courses_with_deadlines(self, courses):
+        """
+        Log the courses for which deadline emails have been scheduled.
+        """
         if courses:
             titles = "\n".join([f"- {course.title}" for course in courses])
             logger.info(f"Scheduled course deadline emails for:\n{titles}")
