@@ -446,7 +446,7 @@ def send_email_for_course_archival(report, csv_report, to_users):
     email.send()
 
 
-def send_course_deadline_email(course, recipients, deadline_email_variant=None):
+def send_course_deadline_email(course, course_run, recipients, deadline_email_variant=None):
     """
     Send course deadline email to the recipients.
     """
@@ -461,12 +461,14 @@ def send_course_deadline_email(course, recipients, deadline_email_variant=None):
 
     for recipient_role, recipients_emails in recipients.items():
         context = {
+            'course_uuid': course.uuid,
             'course_name': course.title,
             'course_key': course.key,
             'course_end_date': course.advertised_course_run.end.strftime("%m/%d/%Y") if course.advertised_course_run.end else None,
             'deadline_email_variant': deadline_email_variant,
             'recipient_role': recipient_role,
-            'course_schedule_settings_url': f'{settings.STUDIO_BASE_URL}/settings/details/{course.advertised_course_run.key}#schedule'
+            'publisher_url': course.partner.publisher_url,
+            'course_schedule_settings_url': f'{course.partner.studio.url}/settings/details/{course_run.key}#schedule'
         }
         html_content = template.render(context)
 

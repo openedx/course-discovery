@@ -102,12 +102,12 @@ def process_bulk_operation(bulk_operation_task_id):
         raise exc
 
 @shared_task
-def process_send_course_deadline_email(course, recipients, email_variant=None):
+def process_send_course_deadline_email(course, course_run, recipients, email_variant=None):
     """
     Send course deadline email to the recipients.
     """
     try:
-        send_course_deadline_email(course, recipients, email_variant)
+        send_course_deadline_email(course, course_run, recipients, email_variant)
     except Exception as e:
         LOGGER.error(f"Failed to send course deadline email for course {course.key}: {e}")
         raise e

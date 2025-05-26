@@ -40,8 +40,8 @@ class Command(BaseCommand):
                 days_until_end = (advertised_run.end - now).days
                 if days_until_end in EMAIL_DELTA_DAYS:
                     active_runs = course.active_course_runs.all()
-                    if not active_runs.filter(status=CourseRunStatus.Scheduled).exists():
-                        self.handle_send_email_to_pcs_and_editors(course, email_variant=days_until_end)
+                    if not active_runs.filter(status=CourseRunStatus.Reviewed).exists():
+                        self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
                     else:
                         logger.info(f'Course {course.title} ({course.key}) has an active course run with status Scheduled.')
                 else:
@@ -51,12 +51,14 @@ class Command(BaseCommand):
                 if last_course_run and last_course_run.end:
                     days_since_end = (last_course_run.end - now).days
                     if days_since_end == LAST_RUN_END_DELTA:
-                        self.handle_send_email_to_pcs_and_editors(course, email_variant=days_until_end)
+                        self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_until_end)
+                    else:
+                        logger.info(f'Course {course.title} ({course.key}) has no course run whose end date is not within the specified range.')
             else:
                 logger.info(f'Course {course.title} ({course.key}) has no course run or the end date is not within the specified range.')
 
-    def handle_send_email_to_pcs_and_editors(self, course, email_variant=None):
-        course_editors = course.editors.values_list('email', flat=True).distinct()
+    def handle_send_email_to_pcs_and_editors(self, course, course_run, email_variant=None):
+        course_editors = course.editors.values_list('user__email', flat=True).distinct()
         pcs = OrganizationUserRole.objects.filter(
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
@@ -67,5 +69,5 @@ class Command(BaseCommand):
         }
 
         process_send_course_deadline_email.apply_async(
-            args=[course, recipients, email_variant],
+            args=[course, course_run, recipients, email_variant],
         )
