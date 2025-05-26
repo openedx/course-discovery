@@ -10,7 +10,7 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
 from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
 from course_discovery.apps.course_metadata.data_loaders.course_run_loader import CourseRunDataLoader
-from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, Program, ProgramType
+from course_discovery.apps.course_metadata.models import BulkOperationTask, Course, CourseType, CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.emails import send_course_deadline_email
 
 LOGGER = logging.getLogger(__name__)
@@ -102,10 +102,12 @@ def process_bulk_operation(bulk_operation_task_id):
         raise exc
 
 @shared_task
-def process_send_course_deadline_email(course, course_run, recipients, email_variant=None):
+def process_send_course_deadline_email(course_key, course_run_key, recipients, email_variant=None):
     """
     Send course deadline email to the recipients.
     """
+    course = Course.objects.get(key=course_key)
+    course_run = CourseRun.objects.get(key=course_run_key)
     try:
         send_course_deadline_email(course, course_run, recipients, email_variant)
     except Exception as e:

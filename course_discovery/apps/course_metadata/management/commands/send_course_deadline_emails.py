@@ -42,6 +42,7 @@ class Command(BaseCommand):
                     active_runs = course.active_course_runs.all()
                     if not active_runs.filter(status=CourseRunStatus.Reviewed).exists():
                         self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
+                        logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                     else:
                         logger.info(f'Course {course.title} ({course.key}) has an active course run with status Scheduled.')
                 else:
@@ -51,23 +52,23 @@ class Command(BaseCommand):
                 if last_course_run and last_course_run.end:
                     days_since_end = (last_course_run.end - now).days
                     if days_since_end == LAST_RUN_END_DELTA:
-                        self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_until_end)
+                        self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
                     else:
                         logger.info(f'Course {course.title} ({course.key}) has no course run whose end date is not within the specified range.')
             else:
                 logger.info(f'Course {course.title} ({course.key}) has no course run or the end date is not within the specified range.')
 
     def handle_send_email_to_pcs_and_editors(self, course, course_run, email_variant=None):
-        course_editors = course.editors.values_list('user__email', flat=True).distinct()
-        pcs = OrganizationUserRole.objects.filter(
+        course_editors = list(course.editors.values_list('user__email', flat=True).distinct())
+        pcs = list(OrganizationUserRole.objects.filter(
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
-        ).values_list('user__email', flat=True).distinct()
+        ).values_list('user__email', flat=True).distinct())
         recipients = {
             'course_editors': course_editors,
             'project_coordinators': pcs,
         }
 
         process_send_course_deadline_email.apply_async(
-            args=[course, course_run, recipients, email_variant],
+            args=[course.key, course_run.key, recipients, email_variant],
         )
