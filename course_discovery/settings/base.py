@@ -65,8 +65,6 @@ PROJECT_APPS = [
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
     'course_discovery.apps.edx_haystack_extensions',
-    'course_discovery.apps.publisher',
-    'course_discovery.apps.publisher_comments',
 ]
 
 
@@ -397,7 +395,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
                 'course_discovery.apps.core.context_processors.core',
-                'course_discovery.apps.publisher.context_processors.publisher',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -701,7 +698,6 @@ DEFAULT_PARTNER_ID = None
 SITE_ID = None
 USE_X_FORWARDED_HOST = True     # Reading Request Real Domain : django.http.request.py : _get_raw_host()
 
-COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
 TAGGIT_CASE_INSENSITIVE = True
 

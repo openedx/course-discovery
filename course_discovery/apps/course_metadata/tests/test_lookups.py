@@ -11,7 +11,6 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
 )
-from course_discovery.apps.publisher.tests import factories
 
 
 @pytest.mark.django_db

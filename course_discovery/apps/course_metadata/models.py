@@ -24,7 +24,7 @@ from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import (
-    CourseRunPacing, CourseRunStatus,
+    CourseRunStatus,
     ProgramStatus, ProgramVisibility
 )
 from course_discovery.apps.course_metadata.publishers import (
@@ -32,7 +32,6 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
-from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 
 logger = logging.getLogger(__name__)
@@ -237,9 +236,7 @@ class Organization(TimeStampedModel):
     )
 
     def clean(self):
-        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
-            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
-                                    'underscore or hyphen in the key field.'))
+        return
 
     class Meta:
         unique_together = (
