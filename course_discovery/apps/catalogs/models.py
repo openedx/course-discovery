@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import get_users_with_perms
-from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun

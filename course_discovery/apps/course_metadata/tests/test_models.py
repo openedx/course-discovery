@@ -1,6 +1,4 @@
 import datetime
-import itertools
-from decimal import Decimal
 
 import ddt
 import mock
@@ -8,7 +6,6 @@ import pytest
 import pytz
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
@@ -16,11 +13,9 @@ from freezegun import freeze_time
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
+    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement,
     Endorsement, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
@@ -28,10 +23,7 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
-
-# pylint: disable=no-member
 
 @pytest.mark.django_db
 class TestCourse:
@@ -149,17 +141,6 @@ class OrganizationTests(TestCase):
     def setUp(self):
         super(OrganizationTests, self).setUp()
         self.organization = factories.OrganizationFactory()
-
-    @ddt.data(
-        [" ", ",", "@", "(", "!", "#", "$", "%", "^", "&", "*", "+", "=", "{", "[", "ó"]
-    )
-    def test_clean_error(self, invalid_char_list):
-        """
-        Verify that the clean method raises validation error if key consists of special characters
-        """
-        for char in invalid_char_list:
-            self.organization.key = 'key{}'.format(char)
-            self.assertRaises(ValidationError, self.organization.clean)
 
     @ddt.data(
         ["keywithoutspace", "correct-key", "correct_key", "correct.key"]

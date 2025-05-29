@@ -64,15 +64,11 @@ PROJECT_APPS = [
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
-    'course_discovery.apps.edx_haystack_extensions',
 ]
 
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
-
-# NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
-INSTALLED_APPS += ['haystack']
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -645,22 +641,6 @@ ELASTICSEARCH_INDEX_SETTINGS = {
 }
 
 SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
-
-# Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
-HAYSTACK_ITERATOR_LOAD_PER_QUERY = 5000
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
-        'URL': 'http://localhost:9200/',
-        'INDEX_NAME': 'catalog',
-    },
-}
-
-# We do not use the RealtimeSignalProcessor here to avoid overloading our
-# Elasticsearch instance when running the refresh_course_metadata command
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
-HAYSTACK_INDEX_RETENTION_LIMIT = 3
 
 # Update Index Settings
 # Make sure the size of the new index does not change by more than this percentage

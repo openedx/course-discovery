@@ -12,7 +12,6 @@ from django.db.models import When
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
 from rest_framework.fields import (
     DictField, ListField
@@ -23,7 +22,6 @@ from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Organization, Person,
@@ -802,174 +800,6 @@ class QueryFacetFieldSerializer(serializers.Serializer):
         path = '{path}?{query}'.format(path=request.path_info, query=query_params.urlencode())
         url = request.build_absolute_uri(path)
         return serializers.Hyperlink(url, 'narrow-url')
-
-
-class BaseHaystackFacetSerializer(HaystackFacetSerializer):
-    _abstract = True
-    serialize_objects = True
-
-    def get_fields(self):
-        query_facet_counts = self.instance.pop('queries', {})
-
-        field_mapping = super(BaseHaystackFacetSerializer, self).get_fields()
-
-        query_data = self.format_query_facet_data(query_facet_counts)
-
-        field_mapping['queries'] = DictField(query_data, child=QueryFacetFieldSerializer(), required=False)
-
-        if self.serialize_objects:
-            field_mapping.move_to_end('objects')
-
-        self.instance['queries'] = query_data
-
-        return field_mapping
-
-    def format_query_facet_data(self, query_facet_counts):
-        query_data = {}
-        for field, options in getattr(self.Meta, 'field_queries', {}).items():  # pylint: disable=no-member
-            count = query_facet_counts.get(field, 0)
-            if count:
-                query_data[field] = {
-                    'field': field,
-                    'options': options,
-                    'count': count,
-                }
-        return query_data
-
-
-class CourseSearchSerializer(HaystackSerializer):
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.CourseIndex]
-        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
-            'key',
-            'title',
-            'card_image_url',
-        )
-
-
-class CourseFacetSerializer(BaseHaystackFacetSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-
-
-class CourseRunSearchSerializer(HaystackSerializer):
-    availability = serializers.SerializerMethodField()
-
-    def get_availability(self, result):
-        return result.object.availability
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.CourseRunIndex]
-        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
-            'availability',
-            'end',
-            'enrollment_end',
-            'enrollment_start',
-            'key',
-            'org',
-            'partner',
-            'published',
-            'start',
-            'text',
-            'title',
-            'type',
-        )
-
-
-class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        field_options = {
-            'content_type': {},
-        }
-        field_queries = {
-            'availability_current': {'query': 'start:<now AND end:>now'},
-            'availability_starting_soon': {'query': 'start:[now TO now+60d]'},
-            'availability_upcoming': {'query': 'start:[now+60d TO *]'},
-            'availability_archived': {'query': 'end:<=now'},
-        }
-
-
-class ProgramSearchSerializer(HaystackSerializer):
-
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.ProgramIndex]
-        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + search_indexes.BASE_PROGRAM_FIELDS
-
-
-class ProgramFacetSerializer(BaseHaystackFacetSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        index_classes = [search_indexes.ProgramIndex]
-        field_options = {
-            'status': {},
-            'type': {},
-        }
-        fields = search_indexes.BASE_PROGRAM_FIELDS + (
-            'organizations',
-        )
-
-
-class AggregateSearchSerializer(HaystackSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        fields = CourseRunSearchSerializer.Meta.fields + ProgramSearchSerializer.Meta.fields
-        serializers = {
-            search_indexes.CourseRunIndex: CourseRunSearchSerializer,
-            search_indexes.CourseIndex: CourseSearchSerializer,
-            search_indexes.ProgramIndex: ProgramSearchSerializer,
-        }
-
-
-class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
-    class Meta:
-        field_aliases = COMMON_SEARCH_FIELD_ALIASES
-        ignore_fields = COMMON_IGNORED_FIELDS
-        field_queries = CourseRunFacetSerializer.Meta.field_queries
-        field_options = {
-            **CourseRunFacetSerializer.Meta.field_options,
-            **ProgramFacetSerializer.Meta.field_options
-        }
-        serializers = {
-            search_indexes.CourseRunIndex: CourseRunFacetSerializer,
-            search_indexes.CourseIndex: CourseFacetSerializer,
-            search_indexes.ProgramIndex: ProgramFacetSerializer,
-        }
-
-
-class CourseSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseWithProgramsSerializer):
-    class Meta(CourseWithProgramsSerializer.Meta):
-        fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields
-
-
-class CourseRunSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, CourseRunSerializer):
-    class Meta(CourseRunSerializer.Meta):
-        fields = ContentTypeSerializer.Meta.fields + CourseRunSerializer.Meta.fields
-
-
-class ProgramSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, ProgramSerializer):
-    class Meta(ProgramSerializer.Meta):
-        fields = ContentTypeSerializer.Meta.fields + ProgramSerializer.Meta.fields
-
-
-class AggregateSearchModelSerializer(HaystackSerializer):
-    class Meta:
-        serializers = {
-            search_indexes.CourseRunIndex: CourseRunSearchModelSerializer,
-            search_indexes.CourseIndex: CourseSearchModelSerializer,
-            search_indexes.ProgramIndex: ProgramSearchModelSerializer,
-        }
 
 
 class TypeaheadBaseSearchSerializer(serializers.Serializer):

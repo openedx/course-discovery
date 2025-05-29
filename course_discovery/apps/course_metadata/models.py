@@ -14,7 +14,6 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
-from haystack.query import SearchQuerySet
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
@@ -356,26 +355,6 @@ class Course(TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    @classmethod
-    def search(cls, query):
-        """ Queries the search index.
-        Args:
-            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
-        Returns:
-            QuerySet
-        """
-        query = clean_query(query)
-        results = SearchQuerySet().models(cls).raw_search(query)
-        ids = {result.pk for result in results}
-
-        if waffle.switch_is_active('log_course_search_queries'):
-            logger.info('Course search query {query} returned the following ids: {course_ids}'.format(
-                query=query,
-                course_ids=ids
-            ))
-
-        return cls.objects.filter(pk__in=ids)
-
 
 class LanguageField(models.CharField):
     """Represents a language from the ISO 639-2 language set."""
@@ -465,19 +444,6 @@ class CourseRun(TimeStampedModel):
             return _('Starting Soon')
         else:
             return _('Upcoming')
-
-    @classmethod
-    def search(cls, query):
-        """ Queries the search index.
-
-        Args:
-            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
-
-        Returns:
-            SearchQuerySet
-        """
-        query = clean_query(query)
-        return SearchQuerySet().models(cls).raw_search(query).load_all()
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)

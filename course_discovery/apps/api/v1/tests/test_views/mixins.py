@@ -4,7 +4,6 @@ import json
 
 import responses
 from django.conf import settings
-from haystack.query import SearchQuerySet
 from rest_framework.test import APITestCase as RestAPITestCase
 from rest_framework.test import APIRequestFactory
 
@@ -44,10 +43,6 @@ class SerializationMixin:
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseRunSerializer, run, many, format, extra_context)
-
-    def serialize_course_run_search(self, run, serializer=None):
-        obj = self._get_search_result(CourseRun, key=run.key)
-        return self._serialize_object(serializer or serializers.CourseRunSearchSerializer, obj)
 
     def serialize_person(self, person, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.PersonSerializer, person, many, format, extra_context)

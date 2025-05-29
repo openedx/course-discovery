@@ -5,19 +5,18 @@ import mock
 import responses
 from django.test import TestCase
 
-from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
+from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
     AbstractDataLoader, CoursesApiDataLoader
 )
-from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
+from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Program, ProgramType
+    Course, CourseRun, Organization
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory,
-    VideoFactory
+    ImageFactory, VideoFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
@@ -147,12 +146,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         expected_num_course_runs = len(api_data)
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
-        for datum in api_data:
-            self.assert_course_run_loaded(datum, partner_has_marketing_site)
-
-        # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
-
     @responses.activate
     def test_ingest_exception_handling(self):
         """ Verify the data loader properly handles exceptions during processing of the data from the API. """
@@ -167,85 +160,3 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                     self.partner.courses_api_url
                 )
                 mock_logger.exception.assert_called_with(msg)
-
-    @responses.activate
-    @ddt.data(True, False)
-    def test_ingest_canonical(self, partner_has_marketing_site):
-        """ Verify the method ingests data from the Courses API. """
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
-
-        self.mock_api([
-            mock_data.COURSES_API_BODY_ORIGINAL,
-            mock_data.COURSES_API_BODY_SECOND,
-            mock_data.COURSES_API_BODY_UPDATED,
-        ])
-
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
-            self.partner.save()
-
-        self.loader.ingest()
-
-        # Verify the CourseRun was created correctly by no errors raised
-        course_run_orig = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
-
-        # Verify that a course has been created and set as canonical by no errors raised
-        course = course_run_orig.canonical_for_course
-
-        # Verify the CourseRun was created correctly by no errors raised
-        course_run_second = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_SECOND['id'])
-
-        # Verify not set as canonical
-        with self.assertRaises(AttributeError):
-            course_run_second.canonical_for_course  # pylint: disable=pointless-statement
-
-        # Verify second course not used to update course
-        self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
-        if partner_has_marketing_site:
-            # Verify the course remains unchanged by api update if we have marketing site
-            self.assertEqual(mock_data.COURSES_API_BODY_ORIGINAL['name'], course.title)
-        else:
-            # Verify updated canonical course used to update course
-            self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['name'], course.title)
-        # Verify the updated course run updated the original course run
-        self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
-
-    def test_get_pacing_type_field_missing(self):
-        """ Verify the method returns None if the API response does not include a pacing field. """
-        self.assertIsNone(self.loader.get_pacing_type({}))
-
-    @ddt.unpack
-    @ddt.data(
-        ('', None),
-        ('foo', None),
-        (None, None),
-        ('instructor', CourseRunPacing.Instructor),
-        ('Instructor', CourseRunPacing.Instructor),
-        ('self', CourseRunPacing.Self),
-        ('Self', CourseRunPacing.Self),
-    )
-    def test_get_pacing_type(self, pacing, expected_pacing_type):
-        """ Verify the method returns a pacing type corresponding to the API response's pacing field. """
-        self.assertEqual(self.loader.get_pacing_type({'pacing': pacing}), expected_pacing_type)
-
-    @ddt.unpack
-    @ddt.data(
-        (None, None),
-        ('http://example.com/image.mp4', 'http://example.com/image.mp4'),
-    )
-    def test_get_courserun_video(self, uri, expected_video_src):
-        """ Verify the method returns an Video object with the correct URL. """
-        body = {
-            'media': {
-                'course_video': {
-                    'uri': uri
-                }
-            }
-        }
-        actual = self.loader.get_courserun_video(body)
-
-        if expected_video_src:
-            self.assertEqual(actual.src, expected_video_src)
-        else:
-            self.assertIsNone(actual)

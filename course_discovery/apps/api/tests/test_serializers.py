@@ -5,8 +5,6 @@ import ddt
 import mock
 import pytest
 from django.test import TestCase
-from haystack.query import SearchQuerySet
-from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 from rest_framework.test import APIRequestFactory
 from waffle.models import Switch
@@ -14,10 +12,10 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    CatalogSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+    ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer,
-    CourseRunSearchSerializer, CourseRunSerializer,
-    CourseSearchSerializer, CourseSerializer,
+    CourseRunSerializer,
+    CourseSerializer,
     MinimalCourseRunSerializer, MinimalCourseSerializer,
     MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
     OrganizationSerializer, PersonSerializer, PositionSerializer,
@@ -26,15 +24,14 @@ from course_discovery.apps.api.serializers import (
     get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.core.models import Partner, User
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
-from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
+from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
-    OrganizationFactory, PositionFactory, PrerequisiteFactory,
+    CourseFactory, CourseRunFactory,
+    OrganizationFactory, PositionFactory,
     ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 
@@ -69,36 +66,6 @@ def serialize_language_to_code(language):
 
 def get_uuids(items):
     return [str(item.uuid) for item in items]
-
-
-class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
-    def test_data(self):
-        user = UserFactory()
-        catalog = CatalogFactory(query='*:*', viewers=[user])  # We intentionally use a query for all Courses.
-        courses = CourseFactory.create_batch(10)
-        serializer = CatalogSerializer(catalog)
-
-        expected = {
-            'id': catalog.id,
-            'name': catalog.name,
-            'query': catalog.query,
-            'courses_count': len(courses),
-            'viewers': [user.username]
-        }
-        self.assertDictEqual(serializer.data, expected)
-
-    def test_invalid_data_user_create(self):
-        """Verify that users are not created if the serializer data is invalid."""
-        username = 'test-user'
-        data = {
-            'viewers': [username],
-            'id': None,
-            'name': '',
-            'query': '',
-        }
-        serializer = CatalogSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
 
 
 class MinimalCourseSerializerTests(SiteMixin, TestCase):
@@ -581,117 +548,6 @@ class PositionSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
-
-
-# class AffiliateWindowSerializerTests(TestCase):
-#     def test_data(self):
-#         user = UserFactory()
-#         CatalogFactory(query='*:*', viewers=[user])
-#         course_run = CourseRunFactory()
-#         seat = SeatFactory(course_run=course_run)
-#         serializer = AffiliateWindowSerializer(seat)
-#
-#         # Verify none of the course run attributes are empty; otherwise, Affiliate Window will report errors.
-#         # pylint: disable=no-member
-#         assert all((course_run.title,))
-#
-#         expected = {
-#             'pid': '{}-{}'.format(course_run.key, seat.type),
-#             'name': course_run.title,
-#             'price': {
-#                 'actualp': seat.price
-#             },
-#             'currency': seat.currency.code,
-#             'category': 'Other Experiences',
-#             'validfrom': course_run.start.strftime('%Y-%m-%d'),
-#             'validto': course_run.end.strftime('%Y-%m-%d'),
-#         }
-#
-#         assert serializer.data == expected
-
-
-class CourseSearchSerializerTests(TestCase):
-    serializer_class = CourseSearchSerializer
-
-    def test_data(self):
-        request = make_request()
-        course = CourseFactory()
-        serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, request)
-
-    def serialize_course(self, course, request):
-        """ Serializes the given `Course` as a search result. """
-        result = SearchQuerySet().models(Course).filter(key=course.key)[0]
-        serializer = self.serializer_class(result, context={'request': request})
-        return serializer
-
-    @classmethod
-    def get_expected_data(cls, course, request):  # pylint: disable=unused-argument
-        return {
-            'key': course.key,
-            'title': course.title,
-            'content_type': 'course',
-            'aggregation_key': 'course:{}'.format(course.key),
-            'card_image_url': course.card_image_url,
-        }
-
-
-class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
-    serializer_class = CourseRunSearchSerializer
-
-    def test_data(self):
-        request = make_request()
-        course_run = CourseRunFactory()
-        program = ProgramFactory(courses=[course_run.course])
-        self.reindex_courses(program)
-        serializer = self.serialize_course_run(course_run, request)
-        assert serializer.data == self.get_expected_data(course_run, request)
-
-    def serialize_course_run(self, course_run, request):
-        """ Serializes the given `CourseRun` as a search result. """
-        result = SearchQuerySet().models(CourseRun).filter(key=course_run.key)[0]
-        serializer = self.serializer_class(result, context={'request': request})
-        return serializer
-
-    @classmethod
-    def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
-        return {
-            'start': serialize_datetime_without_timezone(course_run.start),
-            'end': serialize_datetime_without_timezone(course_run.end),
-            'enrollment_start': serialize_datetime_without_timezone(course_run.enrollment_start),
-            'enrollment_end': serialize_datetime_without_timezone(course_run.enrollment_end),
-            'key': course_run.key,
-            'title': course_run.title,
-            'content_type': 'courserun',
-            'org': CourseKey.from_string(course_run.key).org,
-            'availability': course_run.availability,
-            'aggregation_key': 'courserun:{}'.format(course_run.course.key),
-        }
-
-
-@pytest.mark.django_db
-@pytest.mark.usefixtures('haystack_default_connection')
-class TestTypeaheadProgramSearchSerializer:
-    serializer_class = TypeaheadProgramSearchSerializer
-
-    @classmethod
-    def get_expected_data(cls, program):
-        return {
-            'uuid': str(program.uuid),
-            'title': program.title,
-        }
-
-    def test_data(self):
-        program = ProgramFactory()
-        serialized_program = self.serialize_program(program)
-        expected = self.get_expected_data(program)
-        assert serialized_program.data == expected
-
-    def serialize_program(self, program):
-        """ Serializes the given `Program` as a typeahead result. """
-        result = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
-        serializer = self.serializer_class(result)
-        return serializer
 
 
 class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
