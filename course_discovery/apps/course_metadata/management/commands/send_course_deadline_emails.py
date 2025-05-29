@@ -5,6 +5,7 @@ it sends an email to the course editors and PCs.
 """
 import logging
 from datetime import datetime, timezone
+from django.conf import settings
 
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import gettext as _
@@ -34,7 +35,7 @@ class Command(BaseCommand):
         courses_with_deadlines = []
         courses_with_self_paced_runs = Course.objects.filter(
             course_runs__pacing_type=CourseRunPacing.Self,
-            product_source__slug='edx',
+            product_source__slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG,
         ).distinct()
         logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
         courses_with_self_paced_runs = courses_with_self_paced_runs.iterator()
@@ -88,14 +89,14 @@ class Command(BaseCommand):
         and schedules the email to be sent using the `process_send_course_deadline_email` task.
         """
         course_editors = list(course.editors.values_list('user__email', flat=True).distinct())
-        pcs = list(OrganizationUserRole.objects.filter(
+        project_coordinators = list(OrganizationUserRole.objects.filter(
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
         ).values_list('user__email', flat=True).distinct())
 
         recipients = {
             'course_editors': course_editors,
-            'project_coordinators': pcs,
+            'project_coordinators': project_coordinators,
         }
 
         logger.info(f"Scheduling deadline email for course {course.title} ({course.key}).")
