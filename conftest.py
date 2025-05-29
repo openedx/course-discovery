@@ -4,11 +4,10 @@ import pytest
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.test.client import Client
-from haystack import connections as haystack_connections
 from pytest_django.lazy_django import skip_if_no_django
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
-from course_discovery.apps.core.utils import ElasticsearchUtils
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,41 +37,6 @@ def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=redefine
     yield cache
 
     cache.clear()
-
-
-@pytest.fixture(scope='session', autouse=True)
-def haystack_add_xdist_suffix_to_index_name(request):
-    skip_if_no_django()
-
-    from django.conf import settings
-
-    xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
-
-    if xdist_suffix:
-        # Put a prefix like _gw0, _gw1 etc on xdist processes
-        for name, connection in settings.HAYSTACK_CONNECTIONS.items():
-            connection['INDEX_NAME'] = connection['INDEX_NAME'] + '_' + xdist_suffix
-            logger.info('Set index name for Haystack connection [%s] to [%s]', name, connection['INDEX_NAME'])
-
-
-@pytest.fixture
-def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pylint: disable=redefined-outer-name,unused-argument
-    skip_if_no_django()
-
-    backend = haystack_connections['default'].get_backend()
-
-    # Force Haystack to update the mapping for the index
-    backend.setup_complete = False
-
-    es = backend.conn
-    index_name = backend.index_name
-    ElasticsearchUtils.delete_index(es, index_name)
-    ElasticsearchUtils.create_alias_and_index(es, index_name)
-    ElasticsearchUtils.refresh_index(es, index_name)
-
-    yield backend
-
-    ElasticsearchUtils.delete_index(es, index_name)
 
 
 @pytest.fixture

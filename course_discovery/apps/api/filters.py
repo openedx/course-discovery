@@ -2,14 +2,14 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
-from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Person, Program, Subject, Topic
+    Course, CourseRun, Program
 )
+
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -80,40 +80,3 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
     class Meta:
         model = Program
         fields = ('status',)
-
-
-class OrganizationFilter(filters.FilterSet):
-    tags = CharListFilter(name='tags__name', lookup_expr='in')
-    uuids = UUIDListFilter()
-
-    class Meta:
-        model = Organization
-        fields = ('tags', 'uuids',)
-
-
-class PersonFilter(filters.FilterSet):
-    class Meta:
-        model = Person
-        fields = ('slug',)
-
-
-class SubjectFilter(filters.FilterSet):
-    language_code = filters.CharFilter(method='_set_language')
-
-    def _set_language(self, queryset, _, language_code):
-        return queryset.language(language_code)
-
-    class Meta:
-        model = Subject
-        fields = ('slug', 'language_code')
-
-
-class TopicFilter(filters.FilterSet):
-    language_code = filters.CharFilter(method='_set_language')
-
-    def _set_language(self, queryset, _, language_code):
-        return queryset.language(language_code)
-
-    class Meta:
-        model = Topic
-        fields = ('slug', 'language_code')

@@ -1,38 +1,23 @@
 # pylint: disable=no-member,test-inherits-tests
 import datetime
 
-import ddt
-import mock
-import pytest
 from django.test import TestCase
 from pytz import UTC
 from rest_framework.test import APIRequestFactory
-from waffle.models import Switch
-from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    ContentTypeSerializer,
-    CourseRunSerializer,
-    CourseSerializer,
+    CourseRunSerializer, CourseSerializer,
     MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    OrganizationSerializer, PersonSerializer, PositionSerializer,
-    ProgramSerializer, ProgramTypeSerializer, SubjectSerializer,
-    TypeaheadProgramSearchSerializer,
-    get_utm_source_for_user
+    MinimalProgramCourseSerializer, MinimalProgramSerializer,
+    ProgramSerializer
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.core.models import Partner
-from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
-from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory,
-    OrganizationFactory, PositionFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    OrganizationFactory, ProgramFactory, SeatFactory
 )
 
 
@@ -47,25 +32,8 @@ def make_request():
     return request
 
 
-def serialize_datetime_without_timezone(d):
-    # TODO: Remove this function, and replace usage of it with serialize_datetime, after
-    # https://github.com/encode/django-rest-framework/issues/3732 is released.
-    return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
-
-
-def serialize_language(language):
-    if language.code.startswith('zh'):
-        return language.name
-
-    return language.macrolanguage
-
-
 def serialize_language_to_code(language):
     return language.code
-
-
-def get_uuids(items):
-    return [str(item.uuid) for item in items]
 
 
 class MinimalCourseSerializerTests(SiteMixin, TestCase):
@@ -366,219 +334,3 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         assert len(expected[0]['course_runs']) == 1
         assert sorted(serializer.data['courses'][0]['course_runs'], key=lambda x: x['key']) == \
             sorted(expected[0]['course_runs'], key=lambda x: x['key'])
-
-
-class ProgramTypeSerializerTests(TestCase):
-    serializer_class = ProgramTypeSerializer
-
-    @classmethod
-    def get_expected_data(cls, program_type, request):
-        image_field = StdImageSerializerField()
-        image_field._context = {'request': request}  # pylint: disable=protected-access
-
-        return {
-            'name': program_type.name,
-            'logo_image': image_field.to_representation(program_type.logo_image),
-            'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
-            'slug': program_type.slug,
-        }
-
-    def test_data(self):
-        request = make_request()
-        applicable_seat_types = SeatTypeFactory.create_batch(3)
-        program_type = ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-        serializer = self.serializer_class(program_type, context={'request': request})
-        expected = self.get_expected_data(program_type, request)
-        self.assertDictEqual(serializer.data, expected)
-
-
-class ContainedCourseRunsSerializerTests(TestCase):
-    def test_data(self):
-        instance = {
-            'course_runs': {
-                'course-v1:edX+DemoX+Demo_Course': True,
-                'a/b/c': False
-            }
-        }
-        serializer = ContainedCourseRunsSerializer(instance)
-        self.assertDictEqual(serializer.data, instance)
-
-
-class ContainedCoursesSerializerTests(TestCase):
-    def test_data(self):
-        instance = {
-            'courses': {
-                'course-v1:edX+DemoX+Demo_Course': True,
-                'a/b/c': False
-            }
-        }
-        serializer = ContainedCoursesSerializer(instance)
-        self.assertDictEqual(serializer.data, instance)
-
-
-@ddt.ddt
-class ContentTypeSerializerTests(TestCase):
-    @ddt.data(
-        (CourseFactory, 'course'),
-        (CourseRunFactory, 'courserun'),
-        (ProgramFactory, 'program'),
-    )
-    @ddt.unpack
-    def test_data(self, factory_class, expected_content_type):
-        obj = factory_class()
-        serializer = ContentTypeSerializer(obj)
-        expected = {
-            'content_type': expected_content_type
-        }
-        assert serializer.data == expected
-
-
-class SubjectSerializerTests(TestCase):
-    def test_data(self):
-        subject = SubjectFactory()
-        serializer = SubjectSerializer(subject)
-
-        expected = {
-            'name': subject.name,
-            'description': subject.description,
-            'banner_image_url': subject.banner_image_url,
-            'card_image_url': subject.card_image_url,
-            'subtitle': subject.subtitle,
-            'slug': subject.slug,
-            'uuid': str(subject.uuid),
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class MinimalOrganizationSerializerTests(TestCase):
-    serializer_class = MinimalOrganizationSerializer
-
-    def create_organization(self):
-        return OrganizationFactory()
-
-    @classmethod
-    def get_expected_data(cls, organization):
-        return {
-            'uuid': str(organization.uuid),
-            'key': organization.key,
-            'name': organization.name,
-        }
-
-    def test_data(self):
-        organization = self.create_organization()
-        serializer = self.serializer_class(organization)
-        expected = self.get_expected_data(organization)
-        self.assertDictEqual(serializer.data, expected)
-
-
-class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
-    TAG = 'test-tag'
-    serializer_class = OrganizationSerializer
-
-    def create_organization(self):
-        organization = super().create_organization()
-        organization.tags.add(self.TAG)
-        return organization
-
-    @classmethod
-    def get_expected_data(cls, organization):
-        expected = super().get_expected_data(organization)
-        expected.update({
-            'certificate_logo_image_url': organization.certificate_logo_image_url,
-            'description': organization.description,
-            'homepage_url': organization.homepage_url,
-            'logo_image_url': organization.logo_image_url,
-            'tags': [cls.TAG],
-            'marketing_url': organization.marketing_url,
-        })
-
-        return expected
-
-
-class PersonSerializerTests(TestCase):
-    def setUp(self):
-        request = make_request()
-        self.context = {'request': request}
-        image_field = StdImageSerializerField()
-        image_field._context = self.context  # pylint: disable=protected-access
-
-        position = PositionFactory()
-        self.person = position.person
-        self.person.salutation = 'Dr.'
-        self.expected = {
-            'uuid': str(self.person.uuid),
-            'salutation': self.person.salutation,
-            'given_name': self.person.given_name,
-            'family_name': self.person.family_name,
-            'bio': self.person.bio,
-            'profile_image': image_field.to_representation(self.person.profile_image),
-            'profile_image_url': self.person.profile_image.url,
-            'position': PositionSerializer(position).data,
-            'works': [work.value for work in self.person.person_works.all()],
-            'urls': {
-                'facebook': None,
-                'twitter': None,
-                'blog': None
-            },
-            'slug': self.person.slug,
-            'email': self.person.email,
-        }
-
-    def test_data(self):
-        serializer = PersonSerializer(self.person, context=self.context)
-        self.assertDictEqual(serializer.data, self.expected)
-
-    def test_profile_image_url_override(self):
-        self.person.profile_image_url = None
-        self.expected['profile_image_url'] = self.person.profile_image.url
-        serializer = PersonSerializer(self.person, context=self.context)
-        self.assertDictEqual(serializer.data, self.expected)
-
-
-class PositionSerializerTests(TestCase):
-    def test_data(self):
-        position = PositionFactory()
-        serializer = PositionSerializer(position)
-        expected = {
-            'title': str(position.title),
-            'organization_name': position.organization_name,
-            'organization_id': position.organization_id,
-            'organization_override': position.organization_override
-        }
-
-        self.assertDictEqual(serializer.data, expected)
-
-
-class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
-
-    def setUp(self):
-        super(TestGetUTMSourceForUser, self).setUp()
-
-        self.switch, __ = Switch.objects.update_or_create(
-            name='use_company_name_as_utm_source_value', defaults={'active': True}
-        )
-        self.user = UserFactory.create()
-        self.partner = PartnerFactory.create()
-
-    @override_switch('use_company_name_as_utm_source_value', active=False)
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_waffle_switch_turned_off(self, mock_access_token):  # pylint: disable=unused-argument
-        """
-        Verify that `get_utm_source_for_user` returns User's username when waffle switch
-        `use_company_name_as_utm_source_value` is turned off.
-        """
-
-        assert get_utm_source_for_user(self.partner, self.user) == self.user.username
-
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_missing_lms_url(self, mock_access_token):  # pylint: disable=unused-argument
-        """
-        Verify that `get_utm_source_for_user` returns default value if
-        `Partner.lms_url` is not set in the database.
-        """
-        # Remove lms_url from partner.
-        self.partner.lms_url = ''
-        self.partner.save()
-
-        assert get_utm_source_for_user(self.partner, self.user) == self.user.username

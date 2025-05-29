@@ -3,15 +3,12 @@ from django.conf.urls import include, url
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_nested import routers
 
-from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramCoursesViewSet
-from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.course_metadata.views import CourseMetadataRefresher
 
 
 partners_router = routers.SimpleRouter()
-partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')
 
 urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
@@ -19,7 +16,6 @@ urlpatterns = [
 ]
 
 router = routers.SimpleRouter()
-router.register(r'subjects', SubjectViewSet, base_name='subject')
 
 router.register(r'programs', ProgramViewSet, base_name='program')
 program_courses_router = routers.NestedSimpleRouter(router, r'programs', lookup=r'program')
