@@ -179,7 +179,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def update_course_run(self, course_run, body):
         validated_data = self.format_course_run_data(body)
-        self._update_instance(course_run, validated_data, suppress_publication=True)
+        self._update_instance(course_run, validated_data)
 
         logger.info('Processed course run with UUID [%s].', course_run.uuid)
 

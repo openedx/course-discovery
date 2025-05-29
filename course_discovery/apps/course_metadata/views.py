@@ -18,9 +18,11 @@ class CourseMetadataRefresher(View):
         response = {}
         data = json.loads(request.body.decode('utf-8'))
 
-        course_id = data.get('course_id')
-        if not course_id:
-            return JsonResponse({'error': 'Invalid Course Key : {}'.format(course_id)}, status=503)
+        target_course_id = data.get('course_id')
+        if not target_course_id:
+            return JsonResponse(
+                {'error': 'Invalid Course Key : {}'.format(target_course_id)}, status=503
+            )
 
         try:
             # One site, One Partner/Org:
@@ -31,7 +33,7 @@ class CourseMetadataRefresher(View):
                 course_partner.oidc_key, course_partner.oidc_secret, token_type='JWT'
             )
             kwargs = {
-                'course_key': course_id,
+                'course_key': target_course_id,
                 'partner': course_partner, 'api_url': course_partner.courses_api_url,
                 'access_token': access_token, 'token_type': 'JWT',
                 'max_workers': 1, 'is_threadsafe': True
@@ -42,11 +44,11 @@ class CourseMetadataRefresher(View):
 
             CoursesApiDataLoader(**kwargs).ingest()
 
-            response[course_partner.short_code] = course_id
+            response[course_partner.short_code] = target_course_id
 
         except Exception as e:
             error_message = 'domain: {} | course_key: {} | error: {}'.format(
-                request.site.domain, course_id, str(e)
+                request.site.domain, target_course_id, str(e)
             )
 
             if 'errors' in response:
