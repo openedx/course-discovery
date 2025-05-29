@@ -7,10 +7,9 @@ except:
 from uuid import uuid4
 
 import pytz
-import waffle
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.db import models, transaction
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
@@ -26,11 +25,8 @@ from course_discovery.apps.course_metadata.choices import (
     CourseRunStatus,
     ProgramStatus, ProgramVisibility
 )
-from course_discovery.apps.course_metadata.publishers import (
-    CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
-)
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 
 
 logger = logging.getLogger(__name__)
@@ -448,26 +444,6 @@ class CourseRun(TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        suppress_publication = kwargs.pop('suppress_publication', False)
-        is_publishable = (
-            self.course.partner.has_marketing_site and
-            waffle.switch_is_active('publish_course_runs_to_marketing_site') and
-            # Pop to clean the kwargs for the base class save call below
-            not suppress_publication
-        )
-
-        if is_publishable:
-            publisher = CourseRunMarketingSitePublisher(self.course.partner)
-            previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
-
-            with transaction.atomic():
-                super(CourseRun, self).save(*args, **kwargs)
-                publisher.publish_obj(self, previous_obj=previous_obj)
-        else:
-            logger.info('Course run [%s] is not publishable.', self.key)
-            super(CourseRun, self).save(*args, **kwargs)
-
 
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64, unique=True)
@@ -738,22 +714,6 @@ class Program(TimeStampedModel):
     @property
     def is_active(self):
         return self.status == ProgramStatus.Active
-
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        is_publishable = (
-            self.partner.has_marketing_site and
-            waffle.switch_is_active('publish_program_to_marketing_site')
-        )
-
-        if is_publishable:
-            publisher = ProgramMarketingSitePublisher(self.partner)
-            previous_obj = Program.objects.get(id=self.id) if self.id else None
-
-            with transaction.atomic():
-                super(Program, self).save(*args, **kwargs)
-                publisher.publish_obj(self, previous_obj=previous_obj)
-        else:
-            super(Program, self).save(*args, **kwargs)
 
 
 class PersonSocialNetwork(AbstractSocialNetworkModel):

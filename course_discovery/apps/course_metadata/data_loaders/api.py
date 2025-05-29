@@ -6,60 +6,10 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization
-)
+from course_discovery.apps.course_metadata.models import Course, CourseRun
+
 
 logger = logging.getLogger(__name__)
-
-
-class OrganizationsApiDataLoader(AbstractDataLoader):
-    """ Loads organizations from the Organizations API. """
-
-    def ingest(self):
-        api_url = self.partner.organizations_api_url
-        count = None
-        page = 1
-
-        logger.info('Refreshing Organizations from %s...', api_url)
-
-        while page:
-            response = self.api_client.organizations().get(page=page, page_size=self.PAGE_SIZE)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d organizations...', len(results))
-
-            if response['next']:
-                page += 1
-            else:
-                page = None
-            for body in results:
-                body = self.clean_strings(body)
-                self.update_organization(body)
-
-        logger.info('Retrieved %d organizations from %s.', count, api_url)
-
-        self.delete_orphans()
-
-    def update_organization(self, body):
-        key = body['short_name']
-        logo = body['logo']
-
-        defaults = {
-            'key': key,
-            'partner': self.partner,
-            'certificate_logo_image_url': logo,
-        }
-
-        if not self.partner.has_marketing_site:
-            defaults.update({
-                'name': body['name'],
-                'description': body['description'],
-                'logo_image_url': logo,
-            })
-
-        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
-        logger.info('Processed organization "%s"', key)
 
 
 class CoursesApiDataLoader(AbstractDataLoader):

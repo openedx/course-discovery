@@ -1,11 +1,7 @@
 from dal import autocomplete
 from django import forms
-from django.core.exceptions import ValidationError
-from django.forms.utils import ErrorList
-from django.utils.translation import ugettext_lazy as _
 
-from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, Program
 
 
 def filter_choices_to_render_with_order_preserved(self, selected_choices):

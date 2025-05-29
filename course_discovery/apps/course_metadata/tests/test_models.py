@@ -1,7 +1,6 @@
 import datetime
 
 import ddt
-import mock
 import pytest
 import pytz
 from dateutil.parser import parse
@@ -17,9 +16,6 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement,
     Endorsement, Seat, SeatType, Subject, Topic
-)
-from course_discovery.apps.course_metadata.publishers import (
-    CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
@@ -89,49 +85,6 @@ class CourseRunTests(TestCase):
     now = datetime.datetime.now(pytz.timezone('utc'))
     one_month = relativedelta(months=1)
     two_weeks = relativedelta(days=14)
-
-    def test_publication_disabled(self):
-        """
-        Verify that the publisher is not initialized when publication is disabled.
-        """
-        toggle_switch('publish_course_runs_to_marketing_site', active=False)
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            self.course_run.save()
-            self.course_run.delete()
-
-            assert mock_init.call_count == 0
-
-        toggle_switch('publish_course_runs_to_marketing_site')
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            # Make sure if the save comes from refresh_course_metadata, we don't actually publish
-            self.course_run.save(suppress_publication=True)
-            assert mock_init.call_count == 0
-
-        self.course_run.course.partner.marketing_site_url_root = ''
-        self.course_run.course.partner.save()
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            self.course_run.save()
-            self.course_run.delete()
-
-            assert mock_init.call_count == 0
-
-    def test_publication_enabled(self):
-        """
-        Verify that the publisher is called when publication is enabled.
-        """
-        toggle_switch('publish_course_runs_to_marketing_site')
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
-            self.course_run.save()
-            assert mock_publish_obj.called
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
-            self.course_run.delete()
-            # We don't want to delete course run nodes when CourseRuns are deleted.
-            assert not mock_delete_obj.called
 
 
 @ddt.ddt
@@ -427,42 +380,6 @@ class ProgramTests(TestCase):
     def test_is_active(self, status):
         self.program.status = status
         self.assertEqual(self.program.is_active, status == ProgramStatus.Active)
-
-    def test_publication_disabled(self):
-        """
-        Verify that the publisher is not initialized when publication is disabled.
-        """
-        toggle_switch('publish_program_to_marketing_site', active=False)
-
-        with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
-            self.program.save()
-            self.program.delete()
-
-            assert mock_init.call_count == 0
-
-        toggle_switch('publish_program_to_marketing_site')
-        self.program.partner.marketing_site_url_root = ''
-        self.program.partner.save()
-
-        with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
-            self.program.save()
-            self.program.delete()
-
-            assert mock_init.call_count == 0
-
-    def test_publication_enabled(self):
-        """
-        Verify that the publisher is called when publication is enabled.
-        """
-        toggle_switch('publish_program_to_marketing_site')
-
-        with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
-            self.program.save()
-            assert mock_publish_obj.called
-
-        with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
-            self.program.delete()
-            assert mock_delete_obj.called
 
 
 class PersonSocialNetworkTests(TestCase):
