@@ -22,7 +22,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
     def setUp(self):
         self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
         self.organization = OrganizationFactory()
-        self.product_source = SourceFactory(slug='edx', name='edX')
+        self.product_source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
         self.draft_course = CourseFactory(
             partner=self.partner,
             product_source=self.product_source,
@@ -90,13 +90,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 (
                     LOGGER_PATH,
                     'INFO',
-                    'Found 1 courses with self-paced runs.'
-                ),
-                (
-                    LOGGER_PATH,
-                    'INFO',
-                    f"Course '{self.non_draft_course.title} ({self.non_draft_course.key})' has no advertised course run "
-                    f"with end date within the specified range."
+                    'Found 0 courses with self-paced runs.'
                 ),
                 (
                     LOGGER_PATH,
@@ -111,7 +105,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         """
         Test that the command sends emails when there are advertised course runs with end dates within the specified range.
         """
-        self.non_draft_course_run.end = timezone.now() + timedelta(days=days_until_end + 1)
+        self.non_draft_course_run.end = timezone.now() + timedelta(days=days_until_end)
         self.non_draft_course_run.save()
 
         with LogCapture(LOGGER_PATH) as log_capture:
@@ -144,7 +138,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         """
         Test that the command does not send emails when there is an active course run with Scheduled status
         """
-        self.non_draft_course_run.end = timezone.now() + timedelta(days= 7 + 1)
+        self.non_draft_course_run.end = timezone.now() + timedelta(days= 7)
         self.non_draft_course_run.save()
         scheduled_run = CourseRunFactory(
             course=self.non_draft_course,
@@ -175,7 +169,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         Test that the command sends emails when there is a course run that just ended.
         """
         self.non_draft_course_run.start = timezone.now() - timedelta(days=10)
-        self.non_draft_course_run.end = timezone.now() - timedelta(hours=5)
+        self.non_draft_course_run.end = timezone.now() - timedelta(days=1)
         self.non_draft_course_run.status = CourseRunStatus.Unpublished
         self.non_draft_course_run.save()
 

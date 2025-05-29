@@ -9,6 +9,9 @@ from django.conf import settings
 
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import gettext as _
+from django.db.models import F, ExpressionWrapper, DurationField, IntegerField
+from django.db.models.functions import Now, TruncDate
+from datetime import timedelta
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, CourseRunPacing
 from course_discovery.apps.course_metadata.models import Course
@@ -35,7 +38,14 @@ class Command(BaseCommand):
         courses_with_deadlines = []
         courses_with_self_paced_runs = Course.objects.filter(
             course_runs__pacing_type=CourseRunPacing.Self,
+            course_runs__end__isnull=False,
             product_source__slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG,
+        ).annotate(
+            days_until_end=ExpressionWrapper(
+            TruncDate(F('course_runs__end')) - TruncDate(Now()),
+            output_field=DurationField()
+        )).filter(
+            days_until_end__in=[timedelta(days=d) for d in EMAIL_DELTA_DAYS]
         ).distinct()
         logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
         courses_with_self_paced_runs = courses_with_self_paced_runs.iterator()
@@ -43,42 +53,30 @@ class Command(BaseCommand):
         for course in courses_with_self_paced_runs:
             advertised_run = course.advertised_course_run
 
-            if advertised_run and advertised_run.end:
-                days_until_end = (advertised_run.end - now).days
-
-                if days_until_end in EMAIL_DELTA_DAYS:
-                    active_runs = course.active_course_runs.all()
-
-                    if not active_runs.filter(status=CourseRunStatus.Reviewed).exists():
-                        self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
-                        courses_with_deadlines.append(course)
-                        logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
-                    else:
-                        logger.info(
-                            f"Course {course.title} ({course.key}) has an active course run with status Scheduled."
-                        )
-
+            if advertised_run:
+                if not course.course_runs.filter(status=CourseRunStatus.Reviewed).exists():
+                    days_until_end = (advertised_run.end.date() - now.date()).days
+                    self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
+                    courses_with_deadlines.append(course)
+                    logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                 else:
                     logger.info(
-                        f"Course '{course.title} ({course.key})' has no advertised course run "
-                        f"with end date within the specified range."
+                        f"Course {course.title} ({course.key}) has an active course run with status Scheduled."
                     )
 
             elif not advertised_run:
                 last_course_run = course.course_runs.last()
+                days_since_end = (last_course_run.end.date() - now.date()).days
 
-                if last_course_run and last_course_run.end:
-                    days_since_end = (last_course_run.end - now).days
-
-                    if days_since_end == LAST_RUN_END_DELTA:
-                        self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
-                        courses_with_deadlines.append(course)
-                        logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
-                    else:
-                        logger.info(
-                            f"Course '{course.title} ({course.key})' has no course run "
-                            f"with end date within the specified range."
-                        )
+                if days_since_end == LAST_RUN_END_DELTA:
+                    self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
+                    courses_with_deadlines.append(course)
+                    logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
+                else:
+                    logger.info(
+                        f"Course '{course.title} ({course.key})' has no course run "
+                        f"with end date within the specified range."
+                    )
 
         self.log_courses_with_deadlines(courses_with_deadlines)
 
