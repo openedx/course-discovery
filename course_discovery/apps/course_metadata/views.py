@@ -2,19 +2,11 @@ import jwt
 import json
 
 from django.http import JsonResponse
-from django.views.generic import TemplateView, View
+from django.views.generic import View
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
-
-
-class QueryPreviewView(TemplateView):
-    template_name = 'demo/query_preview.html'
-
-
-class SearchDemoView(TemplateView):
-    template_name = 'demo/search.html'
 
 
 class CourseMetadataRefresher(View):

@@ -25,7 +25,6 @@ from django.views.i18n import javascript_catalog
 
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
-from course_discovery.apps.course_metadata.views import QueryPreviewView
 
 admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
@@ -41,7 +40,6 @@ urlpatterns = auth_urlpatterns + [
     url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
-    url('^$', QueryPreviewView.as_view()),
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
