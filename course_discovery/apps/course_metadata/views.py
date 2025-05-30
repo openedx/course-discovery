@@ -27,14 +27,14 @@ class CourseMetadataRefresher(View):
         try:
             # One site, One Partner/Org:
             # Get a `class Partner` instance by the `request.site.domain`(e.g., 0.0.0.0:18000)
-            course_partner = Partner.objects.get(site__domain=request.site.domain)
+            course_site_partner = Partner.objects.get(site__domain=request.site.domain)
             access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                '{root}/access_token'.format(root=course_partner.oidc_url_root.strip('/')),
-                course_partner.oidc_key, course_partner.oidc_secret, token_type='JWT'
+                '{root}/access_token'.format(root=course_site_partner.oidc_url_root.strip('/')),
+                course_site_partner.oidc_key, course_site_partner.oidc_secret, token_type='JWT'
             )
             kwargs = {
-                'course_key': target_course_id,
-                'partner': course_partner, 'api_url': course_partner.courses_api_url,
+                'course_key': target_course_id, 'partner': course_site_partner,
+                'api_url': course_site_partner.courses_api_url,
                 'access_token': access_token, 'token_type': 'JWT',
                 'max_workers': 1, 'is_threadsafe': True
             }
@@ -44,7 +44,7 @@ class CourseMetadataRefresher(View):
 
             CoursesApiDataLoader(**kwargs).ingest()
 
-            response[course_partner.short_code] = target_course_id
+            response[course_site_partner.short_code] = target_course_id
 
         except Exception as e:
             error_message = 'domain: {} | course_key: {} | error: {}'.format(
