@@ -739,7 +739,7 @@ class TestCourseDeadlineEmail(TestCase):
         Verify that the course deadline email is sent correctly.
         """
         with LogCapture(emails.logger.name) as log_capture:
-            emails.send_course_deadline_email(self.course, self.course_run, {"course_editors": [self.editor.email]}, deadline_email_variant=2)
+            emails.send_course_deadline_email(self.course, self.course_run, {"course_editors": [self.editor.email]}, deadline_email_variant='two_days_reminder')
 
             assert len(mail.outbox) == 1
             email = mail.outbox[0]

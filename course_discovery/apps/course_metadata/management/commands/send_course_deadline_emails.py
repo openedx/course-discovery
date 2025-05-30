@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Send course deadline emails to Project Coordinators and Course Editors.'
 
+    DEADLINE_VARIANTS = {
+        2: "two_days_reminder",
+        7: "seven_days_reminder",
+        -1: "course_ended",
+    }
+
     def handle(self, *args, **options):
         """
         Example usage: ./manage.py send_course_deadline_emails
@@ -56,7 +62,8 @@ class Command(BaseCommand):
             if advertised_run:
                 if not course.course_runs.filter(status=CourseRunStatus.Reviewed).exists():
                     days_until_end = (advertised_run.end.date() - now.date()).days
-                    self.handle_send_email_to_pcs_and_editors(course, advertised_run, email_variant=days_until_end)
+                    self.handle_send_email_to_pcs_and_editors(
+                        course, advertised_run, email_variant=self.DEADLINE_VARIANTS.get(days_until_end))
                     courses_with_deadlines.append(course)
                     logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                 else:
@@ -69,7 +76,7 @@ class Command(BaseCommand):
                 days_since_end = (last_course_run.end.date() - now.date()).days
 
                 if days_since_end == LAST_RUN_END_DELTA:
-                    self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=days_since_end)
+                    self.handle_send_email_to_pcs_and_editors(course, last_course_run, email_variant=self.DEADLINE_VARIANTS.get(days_since_end))
                     courses_with_deadlines.append(course)
                     logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
                 else:

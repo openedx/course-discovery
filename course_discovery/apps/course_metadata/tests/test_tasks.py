@@ -215,7 +215,7 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
                 self.course.key,
                 self.course_run.key,
                 self.recipients,
-                email_variant=7,
+                email_variant='seven_days_reminder',
             )
             log_capture.check(
                 (
@@ -229,7 +229,7 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
             self.course,
             self.course_run,
             self.recipients,
-            7,
+            'seven_days_reminder',
         )
 
     def test_process_send_course_deadline_email__does_not_exist_error(self):
@@ -245,7 +245,7 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
                     invalid_key,
                     self.course_run.key,
                     self.recipients,
-                    email_variant=7,
+                    email_variant='seven_days_reminder',
                 )
                 log_capture.check(
                     LOGGER_PATH,
@@ -262,7 +262,7 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
                 self.course.key,
                 self.course_run.key,
                 self.recipients,
-                email_variant=7,
+                email_variant='seven_days_reminder',
             )
 
         self.assertIn("Unexpected error", str(context.exception))

@@ -452,12 +452,13 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
     """
     html_template = 'course_metadata/email/course_deadline.html'
     template = get_template(html_template)
+    subject_lookup = {
+        "course_ended": f"Reminder: {course.title} has ended",
+        "two_days_reminder": f"Reminder: {course.title} ends in 2 days",
+        "seven_days_reminder": f"Reminder: {course.title} ends in 7 days",
+    }
 
-    subject = (
-        f"Reminder: {course.title} has ended"
-        if deadline_email_variant == -1
-        else f"Reminder: {course.title} ends in {deadline_email_variant} days"
-    )
+    subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
 
     for recipient_role, recipients_emails in recipients.items():
         context = {

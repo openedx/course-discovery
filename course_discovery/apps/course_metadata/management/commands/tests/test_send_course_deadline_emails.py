@@ -99,9 +99,12 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 ),
             )
 
-    @ddt.data(2, 7, -1)
+    @ddt.data(
+        (2, "two_days_reminder"), (7, "seven_days_reminder"), (-1, "course_ended")
+    )
+    @ddt.unpack
     @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
-    def test_send_deadline_email_command_with_course_run_with_end_date_within_range(self, days_until_end, mock_apply_async):
+    def test_send_deadline_email_command_with_course_run_with_end_date_within_range(self, days_until_end, expected_deadline_variant, mock_apply_async):
         """
         Test that the command sends emails when there are advertised course runs with end dates within the specified range.
         """
@@ -129,7 +132,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 'course_editors': [self.user.email],
                 'project_coordinators': [self.user.email],
             },
-            days_until_end
+            expected_deadline_variant
         ]
 
         self.assertEqual(called_kwargs['args'], expected_args)

@@ -1,24 +1,28 @@
 {% load i18n %}
 
-{% if recipient_role == 'course_editors' %}
-    {% trans "Hi Course Team," %}
-{% elif recipient_role == 'project_coordinators' %}
-    {% trans "Hi Project Coordinator," %}
-{% endif %}
+{% trans "Hi Course Team," %}
 
-{% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
-    {% blocktrans with course_name=course_name course_key=course_key course_publish_date=course_publish_date course_end_date=course_end_date deadline_email_variant=deadline_email_variant %}
-    This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to go live on {{ course_publish_date }} and is scheduled to end in {{ deadline_email_variant }} days on {{ course_end_date }}.
-    {% endblocktrans %}
-{% elif deadline_email_variant == -1 %}
+{% if deadline_email_variant == 'two_days_reminder' %}
+    {% with days="2" %}
+        {% blocktrans with course_name=course_name course_key=course_key course_publish_date=course_publish_date course_end_date=course_end_date days=days %}
+        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to go live on {{ course_publish_date }} and is scheduled to end in {{ days }} days on {{ course_end_date }}.
+        {% endblocktrans %}
+    {% endwith %}
+{% elif deadline_email_variant == 'seven_days_reminder' %}
+    {% with days="7" %}
+        {% blocktrans with course_name=course_name course_key=course_key course_publish_date=course_publish_date course_end_date=course_end_date days=days %}
+        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to go live on {{ course_publish_date }} and is scheduled to end in {{ days }} days on {{ course_end_date }}.
+        {% endblocktrans %}
+    {% endwith %}
+{% elif deadline_email_variant == 'course_ended' %}
     {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
     This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
     {% endblocktrans %}
 {% endif %}
 
-{% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
+{% if deadline_email_variant == 'two_days_reminder' or deadline_email_variant == 'seven_days_reminder' %}
     {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
-{% elif deadline_email_variant == -1 %}
+{% elif deadline_email_variant == 'course_ended' %}
     {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
 {% endif %}
 
@@ -31,8 +35,8 @@
 You can review and modify the course end settings here: {{ url }}
 {% endblocktrans %}
 
-{% if deadline_email_variant == -1 %}
-    {% trans "If no action is taken, the course will close automatically after the current end date." %}
+{% if deadline_email_variant == 'course_ended' %}
+    {% trans "If no action is taken, the course will no longer be available for enrollment or access by learners on edx.org after the end date." %}
 {% endif %}
 
 {% trans "Thanks" %}

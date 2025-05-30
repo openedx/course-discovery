@@ -4,19 +4,23 @@
 {% block body %}
 
 <p>
-    {% if recipient_role == 'course_editors' %}
-        {% trans "Hi Course Team," %}
-    {% elif recipient_role == 'project_coordinators' %}
-        {% trans "Hi Project Coordinator," %}
-    {% endif %}
+    {% trans "Hi Course Team," %}
 </p>
 
 <p>
-    {% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
-        {% blocktrans with course_name=course_name course_key=course_key deadline_email_variant=deadline_email_variant course_end_date=course_end_date %}
-        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ deadline_email_variant }} days on {{ course_end_date }}.
-        {% endblocktrans %}
-    {% elif deadline_email_variant == -1 %}
+    {% if deadline_email_variant == 'two_days_reminder' %}
+        {% with days="2 days" %}
+            {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days %}
+            This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
+            {% endblocktrans %}
+        {% endwith %}
+    {% elif deadline_email_variant == 'seven_days_reminder' %}
+        {% with days="7 days" %}
+            {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days %}
+            This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
+            {% endblocktrans %}
+        {% endwith %}
+    {% elif deadline_email_variant == 'course_ended' %}
         {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
         This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
         {% endblocktrans %}
@@ -24,24 +28,30 @@
 </p>
 
 <p>
-    {% if deadline_email_variant == 2 or deadline_email_variant == 7 %}
+    {% if deadline_email_variant == 'two_days_reminder' or deadline_email_variant == 'seven_days_reminder' %}
         {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
-    {% elif deadline_email_variant == -1 %}
+    {% elif deadline_email_variant == 'course_ended' %}
         {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
     {% endif %}
-    <ul>
-        <li>Extend the current course run’s end date if the same course is meant to remain available. </li>
-        <li>Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners.  <a href='{{ publisher_url }}courses/{{ course_uuid }}'> Visit Course </a> </li>
-    </ul>
 </p>
 
+<ul>
+    <li>{% trans "Extend the current course run’s end date if the same course is meant to remain available." %}</li>
+    <li>
+        {% trans "Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners." %}
+        <a href='{{ publisher_url }}courses/{{ course_uuid }}'> {% trans "Visit Course" %} </a>
+    </li>
+</ul>
+
 <p>
-    {% trans "You can review and modify the course end settings here:" %} {{ course_schedule_settings_url }}
+    {% trans "You can review and modify the course end settings here:" %} <a href="{{ course_schedule_settings_url }}">{{ course_schedule_settings_url }}</a>
     <br/>
-    {% if deadline_email_variant == -1 %}
-        {% trans "If no action is taken, the course will close automatically after the current end date." %}
-    {% endif %}
+    {% if deadline_email_variant == 'course_ended' %}
+    {% blocktrans with edx='<a href="https://www.edx.org">edx.org</a>'|safe %}
+    If no action is taken, the course will no longer be available for enrollment or access by learners on {{ edx_link }} after the end date.
+    {% endblocktrans %}
     <br/>
+{% endif %}
     {% trans "Thanks" %}
 </p>
 
