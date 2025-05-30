@@ -128,10 +128,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         expected_args = [
             str(self.non_draft_course.key),
             str(self.non_draft_course_run.key),
-            {
-                'course_editors': [self.user.email],
-                'project_coordinators': [self.user.email],
-            },
+            [self.user.email, self.user.email],
             expected_deadline_variant
         ]
 

@@ -98,11 +98,7 @@ class Command(BaseCommand):
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
         ).values_list('user__email', flat=True).distinct())
-
-        recipients = {
-            'course_editors': course_editors,
-            'project_coordinators': project_coordinators,
-        }
+        recipients = course_editors + project_coordinators
 
         logger.info(f"Scheduling deadline email for course {course.title} ({course.key}).")
         process_send_course_deadline_email.apply_async(

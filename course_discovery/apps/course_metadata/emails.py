@@ -460,24 +460,22 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
 
     subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
 
-    for recipient_role, recipients_emails in recipients.items():
-        context = {
-            "course_uuid": course.uuid,
-            "course_name": course.title,
-            "course_key": course.key,
-            "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
-            "deadline_email_variant": deadline_email_variant,
-            "recipient_role": recipient_role,
-            "publisher_url": course.partner.publisher_url,
-            "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
-        }
-        html_content = template.render(context)
-        email = EmailMessage(
-            subject,
-            html_content,
-            settings.PUBLISHER_FROM_EMAIL,
-            recipients_emails,
-        )
-        email.content_subtype = "html"
-        email.send()
-        logger.info(f"Course deadline email sent to {recipients_emails} for course {course.title}")
+    context = {
+        "course_uuid": course.uuid,
+        "course_name": course.title,
+        "course_key": course.key,
+        "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
+        "deadline_email_variant": deadline_email_variant,
+        "publisher_url": course.partner.publisher_url,
+        "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
+    }
+    html_content = template.render(context)
+    email = EmailMessage(
+        subject,
+        html_content,
+        settings.PUBLISHER_FROM_EMAIL,
+        recipients,
+    )
+    email.content_subtype = "html"
+    email.send()
+    logger.info(f"Course deadline email sent to {recipients} for course {course.title}")

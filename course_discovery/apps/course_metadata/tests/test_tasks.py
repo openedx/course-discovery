@@ -202,7 +202,7 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
     def setUp(self):
         self.course = factories.CourseFactory()
         self.course_run = factories.CourseRunFactory(course=self.course)
-        self.recipients = {'project_coordinators': ['pc@example.com'], 'course_editors': ['editor@example.com']}
+        self.recipients = ['pc@example.com', 'editor@example.com']
 
     @mock.patch('course_discovery.apps.course_metadata.tasks.send_course_deadline_email')
     def test_process_send_course_deadline_email_success(self, mock_send_email):
