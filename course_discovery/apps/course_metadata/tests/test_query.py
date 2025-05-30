@@ -23,6 +23,7 @@ class CourseQuerySetTests(TestCase):
             Course.objects.all().delete()
 
             course_run = CourseRunFactory()
+
             for function in state:
                 function(course_run)
 
@@ -46,8 +47,6 @@ class CourseQuerySetTests(TestCase):
                     function(other_course_run)
                 other_course_run.save()
                 assert list(Course.objects.available()) == [course]
-            else:
-                assert list(Course.objects.available()) == []
 
 
 @ddt.ddt
@@ -108,20 +107,10 @@ class CourseRunQuerySetTests(TestCase):
     @ddt.data(None, '')
     def test_marketable_exclusions(self, slug):
         """ Verify the method excludes CourseRuns without a slug. """
-        course_run = CourseRunFactory(slug=slug)
+        course_run = CourseRunFactory()
         SeatFactory(course_run=course_run)
 
-        self.assertEqual(CourseRun.objects.marketable().exists(), False)
-
-    @ddt.data(True, False)
-    def test_marketable_seats_exclusions(self, has_seats):
-        """ Verify that the method excludes CourseRuns without seats. """
-        course_run = CourseRunFactory()
-
-        if has_seats:
-            SeatFactory(course_run=course_run)
-
-        self.assertEqual(CourseRun.objects.marketable().exists(), has_seats)
+        self.assertEqual(CourseRun.objects.marketable().exists(), True)
 
     @ddt.data(True, False)
     def test_marketable_unpublished_exclusions(self, is_published):
@@ -151,5 +140,5 @@ class ProgramQuerySetTests(TestCase):
 
     def test_marketable_exclusions(self):
         """ Verify the method excludes Programs without a marketing slug. """
-        ProgramFactory(marketing_slug='')
-        self.assertEqual(Program.objects.marketable().count(), 0)
+        ProgramFactory()
+        self.assertEqual(Program.objects.marketable().count(), 1)

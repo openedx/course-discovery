@@ -25,7 +25,6 @@ from django.views.i18n import javascript_catalog
 
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
-from course_discovery.apps.course_metadata.views import QueryPreviewView
 
 admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
@@ -41,25 +40,12 @@ urlpatterns = auth_urlpatterns + [
     url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
-    url('^$', QueryPreviewView.as_view()),
-    url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
-    url(
-        r'^publisher/comments/', include(
-            'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
-        )
-    ),
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^jsi18n/$', javascript_catalog, name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
-
-# Add the catalog extension urls if edx_catalog_extensions is installed.
-if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
-    urlpatterns.append(
-        url(r'^extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
-    )
 
 if settings.DEBUG:  # pragma: no cover
     # We need this url pattern to serve user uploaded assets according to

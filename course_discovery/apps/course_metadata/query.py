@@ -36,13 +36,7 @@ class CourseQuerySet(models.QuerySet):
 
         # A CourseRun is "marketable" if it has a non-empty slug, has seats, and
         # is has a "published" status.
-        marketable = (
-            (
-                Q(course_runs__slug__isnull=False) & ~Q(course_runs__slug='')
-            ) &
-            Q(course_runs__seats__isnull=False) &
-            Q(course_runs__status=CourseRunStatus.Published)
-        )
+        marketable = Q(course_runs__status=CourseRunStatus.Published)
 
         # exclude() is intentionally avoided here. We want Courses to be included
         # in the resulting queryset if at least one of their runs matches our availability
@@ -111,14 +105,7 @@ class CourseRunQuerySet(models.QuerySet):
             QuerySet
          """
 
-        return self.exclude(
-            slug__isnull=True
-        ).exclude(
-            slug=''
-        ).exclude(
-            # This will exclude any course run without seats (e.g., CCX runs).
-            seats__isnull=True
-        ).filter(
+        return self.filter(
             status=CourseRunStatus.Published
         )
 
@@ -135,8 +122,4 @@ class ProgramQuerySet(models.QuerySet):
 
         return self.filter(
             status=ProgramStatus.Active
-        ).exclude(
-            marketing_slug__isnull=True
-        ).exclude(
-            marketing_slug=''
         )

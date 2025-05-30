@@ -10,16 +10,13 @@ from django.test import TransactionTestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
-)
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
+    CoursesApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+
 
 JSON = 'application/json'
 ACCESS_TOKEN = str(jwt.encode({'preferred_username': 'bob'}, 'secret'), 'utf-8')
@@ -32,15 +29,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [
-            (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
-            (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
-            (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
-            (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
         self.kwargs = {'username': 'bob'}
         self.mock_access_token_api()
@@ -138,7 +127,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
 
                 # Set up expected calls
                 expected_calls = [mock.call(loader_class, self.partner, api_url,
-                                            ACCESS_TOKEN, 'JWT', max_workers or 7, False, **self.kwargs)
+                                            ACCESS_TOKEN, 'JWT', max_workers or 7, False, modified_x_min_ago=None, **self.kwargs)
                                   for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls)
 
@@ -167,7 +156,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                 # Set up expected calls
                 expected_calls = [mock.call(execute_parallel_loader, loader_class,
                                             self.partner, api_url, ACCESS_TOKEN,
-                                            'JWT', max_workers or 7, True, **self.kwargs)
+                                            'JWT', max_workers or 7, True, modified_x_min_ago=None, **self.kwargs)
                                   for loader_class, api_url, max_workers in self.pipeline]
                 mock_executor.assert_has_calls(expected_calls, any_order=True)
 
@@ -202,15 +191,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                 call_command('refresh_course_metadata')
 
                 loader_classes = (
-                    SubjectMarketingSiteDataLoader,
-                    SchoolMarketingSiteDataLoader,
-                    SponsorMarketingSiteDataLoader,
-                    PersonMarketingSiteDataLoader,
-                    CourseMarketingSiteDataLoader,
-                    OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
-                    EcommerceApiDataLoader,
-                    ProgramsApiDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)

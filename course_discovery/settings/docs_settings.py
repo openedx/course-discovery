@@ -17,14 +17,6 @@ SECRET_KEY = 'secret'
 
 STATIC_URL = '/static/'
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': '',
-        'URL': '',
-        'INDEX_NAME': '',
-    }
-}
-
 LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
 }

@@ -1,13 +1,8 @@
 import json
 import warnings
 from os import environ
-from os.path import (
-    dirname,
-    abspath,
-    join as path_join
-)
+from os.path import join as path_join
 
-import certifi
 import MySQLdb
 import yaml
 
@@ -74,14 +69,6 @@ DB_OVERRIDES = dict(
     PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 )
 
-HAYSTACK_CONNECTIONS['default'].update({
-    'URL': ELASTICSEARCH_URL,
-    'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
-    'KWARGS': {
-        'verify_certs': True,
-        'ca_certs': certifi.where(),
-    },
-})
 
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
