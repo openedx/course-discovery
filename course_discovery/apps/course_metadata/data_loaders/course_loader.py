@@ -5,8 +5,9 @@ course and course run data for the specified course type.
 """
 import csv
 import logging
-
+import pprint
 import unicodecsv
+from decimal import Decimal
 
 from course_discovery.apps.course_metadata.choices import BulkOperationType, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -27,17 +28,23 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
     BASE_REQUIRED_DATA_FIELDS = [
         'organization', 'title', 'number', 'start_date', 'end_date', 'course_pacing',
     ]
-    LEGAL_REVIEW_REQUIRED_FIELDS = [
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE = [
         "image",
         "long_description",
         "short_description",
         "what_will_you_learn",
         "level_type",
         "primary_subject",
+    ]
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN = [
         "publish_date",
         "minimum_effort",
         "maximum_effort",
         "length",
+    ]
+    LEGAL_REVIEW_REQUIRED_FIELDS = [
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE,
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN
     ]
 
     def __init__(
@@ -111,10 +118,21 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         logger.info(f"Initiating Course Loader for {self.task_type}")
         if self.task_type == BulkOperationType.CourseCreate:
             return self._ingest_course_create()
-
+        elif self.task_type == BulkOperationType.PartialUpdate:
+            return self._ingest_partial_update()
         return NotImplementedError(
             f"Task type {self.task_type} is not implemented in CourseLoader."
         )
+
+    def missing_fields_for_legal_review(self, course, course_run, row):
+        missing_fields = []
+        for field in self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE:
+            if not (getattr(course, field, '') or row.get(field, '').strip()):
+                missing_fields.append(field)
+        for field in self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN:
+            if not (getattr(course_run, field, '') or row.get(field, '').strip()):
+                missing_fields.append(field)
+        return missing_fields
 
     def validate_course_data(self, data, course_type=None):
         """
@@ -148,8 +166,21 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         if missing_fields:
             return ', '.join(missing_fields)
         return ''
+    
+    def validate_course_data_partial_update(self, course, course_run, row):
+        new_course_track = row.get('course_enrollment_track', '')
+        if new_course_track and course.type.name != new_course_track and new_course_track!='Audit Only':
+            price = row.get('verified_price')
+            if not bool(price):
+                raise ValueError("Please provide a price")
+        new_run_track = row.get('course_run_enrollment_track', '')
+        if new_run_track and course_run.type.name != new_run_track and new_run_track!='Audit Only':
+            price = row.get('verified_price')
+            if not bool(price):
+                raise ValueError("Please provide a price")
 
-    def update_course_api_request_data(self, course_data, course, is_draft):
+
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):
         """
         Create and return the request data for making a patch call to update the course.
         """
@@ -169,8 +200,8 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'type': str((self.get_course_type(course_data.get('course_enrollment_track')) or course.type).uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
-            'prices': self.get_pricing_representation(course_data.get('verified_price'), course.type),
-            'title': course_data['title'],
+            'prices': self.get_pricing_representation(course_data.get('verified_price'), course_type or course.type),
+            'title': course_data.get('title', ''),
             'syllabus_raw': course_data.get('syllabus', ''),
             'level_type': course_data.get('level_type', ''),
             'outcome': course_data.get('what_will_you_learn', ''),
@@ -183,7 +214,33 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'additional_information': course_data.get('additional_information', ''),
             'organization_short_code_override': course_data.get('organization_short_code_override', ''),
         }
+        if self.task_type == BulkOperationType.PartialUpdate:
+            self.remove_empty(update_course_data)
+
+        print('Data for update course')
+        pprint.pprint(update_course_data)
         return update_course_data
+
+    def remove_empty(self, obj):
+        if isinstance(obj, str):
+            return obj.strip()
+
+        elif isinstance(obj, (int, float, bool)):
+            return obj
+        
+        elif isinstance(obj, list):
+            intermediate = [self.remove_empty(i) for i in obj]
+            if [i for i in intermediate if i not in [[], {}, "", None]]:
+                return intermediate
+            else:
+                return []
+        elif isinstance (obj, dict):
+            keys = list(obj.keys())
+            for k in keys:
+                v = obj[k]
+                if self.remove_empty(v) in [[], {}, "", None]:
+                    obj.pop(k)
+            return obj
 
     def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
         """
@@ -239,6 +296,10 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             if value:
                 update_course_run_data[db_field_name] = value
 
+        if self.task_type == BulkOperationType.PartialUpdate:
+            self.remove_empty(update_course_run_data)
+
+        pprint.pprint(update_course_run_data)
         return update_course_run_data
 
     def download_course_image_assets(self, data, course):
@@ -334,7 +395,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             if not (is_course_image_download and is_organization_logo_override_download):
                 continue
             try:
-                self.update_course(row, course, is_draft)
+                self.update_course(row, course, course_type, is_draft)
             except Exception as exc:  # pylint: disable=broad-except
                 exception_message = exc
                 if hasattr(exc, 'response'):
@@ -389,6 +450,155 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             )
             self.ingestion_summary['success_count'] += 1
             self.ingestion_summary['created_products'].append(f'{course.uuid} - {course.title} ({course.key})')
+
+        self.render_error_logs(self.error_logs)
+        self.clear_caches()
+
+        return {
+            'summary': self.ingestion_summary,
+            'errors': self.error_logs,
+        }
+
+    def extract_course_and_course_run(self, row):
+        """
+        Given a row of data, return the course and course run identified by it
+        """
+        if row['course_run_key']:
+            course_run = CourseRun.everything.get(draft=True, key=row['course_run_key'])
+            course = course_run.course
+        else:
+            course = Course.everything.get(draft=True, key=row['course_key'])
+            course_run = None
+        
+        return course, course_run
+
+    def _ingest_partial_update(self):  # pylint: disable=too-many-statements
+        """
+        Ingests course and courserun data for partial updates.
+        """
+
+        for row in self.reader:
+            row = self.transform_dict_keys(row)
+            course_key = row['course_key']
+            course_run_key = row['course_run_key']
+            logger.info(f'Starting partial update flow for {course_key}')
+            
+            ## Retrieve the course and run under consideration
+            try:
+                course, course_run = self.extract_course_and_course_run(row)
+            except CourseRun.DoesNotExist as exc:
+                print(exc)
+                continue
+            except Course.DoesNotExist as exc:
+                print(exc)
+
+                continue
+            
+            print('Performing some validation')
+            # Some validation
+            self.validate_course_data = lambda *args, **kwargs: "" 
+
+            ## This throws if tracks are not given, should it?
+            is_valid, course_type, course_run_type = self._validate_and_process_row(
+                row, course.title, org_key=course.authoring_organizations.first().key
+            )
+
+            # is_valid, course_type, course_run_type = True, course.type, course_run.type
+
+            if not is_valid:
+                continue
+            self.validate_course_data_partial_update(course, course_run, row)
+
+            print('Setting draft flag')
+
+            ## Why draft flag?
+            is_draft = self.get_draft_flag(course=course)
+            logger.info(f"Draft flag is set to {is_draft} for the course {course.title}")
+
+            ## Update images data
+            is_course_image_download, is_organization_logo_override_download = self.download_course_image_assets(
+                data=row, course=course
+            )
+            if not (is_course_image_download and is_organization_logo_override_download):
+                continue
+
+            print('Updating course')
+
+            ## Update Course
+            try:
+                self.update_course(row, course, course_type, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                        course_title=course.title, exception_message=exception_message
+                    )
+                )
+                continue
+
+
+            # print('Validation before update course run')
+            # course.refresh_from_db()
+            # course_run.refresh_from_db()
+            # if missing_fields:=self.missing_fields_for_legal_review(course, course_run, row):
+            #     self.log_ingestion_error(
+            #         CSVIngestionErrors.MISSING_REQUIRED_DATA,
+            #         CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+            #             course_title=course.title, missing_data=missing_fields
+            #         )
+            #     )
+            #     continue
+
+            print('Updating course run')
+
+            ## Update Course Run
+            # breakpoint()
+            print('For course run, old is_draft is ', is_draft)
+            is_draft = True if course_run.status == CourseRunStatus.Unpublished and row.get("move_to_legal_review", "").lower() != "true" else is_draft
+            print('For course run, is_draft is ', is_draft)
+            try:
+                self.update_course_run(row, course_run, course_type, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                        course_title=course.title, exception_message=exception_message
+                    )
+                )
+                continue
+
+            course.refresh_from_db()
+            course_run.refresh_from_db()
+
+            ## Legal Review Shenanigans
+            ## Also do validation that data is complete
+            print('Legal review mess')
+            if (
+                course_run.status == CourseRunStatus.Unpublished and
+                row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
+            ):
+                if missing_fields:=self.missing_fields_for_legal_review(course, course_run, row):
+                    self.log_ingestion_error(
+                        CSVIngestionErrors.MISSING_REQUIRED_DATA,
+                        CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+                            course_title=course.title, missing_data=missing_fields
+                        )
+                    )
+                    continue
+
+
+                # Pushing the run into LegalReview is necessary to ensure that the
+                # url slug is correctly generated in subdirectory format
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=["status"], send_emails=True)
+
+            self.ingestion_summary['success_count'] += 1
 
         self.render_error_logs(self.error_logs)
         self.clear_caches()
