@@ -367,7 +367,7 @@ class DataLoaderMixin:
         except CourseType.DoesNotExist:
             return None
 
-    def _validate_and_process_row(self, row, course_title, org_key):
+    def _validate_and_process_row(self, row, course_title, org_key, allow_empty_tracks=False):
         """
         Validates and processes a single row of course data.
 
@@ -396,7 +396,7 @@ class DataLoaderMixin:
                 CourseRunType: CourseRunType object
             """
             course_type = self.get_course_type(row["course_enrollment_track"])
-            if not course_type:
+            if not course_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
@@ -406,7 +406,7 @@ class DataLoaderMixin:
                 return False, None, None
 
             course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
-            if not course_run_type:
+            if not course_run_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
