@@ -1701,6 +1701,47 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         verified_seat.refresh_from_db()
         assert verified_seat.upgrade_deadline_override is None
 
+    def test_verified_upgrade_deadline_reset_on_upgrade_deadline_override_change(self):
+        """
+        Verify that resetting the upgrade_deadline_override of a course run
+        resets upgrade_deadline to default PUBLISHER_UPGRADE_DEADLINE_DAYS.
+        Also verify that if override is not None, the override will take precedence.
+        """
+        end_date = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
+        course_run = factories.CourseRunFactory.create(end=end_date, draft=True)
+        prices = {
+            'audit': 0,
+            'verified': 800,
+        }
+
+        verified_seat_type = factories.SeatTypeFactory.verified()
+
+        overridden_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=5)
+        verified_seat = factories.SeatFactory.create(
+            course_run=course_run,
+            type=verified_seat_type,
+            upgrade_deadline_override=overridden_deadline,
+            draft=True
+        )
+
+        assert verified_seat.upgrade_deadline_override is not None
+        assert verified_seat.upgrade_deadline == overridden_deadline
+
+        course_run.update_or_create_seat_helper(verified_seat_type, prices, None)
+
+        verified_seat.refresh_from_db()
+        assert verified_seat.upgrade_deadline_override is None
+        assert verified_seat.upgrade_deadline.date() == (end_date - datetime.timedelta(days=10)).date()
+        assert verified_seat.upgrade_deadline != overridden_deadline
+
+        new_deadline_override = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
+
+        course_run.update_or_create_seat_helper(verified_seat_type, prices, new_deadline_override)
+
+        verified_seat.refresh_from_db()
+        assert verified_seat.upgrade_deadline_override is not None
+        assert verified_seat.upgrade_deadline == new_deadline_override
+
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     """
@@ -1893,7 +1934,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
             log_capture.check_present((utils_logger.name, 'WARNING',
                                       'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
 
-    def test_verified_seat_upgrade_deadline_override(self):
+    def test_verified_seat_upgrade_deadline(self):
         self.mock_access_token()
         self.mock_ecommerce_publication()
 
@@ -1927,8 +1968,6 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
         draft_run.update_or_create_official_version()
 
-        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type)
-        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type)
         assert draft_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
         assert official_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
 
