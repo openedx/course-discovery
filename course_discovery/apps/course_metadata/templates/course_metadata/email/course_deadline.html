@@ -1,26 +1,18 @@
 {% extends "course_metadata/email/email_base.html" %}
 {% load i18n %}
 {% load django_markup %}
-{% block body %}
 
+{% block body %}
 <p>
     {% trans "Hi Course Team," %}
 </p>
 
 <p>
-    {% if deadline_email_variant == 'two_days_reminder' %}
-        {% with days="2 days" %}
-            {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days %}
-            This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
-            {% endblocktrans %}
-        {% endwith %}
-    {% elif deadline_email_variant == 'seven_days_reminder' %}
-        {% with days="7 days" %}
-            {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days %}
-            This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
-            {% endblocktrans %}
-        {% endwith %}
-    {% elif deadline_email_variant == 'course_ended' %}
+    {% if days_to_expire == '2 days' or days_to_expire == '7 days' %}
+        {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days_to_expire %}
+        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
+        {% endblocktrans %}
+    {% elif days_to_expire == 'ended' %}
         {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
         This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
         {% endblocktrans %}
@@ -28,9 +20,9 @@
 </p>
 
 <p>
-    {% if deadline_email_variant == 'two_days_reminder' or deadline_email_variant == 'seven_days_reminder' %}
+    {% if days_to_expire == '2 days' or days_to_expire == '7 days' %}
         {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
-    {% elif deadline_email_variant == 'course_ended' %}
+    {% elif days_to_expire == 'ended' %}
         {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
     {% endif %}
 </p>
@@ -39,17 +31,21 @@
     <li>{% trans "Extend the current course run’s end date if the same course is meant to remain available." %}</li>
     <li>
         {% trans "Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners." %}
-        <a href='{{ publisher_url }}courses/{{ course_uuid }}'> {% trans "Visit Course" %} </a>
+        <a href="{{ publisher_url }}courses/{{ course_uuid }}"> {% trans "Visit the Course in Publisher" %} </a>
     </li>
 </ul>
 
 <p>
-    {% trans "You can review and modify the course end settings here:" %} <a href="{{ course_schedule_settings_url }}">{{ course_schedule_settings_url }}</a>
+    {% trans "You can review and modify the course end settings here:" %} 
+    <a href="{{ course_schedule_settings_url }}">{{ course_schedule_settings_url }}</a>
     <br/>
-    {% if deadline_email_variant == 'course_ended' %}
-    If no action is taken, the course will no longer be available for enrollment or access by learners on <a href="{{ course_schedule_settings_url }}">{{ partner_marketing_site_url }}</a> after the end date.
-    <br/>
-{% endif %}
+    {% if days_to_expire == 'ended' %}
+        {% blocktrans with partner_marketing_site_url=partner_marketing_site_url %}
+        If no action is taken, the course will no longer be available for enrollment or access by learners on 
+        <a href="{{ partner_marketing_site_url }}">{{ partner_marketing_site_url }}</a> after the end date.
+        {% endblocktrans %}
+        <br/>
+    {% endif %}
     {% trans "Thanks" %}
 </p>
 

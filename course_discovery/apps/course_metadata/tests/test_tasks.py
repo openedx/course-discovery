@@ -247,11 +247,9 @@ class ProcessSendCourseDeadlineEmailTaskTests(TestCase):
                     self.recipients,
                     email_variant='seven_days_reminder',
                 )
-                log_capture.check(
-                    LOGGER_PATH,
-                    'ERROR',
-                    "Course or CourseRun not found: Course matching query does not exist."
-                )
+            log_capture.check(
+                (LOGGER_PATH, 'ERROR', "Course or CourseRun not found: Course matching query does not exist."),
+            )
 
     @mock.patch('course_discovery.apps.course_metadata.tasks.send_course_deadline_email')
     def test_process_send_course_deadline_email_generic_exception(self, mock_send_email):

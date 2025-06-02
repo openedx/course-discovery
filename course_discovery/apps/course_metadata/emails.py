@@ -465,7 +465,9 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
         "course_name": course.title,
         "course_key": course.key,
         "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
-        "deadline_email_variant": deadline_email_variant,
+        "days_to_expire": '2 days' if deadline_email_variant == "two_days_reminder" else
+                                  '7 days' if deadline_email_variant == "seven_days_reminder" else
+                                  'course ended',
         "publisher_url": course.partner.publisher_url,
         "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
         "partner_marketing_site_url": course.partner.marketing_site_url_root,

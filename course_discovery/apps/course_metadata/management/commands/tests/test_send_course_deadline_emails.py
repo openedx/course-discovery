@@ -1,3 +1,6 @@
+"""
+Unit tests for the send_course_deadline_emails management command.
+"""
 import ddt
 from datetime import timedelta
 from django.test import TestCase
@@ -19,6 +22,9 @@ LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.send_co
 
 @ddt.ddt
 class SendCourseDeadlineEmailsTests(TestCase):
+    """
+    Test suite for the send_course_deadline_emails management command.
+    """
     def setUp(self):
         self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
         self.organization = OrganizationFactory()
