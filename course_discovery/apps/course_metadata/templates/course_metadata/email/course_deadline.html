@@ -47,9 +47,7 @@
     {% trans "You can review and modify the course end settings here:" %} <a href="{{ course_schedule_settings_url }}">{{ course_schedule_settings_url }}</a>
     <br/>
     {% if deadline_email_variant == 'course_ended' %}
-    {% blocktrans with edx='<a href="https://www.edx.org">edx.org</a>'|safe %}
-    If no action is taken, the course will no longer be available for enrollment or access by learners on {{ edx_link }} after the end date.
-    {% endblocktrans %}
+    If no action is taken, the course will no longer be available for enrollment or access by learners on <a href="{{ course_schedule_settings_url }}">{{ partner_marketing_site_url }}</a> after the end date.
     <br/>
 {% endif %}
     {% trans "Thanks" %}

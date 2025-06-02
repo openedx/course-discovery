@@ -36,7 +36,7 @@ You can review and modify the course end settings here: {{ url }}
 {% endblocktrans %}
 
 {% if deadline_email_variant == 'course_ended' %}
-    {% trans "If no action is taken, the course will no longer be available for enrollment or access by learners on edx.org after the end date." %}
+    {% trans "If no action is taken, the course will no longer be available for enrollment or access by learners on {{ partner_marketing_site_url }} after the end date." %}
 {% endif %}
 
 {% trans "Thanks" %}

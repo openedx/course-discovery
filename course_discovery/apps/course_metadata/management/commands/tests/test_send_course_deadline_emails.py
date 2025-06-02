@@ -119,7 +119,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 (LOGGER_PATH, 'INFO', 'Found 1 courses with self-paced runs.'),
                 (LOGGER_PATH, 'INFO', f'Scheduling deadline email for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
                 (LOGGER_PATH, 'INFO', f'Deadline email has been scheduled for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
-                (LOGGER_PATH, 'INFO', 'Scheduled course deadline emails for:\n' f"- {self.non_draft_course.title}"),
+                (LOGGER_PATH, 'INFO', 'Scheduled course deadline emails for:\n' f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"),
             )
 
         mock_apply_async.assert_called_once()
@@ -128,7 +128,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         expected_args = [
             str(self.non_draft_course.key),
             str(self.non_draft_course_run.key),
-            [self.user.email, self.user.email],
+            list(set([self.user.email , self.user.email])),
             expected_deadline_variant
         ]
 
@@ -181,5 +181,5 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 (LOGGER_PATH, 'INFO', 'Found 1 courses with self-paced runs.'),
                 (LOGGER_PATH, 'INFO', f'Scheduling deadline email for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
                 (LOGGER_PATH, 'INFO', f'Deadline email has been scheduled for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
-                (LOGGER_PATH, 'INFO', 'Scheduled course deadline emails for:\n' f"- {self.non_draft_course.title}"),
+                (LOGGER_PATH, 'INFO', 'Scheduled course deadline emails for:\n' f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"),
             )

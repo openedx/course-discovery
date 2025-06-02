@@ -468,6 +468,7 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
         "deadline_email_variant": deadline_email_variant,
         "publisher_url": course.partner.publisher_url,
         "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
+        "partner_marketing_site_url": course.partner.marketing_site_url_root,
     }
     html_content = template.render(context)
     email = EmailMessage(

@@ -98,7 +98,7 @@ class Command(BaseCommand):
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
         ).values_list('user__email', flat=True).distinct())
-        recipients = course_editors + project_coordinators
+        recipients = list(set(course_editors + project_coordinators))
 
         logger.info(f"Scheduling deadline email for course {course.title} ({course.key}).")
         process_send_course_deadline_email.apply_async(
@@ -110,7 +110,7 @@ class Command(BaseCommand):
         Log the courses for which deadline emails have been scheduled.
         """
         if courses:
-            titles = "\n".join([f"- {course.title}" for course in courses])
+            titles = "\n".join([f"- {course.title} ({course.uuid})" for course in courses])
             logger.info(f"Scheduled course deadline emails for:\n{titles}")
         else:
             logger.info('No courses with deadline within the specified range were found.')
