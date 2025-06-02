@@ -249,13 +249,13 @@ class DataLoaderMixin:
             'course_run': course_run_creation_fields,
         }
 
-    def update_course(self, data, course, is_draft):
+    def update_course(self, data, course, course_type, is_draft):
         """
         Update the course data.
         """
         course_api_url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}?exclude_utm=1"
-        request_data = self.update_course_api_request_data(data, course, is_draft)
+        request_data = self.update_course_api_request_data(data, course, course_type, is_draft)
         response = self.call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
@@ -274,7 +274,7 @@ class DataLoaderMixin:
             logger.info(f"Course run update response: {response.content}")
         return response.json()
 
-    def update_course_api_request_data(self, course_data, course, is_draft):  # pylint: disable=unused-argument
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):  # pylint: disable=unused-argument
         """Update the course API request data based on the course and draft state."""
         return course_data
 
