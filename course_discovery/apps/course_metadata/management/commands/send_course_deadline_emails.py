@@ -52,6 +52,9 @@ class Command(BaseCommand):
             output_field=DurationField()
         )).filter(
             days_until_end__in=[timedelta(days=d) for d in EMAIL_DELTA_DAYS]
+        ).prefetch_related(
+            'course_runs',
+            'editors',
         ).distinct()
         logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
         courses_with_self_paced_runs = courses_with_self_paced_runs.iterator()
