@@ -139,3 +139,29 @@ def map_external_org_code_to_internal_org_code(external_org_code, product_source
             f'product_source {product_source}'
         )
         return external_org_code
+
+
+def remove_empty(obj):
+    """
+    Remove "empty" keys from a dict. "empty" keys are keys that do not provide any
+    information
+    """
+    if isinstance(obj, str):
+        return obj.strip()
+
+    elif isinstance(obj, (int, float, bool)):
+        return obj
+    
+    elif isinstance(obj, list):
+        intermediate = [remove_empty(i) for i in obj]
+        if [i for i in intermediate if i not in [[], {}, "", None]]:
+            return intermediate
+        else:
+            return []
+    elif isinstance (obj, dict):
+        keys = list(obj.keys())
+        for k in keys:
+            v = obj[k]
+            if remove_empty(v) in [[], {}, "", None]:
+                obj.pop(k)
+        return obj

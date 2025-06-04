@@ -395,7 +395,7 @@ class DataLoaderMixin:
                 CourseType: CourseType object
                 CourseRunType: CourseRunType object
             """
-            course_type = self.get_course_type(row["course_enrollment_track"])
+            course_type = self.get_course_type(row.get("course_enrollment_track", ""))
             if not course_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_TYPE,
@@ -405,7 +405,7 @@ class DataLoaderMixin:
                 )
                 return False, None, None
 
-            course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
+            course_run_type = self.get_course_run_type(row.get("course_run_enrollment_track", ""))
             if not course_run_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
