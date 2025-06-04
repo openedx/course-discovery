@@ -14,6 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
+from course_discovery.apps.course_metadata.data_loaders.utils import remove_empty
 from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 
@@ -189,7 +190,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
 
         for obj, column_name in obj_csv_column_list:
             new_track = row.get(column_name, '')
-            if obj and new_course_track and obj.type.name != new_track and new_track!='Audit Only':
+            if obj and new_track and obj.type.name != new_track and new_track!='Audit Only':
                 price = row.get('verified_price')
                 if not price:
                     self.log_ingestion_error(
@@ -235,34 +236,9 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'organization_short_code_override': course_data.get('organization_short_code_override', ''),
         }
         if self.task_type == BulkOperationType.PartialUpdate:
-            self.remove_empty(update_course_data)
+            remove_empty(update_course_data)
 
         return update_course_data
-
-    def remove_empty(self, obj):
-        """
-        Remove "empty" keys from a dict. "empty" keys are keys that do not provide any
-        information
-        """
-        if isinstance(obj, str):
-            return obj.strip()
-
-        elif isinstance(obj, (int, float, bool)):
-            return obj
-        
-        elif isinstance(obj, list):
-            intermediate = [self.remove_empty(i) for i in obj]
-            if [i for i in intermediate if i not in [[], {}, "", None]]:
-                return intermediate
-            else:
-                return []
-        elif isinstance (obj, dict):
-            keys = list(obj.keys())
-            for k in keys:
-                v = obj[k]
-                if self.remove_empty(v) in [[], {}, "", None]:
-                    obj.pop(k)
-            return obj
 
     def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
         """
@@ -319,7 +295,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 update_course_run_data[db_field_name] = value
 
         if self.task_type == BulkOperationType.PartialUpdate:
-            self.remove_empty(update_course_run_data)
+            remove_empty(update_course_run_data)
 
         return update_course_run_data
 
@@ -484,7 +460,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         """
         Given a row of data, return the course and course run identified by it
         """
-        if row['course_run_key']:
+        if row.get('course_run_key', ''):
             course_run = CourseRun.everything.get(draft=True, key=row['course_run_key'])
             course = course_run.course
         else:
@@ -499,8 +475,8 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         """
         for row in self.reader:
             row = self.transform_dict_keys(row)
-            course_key = row['course_key']
-            course_run_key = row['course_run_key']
+            course_key = row.get('course_key', '')
+            course_run_key = row.get('course_run_key', '')
             logger.info(f'Starting partial update flow for course: {course_key} and course_run: {course_run_key}')
             
             ## Retrieve the course and run under consideration
@@ -554,6 +530,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
 
             ## Update Course Run
             if not course_run:
+                self.ingestion_summary['success_count'] += 1
                 continue
 
             is_draft = True if course_run.status == CourseRunStatus.Unpublished and row.get("move_to_legal_review", "").lower() != "true" else is_draft
