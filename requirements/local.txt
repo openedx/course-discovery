@@ -12,7 +12,7 @@ aiohappyeyeballs==2.6.1
     # via
     #   -r requirements/test.txt
     #   aiohttp
-aiohttp==3.11.18
+aiohttp==3.12.8
     # via
     #   -r requirements/test.txt
     #   openai
@@ -88,12 +88,12 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.38.22
+boto3==1.38.29
     # via
     #   -r requirements/test.txt
     #   django-ses
     #   snowflake-connector-python
-botocore==1.38.22
+botocore==1.38.29
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -115,7 +115,7 @@ cairocffi==1.4.0
     #   cairosvg
 cairosvg==2.8.2
     # via -r requirements/test.txt
-celery==5.5.2
+celery==5.5.3
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -191,11 +191,11 @@ colorama==0.4.6
     #   tox
 contentful==2.4.0
     # via -r requirements/test.txt
-coverage[toml]==7.8.1
+coverage[toml]==7.8.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==45.0.2
+cryptography==45.0.3
     # via
     #   -r requirements/test.txt
     #   pyjwt
@@ -520,9 +520,9 @@ filelock==3.18.0
     #   snowflake-connector-python
     #   tox
     #   virtualenv
-freezegun==1.5.1
+freezegun==1.5.2
     # via -r requirements/test.txt
-frozenlist==1.6.0
+frozenlist==1.6.2
     # via
     #   -r requirements/test.txt
     #   aiohttp
@@ -533,11 +533,11 @@ glom==22.1.0
     # via
     #   -r requirements/test.txt
     #   semgrep
-google-api-core==2.24.2
+google-api-core==2.25.0
     # via
     #   -r requirements/test.txt
     #   google-api-python-client
-google-api-python-client==2.170.0
+google-api-python-client==2.171.0
     # via -r requirements/test.txt
 google-auth==2.40.2
     # via
@@ -615,7 +615,7 @@ jmespath==1.0.1
     #   botocore
 jsonfield==3.1.0
     # via -r requirements/test.txt
-jsonschema==4.23.0
+jsonschema==4.24.0
     # via
     #   -r requirements/test.txt
     #   semgrep
@@ -623,7 +623,7 @@ jsonschema-specifications==2025.4.1
     # via
     #   -r requirements/test.txt
     #   jsonschema
-kombu==5.5.3
+kombu==5.5.4
     # via
     #   -r requirements/test.txt
     #   celery
@@ -704,6 +704,7 @@ packaging==25.0
     #   django-nine
     #   drf-extensions
     #   drf-yasg
+    #   kombu
     #   pydata-sphinx-theme
     #   pyproject-api
     #   pytest
@@ -755,7 +756,7 @@ proto-plus==1.26.1
     # via
     #   -r requirements/test.txt
     #   google-api-core
-protobuf==6.31.0
+protobuf==6.31.1
     # via
     #   -r requirements/test.txt
     #   google-api-core
@@ -792,6 +793,7 @@ pygments==2.19.1
     #   -r requirements/test.txt
     #   accessible-pygments
     #   pydata-sphinx-theme
+    #   pytest
     #   rich
     #   sphinx
 pyjwt[crypto]==2.10.1
@@ -852,7 +854,7 @@ pysocks==1.7.1
     # via
     #   -r requirements/test.txt
     #   urllib3
-pytest==8.3.5
+pytest==8.4.0
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -868,7 +870,7 @@ pytest-responses==0.5.1
     # via -r requirements/test.txt
 pytest-split==0.10.0
     # via -r requirements/test.txt
-pytest-xdist==3.6.1
+pytest-xdist==3.7.0
     # via -r requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
@@ -905,7 +907,7 @@ pytz==2025.2
     #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
-pywatchman==2.0.0
+pywatchman==3.0.0
     # via -r requirements/local.in
 pyyaml==6.0.2
     # via
@@ -919,7 +921,7 @@ rcssmin==1.1.2
     # via
     #   -r requirements/test.txt
     #   django-compressor
-redis==6.1.0
+redis==6.2.0
     # via
     #   -r requirements/test.txt
     #   walrus
@@ -1096,7 +1098,7 @@ stevedore==5.4.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.2.3
+taxonomy-connector==2.3.0
     # via -r requirements/test.txt
 testfixtures==8.3.0
     # via -r requirements/test.txt
@@ -1133,7 +1135,7 @@ trio-websocket==0.12.2
     # via
     #   -r requirements/test.txt
     #   selenium
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
@@ -1153,7 +1155,7 @@ tzdata==2025.2
     #   kombu
 unicodecsv==0.14.1
     # via -r requirements/test.txt
-uritemplate==4.1.1
+uritemplate==4.2.0
     # via
     #   -r requirements/test.txt
     #   drf-yasg
@@ -1210,7 +1212,7 @@ zeep==4.3.1
     # via
     #   -r requirements/test.txt
     #   simple-salesforce
-zipp==3.21.0
+zipp==3.22.0
     # via
     #   -r requirements/test.txt
     #   importlib-metadata
