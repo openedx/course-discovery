@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.utils import (
-    format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials
+    format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials, remove_empty
 )
 
 
@@ -82,3 +82,13 @@ class FormattingTests(TestCase):
 
         output = format_base64_strings(mock_data.BASE64_STRING)
         assert output == "https://www.google.com/"
+
+class RemoveEmptyTests(TestCase):
+    def test(self):
+        assert remove_empty({"a": "b"}) == {"a": "b"}
+        assert remove_empty({"a": 123, "b": ""}) == {"a": 123}
+        assert remove_empty({"a": True, "b": 0}) == {"a": True, "b": 0}
+        assert remove_empty({"a": []}) == {}
+        assert remove_empty({"a": ["", {"aa": []}]}) == {}
+        assert remove_empty({"v": {"d": ""}}) == {}
+        assert remove_empty({"d": ["", [123]]}) == {'d': ['', [123]]}
