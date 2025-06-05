@@ -12,18 +12,16 @@
         {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days_to_expire %}
         This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
         {% endblocktrans %}
+        <p>
+            {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
+        </p>
     {% elif days_to_expire == 'ended' %}
         {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
         This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
         {% endblocktrans %}
-    {% endif %}
-</p>
-
-<p>
-    {% if days_to_expire == '2 days' or days_to_expire == '7 days' %}
-        {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
-    {% elif days_to_expire == 'ended' %}
-        {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
+        <p>
+            {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
+        </p>
     {% endif %}
 </p>
 

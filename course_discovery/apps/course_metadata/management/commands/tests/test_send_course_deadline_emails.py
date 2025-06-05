@@ -81,7 +81,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
     def run_command(self):
         call_command('send_course_deadline_emails')
 
-    def test_send_deadline_email_command_with_no_course_run_with_end_date_within_range(self):
+    def test_with_no_course_run_with_end_date_within_range(self):
         """
         Test that the command does not send emails when there are no course runs with end dates within the specified range.
         """
@@ -110,7 +110,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
     )
     @ddt.unpack
     @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
-    def test_send_deadline_email_command_with_course_run_with_end_date_within_range(self, days_until_end, expected_deadline_variant, mock_apply_async):
+    def test_with_course_run_with_end_date_within_range(self, days_until_end, expected_deadline_variant, mock_apply_async):
         """
         Test that the command sends emails when there are advertised course runs with end dates within the specified range.
         """
@@ -140,7 +140,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
 
         self.assertEqual(called_kwargs['args'], expected_args)
 
-    def test_send_deadline_email_command_with_course_run_with_end_date_within_range_but_with_scheduled_run_in_place(self):
+    def test_with_course_run_with_end_date_within_range_but_with_scheduled_run_in_place(self):
         """
         Test that the command does not send emails when there is an active course run with Scheduled status
         """
@@ -170,7 +170,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 (LOGGER_PATH, 'INFO', "No courses with deadline within the specified range were found."),
             )
 
-    def test_send_deadline_email_command_with_course_run_just_ended(self):
+    def test_with_course_run_just_ended(self):
         """
         Test that the command sends emails when there is a course run that just ended.
         """
