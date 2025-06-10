@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
-from course_discovery.apps.course_metadata.data_loaders.utils import remove_empty
+from course_discovery.apps.course_metadata.data_loaders.utils import prune_empty_values
 from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 
@@ -236,7 +236,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'organization_short_code_override': course_data.get('organization_short_code_override', ''),
         }
         if self.task_type == BulkOperationType.PartialUpdate:
-            remove_empty(update_course_data)
+            prune_empty_values(update_course_data)
 
         return update_course_data
 
@@ -295,7 +295,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 update_course_run_data[db_field_name] = value
 
         if self.task_type == BulkOperationType.PartialUpdate:
-            remove_empty(update_course_run_data)
+            prune_empty_values(update_course_run_data)
 
         return update_course_run_data
 
@@ -495,7 +495,6 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 )
                 continue
 
-            ## Some validation
             is_valid, course_type, course_run_type = self._validate_and_process_row(
                 row, course.title, org_key=course.authoring_organizations.first().key, allow_empty_tracks=True
             )

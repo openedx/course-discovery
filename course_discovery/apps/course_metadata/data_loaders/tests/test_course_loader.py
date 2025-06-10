@@ -193,8 +193,8 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         course_run.refresh_from_db()
 
         assert course.title == "CSV Course"
-        assert course.short_description == f"<p>{csv_data["Short Description"]}</p>"
-        assert course.outcome == f"<p>{csv_data["What Will You Learn"]}</p>"
+        assert course.short_description == f"<p>{csv_data['Short Description']}</p>"
+        assert course.outcome == f"<p>{csv_data['What Will You Learn']}</p>"
         assert course.image
         assert course.level_type.translations.first().name_t == csv_data["Level Type"]
         assert course_run.weeks_to_complete == int(csv_data["Length"])
@@ -206,7 +206,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         if has_data_for_legal_review:
             assert course.subjects.count() == 1
-            assert course.full_description == f"<p>{csv_data["Long Description"]}</p>"
+            assert course.full_description == f"<p>{csv_data['Long Description']}</p>"
             assert course_run.go_live_date.date() == datetime.datetime.strptime(csv_data["Publish Date"], "%Y-%m-%d").date()
         else:
             assert course.subjects.count() == 0
@@ -296,7 +296,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
     def test_no_course_run_key(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """
-        Test for updating a course from audit only to Verified and Audit.
+        Test that not specifying a course run key only updates the course
         """
         self.create_new_course()
 
