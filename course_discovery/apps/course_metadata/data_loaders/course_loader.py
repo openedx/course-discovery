@@ -368,7 +368,20 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 # Pushing the run into LegalReview is necessary to ensure that the
                 # url slug is correctly generated in subdirectory format
                 course_run.status = CourseRunStatus.LegalReview
-                course_run.save(update_fields=["status"], send_emails=True)
+                try:
+                    course_run.save(update_fields=["status"], send_emails=True)
+                except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
+                    self.log_ingestion_error(
+                        CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
+                        CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                            course_title=course_title, exception_message=exception_message
+                        )
+                    )
+                    continue
+
             created_courses.append(
                 {
                     'course': f'{course.uuid} - {course.title} ({course.key})',
