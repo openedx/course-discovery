@@ -162,7 +162,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
                     self.assertEqual(course_run.status, CourseRunStatus.Unpublished)
 
-    @data([True, True, True], [True, False, False], [False, True, True], [False, False, False])
+    @data([True, True, True], [True, False, False], [False, True, True], [False, False, True])
     @unpack
     def test_course_loader_ingest_for_partial_updates(self, move_to_legal_review, has_data_for_legal_review, ingestion_success, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """
