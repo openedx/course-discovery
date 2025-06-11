@@ -10,6 +10,7 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
+from pytz import UTC
 from testfixtures import LogCapture, StringComparison
 
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -712,3 +713,52 @@ class TestSlugUpdatesEmail(TestCase):
         assert email.attachments[0].get_filename() == 'slugs_update_summary.csv'
         assert email.attachments[0].get_content_type() == 'text/csv'
         assert email.attachments[0].get_payload() == stats
+
+
+class TestCourseDeadlineEmail(TestCase):
+    """
+    Test suite for course deadline email.
+    """
+    def setUp(self):
+        super().setUp()
+        self.course = CourseFactory(title='Test Course', key='edX+test_course', draft=False)
+        self.course_run = CourseRunFactory(
+            course=self.course, title_override='Test Course Run',
+            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            status=CourseRunStatus.Published
+        )
+        self.partner = self.course.partner
+        self.editor = UserFactory(
+            email='editor@example.com',
+            first_name='Test',
+            last_name='Editor',
+        )
+        CourseEditorFactory(user=self.editor, course=self.course)
+
+    def test_send_course_deadline_email(self):
+        """
+        Verify that the course deadline email is sent correctly.
+        """
+        with LogCapture(emails.logger.name) as log_capture:
+            emails.send_course_deadline_email(
+                self.course, self.course_run, [self.editor.email], deadline_email_variant='two_days_reminder'
+            )
+
+            assert len(mail.outbox) == 1
+            email = mail.outbox[0]
+            assert str(email.subject) == f'Reminder: {self.course.title} ends in 2 days'
+            assert email.to == [self.editor.email]
+            assert email.from_email == settings.PUBLISHER_FROM_EMAIL
+            assert 'Hi Course Team' in email.body
+            assert (
+                f'This is an automated reminder that the course "{self.course.title}" (Course Key: {self.course.key})'
+                f' is scheduled to end in 2 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
+                in email.body
+            )
+            log_capture.check(
+                (
+                    emails.logger.name,
+                    'INFO',
+                    f'Course deadline email sent to {[self.editor.email]} for course {self.course.title}'
+                )
+            )
