@@ -463,10 +463,10 @@ class DataLoaderMixin:
         cls.get_course_run_type.cache_clear()
         cls._validate_organization.cache_clear()
 
-    def render_error_logs(self, error_logs):
+    def render_error_logs(self, error_logs, log_sequence):
         if any(list(error_logs.values())):
             logger.info("Summarized errors:")
-            for error_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
+            for error_key in log_sequence:
                 for msg in error_logs[error_key]:
                     logger.error(msg)
         else:
