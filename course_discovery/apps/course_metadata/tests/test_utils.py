@@ -1342,7 +1342,7 @@ class CourseSlugMethodsTests(TestCase):
         subject = SubjectFactory(name='business')
         organization = OrganizationFactory(name='test-organization')
         for course_count in range(3):
-            course = CourseFactory(title='test-title')
+            course = CourseFactory(title='Test Title')
             course.subjects.add(subject)
             course.authoring_organizations.add(organization)
             course.partner = partner
@@ -1353,7 +1353,7 @@ class CourseSlugMethodsTests(TestCase):
 
             assert error is None
             slug_end_prefix = f"-{course_count + 1}" if course_count else ""
-            assert slug == f"learn/{subject.slug}/{organization.name}-{course.title}{slug_end_prefix}"
+            assert slug == f"learn/{subject.slug}/{organization.name}-{slugify(course.title)}{slug_end_prefix}"
             course.set_active_url_slug(slug)
 
     def test_get_slug_for_exec_ed_course__with_existing_url_slug(self):

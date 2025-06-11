@@ -1149,7 +1149,7 @@ def get_slug_for_course(course):
             slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
             if is_existing_slug(slug, course):
                 logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
-                course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
+                course_slug = f"{course_slug}-{get_existing_slug_count(slug) + 1}"
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
         return slug, None
 
