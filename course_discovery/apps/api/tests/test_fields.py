@@ -30,7 +30,12 @@ class TestStdImageSerializerField:
         field._context = {'request': request}  # pylint: disable=protected-access
         expected = {
             size_key: {
-                'url': '{}{}'.format('http://testserver', getattr(program.banner_image, size_key).url),
+                'url': '{}{}'.format(
+                    'http://testserver',
+                    program.banner_image.storage.url(
+                        program.banner_image.get_variation_name(program.banner_image.name, size_key)
+                    )
+                ),
                 'width': program.banner_image.field.variations[size_key]['width'],
                 'height': program.banner_image.field.variations[size_key]['height']
             } for size_key in program.banner_image.field.variations}
