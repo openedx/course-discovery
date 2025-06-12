@@ -294,7 +294,53 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             assert course_run.seats.count() == 1
             assert course.type.name == "Audit Only"
 
-    def test_no_course_run_key(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+    @data("course", "courserun")
+    def test_course_partial_updates_api_failure(self, api, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Verify the behavior of the course loader for partial updates when the update call to the course/courserun api fails
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+        }
+        if api == "course":
+            ctx = mock.patch.object(CourseLoader, "update_course", side_effect=MockExceptionWithResponse(b"Course API is down"))
+        else:
+            ctx = mock.patch.object(CourseLoader, "update_course_run", side_effect=MockExceptionWithResponse(b"CourseRun API is down"))
+        
+        with ctx:
+            loader, log_capture = self.perform_partial_updates(csv_data)
+
+        assert loader.ingestion_summary["failure_count"] == 1
+        if api == "course":
+            assert 'Course API is down' in loader.error_logs["COURSE_UPDATE_ERROR"][0]
+        else:
+            assert 'CourseRun API is down' in loader.error_logs["COURSE_RUN_UPDATE_ERROR"][0]
+
+    @data(["", "course-v1:fakeorg+csv-123+1T2020"], ["edx+fakecourse-123", ""])
+    @unpack
+    def test_course_partial_updates_incorrect_course_or_courserun(self, course_key, course_run_key, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Verify the behavior of the course loader for partial updates when an incorrect course/courserun key is provided
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+            "Course Key": course_key,
+            "Course Run Key": course_run_key
+        }
+
+        loader, log_capture = self.perform_partial_updates(csv_data)
+        
+        assert loader.ingestion_summary["failure_count"] == 1
+        if course_run_key:
+            assert 'Can not find course run' in loader.error_logs["COURSE_RUN_NOT_FOUND"][0]
+        if course_key:
+            assert 'Can not find course' in loader.error_logs["COURSE_NOT_FOUND"][0]
+
+    def test_course_loader_partial_updates_no_course_run_key(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """
         Test that not specifying a course run key only updates the course
         """
