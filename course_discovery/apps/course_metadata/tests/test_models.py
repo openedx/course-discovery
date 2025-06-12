@@ -98,7 +98,8 @@ class TestCourse(TestCase):
 
     def test_image_url(self):
         course = factories.CourseFactory()
-        assert course.image_url == course.image.small.url
+        variation_path = course.image.get_variation_name(course.image.name, 'small')
+        assert course.image_url == course.image.storage.url(variation_path)
 
         course.image = None
         assert course.image_url == course.card_image_url
@@ -3508,11 +3509,12 @@ class ProgramTests(TestCase):
         image_url_prefix = f'{settings.MEDIA_URL}media/programs/banner_images/'
         assert image_url_prefix in self.program.banner_image.url
         for size_key in self.program.banner_image.field.variations:
-            # Get different sizes specs from the model field
-            # Then get the file path from the available files
-            sized_file = getattr(self.program.banner_image, size_key, None)
-            assert sized_file is not None
-            assert image_url_prefix in sized_file.url
+            # Use get_variation_name to get the variation file path
+            variation_path = self.program.banner_image.get_variation_name(
+                self.program.banner_image.name, size_key
+            )
+            variation_url = self.program.banner_image.storage.url(variation_path)
+            assert image_url_prefix in variation_url
 
     def test_seat_types(self):
         program = self.create_program_with_seats()

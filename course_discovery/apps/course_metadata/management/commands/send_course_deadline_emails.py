@@ -56,7 +56,8 @@ class Command(BaseCommand):
             'editors',
         ).distinct()
         logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
-        courses_with_self_paced_runs = courses_with_self_paced_runs.iterator()
+        courses_with_self_paced_runs = courses_with_self_paced_runs.iterator(
+            chunk_size=settings.ITERATOR_CHUNK_SIZE)
 
         for course in courses_with_self_paced_runs:
             advertised_run = course.advertised_course_run

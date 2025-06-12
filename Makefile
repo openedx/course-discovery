@@ -66,7 +66,9 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	pip-compile --rebuild --upgrade -o requirements/local.txt requirements/local.in
 	pip-compile --rebuild --upgrade -o requirements/production.txt requirements/production.in
 	# Let tox control the Django version for tests
-	grep -e "^django==" requirements/local.txt > requirements/django.txt
+	sed -i.tmp '/^[dD]jango==/d' requirements/test.txt
+	sed -i.tmp '/^djangorestframework==/d' requirements/test.txt
+	rm requirements/test.txt.tmp
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
