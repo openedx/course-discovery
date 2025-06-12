@@ -387,6 +387,9 @@ class BulkOperationTaskAdmin(admin.ModelAdmin):
             obj.uploaded_by = request.user
         super().save_model(request, obj, form, change)
 
+    @admin.display(
+        description='Task Result Status Summary'
+    )
     def task_result_status_summary(self, obj):
         """
         Returns a formatted string with the status and result of the task
@@ -400,7 +403,6 @@ class BulkOperationTaskAdmin(admin.ModelAdmin):
         except TaskResult.DoesNotExist:
             return "No result found"
 
-    task_result_status_summary.short_description = 'Task Result Status Summary'
 
 
 class CourseInline(admin.TabularInline):

@@ -180,7 +180,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
 
 USE_TZ = True
 
@@ -581,7 +580,14 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EXTRA_APPS = []
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
