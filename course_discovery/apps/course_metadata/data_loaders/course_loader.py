@@ -183,14 +183,14 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
     def validate_course_data_partial_update(self, course, course_run, row):
         """
         Perform any validation for partial updates. Currently only verifies that the price is provided
-        on a track change
+        on a track change from audit -> verified and audit.
         """
 
         obj_csv_column_list = [(course, 'course_enrollment_track'), (course_run, 'course_run_enrollment_track')]
 
         for obj, column_name in obj_csv_column_list:
             new_track = row.get(column_name, '')
-            if obj and new_track and obj.type.name != new_track and new_track!='Audit Only':
+            if obj and new_track and obj.type.name != new_track and new_track != 'Audit Only':
                 price = row.get('verified_price')
                 if not price:
                     self.log_ingestion_error(
@@ -505,14 +505,12 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             is_draft = self.get_draft_flag(course=course)
             logger.info(f"Draft flag is set to {is_draft} for the course {course.title}")
 
-            ## Update images data
             is_course_image_download, is_organization_logo_override_download = self.download_course_image_assets(
                 data=row, course=course
             )
             if not (is_course_image_download and is_organization_logo_override_download):
                 continue
 
-            ## Update Course
             try:
                 self.update_course(row, course, course_type, is_draft)
             except Exception as exc:  # pylint: disable=broad-except
@@ -527,7 +525,6 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 )
                 continue
 
-            ## Update Course Run
             if not course_run:
                 self.ingestion_summary['success_count'] += 1
                 continue

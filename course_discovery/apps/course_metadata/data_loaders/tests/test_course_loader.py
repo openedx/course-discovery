@@ -248,7 +248,6 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         course_run.maximum_effort = 8
         assert CourseLoader.missing_fields_for_legal_review(CourseLoader, course, course_run, row) == ['image']
 
-
     @data(True, False)
     def test_course_loader_partial_updates__track_change(self, is_price_in_csv, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """

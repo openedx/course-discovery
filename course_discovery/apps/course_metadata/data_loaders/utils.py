@@ -143,7 +143,7 @@ def map_external_org_code_to_internal_org_code(external_org_code, product_source
 
 def prune_empty_values(obj):
     """
-    Recursively remove keys and items from dictionaries that have "empty" values.
+    Recursively remove items from dictionaries that have "empty" values.
 
     An "empty" value is defined as one of the following: an empty list ([]), empty dict ({}), 
     empty string (""), or None. Whitespace-only strings are stripped and evaluated as empty.
@@ -151,7 +151,7 @@ def prune_empty_values(obj):
     This function preserves non-empty structures and primitive values (e.g., int, float, bool).
 
     Args:
-        obj: A nested structure composed of dictionaries, lists, and primitive types.
+        obj: A dictionary structure composed of dictionaries, lists, and primitive types.
 
     Returns:
         A cleaned version of the input structure with all empty values removed.
@@ -161,7 +161,7 @@ def prune_empty_values(obj):
 
     elif isinstance(obj, (int, float, bool)):
         return obj
-    
+
     elif isinstance(obj, list):
         intermediate = [prune_empty_values(i) for i in obj]
         if [i for i in intermediate if i not in [[], {}, "", None]]:
