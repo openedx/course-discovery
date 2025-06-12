@@ -16,6 +16,7 @@ Usage: identical to clean_duplicate_history:
 
 https://django-simple-history.readthedocs.io/en/latest/utils.html#clean-duplicate-history
 """
+from django.conf import settings
 from django.core.management import CommandError
 from django.utils import timezone
 from simple_history.management.commands import clean_duplicate_history
@@ -100,5 +101,5 @@ class Command(clean_duplicate_history.Command):
                     pk__in=(m_qs.values_list(model._meta.pk.name).distinct())
                 )
 
-            for o in model_query.iterator():
+            for o in model_query.iterator(chunk_size=settings.ITERATOR_CHUNK_SIZE):
                 self._process_instance(o, model, stop_date=stop_date, dry_run=dry_run)

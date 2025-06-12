@@ -38,7 +38,7 @@ class TestSearchAfterMixin(ElasticsearchTestMixin, TestCase):
         queryset = factories.CourseProxy.search(query=query)
 
         self.assertEqual(len(queryset), self.total_courses)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             queryset.order_by("id"),
             factories.Course.objects.all().order_by("id"),
             transform=lambda x: x

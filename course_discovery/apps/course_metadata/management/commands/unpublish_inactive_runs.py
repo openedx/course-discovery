@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
@@ -19,7 +20,8 @@ class Command(BaseCommand):
         # Since we know we will call unpublish_inactive_runs for nearly every single course in our catalog, let's
         # try to optimize a little bit by only making one database query. We ask for all course runs, sort by course,
         # then hand the set of published course runs into unpublish_inactive_runs.
-        published_runs = CourseRun.objects.filter(status=CourseRunStatus.Published).order_by('course').iterator()
+        published_runs = CourseRun.objects.filter(status=CourseRunStatus.Published).order_by(
+            'course').iterator(chunk_size=settings.ITERATOR_CHUNK_SIZE)
 
         current_course = None
         current_runs = set()
