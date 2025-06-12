@@ -53,20 +53,22 @@ $(COMMON_CONSTRAINTS_TXT):
 
 
 upgrade: $(COMMON_CONSTRAINTS_TXT)
-	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	pip install -q -r requirements/pip_tools.txt
-	pip-compile --allow-unsafe --rebuild --upgrade -o requirements/pip.txt requirements/pip.in
-	pip-compile --rebuild --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
-	pip install -q -r requirements/pip.txt
-	pip install -q -r requirements/pip_tools.txt
-	pip-compile --rebuild --upgrade -o requirements/base.txt requirements/base.in
-	pip-compile --rebuild --upgrade -o requirements/docs.txt requirements/docs.in
-	pip-compile --rebuild --upgrade -o requirements/test.txt requirements/test.in
-	pip-compile --rebuild --upgrade -o requirements/local.txt requirements/local.in
-	pip-compile --rebuild --upgrade -o requirements/production.txt requirements/production.in
+# 	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+# 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+# 	pip install -q -r requirements/pip_tools.txt
+# 	pip-compile --allow-unsafe --rebuild --upgrade -o requirements/pip.txt requirements/pip.in
+# 	pip-compile --rebuild --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
+# 	pip install -q -r requirements/pip.txt
+# 	pip install -q -r requirements/pip_tools.txt
+# 	pip-compile --rebuild --upgrade -o requirements/base.txt requirements/base.in
+# 	pip-compile --rebuild --upgrade -o requirements/docs.txt requirements/docs.in
+# 	pip-compile --rebuild --upgrade -o requirements/test.txt requirements/test.in
+# 	pip-compile --rebuild --upgrade -o requirements/local.txt requirements/local.in
+# 	pip-compile --rebuild --upgrade -o requirements/production.txt requirements/production.in
 	# Let tox control the Django version for tests
-	grep -e "^django==" requirements/local.txt > requirements/django.txt
+	sed -i.tmp '/^[dD]jango==/d' requirements/test.txt
+	sed -i.tmp '/^djangorestframework==/d' requirements/test.txt
+	rm requirements/test.txt.tmp
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
