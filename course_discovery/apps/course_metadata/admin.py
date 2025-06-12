@@ -404,7 +404,6 @@ class BulkOperationTaskAdmin(admin.ModelAdmin):
             return "No result found"
 
 
-
 class CourseInline(admin.TabularInline):
     model = Course
     fields = ('key', 'title', 'draft')
