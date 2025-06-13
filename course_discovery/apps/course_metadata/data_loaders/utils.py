@@ -164,7 +164,7 @@ def prune_empty_values(obj):
 
     elif isinstance(obj, (list, tuple)):
         intermediate = [prune_empty_values(i) for i in obj]
-        if [i for i in intermediate if i not in [[], {}, "", None]]:
+        if [i for i in intermediate if i not in [[], (), {}, "", None]]:
             return intermediate
         else:
             return []
@@ -173,7 +173,7 @@ def prune_empty_values(obj):
         keys = list(obj.keys())
         for k in keys:
             v = obj[k]
-            if prune_empty_values(v) in [[], {}, "", None]:
+            if prune_empty_values(v) in [[], (), {}, "", None]:
                 obj.pop(k)
         return obj
 
