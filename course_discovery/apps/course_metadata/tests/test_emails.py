@@ -722,7 +722,7 @@ class TestCourseDeadlineEmail(TestCase):
     def setUp(self):
         super().setUp()
         self.draft_course = CourseFactory(title='Draft Course', key='edX+draft_course', draft=True)
-        self.course = CourseFactory(course=self.draft_course, draft=False)
+        self.course = CourseFactory(draft_version=self.draft_course, draft=False)
         self.course_run = CourseRunFactory(
             course=self.course, title_override='Test Course Run',
             start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
