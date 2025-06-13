@@ -66,12 +66,12 @@ def select_and_init_bulk_operation_loader(bulk_operation_task):
     Identifies and instantiates the appropriate data loader for a given BulkOperationTask.
     """
     partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
-    if bulk_operation_task.task_type == BulkOperationType.CourseCreate:
+    if bulk_operation_task.task_type in [BulkOperationType.CourseCreate, BulkOperationType.PartialUpdate]:
         return CourseLoader(
             partner,
             csv_file=bulk_operation_task.csv_file,
             product_source='edx',
-            task_type=BulkOperationType.CourseCreate,
+            task_type=bulk_operation_task.task_type
         )
     elif bulk_operation_task.task_type == BulkOperationType.CourseRerun:
         return CourseRunDataLoader(

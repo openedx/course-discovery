@@ -30,7 +30,7 @@ class DataLoaderTestMixin(DummyBaseLoader, DataLoaderMixin):
     Test class combining DummyBaseLoader and DataLoaderMixin for safe testing.
     """
 
-    def update_course_api_request_data(self, course_data, course, is_draft):
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):
         pass  # pragma: no cover
 
     def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
@@ -226,7 +226,7 @@ class TestDataLoaderMixin(TestCase):
         self.mock_api_client.request.return_value = mock_response
 
         with self.assertRaises(Exception):
-            self.mixin.update_course({'title': 'Updated Title'}, course, is_draft=False)
+            self.mixin.update_course({'title': 'Updated Title'}, course, course.type, is_draft=False)
 
         # Adjusted to match the actual log message with dynamically generated URL
         mock_logger.info.assert_called_with(
@@ -269,6 +269,6 @@ class TestDataLoaderMixin(TestCase):
         mock_response = MagicMock(status_code=200, ok=True, json=lambda: {'result': 'updated'})
         self.mock_api_client.request.return_value = mock_response
 
-        result = self.mixin.update_course({'title': 'Updated Title'}, course, is_draft=False)
+        result = self.mixin.update_course({'title': 'Updated Title'}, course, course.type, is_draft=False)
         self.assertEqual(result, {'result': 'updated'})
         self.mock_api_client.request.assert_called_once()
