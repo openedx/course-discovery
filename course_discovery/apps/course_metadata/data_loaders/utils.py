@@ -162,7 +162,7 @@ def prune_empty_values(obj):
     elif isinstance(obj, (int, float, bool)):
         return obj
 
-    elif isinstance(obj, list):
+    elif isinstance(obj, (list, tuple)):
         intermediate = [prune_empty_values(i) for i in obj]
         if [i for i in intermediate if i not in [[], {}, "", None]]:
             return intermediate
@@ -177,8 +177,5 @@ def prune_empty_values(obj):
                 obj.pop(k)
         return obj
 
-    elif obj is None:
-        return None
-
     else:
-        raise ValueError(f"This function can not handle objects of type {type(obj)}")
+        return None
