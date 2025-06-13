@@ -234,7 +234,14 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'learner_testimonials': course_data.get('learner_testimonials', ''),
             'additional_information': course_data.get('additional_information', ''),
             'organization_short_code_override': course_data.get('organization_short_code_override', ''),
+            'watchers': self.parse_comma_separated_values(course_data.get('watchers', '')),
+            'topics': self.parse_comma_separated_values(course_data.get('topics', '')),
         }
+
+        if course_data.get('enterprise_subscription_inclusion', '').strip():
+            enterprise_subscription_inclusion = self.parse_boolean_string(course_data.get('enterprise_subscription_inclusion', ''))
+            update_course_data['enterprise_subscription_inclusion'] = enterprise_subscription_inclusion
+
         if self.task_type == BulkOperationType.PartialUpdate:
             prune_empty_values(update_course_data)
 

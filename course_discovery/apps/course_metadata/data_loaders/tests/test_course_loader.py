@@ -196,6 +196,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         assert course.short_description == f"<p>{csv_data['Short Description']}</p>"
         assert course.outcome == f"<p>{csv_data['What Will You Learn']}</p>"
         assert course.image
+        assert course.watchers == ['a@b.com', 'c@d.com']
         assert course.level_type.translations.first().name_t == csv_data["Level Type"]
         assert course_run.weeks_to_complete == int(csv_data["Length"])
 

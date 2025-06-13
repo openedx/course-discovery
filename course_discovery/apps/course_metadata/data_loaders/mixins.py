@@ -517,6 +517,17 @@ class DataLoaderMixin:
                 raise
 
         return subject_slugs
+    
+    def parse_boolean_string(self, input_string):
+        input_string = input_string.strip()
+        if input_string.lower() == "true":
+            return True
+        return False
+
+    def parse_comma_separated_values(self, input_string):
+        if not input_string.strip():
+            return []
+        return [value.strip() for value in input_string.split(',')]
 
     def verify_and_get_language_tags(self, language_str):
         """
