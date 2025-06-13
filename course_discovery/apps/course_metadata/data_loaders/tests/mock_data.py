@@ -3302,6 +3302,7 @@ COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE = {
     "Course Key": "edx+csv-123",
     "Course Run Key": "course-v1:edx+csv-123+1T2020",
     "What Will You Learn": "Procrastination.",
+    "Watchers": "a@b.com, c@d.com",
 }
 
 COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW = {
