@@ -177,5 +177,8 @@ def prune_empty_values(obj):
                 obj.pop(k)
         return obj
 
+    elif obj is None:
+        return None
+
     else:
         raise ValueError(f"This function can not handle objects of type {type(obj)}")
