@@ -145,9 +145,9 @@ def prune_empty_values(obj):
     """
     Recursively remove items from dictionaries that have "empty" values.
 
-    An "empty" value is defined as one of the following: an empty list ([]), empty dict ({}), 
+    An "empty" value is defined as one of the following: an empty list ([]), empty dict ({}),
     empty string (""), or None. Whitespace-only strings are stripped and evaluated as empty.
-    
+
     This function preserves non-empty structures and primitive values (e.g., int, float, bool).
 
     Args:
@@ -169,10 +169,13 @@ def prune_empty_values(obj):
         else:
             return []
 
-    elif isinstance (obj, dict):
+    elif isinstance(obj, dict):
         keys = list(obj.keys())
         for k in keys:
             v = obj[k]
             if prune_empty_values(v) in [[], {}, "", None]:
                 obj.pop(k)
         return obj
+
+    else:
+        raise ValueError(f"This function can not handle objects of type {type(obj)}")
