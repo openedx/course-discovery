@@ -1146,11 +1146,12 @@ def get_slug_for_course(course):
         # course slug is None for courses which are created from studio
         if not course_slug:
             course_slug = slugify(course.title)
-            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
-            if is_existing_slug(slug, course):
-                logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
-                course_slug = f"{course_slug}-{get_existing_slug_count(slug) + 1}"
+
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        if is_existing_slug(slug, course):
+            logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{course_slug}-{get_existing_slug_count(slug) + 1}"
+            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
         return slug, None
 
     if course.type.slug == CourseType.BOOTCAMP_2U:

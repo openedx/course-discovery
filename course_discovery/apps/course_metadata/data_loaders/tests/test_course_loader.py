@@ -245,9 +245,9 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         task_type=BulkOperationType.CourseCreate
                     )
                     loader.ingest()
-                    self.assertEqual(loader.ingestion_summary['success_count'], 1)
-                    self.assertEqual(loader.ingestion_summary['failure_count'], 1)
-                    self.assertTrue(any(
+                    self.assertEqual(loader.ingestion_summary['success_count'], 2)
+                    self.assertEqual(loader.ingestion_summary['failure_count'], 0)
+                    self.assertFalse(any(
                         'This slug learn/computer-science/edx-intro-to-course-loader is already in use with another course' in msg  # pylint: disable=line-too-long
                         for msg in loader.error_logs['COURSE_RUN_UPDATE_ERROR']
                     ))
