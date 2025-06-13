@@ -247,8 +247,8 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     loader.ingest()
                     self.assertEqual(loader.ingestion_summary['success_count'], 2)
                     self.assertEqual(loader.ingestion_summary['failure_count'], 0)
-                    self.assertTrue(any(
-                        'This slug learn/computer-science/edx-intro-to-course-loader is already in use with another course' not in msg  # pylint: disable=line-too-long
+                    self.assertFalse(any(
+                        'This slug learn/computer-science/edx-intro-to-course-loader is already in use with another course' in msg  # pylint: disable=line-too-long
                         for msg in loader.error_logs['COURSE_RUN_UPDATE_ERROR']
                     ))
                     self.assertEqual(Course.everything.count(), 2)
