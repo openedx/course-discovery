@@ -7,6 +7,8 @@ from unittest import mock
 
 import responses
 from ddt import data, ddt, unpack
+from django.conf import settings
+from edx_toggles.toggles.testutils import override_waffle_switch
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -18,7 +20,10 @@ from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.data_loaders.tests.test_utils import MockExceptionWithResponse
 from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType, CourseType
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, CourseTypeFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, CourseTypeFactory, SourceFactory
+)
+from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.course_loader'
 MIXIN_LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.mixins'
@@ -38,6 +43,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_access_token()
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
 
     def mock_call_course_api(self, method, url, payload):
         """
@@ -207,6 +213,45 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self.assertEqual(course.type, CourseType.objects.get(name=csv_data['Course Enrollment Track']))
                     course_run = CourseRun.everything.get(course=course)
                     self.assertEqual(course_run.status, CourseRunStatus.LegalReview)
+
+    def test_ingest_for_course_creation_with_two_courses_with_same_name(
+            self, mock_jwt_decode_handler
+    ):  # pylint: disable=unused-argument
+        """
+        Test Course Loader for course creation with two courses having the same name and orgs but different number
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+        csv_data = [
+            copy.deepcopy(mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT),
+            copy.deepcopy(mock_data.VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT)
+        ]
+        csv_data[0]['Number'] = 'CSL-603'
+        csv_data[1]['Number'] = "CSL-604"
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, csv_data, headers=csv_data[0].keys())
+            with override_waffle_switch(IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, active=True):
+                with mock.patch.object(
+                    CourseLoader,
+                    'call_course_api',
+                    self.mock_call_course_api
+                ):
+                    loader = CourseLoader(
+                        self.partner, csv_path=csv.name,
+                        product_source=self.source.slug,
+                        task_type=BulkOperationType.CourseCreate
+                    )
+                    loader.ingest()
+                    self.assertEqual(loader.ingestion_summary['success_count'], 1)
+                    self.assertEqual(loader.ingestion_summary['failure_count'], 1)
+                    self.assertTrue(any(
+                        'This slug learn/computer-science/edx-intro-to-course-loader is already in use with another course' in msg  # pylint: disable=line-too-long
+                        for msg in loader.error_logs['COURSE_RUN_UPDATE_ERROR']
+                    ))
+                    self.assertEqual(Course.everything.count(), 2)
 
     @data(
         (
