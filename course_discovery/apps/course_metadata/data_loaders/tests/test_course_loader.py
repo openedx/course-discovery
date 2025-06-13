@@ -2,9 +2,10 @@
 Unit tests for Course Loader.
 """
 import copy
+import datetime
 from tempfile import NamedTemporaryFile
 from unittest import mock
-import datetime
+
 import responses
 from ddt import data, ddt, unpack
 from django.conf import settings
@@ -52,7 +53,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         csv_data = {
             **mock_data.MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
         }
-        csv_data['End Date'] = f"02/02/{datetime.datetime.now().year+1}"
+        csv_data['End Date'] = f"02/02/{datetime.datetime.now().year + 1}"
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
                 csv, [csv_data],
@@ -164,7 +165,9 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
     @data([True, True, True], [True, False, False], [False, True, True], [False, False, True])
     @unpack
-    def test_course_loader_ingest_for_partial_updates(self, move_to_legal_review, has_data_for_legal_review, ingestion_success, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+    def test_course_loader_ingest_for_partial_updates(
+        self, move_to_legal_review, has_data_for_legal_review, ingestion_success, mock_jwt_decode_handler  # pylint: disable=unused-argument
+    ):
         """
         Test Course Loader for partial updates.
         """
@@ -176,7 +179,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         if move_to_legal_review:
             csv_data["Move To Legal Review"] = "True"
-        
+
         if has_data_for_legal_review:
             csv_data = {**csv_data, **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW}
 
@@ -208,7 +211,10 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         if has_data_for_legal_review:
             assert course.subjects.count() == 1
             assert course.full_description == f"<p>{csv_data['Long Description']}</p>"
-            assert course_run.go_live_date.date() == datetime.datetime.strptime(csv_data["Publish Date"], "%Y-%m-%d").date()
+            assert (
+                course_run.go_live_date.date() ==
+                datetime.datetime.strptime(csv_data["Publish Date"], "%Y-%m-%d").date()
+            )
         else:
             assert course.subjects.count() == 0
             assert course.full_description == ""
@@ -267,14 +273,12 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             price = '25.25'
             csv_data["Verified Price"] = price
 
-
         course = Course.everything.get()
         course_run = CourseRun.everything.get()
         assert course.type.name == "Audit Only"
         assert course.entitlements.count() == 0
         assert course_run.type.name == "Audit Only"
         assert course_run.seats.count() == 1
-
 
         loader, log_capture = self.perform_partial_updates(csv_data)
         course.refresh_from_db()
@@ -297,7 +301,8 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @data("course", "courserun")
     def test_course_partial_updates_api_failure(self, api, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """
-        Verify the behavior of the course loader for partial updates when the update call to the course/courserun api fails
+        Verify the behavior of the course loader for partial updates
+        when the update call to the course/courserun api fails
         """
         self.create_new_course()
 
@@ -305,12 +310,20 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
         }
         if api == "course":
-            ctx = mock.patch.object(CourseLoader, "update_course", side_effect=MockExceptionWithResponse(b"Course API is down"))
+            ctx = mock.patch.object(
+                CourseLoader,
+                "update_course",
+                side_effect=MockExceptionWithResponse(b"Course API is down")
+            )
         else:
-            ctx = mock.patch.object(CourseLoader, "update_course_run", side_effect=MockExceptionWithResponse(b"CourseRun API is down"))
-        
+            ctx = mock.patch.object(
+                CourseLoader,
+                "update_course_run",
+                side_effect=MockExceptionWithResponse(b"CourseRun API is down")
+            )
+
         with ctx:
-            loader, log_capture = self.perform_partial_updates(csv_data)
+            loader, _ = self.perform_partial_updates(csv_data)
 
         assert loader.ingestion_summary["failure_count"] == 1
         if api == "course":
@@ -320,7 +333,9 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
     @data(["", "course-v1:fakeorg+csv-123+1T2020"], ["edx+fakecourse-123", ""])
     @unpack
-    def test_course_partial_updates_incorrect_course_or_courserun(self, course_key, course_run_key, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+    def test_course_partial_updates_incorrect_course_or_courserun(
+        self, course_key, course_run_key, mock_jwt_decode_handler  # pylint: disable=unused-argument
+    ):
         """
         Verify the behavior of the course loader for partial updates when an incorrect course/courserun key is provided
         """
@@ -332,8 +347,8 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             "Course Run Key": course_run_key
         }
 
-        loader, log_capture = self.perform_partial_updates(csv_data)
-        
+        loader, _ = self.perform_partial_updates(csv_data)
+
         assert loader.ingestion_summary["failure_count"] == 1
         if course_run_key:
             assert 'Can not find course run' in loader.error_logs["COURSE_RUN_NOT_FOUND"][0]
@@ -357,14 +372,14 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         assert course.full_description == ""
         assert course_run.min_effort is None
 
-        loader, log_capture = self.perform_partial_updates(csv_data)
+        loader, _ = self.perform_partial_updates(csv_data)
 
         course.refresh_from_db()
         course_run.refresh_from_db()
 
         assert course.full_description == f'<p>{csv_data["Long Description"]}</p>'
         assert course_run.min_effort is None
-        assert loader.ingestion_summary["success_count"] == 1        
+        assert loader.ingestion_summary["success_count"] == 1
 
     def test_course_loader_ingest_for_course_creation_skip_if_exists(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """

@@ -376,7 +376,7 @@ class DataLoaderMixin:
             course_title (str): The title of the course.
             org_key (str): The organization key.
             allow_empty_tracks (bool): A boolean to indicate if empty("") values for course
-                                       and course_run enrollment tracks should be considered valid. 
+                                       and course_run enrollment tracks should be considered valid.
 
         Returns:
             tuple: A tuple containing a boolean indicating validity, course type, and course run type.
@@ -517,7 +517,7 @@ class DataLoaderMixin:
                 raise
 
         return subject_slugs
-    
+
     def parse_boolean_string(self, input_string):
         input_string = input_string.strip()
         if input_string.lower() == "true":

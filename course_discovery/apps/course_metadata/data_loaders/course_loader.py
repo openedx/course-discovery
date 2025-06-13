@@ -5,8 +5,8 @@ course and course run data for the specified course type.
 """
 import csv
 import logging
-import unicodecsv
 
+import unicodecsv
 
 from course_discovery.apps.course_metadata.choices import BulkOperationType, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -179,7 +179,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         if missing_fields:
             return ', '.join(missing_fields)
         return ''
-    
+
     def validate_course_data_partial_update(self, course, course_run, row):
         """
         Perform any validation for partial updates. Currently only verifies that the price is provided
@@ -198,7 +198,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                         "Price must be provided when changing the track"
                     )
                     return False
-        
+
         return True
 
     def update_course_api_request_data(self, course_data, course, course_type, is_draft):
@@ -239,7 +239,9 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         }
 
         if course_data.get('enterprise_subscription_inclusion', '').strip():
-            enterprise_subscription_inclusion = self.parse_boolean_string(course_data.get('enterprise_subscription_inclusion', ''))
+            enterprise_subscription_inclusion = self.parse_boolean_string(
+                course_data.get('enterprise_subscription_inclusion', '')
+            )
             update_course_data['enterprise_subscription_inclusion'] = enterprise_subscription_inclusion
 
         if self.task_type == BulkOperationType.PartialUpdate:
@@ -270,7 +272,9 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 (self.get_course_run_type(course_run_data.get('course_run_enrollment_track')) or course_run.type).uuid
             ),
             'key': course_run.key,
-            'prices': self.get_pricing_representation(course_run_data.get('verified_price'), course_type or course_run.course.type),
+            'prices': self.get_pricing_representation(
+                course_run_data.get('verified_price'), course_type or course_run.course.type
+            ),
             'draft': is_draft,
             'content_language': content_language[0],
             'expected_program_name': course_run_data.get('expected_program_name', ''),
@@ -473,7 +477,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         else:
             course = Course.everything.get(draft=True, key=row['course_key'])
             course_run = None
-        
+
         return course, course_run
 
     def _ingest_partial_update(self):  # pylint: disable=too-many-statements
@@ -485,8 +489,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             course_key = row.get('course_key', '')
             course_run_key = row.get('course_run_key', '')
             logger.info(f'Starting partial update flow for course: {course_key} and course_run: {course_run_key}')
-            
-            ## Retrieve the course and run under consideration
+
             try:
                 course, course_run = self.extract_course_and_course_run(row)
             except CourseRun.DoesNotExist:
@@ -502,7 +505,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 )
                 continue
 
-            is_valid, course_type, course_run_type = self._validate_and_process_row(
+            is_valid, course_type, course_run_type = self._validate_and_process_row(  # pylint: disable=unused-variable
                 row, course.title, org_key=course.authoring_organizations.first().key, allow_empty_tracks=True
             )
             is_valid = is_valid and self.validate_course_data_partial_update(course, course_run, row)
@@ -536,7 +539,13 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 self.ingestion_summary['success_count'] += 1
                 continue
 
-            is_draft = True if course_run.status == CourseRunStatus.Unpublished and row.get("move_to_legal_review", "").lower() != "true" else is_draft
+            is_draft = (
+                True
+                if course_run.status == CourseRunStatus.Unpublished and (
+                    row.get("move_to_legal_review", "").lower() != "true"
+                )
+                else is_draft
+            )
             logger.info(f"Draft flag is set to {is_draft} for the course run {course_run.key}")
 
             try:
@@ -560,7 +569,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 course_run.status == CourseRunStatus.Unpublished and
                 row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
             ):
-                if missing_fields:=self.missing_fields_for_legal_review(course, course_run, row):
+                if missing_fields := self.missing_fields_for_legal_review(course, course_run, row):
                     self.log_ingestion_error(
                         CSVIngestionErrors.MISSING_REQUIRED_DATA,
                         CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(

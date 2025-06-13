@@ -83,6 +83,7 @@ class FormattingTests(TestCase):
         output = format_base64_strings(mock_data.BASE64_STRING)
         assert output == "https://www.google.com/"
 
+
 class PruneEmptyValueTests(TestCase):
     def test(self):
         assert prune_empty_values({"a": "b"}) == {"a": "b"}
