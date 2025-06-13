@@ -97,7 +97,7 @@ class Command(BaseCommand):
         This method retrieves the email addresses of course editors and project coordinators associated with the course
         and schedules the email to be sent using the `process_send_course_deadline_email` task.
         """
-        course_editors = list(course.editors.values_list('user__email', flat=True).distinct())
+        course_editors = list(course.draft_version.editors.values_list('user__email', flat=True).distinct())
         project_coordinators = list(OrganizationUserRole.objects.filter(
             organization__in=course.authoring_organizations.all(),
             role=InternalUserRole.ProjectCoordinator
