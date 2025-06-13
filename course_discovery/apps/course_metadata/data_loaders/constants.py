@@ -70,6 +70,43 @@ CSV_LOADER_ERROR_LOG_SEQUENCE = [
 ]
 
 
+class CourseEditorIngestionErrors:
+    """
+    Error codes for CourseEditorsLoader ingestion failures.
+    """
+    USER_NOT_FOUND = 'USER_NOT_FOUND'
+    USER_DOES_NOT_BELONG_TO_ORG = 'USER_DOES_NOT_BELONG_TO_ORG'
+    COURSE_NOT_FOUND = 'COURSE_NOT_FOUND'
+    MISSING_REQUIRED_DATA = 'MISSING_REQUIRED_DATA'
+    COURSE_EDITOR_CREATE_ERROR = 'COURSE_EDITOR_CREATE_ERROR'
+    COURSE_EDITOR_REMOVE_ERROR = 'COURSE_EDITOR_REMOVE_ERROR'
+
+
+class CourseEditorIngestionErrorMessages:
+    """
+    Error message templates for CourseEditorsLoader ingestion.
+    """
+    USER_NOT_FOUND = '[USER_NOT_FOUND] Unable to find user with identifier "{user_identifier}" for row {index}.'
+    USER_DOES_NOT_BELONG_TO_ORG = ('[USER_DOES_NOT_BELONG_TO_ORG] User "{user_identifier}" does not belong to any '
+                                   'authoring organization for course "{course_title}" at row {index}.')
+    COURSE_NOT_FOUND = '[COURSE_NOT_FOUND] Unable to find course with identifier "{course_identifier}" for row {index}.'
+    MISSING_REQUIRED_DATA = '[MISSING_REQUIRED_DATA] Missing required field(s) at row {index}: {missing_fields}'
+    COURSE_EDITOR_CREATE_ERROR = ('[COURSE_EDITOR_CREATE_ERROR] Failed to create CourseEditor for user '
+                                  '"{user_identifier}" and course "{course_title}" at row {index}: {exception}')
+    COURSE_EDITOR_REMOVE_ERROR = ('[COURSE_EDITOR_REMOVE_ERROR] Failed to remove CourseEditor for user '
+                                  '"{user_identifier}" and course "{course_title}" at row {index}: {exception}')
+
+
+LOADER_ERROR_LOG_SEQUENCE = [
+    CourseEditorIngestionErrors.MISSING_REQUIRED_DATA,
+    CourseEditorIngestionErrors.USER_NOT_FOUND,
+    CourseEditorIngestionErrors.USER_DOES_NOT_BELONG_TO_ORG,
+    CourseEditorIngestionErrors.COURSE_EDITOR_CREATE_ERROR,
+    CourseEditorIngestionErrors.COURSE_NOT_FOUND,
+    CourseEditorIngestionErrors.COURSE_EDITOR_REMOVE_ERROR
+]
+
+
 class DegreeCSVIngestionErrors:
     """
     Possible errors that will raise during Degree CSV Loader ingestion flow.
