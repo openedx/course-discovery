@@ -1,6 +1,8 @@
 from ddt import data, ddt, unpack
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils.timezone import now
+from django_celery_results.models import TaskResult
 from rest_framework import status
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -187,3 +189,29 @@ class BulkOperationTaskViewSetTests(OAuth2Mixin, APITestCase):
             response = self.client.post(self.CREATE_BULK_OPERATION_TASK_URL, request_data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn(missing_field, response.data)
+
+    def test_detail_view_includes_result_attr__query_param_present(self):
+        """
+        Test that the result field is populated if include_result=true is passed.
+        """
+        task = BulkOperationTaskFactory(uploaded_by=self.user, task_id='dummy-task-id')
+        TaskResult.objects.create(task_id='dummy-task-id', result='{"message": "done"}', date_done=now())
+
+        url = reverse('api:v1:bulkoperationtask-detail', args=[task.id]) + '?include_result=true'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['result'], '{"message": "done"}')
+
+    def test_detail_view_includes_result_param__no_task_result_found(self):
+        """
+        Test that the result field is None if include_result=true is passed but no TaskResult exists.
+        """
+        task = BulkOperationTaskFactory(uploaded_by=self.user, task_id='non-existent-id')
+
+        url = reverse('api:v1:bulkoperationtask-detail', args=[task.id]) + '?include_result=true'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('result', response.data)
+        self.assertIsNone(response.data['result'])

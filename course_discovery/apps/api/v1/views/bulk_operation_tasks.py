@@ -12,9 +12,6 @@ from course_discovery.apps.course_metadata.models import BulkOperationTask
 
 class BulkOperationTaskViewSet(CompressedCacheResponseMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                                mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    ViewSet for BulkOperationTask model.
-    """
     queryset = BulkOperationTask.objects.all()
     serializer_class = BulkOperationTaskSerializer
     permission_classes = [IsStaffOrSuperuser]
@@ -25,7 +22,13 @@ class BulkOperationTaskViewSet(CompressedCacheResponseMixin, mixins.CreateModelM
     search_fields = ('task_type', 'uploaded_by__username')
 
     def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
+
+    def get_serializer_context(self):
         """
         Overriding perform_create to set the uploaded_by field to the current user.
         """
-        serializer.save(uploaded_by=self.request.user)
+        context = super().get_serializer_context()
+        include_result = self.request.query_params.get('include_result', 'false').lower() == 'true'
+        context['include_result'] = include_result
+        return context
