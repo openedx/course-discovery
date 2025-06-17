@@ -9,9 +9,10 @@ import logging
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
-    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrors
+    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrors, CSVIngestionErrorMessages
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
+from course_discovery.apps.course_metadata.data_loaders.utils import prune_empty_values
 from course_discovery.apps.course_metadata.models import CourseRun
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,22 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
             'errors': [],
             'new_runs': [],
         }
+
+    def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
+        """
+        Create and return the request data for making a patch call to update the course run.
+        """
+        update_course_run_data = {
+            'key': course_run.key,
+            'draft': is_draft,
+            'go_live_date': self.get_formatted_datetime_string(course_run_data.get('publish_date')),
+            'weeks_to_complete': course_run_data.get('length', ''),
+            'min_effort': course_run_data.get('minimum_effort', ''),
+            'max_effort': course_run_data.get('maximum_effort', '')
+        }
+
+        prune_empty_values(update_course_run_data)
+        return update_course_run_data
 
     def ingest(self):
         """
@@ -103,14 +120,25 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
                     raise LookupError(f"No CourseRun found in DB for key: {result['key']}")
 
                 logger.info(f"[Row {index}] Successfully created rerun {new_course_run.key} for course: {course.title}")
-                self.ingestion_summary['success_count'] += 1
                 self.ingestion_summary['new_runs'].append(new_course_run.key)
 
+                self.update_course_run(row, new_course_run, new_course_run.course.type, is_draft=True)
+                new_course_run.refresh_from_db()
                 if row.get('move_to_legal_review', '').lower() == 'true':
+                    if missing_fields := self.missing_fields_for_legal_review(new_course_run.course, new_course_run):
+                        self.log_ingestion_error(
+                            CSVIngestionErrors.MISSING_REQUIRED_DATA,
+                            CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+                                course_title=new_course_run.course.title, missing_data=missing_fields
+                            )
+                        )
+                        continue
+
                     new_course_run.status = CourseRunStatus.LegalReview
                     new_course_run.save(update_fields=['status'], send_emails=True)
-
-            except (ValueError, LookupError, AttributeError) as e:
+                
+                self.ingestion_summary['success_count'] += 1
+            except Exception as e:
                 self.log_ingestion_error(
                     CSVIngestionErrors.COURSE_RUN_CREATE_ERROR,
                     f"[Row {index}] Error creating rerun for course '{course.title}': {str(e)}"

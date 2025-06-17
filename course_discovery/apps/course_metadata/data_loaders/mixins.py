@@ -41,6 +41,28 @@ class DataLoaderMixin:
         ProgramType.PROFESSIONAL_CERTIFICATE
     ]
 
+    # The keys are the field names in the csv, and the values correspond to model field names
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE = {
+        "image": "image",
+        "long_description": "full_description",
+        "short_description": "short_description",
+        "what_will_you_learn": "outcome",
+        "level_type": "level_type",
+        "primary_subject": "subjects",
+    }
+    # The keys are the field names in the csv, and the values correspond to model field names
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN = {
+        "publish_date": "go_live_date",
+        "minimum_effort": "min_effort",
+        "maximum_effort": "max_effort",
+        "length": "weeks_to_complete",
+    }
+    
+    LEGAL_REVIEW_REQUIRED_FIELDS = [
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE.keys(),
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN.keys()
+    ]
+
     # Addition of a user agent to allow access to data CDNs
     REQUEST_USER_AGENT_HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
@@ -434,6 +456,28 @@ class DataLoaderMixin:
             return False, course_type, course_run_type
 
         return True, course_type, course_run_type
+
+    @classmethod
+    def missing_fields_for_legal_review(cls, course, course_run):
+        """
+        Returns fields required for legal review that are not present on the course/courserun.
+        """
+
+        obj_required_fields = [
+            (course, cls.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE),
+            (course_run, cls.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN)
+        ]
+
+        missing_fields = []
+        for obj, field_list in obj_required_fields:
+            for csv_field, model_field in field_list.items():
+                if model_field == 'subjects' and not obj.subjects.count():
+                    missing_fields.append(csv_field)
+
+                elif not getattr(obj, model_field, ''):
+                    missing_fields.append(csv_field)
+
+        return missing_fields
 
     def validate_course_data(self, data, course_type=None):
         """

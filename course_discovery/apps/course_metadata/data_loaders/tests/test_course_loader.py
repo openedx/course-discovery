@@ -242,18 +242,19 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
             **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW
         }
-
         csv_data.pop("Image")
         csv_data.pop("Maximum Effort")
+        csv_data.pop("Primary Subject")
+
+        loader, _ = self.perform_partial_updates(csv_data)
 
         course = Course.everything.get()
         course_run = CourseRun.everything.get()
 
-        row = CourseLoader.transform_dict_keys(csv_data)
-        missing_fields = CourseLoader.missing_fields_for_legal_review(CourseLoader, course, course_run, row)
-        assert set(missing_fields) == {'image', 'maximum_effort'}
-        course_run.maximum_effort = 8
-        assert CourseLoader.missing_fields_for_legal_review(CourseLoader, course, course_run, row) == ['image']
+        missing_fields = CourseLoader.missing_fields_for_legal_review(course, course_run)
+        assert set(missing_fields) == {'image', 'maximum_effort', 'primary_subject'}
+        course_run.max_effort = 8
+        assert CourseLoader.missing_fields_for_legal_review(course, course_run) == ['image', 'primary_subject']
 
     @data(True, False)
     def test_course_loader_partial_updates__track_change(self, is_price_in_csv, mock_jwt_decode_handler):  # pylint: disable=unused-argument
