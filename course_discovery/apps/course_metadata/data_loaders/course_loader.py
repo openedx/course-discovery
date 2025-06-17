@@ -14,6 +14,7 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
+from course_discovery.apps.course_metadata.data_loaders.utils import prune_empty_values
 from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 
@@ -27,17 +28,23 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
     BASE_REQUIRED_DATA_FIELDS = [
         'organization', 'title', 'number', 'start_date', 'end_date', 'course_pacing',
     ]
-    LEGAL_REVIEW_REQUIRED_FIELDS = [
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE = [
         "image",
         "long_description",
         "short_description",
         "what_will_you_learn",
         "level_type",
         "primary_subject",
+    ]
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN = [
         "publish_date",
         "minimum_effort",
         "maximum_effort",
         "length",
+    ]
+    LEGAL_REVIEW_REQUIRED_FIELDS = [
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE,
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN
     ]
 
     def __init__(
@@ -111,10 +118,30 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         logger.info(f"Initiating Course Loader for {self.task_type}")
         if self.task_type == BulkOperationType.CourseCreate:
             return self._ingest_course_create()
-
+        elif self.task_type == BulkOperationType.PartialUpdate:
+            return self._ingest_partial_update()
         return NotImplementedError(
             f"Task type {self.task_type} is not implemented in CourseLoader."
         )
+
+    def missing_fields_for_legal_review(self, course, course_run, row):
+        """
+        Returns fields required for legal review during a partial update bulk op.
+        """
+
+        obj_required_fields = [
+            (course, self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE),
+            (course_run, self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN)
+        ]
+
+        missing_fields = []
+
+        for obj, field_list in obj_required_fields:
+            for field in field_list:
+                if not (getattr(obj, field, '') or row.get(field, '').strip()):
+                    missing_fields.append(field)
+
+        return missing_fields
 
     def validate_course_data(self, data, course_type=None):
         """
@@ -130,6 +157,10 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             str: A comma-separated string of missing fields if any are missing;
                 otherwise, an empty string.
         """
+
+        if self.task_type == BulkOperationType.PartialUpdate:
+            return ''
+
         missing_fields = []
         required_fields = self.BASE_REQUIRED_DATA_FIELDS.copy()
         if data.get('move_to_legal_review') and data.get('move_to_legal_review').lower() == 'true':
@@ -149,7 +180,28 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             return ', '.join(missing_fields)
         return ''
 
-    def update_course_api_request_data(self, course_data, course, is_draft):
+    def validate_course_data_partial_update(self, course, course_run, row):
+        """
+        Perform any validation for partial updates. Currently only verifies that the price is provided
+        on a track change from audit -> verified and audit.
+        """
+
+        obj_csv_column_list = [(course, 'course_enrollment_track'), (course_run, 'course_run_enrollment_track')]
+
+        for obj, column_name in obj_csv_column_list:
+            new_track = row.get(column_name, '')
+            if obj and new_track and obj.type.name != new_track and new_track != 'Audit Only':
+                price = row.get('verified_price')
+                if not price:
+                    self.log_ingestion_error(
+                        CSVIngestionErrors.MISSING_REQUIRED_DATA,
+                        "Price must be provided when changing the track"
+                    )
+                    return False
+
+        return True
+
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):
         """
         Create and return the request data for making a patch call to update the course.
         """
@@ -169,8 +221,8 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'type': str((self.get_course_type(course_data.get('course_enrollment_track')) or course.type).uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
-            'prices': self.get_pricing_representation(course_data.get('verified_price'), course.type),
-            'title': course_data['title'],
+            'prices': self.get_pricing_representation(course_data.get('verified_price'), course_type or course.type),
+            'title': course_data.get('title', ''),
             'syllabus_raw': course_data.get('syllabus', ''),
             'level_type': course_data.get('level_type', ''),
             'outcome': course_data.get('what_will_you_learn', ''),
@@ -182,7 +234,19 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             'learner_testimonials': course_data.get('learner_testimonials', ''),
             'additional_information': course_data.get('additional_information', ''),
             'organization_short_code_override': course_data.get('organization_short_code_override', ''),
+            'watchers': self.parse_comma_separated_values(course_data.get('watchers', '')),
+            'topics': self.parse_comma_separated_values(course_data.get('topics', '')),
         }
+
+        if course_data.get('enterprise_subscription_inclusion', '').strip():
+            enterprise_subscription_inclusion = self.parse_boolean_string(
+                course_data.get('enterprise_subscription_inclusion', '')
+            )
+            update_course_data['enterprise_subscription_inclusion'] = enterprise_subscription_inclusion
+
+        if self.task_type == BulkOperationType.PartialUpdate:
+            prune_empty_values(update_course_data)
+
         return update_course_data
 
     def update_course_run_api_request_data(self, course_run_data, course_run, course_type, is_draft):
@@ -208,7 +272,9 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 (self.get_course_run_type(course_run_data.get('course_run_enrollment_track')) or course_run.type).uuid
             ),
             'key': course_run.key,
-            'prices': self.get_pricing_representation(course_run_data.get('verified_price'), course_type),
+            'prices': self.get_pricing_representation(
+                course_run_data.get('verified_price'), course_type or course_run.course.type
+            ),
             'draft': is_draft,
             'content_language': content_language[0],
             'expected_program_name': course_run_data.get('expected_program_name', ''),
@@ -238,6 +304,9 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             value = get_datetime_field(date_field, time_field)
             if value:
                 update_course_run_data[db_field_name] = value
+
+        if self.task_type == BulkOperationType.PartialUpdate:
+            prune_empty_values(update_course_run_data)
 
         return update_course_run_data
 
@@ -334,7 +403,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             if not (is_course_image_download and is_organization_logo_override_download):
                 continue
             try:
-                self.update_course(row, course, is_draft)
+                self.update_course(row, course, course_type, is_draft)
             except Exception as exc:  # pylint: disable=broad-except
                 exception_message = exc
                 if hasattr(exc, 'response'):
@@ -389,6 +458,130 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             )
             self.ingestion_summary['success_count'] += 1
             self.ingestion_summary['created_products'].append(f'{course.uuid} - {course.title} ({course.key})')
+
+        self.render_error_logs(self.error_logs)
+        self.clear_caches()
+
+        return {
+            'summary': self.ingestion_summary,
+            'errors': self.error_logs,
+        }
+
+    def extract_course_and_course_run(self, row):
+        """
+        Given a row of data, return the course and course run identified by it
+        """
+        if row.get('course_run_key', ''):
+            course_run = CourseRun.everything.get(draft=True, key=row['course_run_key'])
+            course = course_run.course
+        else:
+            course = Course.everything.get(draft=True, key=row['course_key'])
+            course_run = None
+
+        return course, course_run
+
+    def _ingest_partial_update(self):  # pylint: disable=too-many-statements
+        """
+        Ingests course and courserun data for partial updates.
+        """
+        for row in self.reader:
+            row = self.transform_dict_keys(row)
+            course_key = row.get('course_key', '')
+            course_run_key = row.get('course_run_key', '')
+            logger.info(f'Starting partial update flow for course: {course_key} and course_run: {course_run_key}')
+
+            try:
+                course, course_run = self.extract_course_and_course_run(row)
+            except CourseRun.DoesNotExist:
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_RUN_NOT_FOUND,
+                    f"Can not find course run with key: [{course_run_key}]"
+                )
+                continue
+            except Course.DoesNotExist:
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_NOT_FOUND,
+                    f"Can not find course with key: [{course_key}]"
+                )
+                continue
+
+            is_valid, course_type, course_run_type = self._validate_and_process_row(  # pylint: disable=unused-variable
+                row, course.title, org_key=course.authoring_organizations.first().key, allow_empty_tracks=True
+            )
+            is_valid = is_valid and self.validate_course_data_partial_update(course, course_run, row)
+            if not is_valid:
+                continue
+
+            is_draft = self.get_draft_flag(course=course)
+            logger.info(f"Draft flag is set to {is_draft} for the course {course.title}")
+
+            is_course_image_download, is_organization_logo_override_download = self.download_course_image_assets(
+                data=row, course=course
+            )
+            if not (is_course_image_download and is_organization_logo_override_download):
+                continue
+
+            try:
+                self.update_course(row, course, course_type, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                        course_title=course.title, exception_message=exception_message
+                    )
+                )
+                continue
+
+            if not course_run:
+                self.ingestion_summary['success_count'] += 1
+                continue
+
+            is_draft = (
+                True
+                if course_run.status == CourseRunStatus.Unpublished and (
+                    row.get("move_to_legal_review", "").lower() != "true"
+                )
+                else is_draft
+            )
+            logger.info(f"Draft flag is set to {is_draft} for the course run {course_run.key}")
+
+            try:
+                self.update_course_run(row, course_run, course_type, is_draft)
+            except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
+                self.log_ingestion_error(
+                    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR,
+                    CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                        course_title=course.title, exception_message=exception_message
+                    )
+                )
+                continue
+
+            course.refresh_from_db()
+            course_run.refresh_from_db()
+
+            if (
+                course_run.status == CourseRunStatus.Unpublished and
+                row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
+            ):
+                if missing_fields := self.missing_fields_for_legal_review(course, course_run, row):
+                    self.log_ingestion_error(
+                        CSVIngestionErrors.MISSING_REQUIRED_DATA,
+                        CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+                            course_title=course.title, missing_data=missing_fields
+                        )
+                    )
+                    continue
+
+                course_run.status = CourseRunStatus.LegalReview
+                course_run.save(update_fields=["status"], send_emails=True)
+
+            self.ingestion_summary['success_count'] += 1
 
         self.render_error_logs(self.error_logs)
         self.clear_caches()

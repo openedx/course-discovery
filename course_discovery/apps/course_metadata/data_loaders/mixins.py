@@ -249,13 +249,13 @@ class DataLoaderMixin:
             'course_run': course_run_creation_fields,
         }
 
-    def update_course(self, data, course, is_draft):
+    def update_course(self, data, course, course_type, is_draft):
         """
         Update the course data.
         """
         course_api_url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}?exclude_utm=1"
-        request_data = self.update_course_api_request_data(data, course, is_draft)
+        request_data = self.update_course_api_request_data(data, course, course_type, is_draft)
         response = self.call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
@@ -274,7 +274,7 @@ class DataLoaderMixin:
             logger.info(f"Course run update response: {response.content}")
         return response.json()
 
-    def update_course_api_request_data(self, course_data, course, is_draft):  # pylint: disable=unused-argument
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):  # pylint: disable=unused-argument
         """Update the course API request data based on the course and draft state."""
         return course_data
 
@@ -367,7 +367,7 @@ class DataLoaderMixin:
         except CourseType.DoesNotExist:
             return None
 
-    def _validate_and_process_row(self, row, course_title, org_key):
+    def _validate_and_process_row(self, row, course_title, org_key, allow_empty_tracks=False):
         """
         Validates and processes a single row of course data.
 
@@ -375,6 +375,8 @@ class DataLoaderMixin:
             row (dict): The row of course data.
             course_title (str): The title of the course.
             org_key (str): The organization key.
+            allow_empty_tracks (bool): A boolean to indicate if empty("") values for course
+                                       and course_run enrollment tracks should be considered valid.
 
         Returns:
             tuple: A tuple containing a boolean indicating validity, course type, and course run type.
@@ -395,8 +397,8 @@ class DataLoaderMixin:
                 CourseType: CourseType object
                 CourseRunType: CourseRunType object
             """
-            course_type = self.get_course_type(row["course_enrollment_track"])
-            if not course_type:
+            course_type = self.get_course_type(row.get("course_enrollment_track", ""))
+            if not course_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
@@ -405,8 +407,8 @@ class DataLoaderMixin:
                 )
                 return False, None, None
 
-            course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
-            if not course_run_type:
+            course_run_type = self.get_course_run_type(row.get("course_run_enrollment_track", ""))
+            if not course_run_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
@@ -515,6 +517,17 @@ class DataLoaderMixin:
                 raise
 
         return subject_slugs
+
+    def parse_boolean_string(self, input_string):
+        input_string = input_string.strip()
+        if input_string.lower() == "true":
+            return True
+        return False
+
+    def parse_comma_separated_values(self, input_string):
+        if not input_string.strip():
+            return []
+        return [value.strip() for value in input_string.split(',')]
 
     def verify_and_get_language_tags(self, language_str):
         """

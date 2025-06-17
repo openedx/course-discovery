@@ -2,6 +2,7 @@
 Unit tests for Course Loader.
 """
 import copy
+import datetime
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
@@ -44,6 +45,59 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.source = SourceFactory(slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG)
+
+    def create_new_course(self):
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner, run_key='course-v1:edx+csv-123+1T2020')
+        self.mock_ecommerce_publication(self.partner)
+        csv_data = {
+            **mock_data.MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT,
+        }
+        csv_data['End Date'] = f"02/02/{datetime.datetime.now().year + 1}"
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [csv_data],
+                headers=mock_data.MINIMAL_VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT.keys()
+            )
+            with mock.patch.object(
+                    CourseLoader,
+                    'call_course_api',
+                    self.mock_call_course_api
+            ):
+                loader = CourseLoader(
+                    self.partner, csv_path=csv.name,
+                    product_source=self.source.slug,
+                    task_type=BulkOperationType.CourseCreate
+                )
+                loader.ingest()
+
+    def perform_partial_updates(self, csv_dict):
+        responses.add_passthru(csv_dict.get("Image", ""))
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [csv_dict],
+                headers=csv_dict.keys()
+            )
+            with LogCapture() as log_capture:
+                with mock.patch.object(
+                        CourseLoader,
+                        'call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CourseLoader(
+                        self.partner, csv_path=csv.name,
+                        product_source=self.source.slug,
+                        task_type=BulkOperationType.PartialUpdate
+                    )
+                    loader.ingest()
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            f"Initiating Course Loader for {BulkOperationType.PartialUpdate}"
+                        )
+                    )
+                    return loader, log_capture
 
     def mock_call_course_api(self, method, url, payload):
         """
@@ -108,6 +162,224 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         course=course,
                     )
                     self.assertEqual(course_run.status, CourseRunStatus.Unpublished)
+
+    @data([True, True, True], [True, False, False], [False, True, True], [False, False, True])
+    @unpack
+    def test_course_loader_ingest_for_partial_updates(
+        self, move_to_legal_review, has_data_for_legal_review, ingestion_success, mock_jwt_decode_handler  # pylint: disable=unused-argument
+    ):
+        """
+        Test Course Loader for partial updates.
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+        }
+
+        if move_to_legal_review:
+            csv_data["Move To Legal Review"] = "True"
+
+        if has_data_for_legal_review:
+            csv_data = {**csv_data, **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW}
+
+        course = Course.everything.get()
+        course_run = CourseRun.everything.get()
+        assert not course.image
+        assert course.level_type is None
+        assert course.short_description == ""
+        assert course.outcome == ""
+
+        loader, log_capture = self.perform_partial_updates(csv_data)
+
+        course.refresh_from_db()
+        course_run.refresh_from_db()
+
+        assert course.title == "CSV Course"
+        assert course.short_description == f"<p>{csv_data['Short Description']}</p>"
+        assert course.outcome == f"<p>{csv_data['What Will You Learn']}</p>"
+        assert course.image
+        assert course.watchers == ['a@b.com', 'c@d.com']
+        assert course.level_type.translations.first().name_t == csv_data["Level Type"]
+        assert course_run.weeks_to_complete == int(csv_data["Length"])
+
+        if move_to_legal_review and has_data_for_legal_review:
+            assert course_run.status == CourseRunStatus.LegalReview
+        else:
+            assert course_run.status == CourseRunStatus.Unpublished
+
+        if has_data_for_legal_review:
+            assert course.subjects.count() == 1
+            assert course.full_description == f"<p>{csv_data['Long Description']}</p>"
+            assert (
+                course_run.go_live_date.date() ==
+                datetime.datetime.strptime(csv_data["Publish Date"], "%Y-%m-%d").date()
+            )
+        else:
+            assert course.subjects.count() == 0
+            assert course.full_description == ""
+            assert not course_run.go_live_date
+
+        if ingestion_success:
+            assert loader.ingestion_summary['success_count'] == 1
+        else:
+            assert loader.ingestion_summary['failure_count'] == 1
+            log_capture.check_present(
+                (
+                    MIXIN_LOGGER_PATH,
+                    'ERROR',
+                    '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+                    'The missing data elements are "[\'long_description\', \'primary_subject\', \'publish_date\']"')
+            )
+
+    def test_course_loader_partial_updates_missing_fields(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Test for CourseLoader.missing_fields_for_legal_review
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW
+        }
+
+        csv_data.pop("Image")
+        csv_data.pop("Maximum Effort")
+
+        course = Course.everything.get()
+        course_run = CourseRun.everything.get()
+
+        row = CourseLoader.transform_dict_keys(csv_data)
+        missing_fields = CourseLoader.missing_fields_for_legal_review(CourseLoader, course, course_run, row)
+        assert set(missing_fields) == {'image', 'maximum_effort'}
+        course_run.maximum_effort = 8
+        assert CourseLoader.missing_fields_for_legal_review(CourseLoader, course, course_run, row) == ['image']
+
+    @data(True, False)
+    def test_course_loader_partial_updates__track_change(self, is_price_in_csv, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Test for updating a course from audit only to Verified and Audit.
+        """
+        self.create_new_course()
+
+        csv_data = {
+            "Course Key": "edx+csv-123",
+            "Course Run Key": "course-v1:edx+csv-123+1T2020",
+            "Course Enrollment Track": "Verified and Audit",
+            "Course Run Enrollment Track": "Verified and Audit",
+        }
+
+        if is_price_in_csv:
+            price = '25.25'
+            csv_data["Verified Price"] = price
+
+        course = Course.everything.get()
+        course_run = CourseRun.everything.get()
+        assert course.type.name == "Audit Only"
+        assert course.entitlements.count() == 0
+        assert course_run.type.name == "Audit Only"
+        assert course_run.seats.count() == 1
+
+        loader, log_capture = self.perform_partial_updates(csv_data)
+        course.refresh_from_db()
+        course_run.refresh_from_db()
+
+        if is_price_in_csv:
+            assert loader.ingestion_summary['success_count'] == 1
+            assert course.type.name == "Verified and Audit"
+            assert course.entitlements.count() == 1
+            assert course.entitlements.first().price == float(price)
+            assert course_run.type.name == "Verified and Audit"
+            assert course_run.seats.count() == 2
+        else:
+            assert loader.ingestion_summary['failure_count'] == 1
+            log_capture.check_present((MIXIN_LOGGER_PATH, 'ERROR', 'Price must be provided when changing the track'))
+            assert course.entitlements.count() == 0
+            assert course_run.seats.count() == 1
+            assert course.type.name == "Audit Only"
+
+    @data("course", "courserun")
+    def test_course_partial_updates_api_failure(self, api, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Verify the behavior of the course loader for partial updates
+        when the update call to the course/courserun api fails
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+        }
+        if api == "course":
+            ctx = mock.patch.object(
+                CourseLoader,
+                "update_course",
+                side_effect=MockExceptionWithResponse(b"Course API is down")
+            )
+        else:
+            ctx = mock.patch.object(
+                CourseLoader,
+                "update_course_run",
+                side_effect=MockExceptionWithResponse(b"CourseRun API is down")
+            )
+
+        with ctx:
+            loader, _ = self.perform_partial_updates(csv_data)
+
+        assert loader.ingestion_summary["failure_count"] == 1
+        if api == "course":
+            assert 'Course API is down' in loader.error_logs["COURSE_UPDATE_ERROR"][0]
+        else:
+            assert 'CourseRun API is down' in loader.error_logs["COURSE_RUN_UPDATE_ERROR"][0]
+
+    @data(["", "course-v1:fakeorg+csv-123+1T2020"], ["edx+fakecourse-123", ""])
+    @unpack
+    def test_course_partial_updates_incorrect_course_or_courserun(
+        self, course_key, course_run_key, mock_jwt_decode_handler  # pylint: disable=unused-argument
+    ):
+        """
+        Verify the behavior of the course loader for partial updates when an incorrect course/courserun key is provided
+        """
+        self.create_new_course()
+
+        csv_data = {
+            **mock_data.COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE,
+            "Course Key": course_key,
+            "Course Run Key": course_run_key
+        }
+
+        loader, _ = self.perform_partial_updates(csv_data)
+
+        assert loader.ingestion_summary["failure_count"] == 1
+        if course_run_key:
+            assert 'Can not find course run' in loader.error_logs["COURSE_RUN_NOT_FOUND"][0]
+        if course_key:
+            assert 'Can not find course' in loader.error_logs["COURSE_NOT_FOUND"][0]
+
+    def test_course_loader_partial_updates_no_course_run_key(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
+        """
+        Test that not specifying a course run key only updates the course
+        """
+        self.create_new_course()
+
+        csv_data = {
+            "Course Key": "edx+csv-123",
+            "Minimum Effort": "5",
+            "Long Description": "Is long enough?"
+        }
+
+        course = Course.everything.get()
+        course_run = CourseRun.everything.get()
+        assert course.full_description == ""
+        assert course_run.min_effort is None
+
+        loader, _ = self.perform_partial_updates(csv_data)
+
+        course.refresh_from_db()
+        course_run.refresh_from_db()
+
+        assert course.full_description == f'<p>{csv_data["Long Description"]}</p>'
+        assert course_run.min_effort is None
+        assert loader.ingestion_summary["success_count"] == 1
 
     def test_course_loader_ingest_for_course_creation_skip_if_exists(self, mock_jwt_decode_handler):  # pylint: disable=unused-argument
         """

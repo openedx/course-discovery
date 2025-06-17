@@ -57,6 +57,9 @@ class ProcessBulkOperationsTest(TransactionTestCase):
         ("CourseRunDataLoader", BulkOperationType.CourseRerun, True, {"success_count": 23, "failure_count": 2},
          BulkOperationStatus.Completed),
         ("CourseRunDataLoader", BulkOperationType.CourseRerun, False, None, BulkOperationStatus.Failed),
+        ("CourseLoader", BulkOperationType.PartialUpdate, True, {"success_count": 23, "failure_count": 2},
+         BulkOperationStatus.Completed),
+        ("CourseLoader", BulkOperationType.PartialUpdate, False, None, BulkOperationStatus.Failed),
     )
     @ddt.unpack
     @mock.patch("course_discovery.apps.course_metadata.tasks.CourseLoader")
