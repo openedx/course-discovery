@@ -3292,6 +3292,24 @@ VALID_COURSE_LOADER_COURSE_AND_COURSE_RUN_CREATION_CSV_DICT_WITH_OPTIONAL_FIELDS
     "Reg Close Time": "00:00:00",
 }
 
+COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_SIMPLE = {
+    "Image": "https://placehold.co/1134x675.png",
+    "Length": "8",
+    "Short Description": "Learn the basics of course loader.",
+    "Level Type": "beginner",
+    "Minimum Effort": "4",
+    "Maximum Effort": "6",
+    "Course Key": "edx+csv-123",
+    "Course Run Key": "course-v1:edx+csv-123+1T2020",
+    "What Will You Learn": "Procrastination.",
+    "Watchers": "a@b.com, c@d.com",
+}
+
+COURSE_LOADER_COURSE_AND_COURSE_RUN_PARTIAL_UPDATES_FOR_REVIEW = {
+    "Primary Subject": "Computer Science",
+    "Long Description": "This is the long description",
+    "Publish Date": "2025-04-21",
+}
 
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization': 'edx',
