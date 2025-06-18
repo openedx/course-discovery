@@ -57,7 +57,7 @@ class DataLoaderMixin:
         "maximum_effort": "max_effort",
         "length": "weeks_to_complete",
     }
-    
+
     LEGAL_REVIEW_REQUIRED_FIELDS = [
         *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE.keys(),
         *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN.keys()

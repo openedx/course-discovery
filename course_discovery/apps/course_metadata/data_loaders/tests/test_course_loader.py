@@ -246,7 +246,7 @@ class TestCourseLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         csv_data.pop("Maximum Effort")
         csv_data.pop("Primary Subject")
 
-        loader, _ = self.perform_partial_updates(csv_data)
+        self.perform_partial_updates(csv_data)
 
         course = Course.everything.get()
         course_run = CourseRun.everything.get()

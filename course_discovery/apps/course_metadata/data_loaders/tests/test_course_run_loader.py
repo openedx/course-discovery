@@ -5,9 +5,9 @@ Unit tests for CourseRunDataLoader, covering success and failure cases for rerun
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
+import ddt
 import responses
 from testfixtures import LogCapture
-from ddt import data, ddt
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -23,7 +23,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.course_run_loader'
 
 
-@ddt
+@ddt.ddt
 @mock.patch(
     'course_discovery.apps.course_metadata.data_loaders.configured_jwt_decode_handler',
     return_value={'preferred_username': 'test_username'}
@@ -49,7 +49,7 @@ class CourseRunDataLoaderTests(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             type=CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT),
             draft=True,
             key_for_reruns='',
-            subjects=[SubjectFactory()]  
+            subjects=[SubjectFactory()]
         )
         self.existing_run = CourseRunFactory(
             course=self.course,
@@ -66,8 +66,7 @@ class CourseRunDataLoaderTests(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             return self.client.post(url, data=payload, format='json')
         elif method == 'PATCH':
             return self.client.patch(url, data=payload, format='json')
-        else:
-            return None
+        return None
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
         """Write course rerun data to CSV."""
@@ -178,7 +177,7 @@ class CourseRunDataLoaderTests(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.assertEqual(summary['failure_count'], 1)
 
     @responses.activate
-    @data(True, False)
+    @ddt.data(True, False)
     def test_ingest_legal_review_flag_applied(self, has_publish_date, jwt_decode_patch):  # pylint: disable=unused-argument
         """Verify course run is marked for legal review when flag is true and required data is present."""
         self._setup_prerequisites(self.partner)
@@ -207,11 +206,14 @@ class CourseRunDataLoaderTests(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         else:
             self.assertEqual(summary['failure_count'], 1)
             self.assertEqual(run.status, CourseRunStatus.Unpublished)
-            self.assertIn('The missing data elements are "[\'publish_date\']"', loader.error_logs['MISSING_REQUIRED_DATA'][0])
+            self.assertIn(
+                'The missing data elements are "[\'publish_date\']"',
+                loader.error_logs['MISSING_REQUIRED_DATA'][0]
+            )
             self.assertFalse(run.go_live_date)
 
     @responses.activate
-    @data(True, False)
+    @ddt.data(True, False)
     def test_ingest_change_fields(self, move_to_legal_review, jwt_decode_patch):  # pylint: disable=unused-argument
         """Verify that course run effort and length fields can be changed"""
         self._setup_prerequisites(self.partner)
@@ -230,7 +232,11 @@ class CourseRunDataLoaderTests(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         data['length'] = 7
 
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [data], headers=[*self.rerun_fields, 'publish_date', 'minimum_effort', 'maximum_effort', 'length'])
+            csv = self._write_csv(
+                csv,
+                [data],
+                headers=[*self.rerun_fields, 'publish_date', 'minimum_effort', 'maximum_effort', 'length']
+            )
             with mock.patch.object(CourseRunDataLoader, 'call_course_api', self.mock_call_course_api):
                 loader = CourseRunDataLoader(self.partner, csv_path=csv.name)
                 summary = loader.ingest()['summary']

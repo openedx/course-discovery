@@ -9,7 +9,7 @@ import logging
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
-    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrors, CSVIngestionErrorMessages
+    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
 )
 from course_discovery.apps.course_metadata.data_loaders.mixins import DataLoaderMixin
 from course_discovery.apps.course_metadata.data_loaders.utils import prune_empty_values
@@ -136,9 +136,9 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
 
                     new_course_run.status = CourseRunStatus.LegalReview
                     new_course_run.save(update_fields=['status'], send_emails=True)
-                
+
                 self.ingestion_summary['success_count'] += 1
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 self.log_ingestion_error(
                     CSVIngestionErrors.COURSE_RUN_CREATE_ERROR,
                     f"[Row {index}] Error creating rerun for course '{course.title}': {str(e)}"
