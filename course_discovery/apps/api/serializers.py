@@ -2782,6 +2782,7 @@ class BulkOperationTaskSerializer(serializers.ModelSerializer):
     Serializer for BulkOperationTask model.
     """
     uploaded_by = serializers.SerializerMethodField(read_only=True)
+    result = serializers.SerializerMethodField()
 
     class Meta:
         model = BulkOperationTask
@@ -2793,3 +2794,15 @@ class BulkOperationTaskSerializer(serializers.ModelSerializer):
         Return the username of the user who uploaded the task.
         """
         return obj.uploaded_by.username if obj.uploaded_by else None
+
+    def get_result(self, obj):
+        """
+        Return the result of the task if `include_result` is set to True in the context.
+        If no result is available, return None.
+        """
+        include_result = self.context.get('include_result', False)
+        if not include_result:
+            return None
+
+        task_result = obj.task_result
+        return task_result.result if task_result else None
