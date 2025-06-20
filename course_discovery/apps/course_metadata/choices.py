@@ -54,6 +54,7 @@ class BulkOperationType(models.TextChoices):
     CourseCreate = 'course_create', _('Course Create')
     PartialUpdate = 'partial_updates', _('Partial Update')
     CourseRerun = 'course_rerun', _('Course Rerun')
+    CourseEditorUpdate = 'course_editor_update', _('Course Editor Update')
 
 
 class BulkOperationStatus(models.TextChoices):

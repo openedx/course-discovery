@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, BulkOperationType
+from course_discovery.apps.course_metadata.data_loaders.course_editors_loader import CourseEditorsLoader
 from course_discovery.apps.course_metadata.data_loaders.course_loader import CourseLoader
 from course_discovery.apps.course_metadata.data_loaders.course_run_loader import CourseRunDataLoader
 from course_discovery.apps.course_metadata.emails import send_course_deadline_email
@@ -77,6 +78,11 @@ def select_and_init_bulk_operation_loader(bulk_operation_task):
         return CourseRunDataLoader(
             partner,
             csv_file=bulk_operation_task.csv_file,
+        )
+    elif bulk_operation_task.task_type == BulkOperationType.CourseEditorUpdate:
+        return CourseEditorsLoader(
+            partner,
+            csv_file=bulk_operation_task.csv_file
         )
     else:
         raise ValueError(f"Cannot find loader for task type {bulk_operation_task.task_type}")

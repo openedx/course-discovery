@@ -146,7 +146,7 @@ class CourseRunDataLoader(AbstractDataLoader, DataLoaderMixin):
 
         logger.info("Course run ingestion complete.")
         logger.info(f"Ingestion Summary: {self.ingestion_summary}")
-        self.render_error_logs(self.error_logs)
+        self.render_error_logs(self.error_logs, CSV_LOADER_ERROR_LOG_SEQUENCE)
 
         return {
             'summary': self.ingestion_summary,
