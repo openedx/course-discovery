@@ -136,6 +136,7 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         """
 
         model = Program
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
 
     class Meta:
         """
@@ -143,4 +144,3 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         """
 
         parallel_indexing = True
-        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION

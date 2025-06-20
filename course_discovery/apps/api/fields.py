@@ -16,9 +16,9 @@ class StdImageSerializerField(serializers.ImageField):
         for size_key in value.field.variations:
             # Get different sizes specs from the model field
             # Then get the file path from the available files
-            sized_file = getattr(value, size_key, None)
-            if sized_file:
-                path = sized_file.url
+            if value and value.name:
+                variation_path = value.get_variation_name(value.name, size_key)
+                path = value.storage.url(variation_path)
                 serialized_image = serialized.setdefault(size_key, {})
                 # In case MEDIA_URL does not include scheme+host, ensure that the URLs are absolute and not relative
                 serialized_image['url'] = self.context['request'].build_absolute_uri(path)

@@ -83,6 +83,7 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
         """
 
         model = LearnerPathway
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
 
     class Meta:
         """
@@ -90,4 +91,3 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
         """
 
         parallel_indexing = True
-        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION

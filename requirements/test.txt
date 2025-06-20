@@ -192,7 +192,6 @@ dill==0.4.0
     # via pylint
 distlib==0.3.9
     # via virtualenv
-django==4.2.22
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -350,7 +349,6 @@ django-waffle==4.2.0
     #   edx-toggles
 django-webpack-loader==3.2.0
     # via -r requirements/base.txt
-djangorestframework==3.16.0
     # via
     #   -r requirements/base.txt
     #   django-config-models
