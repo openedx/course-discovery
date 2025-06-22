@@ -28,24 +28,6 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
     BASE_REQUIRED_DATA_FIELDS = [
         'organization', 'title', 'number', 'start_date', 'end_date', 'course_pacing',
     ]
-    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE = [
-        "image",
-        "long_description",
-        "short_description",
-        "what_will_you_learn",
-        "level_type",
-        "primary_subject",
-    ]
-    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN = [
-        "publish_date",
-        "minimum_effort",
-        "maximum_effort",
-        "length",
-    ]
-    LEGAL_REVIEW_REQUIRED_FIELDS = [
-        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE,
-        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN
-    ]
 
     def __init__(
         self, partner, api_url=None, max_workers=None, is_threadsafe=False,
@@ -123,25 +105,6 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
         return NotImplementedError(
             f"Task type {self.task_type} is not implemented in CourseLoader."
         )
-
-    def missing_fields_for_legal_review(self, course, course_run, row):
-        """
-        Returns fields required for legal review during a partial update bulk op.
-        """
-
-        obj_required_fields = [
-            (course, self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE),
-            (course_run, self.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN)
-        ]
-
-        missing_fields = []
-
-        for obj, field_list in obj_required_fields:
-            for field in field_list:
-                if not (getattr(obj, field, '') or row.get(field, '').strip()):
-                    missing_fields.append(field)
-
-        return missing_fields
 
     def validate_course_data(self, data, course_type=None):
         """
@@ -569,7 +532,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
                 course_run.status == CourseRunStatus.Unpublished and
                 row.get("move_to_legal_review") and row.get("move_to_legal_review").lower() == "true"
             ):
-                if missing_fields := self.missing_fields_for_legal_review(course, course_run, row):
+                if missing_fields := self.missing_fields_for_legal_review(course, course_run):
                     self.log_ingestion_error(
                         CSVIngestionErrors.MISSING_REQUIRED_DATA,
                         CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
