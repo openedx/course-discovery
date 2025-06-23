@@ -236,7 +236,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
 
-        self.render_error_logs(self.error_logs)
+        self.render_error_logs(self.error_logs, CSV_LOADER_ERROR_LOG_SEQUENCE)
         self._render_course_uuids()
         self.clear_caches()
 

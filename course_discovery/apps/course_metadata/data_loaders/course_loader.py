@@ -422,7 +422,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             self.ingestion_summary['success_count'] += 1
             self.ingestion_summary['created_products'].append(f'{course.uuid} - {course.title} ({course.key})')
 
-        self.render_error_logs(self.error_logs)
+        self.render_error_logs(self.error_logs, CSV_LOADER_ERROR_LOG_SEQUENCE)
         self.clear_caches()
 
         return {
@@ -546,7 +546,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
 
             self.ingestion_summary['success_count'] += 1
 
-        self.render_error_logs(self.error_logs)
+        self.render_error_logs(self.error_logs, CSV_LOADER_ERROR_LOG_SEQUENCE)
         self.clear_caches()
 
         return {
