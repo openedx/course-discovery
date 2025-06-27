@@ -64,10 +64,14 @@ class Command(BaseCommand):
             if advertised_run:
                 if not course.course_runs.filter(status=CourseRunStatus.Reviewed).exists():
                     days_until_end = (advertised_run.end.date() - now.date()).days
-                    self.handle_send_email_to_pcs_and_editors(
-                        course, advertised_run, email_variant=self.DEADLINE_VARIANTS.get(days_until_end))
-                    courses_with_deadlines.append(course)
-                    logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
+                    if days_until_end in EMAIL_DELTA_DAYS:
+                        self.handle_send_email_to_pcs_and_editors(
+                            course, advertised_run, email_variant=self.DEADLINE_VARIANTS.get(days_until_end))
+                        courses_with_deadlines.append(course)
+                        logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
+                    else:
+                        logger.info(f"Course {course.title} ({course.key}) has no advertised run "
+                                    f"with end date within the specified range.")
                 else:
                     logger.info(
                         f"Course {course.title} ({course.key}) has an active course run with status Scheduled."
