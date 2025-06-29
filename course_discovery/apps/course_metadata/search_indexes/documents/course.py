@@ -158,6 +158,7 @@ class CourseDocument(BaseCourseDocument):
         """
 
         model = Course
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
 
     class Meta:
         """
@@ -165,4 +166,3 @@ class CourseDocument(BaseCourseDocument):
         """
 
         parallel_indexing = True
-        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
