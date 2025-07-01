@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.core.models import SiteOrganization
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.models import Program, ProgramType
@@ -53,17 +54,11 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
 
-        program_uuid = self.kwargs.get(self.lookup_field)
-
-        scope_of_parters = Partner.query_by_site_id(self.request.site.id).all() \
-            if not program_uuid \
-            else \
-            [Program.objects.get(uuid=program_uuid).partner]
-
         filters = {
-            'partners': scope_of_parters
+            'orgs': SiteOrganization.object.get(site_id=self.request.site.id).orgs
         }
 
+        program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
             filters['uuid'] = program_uuid
 
@@ -96,14 +91,13 @@ class ProgramViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
 
+        input_data[r'orgs'] = SiteOrganization.object.get(
+            site_id=self.request.site.id
+        ).orgs
+
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(
                 name=input_data[r'type']
-            )
-        if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner'],
-                site_id=self.request.site.id
             )
 
         if 'status' not in input_data:
@@ -142,11 +136,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data[r'type'] = ProgramType.objects.get(
                 name=input_data[r'type']
             )
-        if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner'],
-                site_id=self.request.site.id
-            )
+
         if r'released_date' in input_data:
             input_data[r'released_date'] = datetime.now()
 
@@ -248,7 +238,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             # representations like the one we want here.
             queryset = self.filter_queryset(
                 Program.objects.filter(
-                    partner__in=Partner.query_by_site_id(self.request.site.id)
+                    orgs=SiteOrganization.object.get(site_id=self.request.site.id).orgs
                 )
             )
             uuids = queryset.values_list('uuid', flat=True)
@@ -268,9 +258,9 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'partners': Partner.query_by_site_id(
-                self.request.site.id
-            ).all(),
+            'orgs': SiteOrganization.object.get(
+                site_id=self.request.site.id
+            ).orgs,
             'program_uuid': self.kwargs['program_uuid']
         }
 
