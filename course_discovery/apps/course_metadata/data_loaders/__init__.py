@@ -125,23 +125,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         return None
 
     @classmethod
-    def get_course_key_from_course_run_key(cls, course_run_key):
-        """
-        Given a serialized course run key, return the corresponding
-        serialized course key.
-
-        Args:
-            course_run_key (CourseKey): Course run key.
-
-        Returns:
-            str
-        """
-        # Commented the previous code as follow:
-        # return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
-        # We return string of course_run_key directly.
-        return str(course_run_key)
-
-    @classmethod
     def delete_orphans(cls):
         """ Remove orphaned objects from the database. """
         for model in (Image, Video):

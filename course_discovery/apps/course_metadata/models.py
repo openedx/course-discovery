@@ -331,7 +331,7 @@ class Position(TimeStampedModel):
 class Course(TimeStampedModel):
     """ Course model. """
     org = models.CharField(
-        max_length=128, null=True, blank=False, db_index=True,
+        max_length=64, null=True, blank=False, db_index=True,
         help_text=_('A organization name')
     )
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -577,7 +577,7 @@ class Program(TimeStampedModel):
     )
     courses = SortedManyToManyField(Course, related_name='programs')
     orgs = models.CharField(
-        max_length=256, null=True, blank=False, db_index=True,
+        max_length=128, null=True, blank=False, db_index=True,
         help_text=_('This field should include all Organizations used by the site. E.g.: orgA+orgB+orgC')
     )
     card_image_url = models.CharField(null=True, blank=True, max_length=1024)

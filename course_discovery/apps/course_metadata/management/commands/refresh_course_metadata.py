@@ -172,12 +172,7 @@ class Command(BaseCommand):
                 # To resolve this, we force Django to reconnect to the database before running any queries.
                 connection.connect()
 
-                # If no courses exist for this partner, this command is likely being run on a
-                # new catalog installation. In that case, we don't want multiple threads racing
-                # to create courses. If courses do exist, this command is likely being run
-                # as an update, significantly lowering the probability of race conditions.
-                courses_exist = Course.objects.filter(partner=partner).exists()
-                is_threadsafe = courses_exist and waffle.switch_is_active('threaded_metadata_write')
+                is_threadsafe = waffle.switch_is_active('threaded_metadata_write')
                 max_workers = DataLoaderConfig.get_solo().max_workers
 
                 logger.info(

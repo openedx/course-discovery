@@ -64,7 +64,7 @@ class Currency(models.Model):
 class SiteOrganization(TimeStampedModel):
     site = models.OneToOneField(Site)
     orgs = models.CharField(
-        max_length=256, null=False, blank=False, db_index=True,
+        max_length=128, null=False, blank=False, db_index=True,
         help_text=_('Plus separated organization string. E.g.: orgA+orgB+orgC')
     )
 

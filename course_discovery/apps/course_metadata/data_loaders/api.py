@@ -189,25 +189,27 @@ class CoursesApiDataLoader(AbstractDataLoader):
         return CourseRun.objects.create(**defaults)
 
     def get_or_create_course(self, body):
-        course_run_key = CourseKey.from_string(body['id'])
-        course_key = self.get_course_key_from_course_run_key(course_run_key)
-        defaults = self.format_course_data(body)
+        course_key = CourseKey.from_string(body['id'])
+        course_key_str = str(course_key)
+        defaults = self.format_course_data(course_key, body)
         # We need to add the key to the defaults because django ignores kwargs with __
         # separators when constructing the create request
-        defaults['key'] = course_key
-        defaults['partner'] = self.partner
+        defaults['key'] = course_key_str
+        defaults['org'] = course_key.org
 
         course, created = Course.objects.get_or_create(
-            key__iexact=course_key, partner=self.partner, defaults=defaults
+            key__iexact=course_key_str,
+            defaults=defaults
         )
 
         return (course, created)
 
     def update_course(self, course, body):
-        validated_data = self.format_course_data(body)
+        course_key = CourseKey.from_string(body['id'])
+        validated_data = self.format_course_data(course_key, body)
         self._update_instance(course, validated_data)
 
-        logger.info('Processed course with key [%s].', course.key)
+        logger.info('Processed course with key [{}] | org [{}].'.format(course.key, course_key.org))
 
         return course
 
@@ -238,9 +240,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         return defaults
 
-    def format_course_data(self, body):
+    def format_course_data(self, course_key, body):
         defaults = {
             'title': body['name'],
+            'org': course_key.org
         }
 
         if not self.partner.has_marketing_site:
