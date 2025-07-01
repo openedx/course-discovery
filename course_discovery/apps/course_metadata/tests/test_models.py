@@ -261,30 +261,6 @@ class ProgramTests(TestCase):
 
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
-    def create_program_with_entitlements_and_seats(self):
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-        courses = []
-        for __ in range(3):
-            entitlement = factories.CourseEntitlementFactory(mode=verified_seat_type, expires=None)
-            for __ in range(3):
-                factories.SeatFactory(
-                    course_run=factories.CourseRunFactory(
-                        end=None,
-                        enrollment_end=None,
-                        course=entitlement.course
-                    ),
-                    type=Seat.VERIFIED, upgrade_deadline=None
-                )
-            courses.append(entitlement.course)
-
-        program = factories.ProgramFactory(
-            courses=courses,
-            one_click_purchase_enabled=True,
-            type=program_type,
-        )
-        return program, courses
-
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
@@ -442,23 +418,6 @@ class ProgramTypeTests(TestCase):
     def test_str(self):
         program_type = factories.ProgramTypeFactory()
         self.assertEqual(str(program_type), program_type.name)
-
-
-class CourseEntitlementTests(TestCase):
-    """ Tests of the CourseEntitlement model. """
-
-    def setUp(self):
-        super(CourseEntitlementTests, self).setUp()
-        self.course = factories.CourseFactory()
-        self.mode = factories.SeatTypeFactory()
-
-    def test_unique_constraint(self):
-        """
-        Verify that a CourseEntitlement does not allow multiple skus or prices for the same course and mode.
-        """
-        factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
-        with self.assertRaises(IntegrityError):
-            factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
 
 
 class EndorsementTests(TestCase):

@@ -62,12 +62,11 @@ class Currency(models.Model):
 
 
 class SiteOrganization(TimeStampedModel):
-    site = models.ForeignKey(Site)
+    site = models.OneToOneField(Site)
     orgs = models.CharField(
         max_length=256, null=False, blank=False, db_index=True,
         help_text=_('Plus separated organization string. E.g.: orgA+orgB+orgC')
     )
-    # courses_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Courses API URL')) # Move to json
 
 
 class Partner(TimeStampedModel):
