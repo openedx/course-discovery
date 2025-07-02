@@ -22,19 +22,6 @@ User = get_user_model()
 
 COMMON_IGNORED_FIELDS = ('text',)
 COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
-PREFETCH_FIELDS = {
-    'course_run': [
-        'course__org',
-    ],
-    'course': [
-        'course_runs',
-    ],
-}
-
-SELECT_RELATED_FIELDS = {
-    'course': ['org'],
-    'course_run': ['course'],
-}
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
@@ -166,7 +153,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, orgs, *args, **kwargs):
-        filters = {'orgs': orgs}            # A Program must be related with a Partner.
+        filters = {'orgs': orgs}            # A Program must be related with organizations.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
@@ -307,7 +294,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'orgs': orgs}            # A Program must be related with a Partner.
+        filters = {'orgs': orgs}            # A Program must be related with organizations.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid

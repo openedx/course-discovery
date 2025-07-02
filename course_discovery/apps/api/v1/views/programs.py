@@ -20,7 +20,6 @@ from course_discovery.apps.core.models import SiteOrganization
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.models import Program, ProgramType
-from course_discovery.apps.core.models import Partner
 
 
 class ProgramViewSet(viewsets.ModelViewSet):
@@ -89,14 +88,15 @@ class ProgramViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
 
-        input_data[r'orgs'] = SiteOrganization.objects.get(
-            site_id=self.request.site.id
-        ).orgs
-
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(
                 name=input_data[r'type']
             )
+
+        if r'orgs' not in input_data:
+            input_data[r'orgs'] = SiteOrganization.objects.get(
+                site_id=self.request.site.id
+            ).orgs
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished

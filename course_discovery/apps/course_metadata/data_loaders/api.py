@@ -85,7 +85,11 @@ class CoursesApiDataLoader(AbstractDataLoader):
             from course_discovery.apps.core.utils import delete_expired_courses
 
             if len(self.loaded_course_keys) == self.course_count:
-                local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
+                local_course_keys = {
+                    r['key'] for r in CourseRun.objects.filter(
+                        course__org=self.partner.short_code
+                    ).values('key').all()
+                }
                 removed_course_keys = local_course_keys - self.loaded_course_keys
 
                 if removed_course_keys:
