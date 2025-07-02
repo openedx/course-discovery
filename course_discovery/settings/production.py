@@ -35,6 +35,23 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     # than pumping them into the local vars.
     dict_updates = {key: config_from_yaml.pop(key, None) for key in DICT_UPDATE_KEYS}
 
+    # Extract legacy storage backend settings from yaml config to avoid conflicts.
+    media_default_backend = None
+    media_backend_config = config_from_yaml.get('MEDIA_STORAGE_BACKEND', {})
+    if isinstance(media_backend_config, dict):
+        media_default_backend = media_backend_config.pop(
+            'DEFAULT_FILE_STORAGE', None)
+    config_default_backend = config_from_yaml.pop('DEFAULT_FILE_STORAGE', None)
+
+    default_backend = media_default_backend or config_default_backend
+    staticfiles_backend = config_from_yaml.pop('STATICFILES_STORAGE', None)
+
+    # Convert legacy storage settings to new Django STORAGES format.
+    config_from_yaml['STORAGES'] = {
+        'default': {'BACKEND': default_backend},
+        'staticfiles': {'BACKEND': staticfiles_backend},
+    }
+
     for key, value in dict_updates.items():
         if value:
             vars()[key].update(value)
