@@ -50,9 +50,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course').prefetch_related(
-            'course__org'
-        )
+        return queryset.select_related('course')
 
     class Meta:
         model = CourseRun
@@ -168,7 +166,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, orgs, *args, **kwargs):
-        filters = {'orgs__in': orgs}        # A Program must be related with a Partner.
+        filters = {'orgs': orgs}            # A Program must be related with a Partner.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
@@ -309,7 +307,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'orgs__in': orgs}      # A Program must be related with a Partner.
+        filters = {'orgs': orgs}            # A Program must be related with a Partner.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid

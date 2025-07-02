@@ -53,11 +53,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
-
         filters = {
-            'orgs': SiteOrganization.object.get(site_id=self.request.site.id).orgs
+            'orgs': SiteOrganization.objects.get(site_id=self.request.site.id).orgs
         }
-
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
             filters['uuid'] = program_uuid
@@ -91,7 +89,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
 
-        input_data[r'orgs'] = SiteOrganization.object.get(
+        input_data[r'orgs'] = SiteOrganization.objects.get(
             site_id=self.request.site.id
         ).orgs
 
@@ -238,7 +236,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             # representations like the one we want here.
             queryset = self.filter_queryset(
                 Program.objects.filter(
-                    orgs=SiteOrganization.object.get(site_id=self.request.site.id).orgs
+                    orgs=SiteOrganization.objects.get(site_id=self.request.site.id).orgs
                 )
             )
             uuids = queryset.values_list('uuid', flat=True)
@@ -258,7 +256,7 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'orgs': SiteOrganization.object.get(
+            'orgs': SiteOrganization.objects.get(
                 site_id=self.request.site.id
             ).orgs,
             'program_uuid': self.kwargs['program_uuid']
