@@ -118,13 +118,13 @@ class Command(BaseCommand):
             if not partner:
                 raise CommandError('No partner available!')
 
-            logger.info('Retrieving access token for orgs [{}]'.format(partner.ORGS))
+            logger.info('Retrieving access token for orgs : {}'.format(partner['ORGS']))
 
             try:
                 access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=partner.OIDC_URL_ROOT.strip('/')),
-                    partner.OIDC_KEY,
-                    partner.OIDC_SECRET,
+                    '{root}/access_token'.format(root=partner['OIDC_URL_ROOT'].strip('/')),
+                    partner['OIDC_KEY'],
+                    partner['OIDC_SECRET'],
                     token_type=token_type
                 )
             except Exception:
@@ -167,7 +167,7 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (CoursesApiDataLoader, partner.COURSES_API_URL, max_workers),
+                    (CoursesApiDataLoader, partner['COURSES_API_URL'], max_workers),
                 ),
             )
 

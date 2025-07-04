@@ -29,7 +29,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self.target_course_key = kwargs.pop('course_key', None)
 
     def ingest(self):
-        logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.partner['COURSES_API_URL'])
 
         initial_page = 1
         setattr(self, 'course_count', 0)
@@ -65,7 +65,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     response = future.result()
                     self._process_response(response)
 
-        logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
+        logger.info('Retrieved %d course runs from %s.', count, self.partner['COURSES_API_URL'])
 
         self.delete_orphans()
         self.delete_expired_courses()
@@ -87,7 +87,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             if len(self.loaded_course_keys) == self.course_count:
                 local_course_keys = {
                     r['key'] for r in CourseRun.objects.filter(
-                        course__org=self.partner.short_code
+                        course__org__in=self.partner['ORGS']
                     ).values('key').all()
                 }
                 removed_course_keys = local_course_keys - self.loaded_course_keys
@@ -116,7 +116,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
-                org=self.partner.short_code,
+                org=self.partner['ORGS'],
                 modified_in_minutes=self.modified_x_min_ago   # Only query new edited courses in one hour from LMS
             )
 
@@ -128,7 +128,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
             kwargs = {
                 'page': page, 'page_size': self.PAGE_SIZE,
-                'username': self.username, 'org': self.partner.short_code
+                'username': self.username, 'org': self.partner['ORGS']
             }
             if self.target_course_key:
                 kwargs['id'] = self.target_course_key
@@ -155,7 +155,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 if course_run:
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
-                    if course and not self.partner.has_marketing_site:
+                    if course:
                         # If the partner have marketing site,
                         # we should only update the course information from the marketing site.
                         # Therefore, we don't need to do the statements below
@@ -170,7 +170,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             except:  # pylint: disable=bare-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
-                    api_url=self.partner.courses_api_url
+                    api_url=self.partner['COURSES_API_URL']
                 )
                 logger.exception(msg)
 
@@ -232,12 +232,11 @@ class CoursesApiDataLoader(AbstractDataLoader):
         }
 
         # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site:
-            defaults.update({
-                'start': self.parse_date(body['start']),
-                'title_override': body['name'],
-                'status': CourseRunStatus.Published,
-            })
+        defaults.update({
+            'start': self.parse_date(body['start']),
+            'title_override': body['name'],
+            'status': CourseRunStatus.Published,
+        })
 
         if course:
             defaults['course'] = course
@@ -249,8 +248,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'title': body['name'],
             'org': course_key.org
         }
-
-        if not self.partner.has_marketing_site:
-            defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
+        defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
 
         return defaults

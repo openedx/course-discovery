@@ -113,7 +113,9 @@ def delete_expired_courses(partner, removed_course_keys):
         logger.info('Deleting expired courses... ( {} )'.format(','.join(removed_course_keys)))
 
         # ===> Only delete unused courses for a specified `Partner Code`
-        Course.objects.filter(partner=partner, key__in=removed_course_keys).delete()
+        Course.objects.filter(
+            org__in=partner['ORGS'], key__in=removed_course_keys
+        ).delete()
 
     except Exception:
         logger.error('Got exception while deleting courses : {}', format_exc())
