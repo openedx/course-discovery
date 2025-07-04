@@ -112,23 +112,29 @@ class CoursesApiDataLoader(AbstractDataLoader):
             Otherwise load all of courses from LMS.
         """
         if self.modified_x_min_ago:
-            logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
+            logger.info('*** Query incremental courses from LMS. page_no={} : {}'.format(page, self.partner['ORGS']))
             return self.api_client.courses().get(
                 page=page, page_size=self.PAGE_SIZE,
                 username=self.username,
-                org=self.partner['ORGS'],
+                org='+'.join(self.partner['ORGS']),
                 modified_in_minutes=self.modified_x_min_ago   # Only query new edited courses in one hour from LMS
             )
 
         else:
             if self.target_course_key:
-                logger.info('*** Query Target Course => [ {} ] from LMS.'.format(self.target_course_key))
+                logger.info(
+                    '*** Query Target Course => [ {} ] from LMS. ORGS : {}'.format(
+                        self.target_course_key, self.partner['ORGS']
+                    )
+                )
             else:
-                logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
+                logger.info(
+                    '*** Query all of courses from LMS. page_no={}. ORGS : {}'.format(page, self.partner['ORGS'])
+                )
 
             kwargs = {
                 'page': page, 'page_size': self.PAGE_SIZE,
-                'username': self.username, 'org': self.partner['ORGS']
+                'username': self.username, 'org': '+'.join(self.partner['ORGS'])
             }
             if self.target_course_key:
                 kwargs['id'] = self.target_course_key
@@ -213,7 +219,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         validated_data = self.format_course_data(course_key, body)
         self._update_instance(course, validated_data)
 
-        logger.info('Processed course with key [{}] | org [{}].'.format(course.key, course_key.org))
+        logger.info('Processed course with key [{}] | ORG : {}.'.format(course.key, course_key.org))
 
         return course
 
