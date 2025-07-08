@@ -26,8 +26,6 @@ class CourseMetadataRefresher(View):
             )
 
         try:
-            # One site, One Partner/Org:
-            # Get a `class Partner` instance by the `request.site.domain`(e.g., 0.0.0.0:18000)
             partner = getattr(settings, 'PARTNER', None)
             access_token, __ = EdxRestApiClient.get_oauth_access_token(
                 '{root}/access_token'.format(root=partner['OIDC_URL_ROOT'].strip('/')),

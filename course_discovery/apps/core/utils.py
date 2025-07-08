@@ -112,7 +112,7 @@ def delete_expired_courses(partner, removed_course_keys):
     try:
         logger.info('Deleting expired courses... ( {} )'.format(','.join(removed_course_keys)))
 
-        # ===> Only delete unused courses for a specified `Partner Code`
+        # ===> Only delete unused courses for a specified `Organizations`
         Course.objects.filter(
             org__in=partner['ORGS'], key__in=removed_course_keys
         ).delete()
