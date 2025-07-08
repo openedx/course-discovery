@@ -16,9 +16,9 @@ from django.db.models.signals import post_delete, post_save
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import DataLoaderConfig
+
 
 logger = logging.getLogger(__name__)
 
