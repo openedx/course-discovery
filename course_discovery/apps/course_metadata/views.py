@@ -35,7 +35,7 @@ class CourseMetadataRefresher(View):
             )
             kwargs = {
                 'course_key': target_course_id, 'partner': partner,
-                'api_url': partner['OIDC_URL_ROOT'],
+                'api_url': partner['COURSES_API_URL'],
                 'access_token': access_token, 'token_type': 'JWT',
                 'max_workers': 1, 'is_threadsafe': True
             }
