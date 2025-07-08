@@ -46,13 +46,13 @@ class Migration(migrations.Migration):
             name='orgs',
             field=models.CharField(db_index=True, help_text='This field should include all Organizations used by the site. E.g.: orgA+orgB+orgC', max_length=128, null=True),
         ),
-        migrations.RemoveField(
-            model_name='course',
-            name='partner',
-        ),
         migrations.AlterUniqueTogether(
             name='course',
             unique_together=set([('org', 'key'), ('org', 'uuid')]),
+        ),
+        migrations.RemoveField(
+            model_name='course',
+            name='partner',
         ),
         migrations.DeleteModel(
             name='CourseEntitlement',
