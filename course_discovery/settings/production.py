@@ -58,7 +58,7 @@ with open(path_join(PROJECT_ROOT, r'discovery.auth.json')) as auth_file:
     AUTH_TOKENS = json.load(auth_file)
 
 DATABASES = AUTH_TOKENS.get('DATABASES', {})
-
+PARTNER = AUTH_TOKENS.get('PARTNER', {})
 
 DB_OVERRIDES = dict(
     PASSWORD=environ.get('DB_MIGRATION_PASS', DATABASES['default']['PASSWORD']),
