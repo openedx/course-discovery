@@ -53,7 +53,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
         filters = {
-            'orgs': SiteOrganization.objects.get(site_id=self.request.site.id).orgs
+            'orgs': SiteOrganization.enumerate_orgs_by_site(self.request.site.id)
         }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
@@ -236,7 +236,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             # representations like the one we want here.
             queryset = self.filter_queryset(
                 Program.objects.filter(
-                    orgs=SiteOrganization.objects.get(site_id=self.request.site.id).orgs
+                    orgs__in=SiteOrganization.enumerate_orgs_by_site(self.request.site.id)
                 )
             )
             uuids = queryset.values_list('uuid', flat=True)
@@ -256,9 +256,9 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'orgs': SiteOrganization.objects.get(
-                site_id=self.request.site.id
-            ).orgs,
+            'orgs': SiteOrganization.enumerate_orgs_by_site(
+                self.request.site.id
+            ),
             'program_uuid': self.kwargs['program_uuid']
         }
 
