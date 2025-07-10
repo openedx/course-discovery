@@ -85,6 +85,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             from course_discovery.apps.core.utils import delete_expired_courses
 
             if len(self.loaded_course_keys) == self.course_count:
+                # Get course keys linked with specified organizations
                 local_course_keys = {
                     r['key'] for r in CourseRun.objects.filter(
                         course__org__in=self.partner['ORGS']
