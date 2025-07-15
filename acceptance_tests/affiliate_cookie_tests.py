@@ -36,7 +36,7 @@ class AffiliateCookieTestMixin:
     def setUp(self):
         super().setUp()
         opts = Options()
-        opts.add_argument(-headless)
+        opts.add_argument('-headless')
         self.browser = webdriver.Firefox(opts)
         self.cookie_name = AFFILIATE_COOKIE_NAME
         self.cookie_domain = COOKIE_DOMAIN
