@@ -27,15 +27,27 @@ class CourseMetadataRefresher(View):
 
         try:
             partner = getattr(settings, 'PARTNER', None)
+            courses_api_url = 'https://{lms_domain}{end_point}'.format(
+                lms_domain=request.site.domain, end_point=partner['COURSES_API_URL']
+            )
+            oidc_url_root = 'https://{lms_domain}{end_point}'.format(
+                lms_domain=request.site.domain, end_point=partner['OIDC_URL_ROOT']
+            ).strip('/')
+
             access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                '{root}/access_token'.format(root=partner['OIDC_URL_ROOT'].strip('/')),
-                partner['OIDC_KEY'], partner['OIDC_SECRET'], token_type='JWT'
+                '{root}/access_token'.format(root=oidc_url_root),
+                partner['OIDC_KEY'],
+                partner['OIDC_SECRET'],
+                token_type='JWT'
             )
             kwargs = {
-                'course_key': target_course_id, 'partner': partner,
-                'api_url': partner['COURSES_API_URL'],
-                'access_token': access_token, 'token_type': 'JWT',
-                'max_workers': 1, 'is_threadsafe': True
+                'course_key': target_course_id,
+                'partner': partner,
+                'api_url': courses_api_url,
+                'access_token': access_token,
+                'token_type': 'JWT',
+                'max_workers': 1,
+                'is_threadsafe': True
             }
             username = jwt.decode(access_token, verify=False)['preferred_username']
             if username:
