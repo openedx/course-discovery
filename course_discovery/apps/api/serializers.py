@@ -153,7 +153,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, orgs, *args, **kwargs):
-        filters = {'orgs__in': orgs}        # A Program must be related with organizations.
+        filters = {'orgs': orgs}            # A Program must be related with organizations.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
@@ -294,7 +294,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'orgs__in': orgs}        # A Program must be related with organizations.
+        filters = {'orgs': orgs}            # A Program must be related with organizations.
         program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid

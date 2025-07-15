@@ -16,7 +16,6 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
-from course_discovery.apps.core.models import SiteOrganization
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.models import Program, ProgramType
@@ -52,8 +51,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
+        input_data = OrderedDict(self.request.data)
+
         filters = {
-            'orgs': SiteOrganization.enumerate_orgs_by_site(self.request.site.id)
+            'orgs': input_data['orgs']
         }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
@@ -93,10 +94,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
                 name=input_data[r'type']
             )
 
-        if r'orgs' not in input_data:
-            input_data[r'orgs'] = SiteOrganization.objects.get(
-                site_id=self.request.site.id
-            ).orgs
+        site_orgs = input_data.get('orgs', None)
+        if not site_orgs:
+            raise ValidationError('miss argument `orgs`')
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished

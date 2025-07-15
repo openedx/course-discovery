@@ -55,7 +55,7 @@ class CourseMetadataRefresher(View):
 
             CoursesApiDataLoader(**kwargs).ingest()
 
-            response['+'.join(partner['ORGS'])] = target_course_id
+            response['course_key'] = target_course_id
 
         except Exception as e:
             error_message = 'domain: {} | course_key: {} | error: {}'.format(

@@ -61,24 +61,6 @@ class Currency(models.Model):
         verbose_name_plural = 'Currencies'
 
 
-class SiteOrganization(TimeStampedModel):
-    site = models.OneToOneField(Site)
-    orgs = models.CharField(
-        max_length=128, null=False, blank=False, db_index=True,
-        help_text=_('Plus separated organization string. E.g.: orgA+orgB+orgC')
-    )
-
-    @classmethod
-    def enumerate_orgs_by_site(cls, site_id):
-        """E.g: A LP with `EverLearn+edX` could see LPs with `EverLearn+edX`/`EverLearn`/`edX`
-        """
-        orgs = cls.objects.get(site_id=site_id).orgs
-        if '+' in orgs:
-            return [orgs] + orgs.split('+')
-        else:
-            return [orgs]
-
-
 class Partner(TimeStampedModel):
     name = models.CharField(max_length=128, null=False, blank=False)
     short_code = models.CharField(
