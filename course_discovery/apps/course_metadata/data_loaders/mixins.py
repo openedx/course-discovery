@@ -11,9 +11,7 @@ from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.data_loaders.constants import (
-    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
-)
+from course_discovery.apps.course_metadata.data_loaders.constants import CSVIngestionErrorMessages, CSVIngestionErrors
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Collaborator, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, ProgramType, Source, Subject
@@ -509,10 +507,13 @@ class DataLoaderMixin:
         cls.get_course_run_type.cache_clear()
         cls._validate_organization.cache_clear()
 
-    def render_error_logs(self, error_logs):
+    def render_error_logs(self, error_logs, log_sequence):
+        """
+        Renders error logs properly for each ingestion given a log sequence.
+        """
         if any(list(error_logs.values())):
             logger.info("Summarized errors:")
-            for error_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
+            for error_key in log_sequence:
                 for msg in error_logs[error_key]:
                     logger.error(msg)
         else:
