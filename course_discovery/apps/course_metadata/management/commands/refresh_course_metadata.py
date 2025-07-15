@@ -1,5 +1,4 @@
 import concurrent.futures
-from django.conf import settings
 from datetime import datetime
 import fcntl
 import itertools
@@ -10,7 +9,9 @@ import time
 import jwt
 import waffle
 from django.apps import apps
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
+from django.contrib.sites.models import Site
 from django.db import connection
 from django.db.models.signals import post_delete, post_save
 from edx_rest_api_client.client import EdxRestApiClient
@@ -114,22 +115,39 @@ class Command(BaseCommand):
                     signal.disconnect(receiver=api_change_receiver, sender=model)
 
             token_type = 'JWT'
+            access_token = None
+            courses_api_url = None
             partner = getattr(settings, 'PARTNER', None)
             if not partner:
                 raise CommandError('No partner available!')
 
-            logger.info('Retrieving access token for orgs : {}'.format(partner['ORGS']))
+            logger.info('Retrieving access token for all Organizations...')
 
-            try:
-                access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=partner['OIDC_URL_ROOT'].strip('/')),
-                    partner['OIDC_KEY'],
-                    partner['OIDC_SECRET'],
-                    token_type=token_type
-                )
-            except Exception:
-                logger.exception('No access token acquired through client_credential flow.')
-                raise
+            for site in Site.objects.all():
+                try:
+                    access_token_url = 'http://{lms_domain}{end_point}/access_token'.format(
+                        lms_domain=site.domain, end_point=partner['OIDC_URL_ROOT']
+                    )
+                    access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                        access_token_url,
+                        partner['OIDC_KEY'],
+                        partner['OIDC_SECRET'],
+                        token_type=token_type
+                    )
+                    courses_api_url = 'http://{lms_domain}{end_point}'.format(
+                        lms_domain=site.domain, end_point=partner['COURSES_API_URL']
+                    )
+                except Exception:
+                    logger.warning(
+                        'No access token acquired through client_credential flow with url=>{}'.format(access_token_url)
+                    )
+                    access_token = None
+
+            if not access_token:
+                raise Exception('Failed to get access token !')
+
+            logger.info('*** Apply course API URL => {} '.format(courses_api_url))
+
             username = jwt.decode(access_token, verify=False)['preferred_username']
             kwargs = {'username': username} if username else {}
             kwargs['modified_x_min_ago'] = modified_x_min_ago
@@ -167,7 +185,7 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (CoursesApiDataLoader, partner['COURSES_API_URL'], max_workers),
+                    (CoursesApiDataLoader, courses_api_url, max_workers),
                 ),
             )
 
