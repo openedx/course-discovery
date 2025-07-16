@@ -51,14 +51,12 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
-        input_data = OrderedDict(self.request.data)
-
-        filters = {
-            'orgs': input_data['orgs']
-        }
+        orgs = self.request.query_params.get('orgs', None)
         program_uuid = self.kwargs.get(self.lookup_field)
-        if program_uuid:
-            filters['uuid'] = program_uuid
+
+        filters = {'uuid': program_uuid} if program_uuid else {}
+        if orgs:
+            filters['orgs'] = orgs
 
         return serializer_class.prefetch_queryset(
             **filters
@@ -232,13 +230,11 @@ class ProgramViewSet(viewsets.ModelViewSet):
               multiple: false
         """
         if get_query_param(self.request, 'uuids_only'):
+            # request.query_params.get(name)
+            orgs = self.request.query_params.get('orgs')
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
-            queryset = self.filter_queryset(
-                Program.objects.filter(
-                    orgs__in=SiteOrganization.enumerate_orgs_by_site(self.request.site.id)
-                )
-            )
+            queryset = self.filter_queryset(Program.objects.filter(orgs=orgs))
             uuids = queryset.values_list('uuid', flat=True)
 
             return Response(uuids)
@@ -256,9 +252,6 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'orgs': SiteOrganization.enumerate_orgs_by_site(
-                self.request.site.id
-            ),
             'program_uuid': self.kwargs['program_uuid']
         }
 

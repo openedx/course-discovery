@@ -152,10 +152,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     languages = ListField(validators=[_validate_comma_separated_languages_list])
 
     @classmethod
-    def prefetch_queryset(cls, orgs, *args, **kwargs):
-        filters = {'orgs': orgs}            # A Program must be related with organizations.
-        program_uuid = kwargs.get('uuid')
-        if program_uuid:                    # Filter a Program with primary Key
+    def prefetch_queryset(cls, *args, **kwargs):
+        orgs = kwargs.get('orgs', None)
+        filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
+        program_uuid = kwargs.get('uuid',None)
+        if program_uuid:                            # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 
         return Program.objects.filter(**filters).prefetch_related(
@@ -286,7 +287,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 class ProgramSerializer(MinimalProgramSerializer):
 
     @classmethod
-    def prefetch_queryset(cls, orgs, *args, **kwargs):
+    def prefetch_queryset(cls, *args, **kwargs):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -294,9 +295,10 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'orgs': orgs}            # A Program must be related with organizations.
+        orgs = kwargs.get('orgs', None)
+        filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
         program_uuid = kwargs.get('uuid')
-        if program_uuid:                    # Filter a Program with primary Key
+        if program_uuid:                            # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 
         return Program.objects.filter(**filters).prefetch_related(
