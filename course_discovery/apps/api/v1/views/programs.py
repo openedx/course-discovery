@@ -235,9 +235,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
             queryset = self.filter_queryset(Program.objects.filter(orgs=orgs))
-            uuids = queryset.values_list('uuid', flat=True)
 
-            return Response(uuids)
+            return Response(
+                queryset.values_list('uuid', flat=True)
+            )
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
