@@ -120,13 +120,16 @@ class Command(BaseCommand):
             partner = getattr(settings, 'PARTNER', None)
             if not partner:
                 raise CommandError('No partner available!')
+            prefix = 'https://' if partner.get('IS_SECURE', None) else 'http://'
 
             logger.info('Retrieving access token for all Organizations...')
 
             for site in Site.objects.all():
                 try:
-                    access_token_url = 'http://{lms_domain}{end_point}/access_token'.format(
-                        lms_domain=site.domain, end_point=partner['OIDC_URL_ROOT']
+                    access_token_url = '{prefix}{lms_domain}{end_point}/access_token'.format(
+                        prefix=prefix,
+                        lms_domain=site.domain,
+                        end_point=partner['OIDC_URL_ROOT']
                     )
                     access_token, __ = EdxRestApiClient.get_oauth_access_token(
                         access_token_url,
@@ -134,8 +137,10 @@ class Command(BaseCommand):
                         partner['OIDC_SECRET'],
                         token_type=token_type
                     )
-                    courses_api_url = 'http://{lms_domain}{end_point}'.format(
-                        lms_domain=site.domain, end_point=partner['COURSES_API_URL']
+                    courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
+                        prefix=prefix,
+                        lms_domain=site.domain,
+                        end_point=partner['COURSES_API_URL']
                     )
                 except Exception as e:
                     logger.warning(
