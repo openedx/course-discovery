@@ -88,7 +88,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             if len(self.loaded_course_keys) == self.course_count:
 
                 if self.course_count:
-                    # Get course keys linked with specified organizations
+                    # Get course keys of all organizations
                     local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
                     removed_course_keys = local_course_keys - self.loaded_course_keys
 
