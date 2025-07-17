@@ -27,7 +27,7 @@ class CourseMetadataRefresher(View):
 
         try:
             partner = getattr(settings, 'PARTNER', None)
-            prefix = 'https://' if partner.get('IS_SECURE', None) else 'http://'
+            prefix = 'https://' if partner.get('IS_SECURE', True) else 'http://'
 
             courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
                 prefix=prefix,

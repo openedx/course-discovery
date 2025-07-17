@@ -120,7 +120,7 @@ class Command(BaseCommand):
             partner = getattr(settings, 'PARTNER', None)
             if not partner:
                 raise CommandError('No partner available!')
-            prefix = 'https://' if partner.get('IS_SECURE', None) else 'http://'
+            prefix = 'https://' if partner.get('IS_SECURE', True) else 'http://'
 
             logger.info('Retrieving access token for all Organizations...')
 
