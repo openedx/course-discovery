@@ -137,9 +137,11 @@ class Command(BaseCommand):
                     courses_api_url = 'http://{lms_domain}{end_point}'.format(
                         lms_domain=site.domain, end_point=partner['COURSES_API_URL']
                     )
-                except Exception:
+                except Exception as e:
                     logger.warning(
-                        'No access token acquired through client_credential flow with url=>{}'.format(access_token_url)
+                        'No access token acquired through client_credential flow with url=>{}. Error : {}'.format(
+                            access_token_url, str(e)
+                        )
                     )
                     access_token = None
 
