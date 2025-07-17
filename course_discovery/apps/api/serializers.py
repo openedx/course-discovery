@@ -20,9 +20,6 @@ from course_discovery.apps.course_metadata.models import (
 
 User = get_user_model()
 
-COMMON_IGNORED_FIELDS = ('text',)
-COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
-
 
 class TimestampModelSerializer(serializers.ModelSerializer):
     """Serializer for timestamped models."""
@@ -87,14 +84,11 @@ class CourseSerializer(MinimalCourseSerializer):
     course_runs = CourseRunSerializer(many=True)
 
     @classmethod
-    def prefetch_queryset(cls, org=None, queryset=None, course_runs=None, orgs=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None, orgs=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
-        filters = {}
-        if org:
-            filters = {'org': org}
-        elif orgs:
-            filters = {'org__in': orgs}
+        filters = {'org__in': orgs} if orgs else {}
+
         queryset = queryset if queryset is not None else Course.objects.filter(**filters)
 
         return queryset.prefetch_related(
@@ -155,9 +149,9 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls, *args, **kwargs):
         orgs = kwargs.get('orgs', None)
         filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
-        program_uuid = kwargs.get('uuid',None)
-        if program_uuid:                            # Filter a Program with primary Key
-            filters['uuid'] = program_uuid
+
+        if 'uuid' in kwargs:                        # Filter a Program with primary Key
+            filters['uuid'] = kwargs['uuid']        # program uuid
 
         return Program.objects.filter(**filters).prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
@@ -297,9 +291,9 @@ class ProgramSerializer(MinimalProgramSerializer):
         """
         orgs = kwargs.get('orgs', None)
         filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
-        program_uuid = kwargs.get('uuid')
-        if program_uuid:                            # Filter a Program with primary Key
-            filters['uuid'] = program_uuid
+
+        if 'uuid' in kwargs:                        # Filter a Program with primary Key
+            filters['uuid'] = kwargs['uuid']        # program uuid
 
         return Program.objects.filter(**filters).prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
