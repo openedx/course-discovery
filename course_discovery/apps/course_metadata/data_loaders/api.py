@@ -135,10 +135,12 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
             kwargs = {
                 'page': page, 'page_size': self.PAGE_SIZE,
-                'username': self.username, 'org': '*'
+                'username': self.username
             }
             if self.target_course_key:
                 kwargs['id'] = self.target_course_key
+            else:
+                kwargs['org'] = '*'         # Fetch from all organizations
 
             return self.api_client.courses().get(**kwargs)
 
@@ -163,9 +165,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
                     if course:
-                        # If the Partner have marketing site,
-                        # we should only update the course information from the marketing site.
-                        # Therefore, we don't need to do the statements below
                         course = self.update_course(course, body)
                         logger.info('Processed course with key [%s].', course.key)
                 else:
@@ -174,7 +173,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
-            except:  # pylint: disable=bare-except
+            except:
                 logger.exception(
                     'An error occurred while updating {course_run} from {api_url}'.format(
                         course_run=course_run_id,
