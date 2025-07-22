@@ -117,30 +117,30 @@ class Command(BaseCommand):
             token_type = 'JWT'
             access_token = None
             courses_api_url = None
-            partner = getattr(settings, 'PARTNER', None)
-            if not partner:
-                raise CommandError('No partner available!')
-            prefix = 'https://' if partner.get('IS_SECURE', True) else 'http://'
+            courses_api_cfg = getattr(settings, 'COURSES_API', None)
+            if not courses_api_cfg:
+                raise CommandError('No COURSES_API available!')
+            prefix = 'https://' if courses_api_cfg.get('IS_SECURE', True) else 'http://'
 
-            logger.info('Retrieving access token for all Organizations...')
+            logger.info('Retrieving access token...')
 
             for site in Site.objects.all():
                 try:
                     access_token_url = '{prefix}{lms_domain}{end_point}/access_token'.format(
                         prefix=prefix,
                         lms_domain=site.domain,
-                        end_point=partner['OIDC_URL_ROOT']
+                        end_point=courses_api_cfg['OIDC_URL_ROOT']
                     )
                     access_token, __ = EdxRestApiClient.get_oauth_access_token(
                         access_token_url,
-                        partner['OIDC_KEY'],
-                        partner['OIDC_SECRET'],
+                        courses_api_cfg['OIDC_KEY'],
+                        courses_api_cfg['OIDC_SECRET'],
                         token_type=token_type
                     )
                     courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
                         prefix=prefix,
                         lms_domain=site.domain,
-                        end_point=partner['COURSES_API_URL']
+                        end_point=courses_api_cfg['URL']
                     )
                 except Exception as e:
                     logger.warning(
@@ -204,7 +204,7 @@ class Command(BaseCommand):
                                 executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
-                                    partner,
+                                    courses_api_cfg,
                                     api_url,
                                     access_token,
                                     token_type,
@@ -218,7 +218,7 @@ class Command(BaseCommand):
                     if api_url:
                         execute_loader(
                             loader_class,
-                            partner,
+                            courses_api_cfg,
                             api_url,
                             access_token,
                             token_type,

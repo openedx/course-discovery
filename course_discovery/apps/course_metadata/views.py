@@ -26,29 +26,29 @@ class CourseMetadataRefresher(View):
             )
 
         try:
-            partner = getattr(settings, 'PARTNER', None)
-            prefix = 'https://' if partner.get('IS_SECURE', True) else 'http://'
+            courses_api_cfg = getattr(settings, 'COURSES_API', None)
+            prefix = 'https://' if courses_api_cfg.get('IS_SECURE', True) else 'http://'
 
             courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
                 prefix=prefix,
                 lms_domain=request.site.domain,
-                end_point=partner['COURSES_API_URL']
+                end_point=courses_api_cfg['URL']
             )
             oidc_url_root = '{prefix}{lms_domain}{end_point}'.format(
                 prefix=prefix,
                 lms_domain=request.site.domain,
-                end_point=partner['OIDC_URL_ROOT']
+                end_point=courses_api_cfg['OIDC_URL_ROOT']
             ).strip('/')
 
             access_token, __ = EdxRestApiClient.get_oauth_access_token(
                 '{root}/access_token'.format(root=oidc_url_root),
-                partner['OIDC_KEY'],
-                partner['OIDC_SECRET'],
+                courses_api_cfg['OIDC_KEY'],
+                courses_api_cfg['OIDC_SECRET'],
                 token_type='JWT'
             )
             kwargs = {
                 'course_key': target_course_id,
-                'partner': partner,
+                'courses_api_cfg': courses_api_cfg,
                 'api_url': courses_api_url,
                 'access_token': access_token,
                 'token_type': 'JWT',

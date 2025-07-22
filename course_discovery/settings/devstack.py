@@ -31,9 +31,9 @@ PARLER_LANGUAGES = {
      }
 }
 
-# PARTNER CONFIGURATION ( fetching metadata from LMS )
-PARTNER = {
-    "COURSES_API_URL": "/api/courses/v1/",
+# COURSES_API CONFIGURATION ( fetching metadata from LMS )
+COURSES_API = {
+    "URL": "/api/courses/v1/",
     "OIDC_URL_ROOT": "/oauth2",
     "OIDC_KEY": "559a18e27864a90c2216",
     "OIDC_SECRET": "2f37340685d68494c6d4e4f3d17db4188a4e1d51",

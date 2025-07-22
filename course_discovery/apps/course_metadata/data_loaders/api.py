@@ -17,19 +17,19 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def __init__(
             self,
-            partner, api_url, access_token=None,
+            courses_api_cfg, api_url, access_token=None,
             token_type=None, max_workers=None,
             is_threadsafe=False, **kwargs
     ):
         super(CoursesApiDataLoader, self).__init__(
-            partner=partner, api_url=api_url, access_token=access_token,
+            courses_api_cfg=courses_api_cfg, api_url=api_url, access_token=access_token,
             token_type=token_type, max_workers=max_workers,
             is_threadsafe=is_threadsafe, **kwargs
         )
         self.target_course_key = kwargs.pop('course_key', None)
 
     def ingest(self):
-        logger.info('Refreshing Courses and CourseRuns from %s...', self.partner['COURSES_API_URL'])
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.courses_api_cfg['URL'])
 
         initial_page = 1
         setattr(self, 'course_count', 0)
@@ -65,7 +65,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     response = future.result()
                     self._process_response(response)
 
-        logger.info('Retrieved %d course runs from %s.', count, self.partner['COURSES_API_URL'])
+        logger.info('Retrieved %d course runs from %s.', count, self.courses_api_cfg['URL'])
 
         self.delete_orphans()
         self.delete_expired_courses()
@@ -177,7 +177,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 logger.exception(
                     'An error occurred while updating {course_run} from {api_url}'.format(
                         course_run=course_run_id,
-                        api_url=self.partner['COURSES_API_URL']
+                        api_url=self.courses_api_cfg['URL']
                     )
                 )
 

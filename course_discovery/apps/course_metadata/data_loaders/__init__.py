@@ -18,7 +18,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
     Attributes:
         api_url (str): URL of the API from which data is loaded
-        partner (Partner): Partner which owns the data for this data loader
+        courses_api_cfg (Partner): Partner which owns the data for this data loader
         access_token (str): OAuth2 access token
         PAGE_SIZE (int): Number of items to load per API call
     """
@@ -26,11 +26,11 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     PAGE_SIZE = 50
     MARKDOWN_CLEANUP_REGEX = re.compile(r'^<p>(.*)</p>$')
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
+    def __init__(self, courses_api_cfg, api_url, access_token=None, token_type=None, max_workers=None,
                  is_threadsafe=False, **kwargs):
         """
         Arguments:
-            partner (Partner): Partner which owns the APIs and data being loaded
+            courses_api_cfg (Partner): Partner which owns the APIs and data being loaded
             api_url (str): URL of the API from which data is loaded
             access_token (str): OAuth2 access token
             token_type (str): The type of access token passed in (e.g. Bearer, JWT)
@@ -42,7 +42,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
         self.access_token = access_token
         self.token_type = token_type
-        self.partner = partner
+        self.courses_api_cfg = courses_api_cfg
         self.api_url = api_url.strip('/')
 
         self.max_workers = max_workers
