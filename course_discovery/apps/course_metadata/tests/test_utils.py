@@ -1419,6 +1419,32 @@ class CourseSlugMethodsTests(TestCase):
                 assert slug == f"boot-camps/{subject.slug}/{org.name}-{slugify(course.title)}-{i}"
             course.set_active_url_slug(slug)
 
+    def test_get_slug_for_ocm_course_with_existing_url_slug(self):
+        """
+        Verify that get slug utility factors in courses with same org, title, and subject in subdirectory
+        slug generation by prefixing the slugs with increasing integers.
+        """
+        partner = PartnerFactory()
+        subject = SubjectFactory(name='business')
+        organization = OrganizationFactory(name='test-organization')
+        for course_count in range(1, 4):
+            course = CourseFactory(title='Test title', partner=partner)
+            course.subjects.add(subject)
+            course.authoring_organizations.add(organization)
+            course.partner = partner
+            course.save()
+            course_url_slug = CourseUrlSlug.objects.get(course=course)
+            course_url_slug.url_slug = course.url_slug
+            course_url_slug.save()
+            RequestCache("active_url_cache").clear()
+            slug, error = utils.get_slug_for_course(course)
+            assert error is None
+            if course_count == 1:
+                assert slug == f"learn/{subject.slug}/{organization.name}-{slugify(course.title)}"
+            elif course_count > 1:
+                assert slug == f"learn/{subject.slug}/{organization.name}-{slugify(course.title)}-{course_count}"
+            course.set_active_url_slug(slug)
+
     def test_get_existing_slug_count(self):
         course1 = CourseFactory(title='test-title')
         slug = 'learn/business/test-organization-test-title'

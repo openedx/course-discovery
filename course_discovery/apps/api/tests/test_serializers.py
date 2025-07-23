@@ -8,6 +8,8 @@ import ddt
 import responses
 from django.test import TestCase
 from django.utils.text import slugify
+from django.utils.timezone import now
+from django_celery_results.models import TaskResult
 from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
@@ -2126,8 +2128,29 @@ class BulkOperationTaskSerializerTests(TestCase):
             'task_type': bulk_operation.task_type,
             'status': bulk_operation.status,
             'task_id': bulk_operation.task_id,
+            'result': None
         }
         assert serializer.data == expected
+
+    def test_data_without_include_result(self):
+        """
+        Test that the 'result' field is None when include_result is not provided in context.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id='dummy-task-id')
+        TaskResult.objects.create(task_id='dummy-task-id', result='{"success": true}', date_done=now())
+
+        serializer = BulkOperationTaskSerializer(bulk_operation)
+        self.assertIsNone(serializer.data.get('result'))
+
+    def test_data_with_include_result(self):
+        """
+        Test that the 'result' field is populated when include_result is passed as True in context.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id='dummy-task-id')
+        task_result = TaskResult.objects.create(task_id='dummy-task-id', result='{"success": true}', date_done=now())
+
+        serializer = BulkOperationTaskSerializer(bulk_operation, context={'include_result': True})
+        self.assertEqual(serializer.data['result'], task_result.result)
 
 
 class AdditionalMetadataSerializerTests(TestCase):

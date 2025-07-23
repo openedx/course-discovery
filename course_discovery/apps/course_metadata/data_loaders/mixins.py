@@ -11,9 +11,7 @@ from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.data_loaders.constants import (
-    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
-)
+from course_discovery.apps.course_metadata.data_loaders.constants import CSVIngestionErrorMessages, CSVIngestionErrors
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Collaborator, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, ProgramType, Source, Subject
@@ -39,6 +37,28 @@ class DataLoaderMixin:
         ProgramType.MICROBACHELORS,
         ProgramType.PROFESSIONAL_PROGRAM_WL,
         ProgramType.PROFESSIONAL_CERTIFICATE
+    ]
+
+    # The keys are the field names in the csv, and the values correspond to model field names
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE = {
+        "image": "image",
+        "long_description": "full_description",
+        "short_description": "short_description",
+        "what_will_you_learn": "outcome",
+        "level_type": "level_type",
+        "primary_subject": "subjects",
+    }
+    # The keys are the field names in the csv, and the values correspond to model field names
+    LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN = {
+        "publish_date": "go_live_date",
+        "minimum_effort": "min_effort",
+        "maximum_effort": "max_effort",
+        "length": "weeks_to_complete",
+    }
+
+    LEGAL_REVIEW_REQUIRED_FIELDS = [
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE.keys(),
+        *LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN.keys()
     ]
 
     # Addition of a user agent to allow access to data CDNs
@@ -249,13 +269,13 @@ class DataLoaderMixin:
             'course_run': course_run_creation_fields,
         }
 
-    def update_course(self, data, course, is_draft):
+    def update_course(self, data, course, course_type, is_draft):
         """
         Update the course data.
         """
         course_api_url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}?exclude_utm=1"
-        request_data = self.update_course_api_request_data(data, course, is_draft)
+        request_data = self.update_course_api_request_data(data, course, course_type, is_draft)
         response = self.call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
@@ -274,7 +294,7 @@ class DataLoaderMixin:
             logger.info(f"Course run update response: {response.content}")
         return response.json()
 
-    def update_course_api_request_data(self, course_data, course, is_draft):  # pylint: disable=unused-argument
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):  # pylint: disable=unused-argument
         """Update the course API request data based on the course and draft state."""
         return course_data
 
@@ -367,7 +387,7 @@ class DataLoaderMixin:
         except CourseType.DoesNotExist:
             return None
 
-    def _validate_and_process_row(self, row, course_title, org_key):
+    def _validate_and_process_row(self, row, course_title, org_key, allow_empty_tracks=False):
         """
         Validates and processes a single row of course data.
 
@@ -375,6 +395,8 @@ class DataLoaderMixin:
             row (dict): The row of course data.
             course_title (str): The title of the course.
             org_key (str): The organization key.
+            allow_empty_tracks (bool): A boolean to indicate if empty("") values for course
+                                       and course_run enrollment tracks should be considered valid.
 
         Returns:
             tuple: A tuple containing a boolean indicating validity, course type, and course run type.
@@ -395,8 +417,8 @@ class DataLoaderMixin:
                 CourseType: CourseType object
                 CourseRunType: CourseRunType object
             """
-            course_type = self.get_course_type(row["course_enrollment_track"])
-            if not course_type:
+            course_type = self.get_course_type(row.get("course_enrollment_track", ""))
+            if not course_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
@@ -405,8 +427,8 @@ class DataLoaderMixin:
                 )
                 return False, None, None
 
-            course_run_type = self.get_course_run_type(row["course_run_enrollment_track"])
-            if not course_run_type:
+            course_run_type = self.get_course_run_type(row.get("course_run_enrollment_track", ""))
+            if not course_run_type and not allow_empty_tracks:
                 self.log_ingestion_error(
                     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE,
                     CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
@@ -432,6 +454,28 @@ class DataLoaderMixin:
             return False, course_type, course_run_type
 
         return True, course_type, course_run_type
+
+    @classmethod
+    def missing_fields_for_legal_review(cls, course, course_run):
+        """
+        Returns fields required for legal review that are not present on the course/courserun.
+        """
+
+        obj_required_fields = [
+            (course, cls.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE),
+            (course_run, cls.LEGAL_REVIEW_REQUIRED_FIELDS__COURSE_RUN)
+        ]
+
+        missing_fields = []
+        for obj, field_list in obj_required_fields:
+            for csv_field, model_field in field_list.items():
+                if model_field == 'subjects' and not obj.subjects.count():
+                    missing_fields.append(csv_field)
+
+                elif not getattr(obj, model_field, ''):
+                    missing_fields.append(csv_field)
+
+        return missing_fields
 
     def validate_course_data(self, data, course_type=None):
         """
@@ -463,10 +507,13 @@ class DataLoaderMixin:
         cls.get_course_run_type.cache_clear()
         cls._validate_organization.cache_clear()
 
-    def render_error_logs(self, error_logs):
+    def render_error_logs(self, error_logs, log_sequence):
+        """
+        Renders error logs properly for each ingestion given a log sequence.
+        """
         if any(list(error_logs.values())):
             logger.info("Summarized errors:")
-            for error_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
+            for error_key in log_sequence:
                 for msg in error_logs[error_key]:
                     logger.error(msg)
         else:
@@ -515,6 +562,17 @@ class DataLoaderMixin:
                 raise
 
         return subject_slugs
+
+    def parse_boolean_string(self, input_string):
+        input_string = input_string.strip()
+        if input_string.lower() == "true":
+            return True
+        return False
+
+    def parse_comma_separated_values(self, input_string):
+        if not input_string.strip():
+            return []
+        return [value.strip() for value in input_string.split(',')]
 
     def verify_and_get_language_tags(self, language_str):
         """

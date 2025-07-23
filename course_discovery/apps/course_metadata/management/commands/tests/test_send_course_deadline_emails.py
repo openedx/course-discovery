@@ -72,7 +72,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
 
         self.user = UserFactory()
         self.course_editor = CourseEditorFactory(
-            course=self.non_draft_course,
+            course=self.draft_course,
             user=self.user
         )
         OrganizationUserRoleFactory(

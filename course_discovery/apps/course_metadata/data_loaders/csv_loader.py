@@ -151,7 +151,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
                     self.add_product_source(course, self.product_source)
 
                 try:
-                    self.update_course(row, course, is_draft)
+                    self.update_course(row, course, course_type, is_draft)
                 except Exception as exc:  # pylint: disable=broad-except
                     exception_message = exc
                     if hasattr(exc, 'response'):
@@ -236,7 +236,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
 
-        self.render_error_logs(self.error_logs)
+        self.render_error_logs(self.error_logs, CSV_LOADER_ERROR_LOG_SEQUENCE)
         self._render_course_uuids()
         self.clear_caches()
 
@@ -421,7 +421,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
         for archived_product in archived_products:
             logger.info(archived_product)
 
-    def update_course_api_request_data(self, course_data, course, is_draft):
+    def update_course_api_request_data(self, course_data, course, course_type, is_draft):
         """
         Create and return the request data for making a patch call to update the course.
         """
