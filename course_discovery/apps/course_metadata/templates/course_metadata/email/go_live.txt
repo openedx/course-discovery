@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% blocktrans trimmed %}
-    Dear {{ recipient_name }},
+    Hi {{ recipient_name }},
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
