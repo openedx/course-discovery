@@ -84,10 +84,10 @@ class CourseSerializer(MinimalCourseSerializer):
     course_runs = CourseRunSerializer(many=True)
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, course_runs=None, orgs=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None, org=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
-        filters = {'org__in': orgs} if orgs else {}
+        filters = {'org': org} if org else {}
 
         queryset = queryset if queryset is not None else Course.objects.filter(**filters)
 
@@ -147,8 +147,8 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, *args, **kwargs):
-        orgs = kwargs.get('orgs', None)
-        filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
+        org = kwargs.get('org', None)
+        filters = {'org': org} if org else {}    # A Program must be related with organizations.
 
         if 'uuid' in kwargs:                        # Filter a Program with primary Key
             filters['uuid'] = kwargs['uuid']        # program uuid
@@ -166,7 +166,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'status', 'orgs', 'visibility',
+            'uuid', 'title', 'status', 'org', 'visibility',
             'courses', 'card_image_url', 'duration', 'languages',
             'start', 'end', 'enrollment_start', 'enrollment_end'
         )
@@ -289,8 +289,8 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        orgs = kwargs.get('orgs', None)
-        filters = {'orgs': orgs} if orgs else {}    # A Program must be related with organizations.
+        org = kwargs.get('org', None)
+        filters = {'org': org} if org else {}       # A Program must be related with organizations.
 
         if 'uuid' in kwargs:                        # Filter a Program with primary Key
             filters['uuid'] = kwargs['uuid']        # program uuid
@@ -301,7 +301,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             # `ProgramType` on `Program`.
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
-            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(orgs=orgs)),
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(org=org)),
         )
 
     def get_applicable_seat_types(self, obj):

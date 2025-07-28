@@ -51,12 +51,12 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
-        orgs = self.request.query_params.get('orgs', None)
+        org = self.request.query_params.get('org', None)
         program_uuid = self.kwargs.get(self.lookup_field)
 
         filters = {'uuid': program_uuid} if program_uuid else {}
-        if orgs:
-            filters['orgs'] = orgs
+        if org:
+            filters['org'] = org
 
         return serializer_class.prefetch_queryset(
             **filters
@@ -92,9 +92,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
                 name=input_data[r'type']
             )
 
-        site_orgs = input_data.get('orgs', None)
-        if not site_orgs:
-            raise ValidationError('miss argument `orgs`')
+        site_org = input_data.get('org', None)
+        if not site_org:
+            raise ValidationError('miss argument `org`')
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished
@@ -231,10 +231,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
         """
         if get_query_param(self.request, 'uuids_only'):
             # request.query_params.get(name)
-            orgs = self.request.query_params.get('orgs')
+            org = self.request.query_params.get('org')
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
-            queryset = self.filter_queryset(Program.objects.filter(orgs=orgs))
+            queryset = self.filter_queryset(Program.objects.filter(org=org))
 
             return Response(
                 queryset.values_list('uuid', flat=True)

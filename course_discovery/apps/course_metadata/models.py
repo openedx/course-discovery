@@ -576,10 +576,9 @@ class Program(TimeStampedModel):
         choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
     courses = SortedManyToManyField(Course, related_name='programs')
-    # This field `orgs` always contains all orgs whatever the linked course list is empty or not.
-    orgs = models.CharField(
-        max_length=128, null=True, blank=False, db_index=True,
-        help_text=_('This field should include all Organizations used by the site. E.g.: orgA+orgB+orgC')
+    org = models.CharField(
+        max_length=64, null=True, blank=False, db_index=True,
+        help_text=_('A organization name')
     )
     card_image_url = models.CharField(null=True, blank=True, max_length=1024)
     description = models.TextField(

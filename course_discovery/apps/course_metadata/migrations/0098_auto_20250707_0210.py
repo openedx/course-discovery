@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='program',
-            name='orgs',
-            field=models.CharField(db_index=True, help_text='This field should include all Organizations used by the site. E.g.: orgA+orgB+orgC', max_length=128, null=True),
+            name='org',
+            field=models.CharField(db_index=True, help_text='A organization name', max_length=64, null=True),
         ),
         migrations.AlterUniqueTogether(
             name='course',

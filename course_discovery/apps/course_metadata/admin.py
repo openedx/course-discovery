@@ -81,15 +81,15 @@ class CourseRunAdmin(admin.ModelAdmin):
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
-    list_display = ('id', 'uuid', 'title', 'orgs', 'status')
-    list_filter = ('orgs', 'status',)
+    list_display = ('id', 'uuid', 'title', 'org', 'status')
+    list_filter = ('org', 'status',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'title')
 
     # ordering the field display on admin page.
     fields = (
-        'uuid', 'title', 'status', 'orgs', 'card_image_url', 'courses'
+        'uuid', 'title', 'status', 'org', 'card_image_url', 'courses'
     )
 
     save_error = False
