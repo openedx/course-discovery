@@ -7,7 +7,7 @@
 <p>
     {% filter force_escape %}
         {% blocktrans trimmed %}
-            Dear {{ recipient_name }},
+            Hi {{ recipient_name }},
         {% endblocktrans %}
     {% endfilter %}
 </p>
@@ -15,20 +15,13 @@
 <p>
     {% filter force_escape %}
         {% blocktrans trimmed %}
-            The About page for the {{ course_run_number }} course run of {{ course_name }} has been published. No further action is necessary.
+            The About Page for the {{ course_run_number }} course run of {{ course_name }} has been submitted for publishing. The new session will appear on the edX website following the next couple of deployments—typically within 24 to 48 business hours.
         {% endblocktrans %}
     {% endfilter %}
 </p>
 
 <p>
-    {% blocktrans trimmed asvar tmsg %}
-        {link_start}{preview_url}{link_middle}View this About page.{link_end}
-    {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe preview_url=preview_url|safe %}
-</p>
-
-<p>
-    Note: This email address is unable to receive replies. For questions or comments, please contact your Project Coordinator(s):
+    Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at 
     {% for contact_us_email in contact_us_emails %}
         {% blocktrans trimmed asvar tmsg %}
         {link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}
