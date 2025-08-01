@@ -59,6 +59,7 @@ class PersonDocument(BaseDocument):
         """
 
         model = Person
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
 
     class Meta:
         """
@@ -66,4 +67,3 @@ class PersonDocument(BaseDocument):
         """
 
         parallel_indexing = True
-        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
