@@ -26,7 +26,7 @@
             <label for="vertical" class="py-2">Vertical</label>
             <select name="vertical" id="vertical" class="form-control"
                     hx-trigger="change"
-                    hx-on="change: filterSubVerticals(event)">
+                    hx-on:change="filterSubVerticals(event)">
                 <option value="">Select Vertical</option>
                 {% for vertical in verticals %}
                     <option value="{{ vertical.slug }}"
