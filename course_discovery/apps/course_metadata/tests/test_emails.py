@@ -246,9 +246,9 @@ class EmailTests(TestCase):
         """
         kwargs = {
             'both_regexes': [
-                'The About page for the %s course run of %s has been published.' %
+                'The About page for the %s course run of %s has been submitted for publishing.' %
                 (self.run_num, self.course_run.title),
-                'No further action is necessary.',
+                'The new session will appear on the edX website following the next couple of deployments—typically within 24 to 48 business hours.',
             ],
             'html_regexes': [
                 '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
