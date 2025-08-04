@@ -122,6 +122,19 @@ class Partner(TimeStampedModel):
             return False
         return self.field_tracker.changed()
 
+    @property
+    def lms_credit_api_url(self):
+        """
+        Returns the credit API URL for the partner.
+        """
+        return self.lms_url.rstrip('/') + '/api/credit/v1'
+
+    @property
+    def lms_commerce_api_url(self):
+        """
+        Returns the credit API URL for the partner.
+        """
+        return self.lms_url.rstrip('/') + '/api/commerce/v1'
 
 class SalesforceConfiguration(models.Model):
     partner = models.OneToOneField(Partner, models.CASCADE, related_name='salesforce')
