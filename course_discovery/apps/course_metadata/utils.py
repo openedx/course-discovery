@@ -496,6 +496,35 @@ def serialize_entitlement_for_ecommerce_api(entitlement):
         'attribute_values': attribute_values_list,
     }
 
+def generate_sku(partner, product, product_type, mode=None):
+    """
+    Generates a SKU for the given partner and and product combination.
+
+    Example: 76E4E71
+    """
+    if product_type == 'Seat':
+        _hash = ' '.join((
+            str(mode.certificate_type) or '',
+            str(product.course_run.course_id) or '',
+            str(mode.is_id_verified) or '',
+            str(product.credit_provider) or '',
+            str(product.id),
+            str(partner.id)
+        )).encode('utf-8')
+    elif product_type == 'Course Entitlement':
+        _hash = ' '.join((
+            mode if isinstance(mode, str) else mode.slug,
+            str(product.course.uuid),
+            str(partner.id)
+        )).encode('utf-8')
+    else:
+        raise Exception('Unexpected product class')
+
+    md5_hash = md5(_hash.lower())
+    digest = md5_hash.hexdigest()[-7:]
+
+    return digest.upper()
+
 def push_to_lms_for_course_run(course_run):
     """
     Publishes course run data directly to LMS, bypassing legacy Ecommerce.
@@ -535,7 +564,27 @@ def push_to_lms_for_course_run(course_run):
         print(f"[WARN] No seats or entitlements found to publish for [{course_run.key}].")
         return False
 
-    # Step 2: Publish CreditCourse if 'credit' mode present
+    # 2. Generate and store SKU on seats/entitlements ===
+    with transaction.atomic():
+        for seat, mode in seats_with_modes:
+            if not seat.sku:
+                generated = generate_sku(partner, seat, 'Seat', mode)
+                seat.sku = generated
+                seat.save()
+                if seat.draft_version:
+                    seat.draft_version.sku = generated
+                    seat.draft_version.save()
+
+        for entitlement in entitlements:
+            if not entitlement.sku:
+                generated = generate_sku(partner, entitlement, 'Course Entitlement', entitlement.mode)
+                entitlement.sku = generated
+                entitlement.save()
+                if entitlement.draft_version:
+                    entitlement.draft_version.sku = generated
+                    entitlement.draft_version.save()
+
+    # Step 3: Publish CreditCourse if 'credit' mode present
     if has_credit_seat:
         try:
             credit_data = {
@@ -559,20 +608,20 @@ def push_to_lms_for_course_run(course_run):
     else:
         print(f"[INFO] No credit seats found — skipping CreditCourse publish.")
 
-    # Step 3: Construct course modes payload (seats)
+
+    # Step 4: Construct course modes payload (seats)
     print("[INFO] Building course modes payload...")
     modes_payload = []
     for seat, mode in seats_with_modes:
-
         expires = serialize_datetime(calculated_seat_upgrade_deadline(seat))
         mode_entry = {
             "name": mode.slug,
             "currency": "USD",
             "price": int(Decimal(seat.price)),
-            "sku": None,
+            "sku": seat.sku,
             "bulk_sku": None,
-            "android_sku": None,
-            "ios_sku": None,
+            "android_sku": f"android.{seat.sku}" if seat.sku else None,
+            "ios_sku": f"ios.{seat.sku}" if seat.sku else None,
             "expires": expires,
         }
         print(f"  [MODE] {mode_entry}")
