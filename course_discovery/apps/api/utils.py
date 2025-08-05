@@ -255,8 +255,8 @@ class StudioAPI:
         key = CourseKey.from_string(course_run.key)
 
         is_external = course_run.course.is_external_course
-
-        # start, end, and pacing are not sent on updates - Studio is where users edit them
+        #Include start and end only if creating or if it's an external course during update
+        
         start = course_run.start if creating or is_external  else None
         end = course_run.end if creating or is_external  else None
         pacing = course_run.pacing_type if creating else None
