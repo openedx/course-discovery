@@ -252,10 +252,9 @@ class EmailTests(TestCase):
             ],
             'text_regexes': [
                 '\n\nView this About page. %s\n' % self.course_run.marketing_url,
-                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at\(s\):pc@example.com'
+                r'Note:This is a no-reply email. For any questions or comments, please contact your Project Coordinator at\(s\):pc@example.com'
             ],
         }
-
         self.assertEmailSent(
             emails.send_email_for_go_live,
             f'^Published: {self.course_run.title}$',
