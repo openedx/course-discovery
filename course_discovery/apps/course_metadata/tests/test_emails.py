@@ -244,23 +244,20 @@ class EmailTests(TestCase):
         """
         Verify that send_email_for_go_live's happy path works as expected
         """
+        # pylint: disable=line-too-long
         kwargs = {
             'both_regexes': [
-                'The About page for the %s course run of %s has been published.' %
+                'The About page for the %s course run of %s has been submitted for publishing. The new session will appear on the edX website following the next couple of deployments—typically within 24 to 48 business hours' %
                 (self.run_num, self.course_run.title),
-                'No further action is necessary.',
             ],
             'html_regexes': [
-                '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at ',
                 '<a href="mailto:pc@example.com">pc@example.com</a>',
             ],
             'text_regexes': [
-                '\n\nView this About page. %s\n' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com'
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at pc@example.com'
             ],
         }
-
         self.assertEmailSent(
             emails.send_email_for_go_live,
             f'^Published: {self.course_run.title}$',
