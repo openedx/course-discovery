@@ -197,7 +197,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         run = CourseRunFactory(course=CourseFactory(type=exec_ed_type))
         with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
-            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False, add_enrollment_dates=True)
+            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=True, add_enrollment_dates=True)
             output_data = StudioAPI.generate_data_for_studio_api(run, False)
             assert output_data == expected_data
         mock_logger.info.assert_called_with(
@@ -211,14 +211,12 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         run = CourseRunFactory(course=CourseFactory(type=exec_ed_type), enrollment_start=None, enrollment_end=None)
         with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
-            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
+            expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=True, add_enrollment_dates=False)
             output_data = StudioAPI.generate_data_for_studio_api(run, False)
             assert output_data == expected_data
 
         with self.assertRaises(AssertionError):
-            mock_logger.info.assert_called_with(
-                f'Enrollment information added to data {output_data} for course run {run.key}'
-            )
+            mock_logger.info.assert_called()
 
     def test_generate_data_for_studio_api__non_external_course_no_start_end_on_update(self):
         """Test that start/end are NOT included when updating a non-external course."""
@@ -235,13 +233,10 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         """Test that start/end are included for external course on update."""
         exec_ed_type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
         run = CourseRunFactory(course=CourseFactory(type=exec_ed_type))
-        
         expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=True, add_enrollment_dates=True)
-        
         with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
             output_data = StudioAPI.generate_data_for_studio_api(run, creating=False)
             self.assertEqual(output_data, expected_data)
-        
         mock_logger.info.assert_called_with(
             f'Enrollment information added to data {output_data} for course run {run.key}'
         )
