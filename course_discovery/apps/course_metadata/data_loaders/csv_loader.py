@@ -483,8 +483,7 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             'draft': is_draft,
             'start': self.get_formatted_datetime_string(
                 f"{course_run_data['start_date']} {course_run_data['start_time']}"),
-            'end': self.get_formatted_datetime_string(
-                f"{course_run_data['end_date']} {course_run_data['end_time']}"),
+            'end': self.get_formatted_datetime_string(f"{course_run_data['end_date']} {course_run_data['end_time']}"),
 
             'weeks_to_complete': course_run_data['length'],
             'min_effort': course_run_data['minimum_effort'],
