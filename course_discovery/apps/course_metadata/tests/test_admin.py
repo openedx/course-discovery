@@ -3,6 +3,7 @@ import itertools
 import ddt
 import pytest
 from bs4 import BeautifulSoup
+from django import VERSION as DJANGO_VERSION
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
@@ -485,7 +486,8 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
         """ Verify that one click purchase eligible programs pass the filter. """
         verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
+        value = [1] if DJANGO_VERSION >= (5, 2) else 1
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: value}, None, None)
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)
         factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
@@ -498,7 +500,8 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_ineligible_programs(self):
         """ Verify programs ineligible for one-click purchase do not pass the filter. """
-        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 0}, None, None)
+        value = [0] if DJANGO_VERSION >= (5, 2) else 0
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: value}, None, None)
         one_click_purchase_ineligible_program = factories.ProgramFactory(one_click_purchase_enabled=False)
         with self.assertNumQueries(4):
             assert list(program_filter.queryset({}, Program.objects.all())) == [one_click_purchase_ineligible_program]

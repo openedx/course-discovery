@@ -32,7 +32,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             2,
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.course_type,
             authoring_organizations=[self.organization]
         )
@@ -55,7 +54,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             2,
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             authoring_organizations=[self.organization],
             card_image=factory.django.ImageField()
@@ -190,7 +188,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             DegreeFactory.create(
                 product_source=self.source,
                 partner=self.partner,
-                additional_metadata=None,
                 type=self.program_type,
                 status=ProgramStatus.Unpublished,
                 marketing_slug="valid-slug-1",
@@ -199,7 +196,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             DegreeFactory.create(
                 product_source=self.source,
                 partner=self.partner,
-                additional_metadata=None,
                 type=self.program_type,
                 status=ProgramStatus.Retired,
                 marketing_slug="valid-slug-2",
@@ -208,7 +204,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             DegreeFactory.create(
                 product_source=self.source,
                 partner=self.partner,
-                additional_metadata=None,
                 type=self.program_type,
                 status=ProgramStatus.Deleted,
                 marketing_slug="valid-slug-3",
@@ -217,7 +212,6 @@ class PopulateProductCatalogCommandTests(TestCase):
             DegreeFactory.create(
                 product_source=self.source,
                 partner=self.partner,
-                additional_metadata=None,
                 type=self.program_type,
                 status=ProgramStatus.Active,
                 marketing_slug="",
@@ -228,7 +222,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         marketable_degree = DegreeFactory.create(
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
@@ -239,7 +232,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         marketable_degree_with_no_language = DegreeFactory.create(
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
@@ -252,7 +244,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         marketable_degree_2 = DegreeFactory.create(
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
@@ -312,7 +303,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         degree = DegreeFactory.create(
             product_source=self.source,
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
@@ -353,7 +343,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         """
         marketable_degree = DegreeFactory.create(
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",
@@ -364,7 +353,6 @@ class PopulateProductCatalogCommandTests(TestCase):
         )
         marketable_degree_2 = DegreeFactory.create(
             partner=self.partner,
-            additional_metadata=None,
             type=self.program_type,
             status=ProgramStatus.Active,
             marketing_slug="valid-marketing-slug",

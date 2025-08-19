@@ -186,7 +186,7 @@ def ensure_external_key_uniqueness__curriculum(sender, instance, **kwargs):  # p
     course_runs = CourseRun.objects.filter(
         course__degree_course_curricula=instance,
         external_key__isnull=False
-    ).iterator()
+    ).iterator(chunk_size=settings.ITERATOR_CHUNK_SIZE)
     check_curricula_and_related_programs_for_duplicate_external_key([instance], course_runs)
 
 
