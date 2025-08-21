@@ -51,8 +51,7 @@ jobs:
     # https://github.com/xmlsec/python-xmlsec/issues/314
     - name: Install Python dependencies
       run: |
-        pip install -r requirements/pip_tools.txt
-        pip install -r requirements/production.txt
+        make requirements.python
         pip uninstall -y mysqlclient
         pip install --no-binary mysqlclient mysqlclient
         pip uninstall -y xmlsec
