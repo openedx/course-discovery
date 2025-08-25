@@ -37,27 +37,25 @@ attrs==25.3.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.in
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
 billiard==4.2.1
     # via celery
-boto3==1.40.14
+boto3==1.40.16
     # via
     #   django-ses
     #   snowflake-connector-python
-botocore==1.40.14
+botocore==1.40.16
     # via
     #   boto3
     #   s3transfer
     #   snowflake-connector-python
 cachetools==5.5.2
     # via google-auth
-cairocffi==1.4.0
-    # via
-    #   -c requirements/constraints.txt
-    #   cairosvg
+cairocffi==1.7.1
+    # via cairosvg
 cairosvg==2.8.2
     # via -r requirements/base.in
 celery==5.5.3
@@ -415,7 +413,7 @@ kombu==5.5.4
     # via celery
 libsass==0.23.0
     # via django-libsass
-lxml[html-clean]==6.0.0
+lxml[html-clean]==6.0.1
     # via
     #   -r requirements/base.in
     #   lxml-html-clean
@@ -455,7 +453,7 @@ packaging==25.0
     #   drf-yasg
     #   kombu
     #   snowflake-connector-python
-pbr==7.0.0
+pbr==7.0.1
     # via stevedore
 pillow==9.5.0
     # via
@@ -589,7 +587,7 @@ s3transfer==0.13.1
     # via boto3
 semantic-version==2.10.0
     # via edx-drf-extensions
-simple-salesforce==1.12.8
+simple-salesforce==1.12.9
     # via -r requirements/base.in
 six==1.17.0
     # via

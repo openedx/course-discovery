@@ -58,7 +58,7 @@ attrs==25.3.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -71,12 +71,12 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.40.14
+boto3==1.40.16
     # via
     #   -r requirements/base.txt
     #   django-ses
     #   snowflake-connector-python
-botocore==1.40.14
+botocore==1.40.16
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -89,9 +89,8 @@ cachetools==5.5.2
     #   -r requirements/base.txt
     #   google-auth
     #   tox
-cairocffi==1.4.0
+cairocffi==1.7.1
     # via
-    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   cairosvg
 cairosvg==2.8.2
@@ -163,7 +162,7 @@ colorama==0.4.6
     #   tox
 contentful==2.4.0
     # via -r requirements/base.txt
-coverage[toml]==7.10.4
+coverage[toml]==7.10.5
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -565,7 +564,7 @@ libsass==0.23.0
     # via
     #   -r requirements/base.txt
     #   django-libsass
-lxml[html-clean]==6.0.0
+lxml[html-clean]==6.0.1
     # via
     #   -r requirements/base.txt
     #   lxml-html-clean
@@ -634,7 +633,7 @@ packaging==25.0
     #   semgrep
     #   snowflake-connector-python
     #   tox
-pbr==7.0.0
+pbr==7.0.1
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -893,7 +892,7 @@ semantic-version==2.10.0
     #   edx-drf-extensions
 semgrep==1.52.0
     # via -r requirements/test.in
-simple-salesforce==1.12.8
+simple-salesforce==1.12.9
     # via -r requirements/base.txt
 six==1.17.0
     # via
