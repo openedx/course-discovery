@@ -481,6 +481,8 @@ class CSVDataLoader(AbstractDataLoader, DataLoaderMixin):
             'prices': self.get_pricing_representation(course_run_data['verified_price'], course_type),
             'staff': staff_uuids,
             'draft': is_draft,
+            'start': self.get_formatted_datetime_string(f"{course_run_data['start_date']} {course_run_data['start_time']}"),  # pylint: disable=line-too-long
+            'end': self.get_formatted_datetime_string(f"{course_run_data['end_date']} {course_run_data['end_time']}"),
 
             'weeks_to_complete': course_run_data['length'],
             'min_effort': course_run_data['minimum_effort'],
