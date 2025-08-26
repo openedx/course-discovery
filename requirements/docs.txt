@@ -12,13 +12,13 @@ babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via pydata-sphinx-theme
-certifi==2025.6.15
+certifi==2025.8.3
     # via
     #   elasticsearch
     #   requests
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 django-elasticsearch-dsl==7.4
     # via -r requirements/docs.in
@@ -56,7 +56,7 @@ pygments==2.19.2
     #   sphinx
 python-dateutil==2.9.0.post0
     # via elasticsearch-dsl
-requests==2.32.4
+requests==2.32.5
     # via sphinx
 six==1.17.0
     # via
@@ -87,12 +87,11 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   beautifulsoup4
     #   pydata-sphinx-theme
 urllib3==1.26.20
     # via
-    #   -c requirements/common_constraints.txt
     #   elasticsearch
     #   requests
