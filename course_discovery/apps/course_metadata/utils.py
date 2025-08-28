@@ -774,6 +774,8 @@ def clean_html(content):
     (indicating right-to-left direction), this method will ensure that the 'dir' attribute is preserved
     or added to maintain consistency with the original content.
     """
+    if not content:
+        return ''
     LIST_TAGS = ['ul', 'ol']
     is_list_with_dir_attr_present = False
 
@@ -790,12 +792,13 @@ def clean_html(content):
     cleaned = cleaned.replace('<p><b></b></p>', '')
     html_converter = HTML2TextWithLangSpans(bodywidth=None)
     html_converter.wrap_links = False
-    cleaned = html_converter.handle(cleaned).strip()
-    cleaned = markdown.markdown(cleaned)
-    for tag in LIST_TAGS:
-        cleaned = cleaned.replace(f'<{tag}>', f'<{tag} dir="rtl">') if is_list_with_dir_attr_present else cleaned
-
-    return cleaned
+    markdown_text = html_converter.handle(cleaned).strip()
+    cleaned = markdown.markdown(markdown_text)
+    cleaned = re.sub(r'([^\s>])\s*(<a\b)', r'\1 \2', cleaned)
+    if is_list_with_dir_attr_present:
+        for tag in LIST_TAGS:
+            cleaned = cleaned.replace(f'<{tag}>', f'<{tag} dir="rtl">')
+    return cleaned.strip()
 
 
 def get_file_from_drive_link(image_url):
