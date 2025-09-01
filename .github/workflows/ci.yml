@@ -17,7 +17,7 @@ jobs:
         status: ['']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Format Python Version
         id: format_python_version
         shell: bash
@@ -55,7 +55,7 @@ jobs:
     needs: pytest
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
@@ -72,7 +72,7 @@ jobs:
   quality:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
@@ -84,7 +84,7 @@ jobs:
       matrix:
         python-version: ['3.12']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - run: make ci_up
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
