@@ -180,7 +180,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
 
 USE_TZ = True
 
@@ -813,3 +812,8 @@ ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING = False
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_RESULT_EXTENDED = True
+
+# Default chunk size from pre-Django 5.0 (2000).
+# Required explicitly when using QuerySet.iterator() with prefetch_related.
+# See: https://docs.djangoproject.com/en/5.2/releases/5.0/#features-removed-in-5-0
+ITERATOR_CHUNK_SIZE = 2000
