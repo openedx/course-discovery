@@ -6,7 +6,7 @@
     "url": "git://github.com/openedx/course-discovery"
   },
   "dependencies": {
-    "ansi-regex": "6.0.1",
+    "ansi-regex": "6.2.2",
     "bootstrap-sass": "3.4.3",
     "bower": "1.8.12",
     "css-loader": "6.11.0",
