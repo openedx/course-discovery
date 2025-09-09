@@ -4,8 +4,11 @@ import random
 import re
 import string
 import uuid
+from decimal import Decimal
 from tempfile import NamedTemporaryFile
+from urllib.error import HTTPError
 from urllib.parse import urljoin, urlparse
+from hashlib import md5
 
 import html2text
 import jsonschema
@@ -493,12 +496,120 @@ def serialize_entitlement_for_ecommerce_api(entitlement):
         'attribute_values': attribute_values_list,
     }
 
+def push_to_lms_for_course_run(course_run):
+    """
+    Publishes course run data directly to LMS, bypassing legacy Ecommerce.
+    Includes course modes (seats) and credit enablement.
+    """
+    course = course_run.course
+    partner = course.partner
+
+    print(f"[INFO] Starting LMS publication for course run: {course_run.key}")
+    print(f"[INFO] Partner: {partner}")
+
+    if not partner.lms_coursemode_api_url:
+        print(f"[WARN] No LMS coursemode API URL configured for partner [{partner}]. Skipping.")
+        return False
+
+    api = partner.oauth_api_client
+    entitlements = course.entitlements.all()
+    has_credit_seat = False
+
+    # 1. Build (seat, track.mode) pairs
+    print(f"[INFO] Collecting seats and matching with track modes...")
+    tracks = course_run.type.tracks.all()
+    seats_with_modes = []
+    for seat in course_run.seats.all():
+        print(f"  [SEAT] type={seat.type}, price={seat.price}")
+        for track in tracks:
+            print(f"    [TRACK] seat_type={track.seat_type}, mode={track.mode.slug}")
+            if track.mode.certificate_type == 'credit':
+                has_credit_seat = True
+                print(f"    [INFO] Found credit mode for seat: {seat.type}")
+            if track.seat_type and seat.type == track.seat_type:
+                seats_with_modes.append((seat, track.mode))
+                print(f"    [MATCH] Seat matched with mode: {track.mode.slug}")
+                break
+
+    if not seats_with_modes and not entitlements:
+        print(f"[WARN] No seats or entitlements found to publish for [{course_run.key}].")
+        return False
+
+    # Step 2: Publish CreditCourse if 'credit' mode present
+    if has_credit_seat:
+        try:
+            credit_data = {
+                "course_key": str(course_run.key),
+                "enabled": True
+            }
+            credit_url = urljoin(f"{partner.lms_credit_api_url}/", f"courses/{course_run.key}/")
+            print(f"[INFO] Publishing CreditCourse to LMS: {credit_url}")
+            print("  Payload:", credit_data)
+
+            credit_response = api.put(credit_url, json=credit_data)
+            credit_response.raise_for_status()
+
+            print(f"[SUCCESS] CreditCourse published for {course_run.key}")
+        except HTTPError as e:
+            print(f"[ERROR] HTTPError during CreditCourse publish: {e}")
+            return False
+        except Exception as e:
+            print(f"[ERROR] Unexpected error during CreditCourse publish: {e}")
+            return False
+    else:
+        print(f"[INFO] No credit seats found — skipping CreditCourse publish.")
+
+    # Step 3: Construct course modes payload (seats)
+    print("[INFO] Building course modes payload...")
+    modes_payload = []
+    for seat, mode in seats_with_modes:
+
+        expires = serialize_datetime(calculated_seat_upgrade_deadline(seat))
+        mode_entry = {
+            "name": mode.slug,
+            "currency": "USD",
+            "price": int(Decimal(seat.price)),
+            "sku": None,
+            "bulk_sku": None,
+            "android_sku": None,
+            "ios_sku": None,
+            "expires": expires,
+        }
+        print(f"  [MODE] {mode_entry}")
+        modes_payload.append(mode_entry)
+
+    course_mode_url = urljoin(partner.lms_commerce_api_url.rstrip('/') + '/', f'courses/{course_run.key}/')
+    payload = {
+        "id": course_run.key,
+        "name": course_run.title,
+        "verification_deadline": serialize_datetime(course_run.end),
+        "modes": modes_payload
+    }
+
+    print(f"[INFO] Publishing course modes to LMS: {course_mode_url}")
+    print("  Payload:", payload)
+
+    # Step 4: Publish course modes
+    try:
+        response = api.put(course_mode_url, json=payload)
+        response.raise_for_status()
+        print(f"[SUCCESS] Course modes successfully published for {course_run.key}")
+    except HTTPError as e:
+        print(f"[ERROR] HTTPError during course modes publish: {e}")
+        return False
+    except Exception as e:
+        print(f"[ERROR] Unexpected error during course modes publish: {e}")
+        return False
+
+    return True
+
 
 def push_to_ecommerce_for_course_run(course_run):
     """
     Args:
         course_run: Official version of a course_metadata CourseRun
     """
+    return push_to_lms_for_course_run(course_run)
     course = course_run.course
     if not course.partner.ecommerce_api_url:
         return False
