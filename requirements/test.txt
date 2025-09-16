@@ -348,6 +348,7 @@ django-waffle==5.0.0
     #   edx-toggles
 django-webpack-loader==3.2.1
     # via -r requirements/base.txt
+djangorestframework==3.16.1
     # via
     #   -r requirements/base.txt
     #   django-config-models
