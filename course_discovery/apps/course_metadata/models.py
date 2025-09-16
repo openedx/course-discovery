@@ -58,7 +58,8 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
     IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
-    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED,
+    IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
@@ -69,6 +70,7 @@ from course_discovery.apps.course_metadata.utils import (
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
+
 
 logger = logging.getLogger(__name__)
 
@@ -2817,7 +2819,10 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
-
+        
+        if waffle.switch_is_active('dummy_sku_generation_for_2u_purpose') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+                logger.info(f'Check the Dummy sku configuration')
+        
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
