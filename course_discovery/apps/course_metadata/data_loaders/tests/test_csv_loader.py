@@ -7,6 +7,7 @@ from decimal import Decimal
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
+import pytz
 import responses
 from ddt import data, ddt, unpack
 from edx_toggles.toggles.testutils import override_waffle_switch
@@ -158,6 +159,53 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
                     assert Course.objects.count() == 0
                     assert CourseRun.objects.count() == 0
+
+    @responses.activate
+    def test_course_run_update_start_and_end_dates(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that 'start_date' and 'end_date' from CSV correctly update
+        the published CourseRun after CSV ingestion.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+        course = CourseFactory(
+            key=self.COURSE_KEY,
+            partner=self.partner,
+            type=self.course_type,
+            draft=True
+        )
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='published',
+            draft=True,
+            start=datetime.datetime(2030, 1, 1, tzinfo=pytz.UTC),
+            end=datetime.datetime(2030, 12, 31, tzinfo=pytz.UTC)
+        )
+        csv_data = copy.deepcopy(mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT)
+        csv_data.update({
+            "start_date": "01/01/2035",
+            "start_time": "09:30",
+            "end_date": "12/31/2035",
+            "end_time": "17:45"
+        })
+        expected_start = datetime.datetime(2035, 1, 1, 9, 30, tzinfo=pytz.UTC)
+        expected_end = datetime.datetime(2035, 12, 31, 17, 45, tzinfo=pytz.UTC)
+        with NamedTemporaryFile() as csv_file:
+            csv_file = self._write_csv(csv_file, [csv_data])
+            with mock.patch.object(CSVDataLoader, 'call_course_api', self.mock_call_course_api):
+                loader = CSVDataLoader(
+                    self.partner,
+                    csv_path=csv_file.name,
+                    product_source=self.source.slug
+                )
+                loader.ingest()
+        course_run = CourseRun.objects.get(key=self.COURSE_RUN_KEY, draft=False)
+        assert course_run.start == expected_start, f"Expected start {expected_start}, got {course_run.start}"
+        assert course_run.end == expected_end, f"Expected end {expected_end}, got {course_run.end}"
 
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument
