@@ -722,7 +722,7 @@ class TestCourseDeadlineEmail(TestCase):
         self.course = CourseFactory(draft_version=self.draft_course, draft=False)
         self.course_run = CourseRunFactory(
             course=self.course, title_override='Test Course Run',
-            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=7),
             status=CourseRunStatus.Published
         )
         self.partner = self.course.partner
@@ -739,18 +739,18 @@ class TestCourseDeadlineEmail(TestCase):
         """
         with LogCapture(emails.logger.name) as log_capture:
             emails.send_course_deadline_email(
-                self.course, self.course_run, [self.editor.email], deadline_email_variant='two_days_reminder'
+                self.course, self.course_run, [self.editor.email], deadline_email_variant='seven_days_reminder'
             )
 
             assert len(mail.outbox) == 1
             email = mail.outbox[0]
-            assert str(email.subject) == f'Reminder: {self.course.title} ends in 2 days'
+            assert str(email.subject) == f'Reminder: {self.course.title} ends in 7 days'
             assert email.to == [self.editor.email]
             assert email.from_email == settings.PUBLISHER_FROM_EMAIL
             assert 'Hi Course Team' in email.body
             assert (
                 f'This is an automated reminder that the course "{self.course.title}" (Course Key: {self.course.key})'
-                f' is scheduled to end in 2 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
+                f' is scheduled to end in 7 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
                 in email.body
             )
             log_capture.check(
