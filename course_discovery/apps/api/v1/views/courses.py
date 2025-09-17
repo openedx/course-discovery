@@ -35,7 +35,7 @@ from course_discovery.apps.course_metadata.models import (
     Seat, Source, Video
 )
 from course_discovery.apps.course_metadata.utils import (
-    create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format
+    create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format, generate_sku
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -213,7 +213,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
-
         partner = request.site.partner
         course_creation_fields['partner'] = partner.id
         course_creation_fields['key'] = self.get_course_key(course_creation_fields)
@@ -250,6 +249,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.collaborators.add(*collaborators)
 
         entitlement_types = course.type.entitlement_types.all()
+        generate_sku(partner, course)
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
             CourseEntitlement.objects.create(

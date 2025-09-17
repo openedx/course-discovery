@@ -65,7 +65,7 @@ from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
     custom_render_variations, get_course_run_statuses, get_slug_for_course, is_ocm_course,
     push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
-    validate_ai_languages
+    validate_ai_languages, generate_sku
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -2814,15 +2814,14 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
         default_deadline = self.get_seat_default_upgrade_deadline(seat_type)
         defaults = {'upgrade_deadline': default_deadline}
-
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
         
-        if waffle.switch_is_active('dummy_sku_generation_for_2u_purpose') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
-                logger.info(f'Check the Dummy sku configuration')
-        
+        if waffle.switch_is_active('dummy_sku_generation') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            logger.info(f'Check the Dummy sku configuration')
+
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
