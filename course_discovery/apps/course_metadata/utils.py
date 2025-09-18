@@ -44,6 +44,8 @@ from course_discovery.apps.course_metadata.toggles import (
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
+from hashlib import md5
+
 logger = logging.getLogger(__name__)
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
@@ -1299,7 +1301,14 @@ def generate_sku(partner, course):
     Example: 76E4E71
     """
     try:
-        
+        _hash = ' '.join((
+            getattr(course.attr, 'certificate_type', ''),
+            str(course.UUID),
+            str(partner.id)
+        )).encode('utf-8')
+        md5_hash = md5(_hash.lower())
+        digest = md5_hash.hexdigest()[-7:]
+        return digest.upper()
         logger.info('Step ahead of create an SKU for the entilment and seats.')
     except Exception as exc:
         raise ValidationError("Unexpected combition SKU") from exc

@@ -38,6 +38,11 @@ from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format, generate_sku
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
+
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION
+)
 
 logger = logging.getLogger(__name__)
 
@@ -239,7 +244,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         course = serializer.save(draft=True)
         course.set_active_url_slug(url_slug)
-
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
@@ -249,7 +253,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.collaborators.add(*collaborators)
 
         entitlement_types = course.type.entitlement_types.all()
-        generate_sku(partner, course)
+        if waffle.switch_is_active('dummy_sku_generation') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(partner, course)
+
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
             CourseEntitlement.objects.create(
