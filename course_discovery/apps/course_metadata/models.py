@@ -330,7 +330,10 @@ class Position(TimeStampedModel):
 
 class Course(TimeStampedModel):
     """ Course model. """
-    partner = models.ForeignKey(Partner)
+    org = models.CharField(
+        max_length=64, null=True, blank=False, db_index=True,
+        help_text=_('A organization name')
+    )
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     canonical_course_run = models.OneToOneField(
         'course_metadata.CourseRun', related_name='canonical_for_course', default=None, null=True, blank=True
@@ -343,8 +346,8 @@ class Course(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid'),
-            ('partner', 'key'),
+            ('org', 'uuid'),
+            ('org', 'key'),
         )
         ordering = ['id']
 
@@ -499,29 +502,6 @@ class Seat(TimeStampedModel):
         ordering = ['created']
 
 
-class CourseEntitlement(TimeStampedModel):
-    """ Model storing product metadata for a Course. """
-    PRICE_FIELD_CONFIG = {
-        'decimal_places': 2,
-        'max_digits': 10,
-        'null': False,
-        'default': 0.00,
-    }
-    course = models.ForeignKey(Course, related_name='entitlements')
-    mode = models.ForeignKey(SeatType)
-    partner = models.ForeignKey(Partner, null=True, blank=False)
-    price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency)
-    sku = models.CharField(max_length=128, null=True, blank=True)
-    expires = models.DateTimeField(null=True, blank=True)
-
-    class Meta(object):
-        unique_together = (
-            ('course', 'mode')
-        )
-        ordering = ['created']
-
-
 class Endorsement(TimeStampedModel):
     endorser = models.ForeignKey(Person, blank=False, null=False)
     quote = models.TextField(blank=False, null=False)
@@ -596,7 +576,10 @@ class Program(TimeStampedModel):
         choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
     )
     courses = SortedManyToManyField(Course, related_name='programs')
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    org = models.CharField(
+        max_length=64, null=True, blank=False, db_index=True,
+        help_text=_('A organization name')
+    )
     card_image_url = models.CharField(null=True, blank=True, max_length=1024)
     description = models.TextField(
         default=None, null=True, blank=True,

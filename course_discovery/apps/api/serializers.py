@@ -12,30 +12,13 @@ from rest_framework.fields import (
     DictField, ListField
 )
 
-from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Program
 )
 
 
 User = get_user_model()
-
-COMMON_IGNORED_FIELDS = ('text',)
-COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
-PREFETCH_FIELDS = {
-    'course_run': [
-        'course__partner',
-    ],
-    'course': [
-        'course_runs',
-    ],
-}
-
-SELECT_RELATED_FIELDS = {
-    'course': ['partner'],
-    'course_run': ['course'],
-}
 
 
 class TimestampModelSerializer(serializers.ModelSerializer):
@@ -51,9 +34,7 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course').prefetch_related(
-            'course__partner'
-        )
+        return queryset.select_related('course')
 
     class Meta:
         model = CourseRun
@@ -87,8 +68,10 @@ class MinimalCourseSerializer(TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner').prefetch_related(
-            Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+        return queryset.prefetch_related(
+            Prefetch(
+                'course_runs',
+                queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
     class Meta:
@@ -101,17 +84,14 @@ class CourseSerializer(MinimalCourseSerializer):
     course_runs = CourseRunSerializer(many=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner=None, queryset=None, course_runs=None, partners=None):
+    def prefetch_queryset(cls, queryset=None, course_runs=None, org=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
-        filters = {}
-        if partner:
-            filters = {'partner': partner}
-        elif partners:
-            filters = {'partner__in': partners}
+        filters = {'org': org} if org else {}
+
         queryset = queryset if queryset is not None else Course.objects.filter(**filters)
 
-        return queryset.select_related('partner').prefetch_related(
+        return queryset.prefetch_related(
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
@@ -152,12 +132,6 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class _PartnerSlugRelatedField(serializers.SlugRelatedField):
-    """Query partners with specified site_id"""
-    def get_queryset(self):
-        return self.queryset.filter(site_id=self.context["current_site_id"])
-
-
 def _validate_comma_separated_languages_list(value):
     if isinstance(value, list):
         for lang in value:
@@ -169,17 +143,17 @@ def _validate_comma_separated_languages_list(value):
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
-    partner = _PartnerSlugRelatedField(slug_field='name', queryset=Partner.objects.all())
     languages = ListField(validators=[_validate_comma_separated_languages_list])
 
     @classmethod
-    def prefetch_queryset(cls, partners, *args, **kwargs):
-        filters = {'partner__in': partners}      # A Program must be related with a Partner.
-        program_uuid = kwargs.get('uuid')
-        if program_uuid:                    # Filter a Program with primary Key
-            filters['uuid'] = program_uuid
+    def prefetch_queryset(cls, *args, **kwargs):
+        org = kwargs.get('org', None)
+        filters = {'org': org} if org else {}    # A Program must be related with organizations.
 
-        return Program.objects.filter(**filters).select_related('partner').prefetch_related(
+        if 'uuid' in kwargs:                        # Filter a Program with primary Key
+            filters['uuid'] = kwargs['uuid']        # program uuid
+
+        return Program.objects.filter(**filters).prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
@@ -192,7 +166,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'status', 'partner', 'visibility',
+            'uuid', 'title', 'status', 'org', 'visibility',
             'courses', 'card_image_url', 'duration', 'languages',
             'start', 'end', 'enrollment_start', 'enrollment_end'
         )
@@ -307,7 +281,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 class ProgramSerializer(MinimalProgramSerializer):
 
     @classmethod
-    def prefetch_queryset(cls, partners, *args, **kwargs):
+    def prefetch_queryset(cls, *args, **kwargs):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -315,18 +289,19 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'partner__in': partners}      # A Program must be related with a Partner.
-        program_uuid = kwargs.get('uuid')
-        if program_uuid:                    # Filter a Program with primary Key
-            filters['uuid'] = program_uuid
+        org = kwargs.get('org', None)
+        filters = {'org': org} if org else {}       # A Program must be related with organizations.
 
-        return Program.objects.filter(**filters).select_related('partner').prefetch_related(
+        if 'uuid' in kwargs:                        # Filter a Program with primary Key
+            filters['uuid'] = kwargs['uuid']        # program uuid
+
+        return Program.objects.filter(**filters).prefetch_related(
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
-            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partners=partners)),
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(org=org)),
         )
 
     def get_applicable_seat_types(self, obj):

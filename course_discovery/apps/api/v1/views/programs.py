@@ -19,7 +19,6 @@ from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.models import Program, ProgramType
-from course_discovery.apps.core.models import Partner
 
 
 class ProgramViewSet(viewsets.ModelViewSet):
@@ -52,20 +51,12 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
-
+        org = self.request.query_params.get('org', None)
         program_uuid = self.kwargs.get(self.lookup_field)
 
-        scope_of_parters = Partner.query_by_site_id(self.request.site.id).all() \
-            if not program_uuid \
-            else \
-            [Program.objects.get(uuid=program_uuid).partner]
-
-        filters = {
-            'partners': scope_of_parters
-        }
-
-        if program_uuid:
-            filters['uuid'] = program_uuid
+        filters = {'uuid': program_uuid} if program_uuid else {}
+        if org:
+            filters['org'] = org
 
         return serializer_class.prefetch_queryset(
             **filters
@@ -100,11 +91,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data[r'type'] = ProgramType.objects.get(
                 name=input_data[r'type']
             )
-        if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner'],
-                site_id=self.request.site.id
-            )
+
+        site_org = input_data.get('org', None)
+        if not site_org:
+            raise ValidationError('miss argument `org`')
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished
@@ -142,11 +132,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data[r'type'] = ProgramType.objects.get(
                 name=input_data[r'type']
             )
-        if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner'],
-                site_id=self.request.site.id
-            )
+
         if r'released_date' in input_data:
             input_data[r'released_date'] = datetime.now()
 
@@ -244,16 +230,15 @@ class ProgramViewSet(viewsets.ModelViewSet):
               multiple: false
         """
         if get_query_param(self.request, 'uuids_only'):
+            # request.query_params.get(name)
+            org = self.request.query_params.get('org')
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
-            queryset = self.filter_queryset(
-                Program.objects.filter(
-                    partner__in=Partner.query_by_site_id(self.request.site.id)
-                )
-            )
-            uuids = queryset.values_list('uuid', flat=True)
+            queryset = self.filter_queryset(Program.objects.filter(org=org))
 
-            return Response(uuids)
+            return Response(
+                queryset.values_list('uuid', flat=True)
+            )
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
@@ -268,9 +253,6 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'partners': Partner.query_by_site_id(
-                self.request.site.id
-            ).all(),
             'program_uuid': self.kwargs['program_uuid']
         }
 

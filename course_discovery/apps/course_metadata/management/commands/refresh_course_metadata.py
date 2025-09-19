@@ -9,15 +9,17 @@ import time
 import jwt
 import waffle
 from django.apps import apps
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
+from django.contrib.sites.models import Site
 from django.db import connection
 from django.db.models.signals import post_delete, post_save
 from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
-from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
+from course_discovery.apps.course_metadata.models import DataLoaderConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -91,13 +93,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--partner_code',
-            action='store',
-            dest='partner_code',
-            default=None,
-            help='The short code for a specific partner to refresh.'
-        )
-        parser.add_argument(
             '--modified-x-min-ago',
             action='store',
             dest='modified_x_min_ago',
@@ -119,109 +114,120 @@ class Command(BaseCommand):
                 for signal in (post_save, post_delete):
                     signal.disconnect(receiver=api_change_receiver, sender=model)
 
-            # For each partner defined...
-            partners = Partner.objects.all()
-
-            # If a specific partner was indicated, filter down the set
-            partner_code = options.get('partner_code')
-            if partner_code:
-                partners = partners.filter(short_code=partner_code)
-
-            if not partners:
-                raise CommandError('No partners available!')
-
             token_type = 'JWT'
-            for partner in partners:
-                logger.info('Retrieving access token for partner [{}]'.format(partner.short_code))
+            access_token = None
+            courses_api_url = None
+            courses_api_cfg = getattr(settings, 'COURSES_API', None)
+            if not courses_api_cfg:
+                raise CommandError('No COURSES_API available!')
+            prefix = 'https://' if courses_api_cfg.get('IS_SECURE', True) else 'http://'
 
+            logger.info('Retrieving access token...')
+
+            for site in Site.objects.all():
                 try:
+                    access_token_url = '{prefix}{lms_domain}{end_point}/access_token'.format(
+                        prefix=prefix,
+                        lms_domain=site.domain,
+                        end_point=courses_api_cfg['OIDC_URL_ROOT']
+                    )
                     access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                        '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
-                        partner.oidc_key,
-                        partner.oidc_secret,
+                        access_token_url,
+                        courses_api_cfg['OIDC_KEY'],
+                        courses_api_cfg['OIDC_SECRET'],
                         token_type=token_type
                     )
-                except Exception:
-                    logger.exception('No access token acquired through client_credential flow.')
-                    raise
-                username = jwt.decode(access_token, verify=False)['preferred_username']
-                kwargs = {'username': username} if username else {}
-                kwargs['modified_x_min_ago'] = modified_x_min_ago
+                    courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
+                        prefix=prefix,
+                        lms_domain=site.domain,
+                        end_point=courses_api_cfg['URL']
+                    )
+                except Exception as e:
+                    logger.warning(
+                        'No access token acquired through client_credential flow with url=>{}. Error : {}'.format(
+                            access_token_url, str(e)
+                        )
+                    )
+                    access_token = None
 
-                # The Linux kernel implements copy-on-write when fork() is called to create a new
-                # process. Pages that the parent and child processes share, such as the database
-                # connection, are marked read-only. If a write is performed on a read-only page
-                # (e.g., closing the connection), it is then copied, since the memory is no longer
-                # identical between the two processes. This leads to the following behavior:
-                #
-                # 1) Newly forked process
-                #       parent
-                #              -> connection (Django open, MySQL open)
-                #       child
-                #
-                # 2) Child process closes the connection
-                #       parent -> connection (*Django open, MySQL closed*)
-                #       child  -> connection (Django closed, MySQL closed)
-                #
-                # Calling connection.close() from a child process causes the MySQL server to
-                # close a connection which the parent process thinks is still usable. Since
-                # the parent process thinks the connection is still open, Django won't attempt
-                # to open a new one, and the parent ends up running a query on a closed connection.
-                # This results in a 'MySQL server has gone away' error.
-                #
-                # To resolve this, we force Django to reconnect to the database before running any queries.
-                connection.connect()
+            if not access_token:
+                raise Exception('Failed to get access token !')
 
-                # If no courses exist for this partner, this command is likely being run on a
-                # new catalog installation. In that case, we don't want multiple threads racing
-                # to create courses. If courses do exist, this command is likely being run
-                # as an update, significantly lowering the probability of race conditions.
-                courses_exist = Course.objects.filter(partner=partner).exists()
-                is_threadsafe = courses_exist and waffle.switch_is_active('threaded_metadata_write')
-                max_workers = DataLoaderConfig.get_solo().max_workers
+            logger.info('*** Apply course API URL => {} '.format(courses_api_url))
 
-                logger.info(
-                    'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
-                )
+            username = jwt.decode(access_token, verify=False)['preferred_username']
+            kwargs = {'username': username} if username else {}
+            kwargs['modified_x_min_ago'] = modified_x_min_ago
 
-                pipeline = (
-                    (
-                        (CoursesApiDataLoader, partner.courses_api_url, max_workers),
-                    ),
-                )
+            # The Linux kernel implements copy-on-write when fork() is called to create a new
+            # process. Pages that the parent and child processes share, such as the database
+            # connection, are marked read-only. If a write is performed on a read-only page
+            # (e.g., closing the connection), it is then copied, since the memory is no longer
+            # identical between the two processes. This leads to the following behavior:
+            #
+            # 1) Newly forked process
+            #       parent
+            #              -> connection (Django open, MySQL open)
+            #       child
+            #
+            # 2) Child process closes the connection
+            #       parent -> connection (*Django open, MySQL closed*)
+            #       child  -> connection (Django closed, MySQL closed)
+            #
+            # Calling connection.close() from a child process causes the MySQL server to
+            # close a connection which the parent process thinks is still usable. Since
+            # the parent process thinks the connection is still open, Django won't attempt
+            # to open a new one, and the parent ends up running a query on a closed connection.
+            # This results in a 'MySQL server has gone away' error.
+            #
+            # To resolve this, we force Django to reconnect to the database before running any queries.
+            connection.connect()
 
-                if waffle.switch_is_active('parallel_refresh_pipeline'):
-                    for stage in pipeline:
-                        with concurrent.futures.ProcessPoolExecutor() as executor:
-                            for loader_class, api_url, max_workers in stage:
-                                if api_url:
-                                    executor.submit(
-                                        execute_parallel_loader,
-                                        loader_class,
-                                        partner,
-                                        api_url,
-                                        access_token,
-                                        token_type,
-                                        max_workers,
-                                        is_threadsafe,
-                                        **kwargs,
-                                    )
-                else:
-                    # Flatten pipeline and run serially.
-                    for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
-                        if api_url:
-                            execute_loader(
-                                loader_class,
-                                partner,
-                                api_url,
-                                access_token,
-                                token_type,
-                                max_workers,
-                                is_threadsafe,
-                                **kwargs,
-                            )
+            is_threadsafe = waffle.switch_is_active('threaded_metadata_write')
+            max_workers = DataLoaderConfig.get_solo().max_workers
 
-                # TODO Cleanup CourseRun overrides equivalent to the Course values.
+            logger.info(
+                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
+            )
+
+            pipeline = (
+                (
+                    (CoursesApiDataLoader, courses_api_url, max_workers),
+                ),
+            )
+
+            if waffle.switch_is_active('parallel_refresh_pipeline'):
+                for stage in pipeline:
+                    with concurrent.futures.ProcessPoolExecutor() as executor:
+                        for loader_class, api_url, max_workers in stage:
+                            if api_url:
+                                executor.submit(
+                                    execute_parallel_loader,
+                                    loader_class,
+                                    courses_api_cfg,
+                                    api_url,
+                                    access_token,
+                                    token_type,
+                                    max_workers,
+                                    is_threadsafe,
+                                    **kwargs,
+                                )
+            else:
+                # Flatten pipeline and run serially.
+                for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
+                    if api_url:
+                        execute_loader(
+                            loader_class,
+                            courses_api_cfg,
+                            api_url,
+                            access_token,
+                            token_type,
+                            max_workers,
+                            is_threadsafe,
+                            **kwargs,
+                        )
+
+            # TODO Cleanup CourseRun overrides equivalent to the Course values.
 
             timestamp = time.time()
             logger.info(

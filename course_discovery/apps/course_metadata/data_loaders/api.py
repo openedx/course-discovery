@@ -17,19 +17,19 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def __init__(
             self,
-            partner, api_url, access_token=None,
+            courses_api_cfg, api_url, access_token=None,
             token_type=None, max_workers=None,
             is_threadsafe=False, **kwargs
     ):
         super(CoursesApiDataLoader, self).__init__(
-            partner=partner, api_url=api_url, access_token=access_token,
+            courses_api_cfg=courses_api_cfg, api_url=api_url, access_token=access_token,
             token_type=token_type, max_workers=max_workers,
             is_threadsafe=is_threadsafe, **kwargs
         )
         self.target_course_key = kwargs.pop('course_key', None)
 
     def ingest(self):
-        logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
+        logger.info('Refreshing Courses and CourseRuns from %s...', self.courses_api_cfg['URL'])
 
         initial_page = 1
         setattr(self, 'course_count', 0)
@@ -65,14 +65,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     response = future.result()
                     self._process_response(response)
 
-        logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
+        logger.info('Retrieved %d course runs from %s.', count, self.courses_api_cfg['URL'])
 
         self.delete_orphans()
         self.delete_expired_courses()
 
     @property
     def is_loading_all_courses(self):
-        return not self.modified_x_min_ago and not self.target_course_key
+        return (not self.modified_x_min_ago and
+                not self.target_course_key)
 
     def delete_expired_courses(self):
         if self.is_loading_all_courses:
@@ -85,11 +86,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
             from course_discovery.apps.core.utils import delete_expired_courses
 
             if len(self.loaded_course_keys) == self.course_count:
-                local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
-                removed_course_keys = local_course_keys - self.loaded_course_keys
 
-                if removed_course_keys:
-                    delete_expired_courses(self.partner, removed_course_keys)
+                if self.course_count:
+                    # Get course keys of all organizations
+                    local_course_keys = {r['key'] for r in CourseRun.objects.values('key').all()}
+                    removed_course_keys = local_course_keys - self.loaded_course_keys
+
+                    if removed_course_keys:
+                        delete_expired_courses(removed_course_keys)
 
             else:
                 logger.error(
@@ -110,24 +114,33 @@ class CoursesApiDataLoader(AbstractDataLoader):
         if self.modified_x_min_ago:
             logger.info('*** Query incremental courses from LMS. page_no={}'.format(page))
             return self.api_client.courses().get(
-                page=page, page_size=self.PAGE_SIZE,
+                page=page,
+                page_size=self.PAGE_SIZE,
                 username=self.username,
-                org=self.partner.short_code,
+                org='*',
                 modified_in_minutes=self.modified_x_min_ago   # Only query new edited courses in one hour from LMS
             )
 
         else:
             if self.target_course_key:
-                logger.info('*** Query Target Course => [ {} ] from LMS.'.format(self.target_course_key))
+                logger.info(
+                    '*** Query Target Course => [ {} ] from LMS.'.format(
+                        self.target_course_key
+                    )
+                )
             else:
-                logger.info('*** Query all of courses from LMS. page_no={}'.format(page))
+                logger.info(
+                    '*** Query all of courses from LMS. page_no={}.'.format(page)
+                )
 
             kwargs = {
                 'page': page, 'page_size': self.PAGE_SIZE,
-                'username': self.username, 'org': self.partner.short_code
+                'username': self.username
             }
             if self.target_course_key:
                 kwargs['id'] = self.target_course_key
+            else:
+                kwargs['org'] = '*'         # Fetch from all organizations
 
             return self.api_client.courses().get(**kwargs)
 
@@ -151,10 +164,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 if course_run:
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
-                    if course and not self.partner.has_marketing_site:
-                        # If the partner have marketing site,
-                        # we should only update the course information from the marketing site.
-                        # Therefore, we don't need to do the statements below
+                    if course:
                         course = self.update_course(course, body)
                         logger.info('Processed course with key [%s].', course.key)
                 else:
@@ -163,12 +173,13 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
-            except:  # pylint: disable=bare-except
-                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
-                    course_run=course_run_id,
-                    api_url=self.partner.courses_api_url
+            except:
+                logger.exception(
+                    'An error occurred while updating {course_run} from {api_url}'.format(
+                        course_run=course_run_id,
+                        api_url=self.courses_api_cfg['URL']
+                    )
                 )
-                logger.exception(msg)
 
     def get_course_run(self, body):
         course_run_key = body['id']
@@ -189,25 +200,27 @@ class CoursesApiDataLoader(AbstractDataLoader):
         return CourseRun.objects.create(**defaults)
 
     def get_or_create_course(self, body):
-        course_run_key = CourseKey.from_string(body['id'])
-        course_key = self.get_course_key_from_course_run_key(course_run_key)
-        defaults = self.format_course_data(body)
+        course_key = CourseKey.from_string(body['id'])
+        course_key_str = str(course_key)
+        defaults = self.format_course_data(course_key, body)
         # We need to add the key to the defaults because django ignores kwargs with __
         # separators when constructing the create request
-        defaults['key'] = course_key
-        defaults['partner'] = self.partner
+        defaults['key'] = course_key_str
+        defaults['org'] = course_key.org
 
         course, created = Course.objects.get_or_create(
-            key__iexact=course_key, partner=self.partner, defaults=defaults
+            key__iexact=course_key_str,
+            defaults=defaults
         )
 
         return (course, created)
 
     def update_course(self, course, body):
-        validated_data = self.format_course_data(body)
+        course_key = CourseKey.from_string(body['id'])
+        validated_data = self.format_course_data(course_key, body)
         self._update_instance(course, validated_data)
 
-        logger.info('Processed course with key [%s].', course.key)
+        logger.info('Processed course with key [{}] | ORG : {}.'.format(course.key, course_key.org))
 
         return course
 
@@ -226,24 +239,22 @@ class CoursesApiDataLoader(AbstractDataLoader):
         }
 
         # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site:
-            defaults.update({
-                'start': self.parse_date(body['start']),
-                'title_override': body['name'],
-                'status': CourseRunStatus.Published,
-            })
+        defaults.update({
+            'start': self.parse_date(body['start']),
+            'title_override': body['name'],
+            'status': CourseRunStatus.Published,
+        })
 
         if course:
             defaults['course'] = course
 
         return defaults
 
-    def format_course_data(self, body):
+    def format_course_data(self, course_key, body):
         defaults = {
             'title': body['name'],
+            'org': course_key.org
         }
-
-        if not self.partner.has_marketing_site:
-            defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
+        defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
 
         return defaults

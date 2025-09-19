@@ -257,15 +257,3 @@ class PersonWorkFactory(factory.django.DjangoModelFactory):
         model = PersonWork
 
     person = factory.SubFactory(PersonFactory)
-
-
-class CourseEntitlementFactory(factory.DjangoModelFactory):
-    mode = factory.SubFactory(SeatTypeFactory)
-    price = FuzzyDecimal(0.0, 650.0)
-    currency = factory.Iterator(Currency.objects.all())
-    sku = FuzzyText(length=8)
-    expires = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    course = factory.SubFactory(CourseFactory)
-
-    class Meta:
-        model = CourseEntitlement
