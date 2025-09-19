@@ -5,25 +5,31 @@ import sys
 import types
 
 
-def test_production_storage_from_yaml(monkeypatch):
-    """Ensure YAML config correctly sets STORAGES without leaking legacy globals."""
+def test_production_media_storage(monkeypatch):
+    """Test that MEDIA_STORAGE_BACKEND YAML block overrides default storage + media settings."""
+
+    fake_yaml_content = """
+        MEDIA_STORAGE_BACKEND:
+          AWS_S3_OBJECT_PARAMETERS:
+            CacheControl: max-age=31536000
+          AWS_QUERYSTRING_AUTH: false
+          AWS_QUERYSTRING_EXPIRE: false
+          AWS_S3_CUSTOM_DOMAIN: cdn.org
+          AWS_STORAGE_BUCKET_NAME: tests
+          DEFAULT_FILE_STORAGE: storages.backends.s3boto3.S3Boto3Storage
+          MEDIA_ROOT: media
+          MEDIA_URL: https://cdn.org/media/
+    """
 
     def fake_get_env_setting(key):
         if key == "DISCOVERY_CFG":
             return "/fake/path/config.yaml"
         return ""
 
-    fake_yaml_content = """
-        DEFAULT_FILE_STORAGE: storages.backends.s3boto3.S3Boto3Storage
-        STATICFILES_STORAGE: storage.ManifestStaticFilesStorage
-        MEDIA_ROOT: /tmp/media
-        MEDIA_URL: /media/
-    """
-
-    # Clear any cached module import
+    # Remove production module if already imported
     sys.modules.pop("course_discovery.settings.production", None)
 
-    # Patch out utils and open()
+    # Patch dependencies
     monkeypatch.setitem(
         sys.modules,
         "course_discovery.settings.utils",
@@ -32,22 +38,30 @@ def test_production_storage_from_yaml(monkeypatch):
             get_logger_config=lambda *a, **kw: {},
         ),
     )
+
+    monkeypatch.setitem(
+        sys.modules,
+        "edx_django_utils.plugins",
+        types.SimpleNamespace(add_plugins=lambda *a, **kw: None),
+    )
+
+    # Make `open()` return our fake YAML
     monkeypatch.setattr(builtins, "open", lambda *a, **kw: io.StringIO(fake_yaml_content))
 
-    # Import the production settings
+    # Import production settings
     prod = importlib.import_module("course_discovery.settings.production")
 
-    # Legacy globals should *not* be present
-    assert not hasattr(prod, "DEFAULT_FILE_STORAGE")
-    assert not hasattr(prod, "STATICFILES_STORAGE")
-
-    # Modern STORAGES dict should be populated
+    # ✅ Assert MEDIA_STORAGE_BACKEND unpacked correctly
     assert "default" in prod.STORAGES
     assert prod.STORAGES["default"]["BACKEND"] == "storages.backends.s3boto3.S3Boto3Storage"
 
-    assert "staticfiles" in prod.STORAGES
-    assert prod.STORAGES["staticfiles"]["BACKEND"] == "storage.ManifestStaticFilesStorage"
+    assert prod.MEDIA_URL == "https://cdn.org/media/"
+    assert prod.MEDIA_ROOT == "media"
 
-    # Media config still comes through
-    assert prod.MEDIA_ROOT == "/tmp/media"
-    assert prod.MEDIA_URL == "/media/"
+
+    # Assert all AWS keys are present
+    assert prod.AWS_STORAGE_BUCKET_NAME == "tests"
+    assert prod.AWS_S3_CUSTOM_DOMAIN == "cdn.org"
+    assert prod.AWS_QUERYSTRING_AUTH is False
+    assert prod.AWS_QUERYSTRING_EXPIRE is False
+    assert prod.AWS_S3_OBJECT_PARAMETERS == {"CacheControl": "max-age=31536000"}

@@ -169,12 +169,3 @@ RETIRED_COURSE_TYPES = ['bootcamp-2u']
 
 VERTICALS_MANAGEMENT_GROUPS = ['Vertical Managers']
 
-
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
