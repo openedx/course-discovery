@@ -2818,10 +2818,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
-        
-        if waffle.switch_is_active('dummy_sku_generation') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
-            logger.info(f'Check the Dummy sku configuration')
 
+        # Waffle switch to control dummy SKU generation logic for 2U purpose. 
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(None, self) #Generates a SKU for the provide by Seat
+    
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,

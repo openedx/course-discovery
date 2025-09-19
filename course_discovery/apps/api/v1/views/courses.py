@@ -253,9 +253,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.collaborators.add(*collaborators)
 
         entitlement_types = course.type.entitlement_types.all()
-        if waffle.switch_is_active('dummy_sku_generation') and IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
-            generate_sku(partner, course)
-
+        
+        # Waffle switch to control dummy SKU generation logic for 2U purpose. 
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(partner, course)  #Generates a SKU for the provide by entitlements
+        
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
             CourseEntitlement.objects.create(
