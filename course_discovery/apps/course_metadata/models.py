@@ -58,17 +58,19 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
     IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
-    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED,
+    IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
     custom_render_variations, get_course_run_statuses, get_slug_for_course, is_ocm_course,
     push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
-    validate_ai_languages
+    validate_ai_languages, generate_sku
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
+
 
 logger = logging.getLogger(__name__)
 
@@ -2813,12 +2815,15 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
         default_deadline = self.get_seat_default_upgrade_deadline(seat_type)
         defaults = {'upgrade_deadline': default_deadline}
-
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
 
+        # Waffle switch to control dummy SKU generation logic for 2U purpose. 
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(None, self) #Generates a SKU for the provide by Seat
+    
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,

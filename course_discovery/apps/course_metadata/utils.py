@@ -44,6 +44,8 @@ from course_discovery.apps.course_metadata.toggles import (
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
+from hashlib import md5
+
 logger = logging.getLogger(__name__)
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
@@ -1291,3 +1293,29 @@ def bulk_operation_upload_to_path(instance, filename):  # pylint: disable=unused
     Utility method used on BulkOperationTask csv_file field to generate unique file names.
     """
     return f"bulk_operations/uploads/{str(uuid.uuid4())}/{filename}"
+
+def generate_sku(partner=None, course=None):
+    """
+    Generates a SKU for the provide by entitlements and seats combination.
+    Example: 76E4E71
+    """
+    try:
+        if partner and getattr(partner, 'id', None) and course is not None:
+            _hash = ' '.join((str(course.uuid),
+                str(partner.id)
+            )).encode('utf-8')
+            logger.info('Initiating SKU generation for the course entitlements.')
+        elif partner is None:
+            _hash = ' '.join((str(course.uuid),
+                str(course.key)
+            )).encode('utf-8')
+            logger.info('Initiating SKU generation for the seats.')
+        else:
+            raise Exception('Unexpected entitlements and seats')
+        md5_hash = md5(_hash.lower())
+        digest = md5_hash.hexdigest()[-7:]
+        
+        return digest.upper()
+        
+    except Exception as exc:
+        raise ValidationError("Unexpected combition SKU") from exc
