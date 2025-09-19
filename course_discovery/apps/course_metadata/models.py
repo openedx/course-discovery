@@ -1694,9 +1694,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
     @property
     def image_url(self):
-        if self.image:
-            return self.image.small.url
-
+        if self.image and self.image.name:
+            variation_path = self.image.get_variation_name(self.image.name, 'small')
+            return self.image.storage.url(variation_path)
         return self.card_image_url
 
     @property
@@ -1923,7 +1923,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             return False
 
         if published_runs is None:
-            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator()
+            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator(
+                chunk_size=settings.ITERATOR_CHUNK_SIZE)
         published_runs = frozenset(published_runs)
 
         # Now separate out the active ones from the inactive

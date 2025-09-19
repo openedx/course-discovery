@@ -2,6 +2,7 @@ import datetime
 from collections import ChainMap
 
 import ddt
+import factory
 import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -31,6 +32,11 @@ class AlgoliaProxyCourseFactory(CourseFactory):
 class AlgoliaProxyProgramFactory(ProgramFactory):
     class Meta:
         model = AlgoliaProxyProgram
+
+    subscription = factory.RelatedFactory(
+        ProgramSubscriptionFactory,
+        factory_related_name='program',
+    )
 
 
 class TestAlgoliaDataMixin():

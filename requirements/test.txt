@@ -191,7 +191,6 @@ dill==0.4.0
     # via pylint
 distlib==0.4.0
     # via virtualenv
-django==4.2.23
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
