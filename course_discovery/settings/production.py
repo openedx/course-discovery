@@ -58,15 +58,11 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     # Unpack media storage settings
     if "DEFAULT_FILE_STORAGE" in MEDIA_STORAGE_BACKEND:
         default_file_storage = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE")
+        # Update global variables for the other MEDIA_STORAGE_BACKEND settings
         vars().update(MEDIA_STORAGE_BACKEND)
 
-        MEDIA_STORAGE_BACKEND.update(
-            {
-                "STORAGES": {
-                    "default": {"BACKEND": default_file_storage},
-                }
-            }
-        )
+        # Directly update the global STORAGES dict
+        STORAGES["default"]["BACKEND"] = default_file_storage
     else:
         vars().update(MEDIA_STORAGE_BACKEND)
 
