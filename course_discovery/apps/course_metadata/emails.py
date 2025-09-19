@@ -453,9 +453,10 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
     html_template = 'course_metadata/email/course_deadline.html'
     template = get_template(html_template)
     subject_lookup = {
-        "course_ended": f"Reminder: {course.title} has ended",
-        "two_days_reminder": f"Reminder: {course.title} ends in 2 days",
+        "three_months_reminder": f"Reminder: {course.title} ends in 3 months",
+        "one_month_reminder": f"Reminder: {course.title} ends in 1 month",
         "seven_days_reminder": f"Reminder: {course.title} ends in 7 days",
+        "course_ended": f"Reminder: {course.title} has ended",
     }
 
     subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
@@ -465,7 +466,12 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
         "course_name": course.title,
         "course_key": course.key,
         "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
-        "days_to_expire": '2 days' if deadline_email_variant == "two_days_reminder" else '7 days' if deadline_email_variant == "seven_days_reminder" else 'course ended',  # pylint: disable=line-too-long
+        "days_to_expire": (
+            "90 days" if deadline_email_variant == "three_months_reminder"
+            else "30 days" if deadline_email_variant == "one_month_reminder"
+            else "7 days" if deadline_email_variant == "seven_days_reminder"
+            else "course_ended"
+        ),
         "publisher_url": course.partner.publisher_url,
         "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
         "partner_marketing_site_url": course.partner.marketing_site_url_root,

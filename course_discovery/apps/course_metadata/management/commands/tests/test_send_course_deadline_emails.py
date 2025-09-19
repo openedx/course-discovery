@@ -100,7 +100,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
                 (
                     LOGGER_PATH,
                     'INFO',
-                    'Found 0 courses with self-paced runs.'
+                    'Found 0 courses with matching runs.'
                 ),
                 (
                     LOGGER_PATH,
@@ -110,7 +110,10 @@ class SendCourseDeadlineEmailsTests(TestCase):
             )
 
     @ddt.data(
-        (2, "two_days_reminder"), (7, "seven_days_reminder"), (-1, "course_ended")
+        (90, "three_months_reminder"),
+        (30, "one_month_reminder"),
+        (7, "seven_days_reminder"),
+        (-1, "course_ended"),
     )
     @ddt.unpack
     @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
@@ -119,7 +122,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
     ):
         """
         Test that the command sends emails when there are advertised course runs with end dates within
-        the specified range.
+        the specified range (90, 30, 7, -1 days).
         """
         self.non_draft_course_run.end = timezone.now() + timedelta(days=days_until_end)
         self.non_draft_course_run.save()
@@ -130,7 +133,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
         # pylint: disable=line-too-long
             log_capture.check(
                 (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
-                (LOGGER_PATH, 'INFO', 'Found 1 courses with self-paced runs.'),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
                 (LOGGER_PATH, 'INFO', f'Scheduling deadline email for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
                 (LOGGER_PATH, 'INFO', f'Deadline email has been scheduled for course {self.non_draft_course.title} ({self.non_draft_course.key}).'),
                 (LOGGER_PATH, 'INFO', 'Scheduled course deadline emails for:\n' f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"),
@@ -174,7 +177,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
 
             log_capture.check(
                 (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
-                (LOGGER_PATH, 'INFO', 'Found 1 courses with self-paced runs.'),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
                 (
                     LOGGER_PATH,
                     'INFO',
@@ -197,7 +200,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
 
             log_capture.check(
                 (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
-                (LOGGER_PATH, 'INFO', 'Found 1 courses with self-paced runs.'),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
                 (
                     LOGGER_PATH,
                     'INFO',
