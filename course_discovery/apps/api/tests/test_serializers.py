@@ -5,7 +5,9 @@ import re
 from urllib.parse import urlencode
 
 import ddt
+import pytest
 import responses
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils.text import slugify
 from django.utils.timezone import now
@@ -44,7 +46,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview, CourseType
+from course_discovery.apps.course_metadata.models import (
+    AbstractLocationRestrictionModel, CourseReview, CourseType, Seat
+)
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -54,6 +58,7 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     PersonSearchDocumentSerializer, PersonSearchModelSerializer, ProgramSearchDocumentSerializer,
     ProgramSearchModelSerializer
 )
+from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, BulkOperationTaskFactory, CertificateInfoFactory,
     CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
@@ -763,7 +768,23 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'weeks_to_complete': course_run.weeks_to_complete,
             'instructors': [],
             'staff': [],
-            'seats': [],
+            'seats': [
+                {
+                    'type': seat.type.slug,
+                    'price': str(seat.price),
+                    'currency': seat.currency.code,
+                    'upgrade_deadline': json_date_format(seat.upgrade_deadline),
+                    'upgrade_deadline_override': (
+                        json_date_format(seat.upgrade_deadline_override)
+                        if seat.upgrade_deadline_override else None
+                    ),
+                    'credit_provider': seat.credit_provider,
+                    'credit_hours': seat.credit_hours,
+                    'sku': seat.sku,
+                    'bulk_sku': seat.bulk_sku,
+                }
+                for seat in course_run.seats.all()
+            ],
             'modified': json_date_format(course_run.modified),
             'level_type': course_run.level_type.name_t,
             'availability': course_run.availability,
@@ -821,6 +842,69 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         assert serializer.data['marketing_url'] is not None
         assert serializer.data['marketing_url'] == course_run.marketing_url
+
+    @pytest.mark.django_db
+    def test_course_run_serializer_includes_credit_seats_info(self):
+        """CourseRunSerializer should include seats with credit info."""
+        credit_type = factories.SeatTypeFactory.credit()
+        cr = factories.CourseRunFactory()
+        factories.SeatFactory(
+            course_run=cr,
+            type=credit_type,
+            price=150,
+            credit_provider="providerA",
+            credit_hours=5,
+        )
+        request = make_request()
+        data = CourseRunSerializer(cr, context={'request': request}).data
+        seats = data.get("seats", [])
+        assert seats, "Expected seats to be present"
+        seat0 = seats[0]
+        assert seat0["credit_provider"] == "providerA"
+        assert seat0["credit_hours"] == 5
+
+    @pytest.mark.django_db
+    def test_duplicate_credit_provider_validation_in_serializer(self):
+        """Serializer must reject payloads that try to assign same credit_provider twice for same run."""
+        credit_type = factories.SeatTypeFactory.credit()
+        cr = factories.CourseRunFactory()
+        request = make_request()
+        payload = {
+            "seats": [
+                {"type": credit_type.slug, "price": 100, "credit_provider": "X", "credit_hours": 2},
+                {"type": credit_type.slug, "price": 120, "credit_provider": "X", "credit_hours": 4},
+            ]
+        }
+        serializer = CourseRunSerializer(instance=cr, data=payload, partial=True, context={'request': request})
+        assert not serializer.is_valid(), "Serializer should reject duplicate credit_provider"
+        errors = serializer.errors.get("seats") or serializer.errors
+        assert "Duplicate credit provider" in str(errors)
+
+    @pytest.mark.django_db
+    def test_update_credit_fields_via_course_run_serializer(self):
+        """Updating an existing seat via CourseRunSerializer should change credit_provider/credit_hours."""
+        credit_type = factories.SeatTypeFactory.credit()
+        cr = factories.CourseRunFactory()
+        factories.SeatFactory(
+            course_run=cr,
+            type=credit_type,
+            price=100,
+            credit_provider=None,
+            credit_hours=None,
+        )
+        payload = {
+            "seats": [
+                {"type": credit_type.slug, "price": 110, "credit_provider": "NewProv", "credit_hours": 7}
+            ]
+        }
+        request = make_request()
+        serializer = CourseRunSerializer(instance=cr, data=payload, partial=True, context={'request': request})
+        assert serializer.is_valid(), serializer.errors
+        updated = serializer.save()
+        updated_seat = updated.seats.filter(type=credit_type).first()
+        assert updated_seat.credit_provider == "NewProv"
+        assert updated_seat.credit_hours == 7
+        assert str(updated_seat.price) == "110.00"
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):
@@ -1915,6 +1999,29 @@ class SeatSerializerTests(TestCase):
         serializer.is_valid()
 
         assert serializer.errors['price']
+
+    @pytest.mark.django_db
+    def test_seat_serializer_includes_credit_fields(self):
+        """Ensure that SeatSerializer outputs credit_provider and credit_hours when present."""
+        credit_type = factories.SeatTypeFactory.credit()
+        seat = factories.SeatFactory(
+            type=credit_type,
+            price=200,
+            credit_provider="asu",
+            credit_hours=3,
+        )
+        serialized = SeatSerializer(seat).data
+        assert serialized["credit_provider"] == "asu"
+        assert serialized["credit_hours"] == 3
+
+    @pytest.mark.django_db
+    def test_seat_serializer_defaults_credit_fields_to_none(self):
+        """Non-credit seats should serialize credit fields as None."""
+        verified_type = factories.SeatTypeFactory.verified()
+        seat = factories.SeatFactory(type=verified_type, price=100)
+        serialized = SeatSerializer(seat).data
+        assert serialized["credit_provider"] is None
+        assert serialized["credit_hours"] is None
 
 
 class MinimalPersonSerializerTests(TestCase):

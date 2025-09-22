@@ -15,6 +15,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.query import Prefetch
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializer_fields import CountryField
@@ -800,12 +801,12 @@ class SeatSerializer(BaseModelSerializer):
         min_value=0,
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
-    upgrade_deadline = serializers.DateTimeField()
-    upgrade_deadline_override = serializers.DateTimeField()
-    credit_provider = serializers.CharField()
-    credit_hours = serializers.IntegerField()
-    sku = serializers.CharField()
-    bulk_sku = serializers.CharField()
+    upgrade_deadline = serializers.DateTimeField(required=False, allow_null=True)
+    upgrade_deadline_override = serializers.DateTimeField(required=False, allow_null=True)
+    credit_provider = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    credit_hours = serializers.IntegerField(required=False, allow_null=True)
+    sku = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    bulk_sku = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     @classmethod
     def prefetch_queryset(cls):
@@ -967,6 +968,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
             'course__partner',
             'restricted_run',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
+            'seats'
         )
 
     class Meta:
@@ -1074,6 +1076,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     )
     estimated_hours = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
+    seats = SeatSerializer(many=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -1093,7 +1096,40 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'video__image',
             'language__translations',
             Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
+            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
         )
+
+    def validate_seats(self, seats):
+        """
+        Validate credit seat metadata:
+        - Prevent duplicate credit providers for credit seats.
+        - Ensure credit_hours is positive if a provider is set.
+        """
+        providers = []
+        for s in seats:
+            # normalize type: could be SeatType object or slug string
+            seat_type = getattr(s.get('type'), 'slug', s.get('type'))
+            if seat_type == Seat.CREDIT:
+                provider = s.get('credit_provider')
+                hours = s.get('credit_hours')
+                if provider:
+                    # check for duplicates
+                    if provider in providers:
+                        raise serializers.ValidationError(
+                            f"Duplicate credit provider(s): {provider}"
+                        )
+                    providers.append(provider)
+                    # check credit_hours
+                    if hours is None or hours <= 0:
+                        raise serializers.ValidationError(
+                            f"Credit hours must be a positive integer for provider {provider}"
+                        )
+            upgrade_deadline_override = s.get('upgrade_deadline_override')
+            if upgrade_deadline_override and upgrade_deadline_override < timezone.now():
+                raise serializers.ValidationError(
+                    "Upgrade deadline override cannot be in the past."
+                )
+        return seats
 
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
@@ -1144,7 +1180,29 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
             self.update_video(instance, validated_data.pop('get_video'))
-        return super().update(instance, validated_data)
+        seats_data = validated_data.pop('seats', None)
+        instance = super().update(instance, validated_data)
+        if seats_data is not None:
+            for seat in seats_data:
+                seat_type = getattr(seat.get('type'), 'slug', seat.get('type'))
+                credit_provider = seat.get('credit_provider')
+                credit_hours = seat.get('credit_hours')
+                upgrade_deadline_override = seat.get('upgrade_deadline_override')
+                price = seat.get('price', 0)
+                obj_seat, created = instance.seats.get_or_create(type=seat_type, defaults={
+                    'price': price,
+                    'credit_provider': credit_provider,
+                    'credit_hours': credit_hours,
+                    'upgrade_deadline_override': upgrade_deadline_override,
+                })
+
+                if not created:
+                    obj_seat.price = price
+                    obj_seat.credit_provider = credit_provider
+                    obj_seat.credit_hours = credit_hours
+                    obj_seat.upgrade_deadline_override = upgrade_deadline_override
+                    obj_seat.save()
+        return instance
 
     def validate(self, attrs):
         course = attrs.get('course', None)
