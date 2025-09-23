@@ -41,7 +41,7 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
 
     vars().update(config_from_yaml)
 
-
+    MEDIA_STORAGE_BACKEND = config_from_yaml.get("MEDIA_STORAGE_BACKEND", {})
     default_backend = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE", None)
     static_backend = MEDIA_STORAGE_BACKEND.pop("STATICFILES_STORAGE", None)
 
