@@ -39,32 +39,23 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
         if value:
             vars()[key].update(value)
 
-    # Handle storages for Django 4.2+
-    if "DEFAULT_FILE_STORAGE" in config_from_yaml:
-        STORAGES["default"] = {
-            "BACKEND": config_from_yaml.pop("DEFAULT_FILE_STORAGE"),
-        }
-
-    if "STATICFILES_STORAGE" in config_from_yaml:
-        STORAGES["staticfiles"] = {
-            "BACKEND": config_from_yaml.pop("STATICFILES_STORAGE"),
-        }
-
-
     vars().update(config_from_yaml)
 
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
-    # Unpack media storage settings
-    if "DEFAULT_FILE_STORAGE" in MEDIA_STORAGE_BACKEND:
-        default_file_storage = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE")
-        # Update global variables for the other MEDIA_STORAGE_BACKEND settings
-        vars().update(MEDIA_STORAGE_BACKEND)
+    # In django==4.2.24 following line sets the DEFAULT_FILE_STORAGE and other AWS variables as per YAML.
+    vars().update(MEDIA_STORAGE_BACKEND)
 
-        # Directly update the global STORAGES dict
-        STORAGES["default"]["BACKEND"] = default_file_storage
-    else:
-        vars().update(MEDIA_STORAGE_BACKEND)
+    default_backend = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE", None)
+    static_backend = MEDIA_STORAGE_BACKEND.pop("STATICFILES_STORAGE", None)
+
+    vars().update(MEDIA_STORAGE_BACKEND)
+
+    if default_backend:
+        STORAGES["default"]["BACKEND"] = default_backend
+
+    if static_backend:
+        STORAGES["staticfiles"]["BACKEND"] = static_backend
 
 # Reset our cache when memcache versions change
 CACHES['default']['KEY_PREFIX'] = CACHES['default'].get('KEY_PREFIX', '') + '_' + memcache.__version__
