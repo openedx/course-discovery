@@ -602,9 +602,7 @@ EDX_DRF_EXTENSIONS = {
 }
 API_ROOT = None
 MEDIA_STORAGE_BACKEND = {
-    "STORAGES": {
-        "default": {"BACKEND": STORAGES["default"]["BACKEND"]},
-    },
+    "STORAGES": STORAGES,
     'MEDIA_ROOT': MEDIA_ROOT,
     'MEDIA_URL': MEDIA_URL
 }
