@@ -1,7 +1,6 @@
 import importlib
 import sys
 import textwrap
-import types
 
 
 def test_production_media_storage(monkeypatch, tmp_path):
