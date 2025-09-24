@@ -120,6 +120,8 @@ class Command(BaseCommand):
             courses_api_cfg = getattr(settings, 'COURSES_API', None)
             if not courses_api_cfg:
                 raise CommandError('No COURSES_API available!')
+            if Site.objects.count() == 0:
+                raise CommandError('No valid site records in Table django_site!')
             prefix = 'https://' if courses_api_cfg.get('IS_SECURE', True) else 'http://'
 
             logger.info('Retrieving access token...')
@@ -127,21 +129,19 @@ class Command(BaseCommand):
             for site in Site.objects.all():
                 try:
                     access_token_url = '{prefix}{lms_domain}{end_point}/access_token'.format(
-                        prefix=prefix,
-                        lms_domain=site.domain,
+                        prefix=prefix, lms_domain=site.domain,
                         end_point=courses_api_cfg['OIDC_URL_ROOT']
                     )
                     access_token, __ = EdxRestApiClient.get_oauth_access_token(
                         access_token_url,
-                        courses_api_cfg['OIDC_KEY'],
-                        courses_api_cfg['OIDC_SECRET'],
+                        courses_api_cfg['OIDC_KEY'], courses_api_cfg['OIDC_SECRET'],
                         token_type=token_type
                     )
                     courses_api_url = '{prefix}{lms_domain}{end_point}'.format(
-                        prefix=prefix,
-                        lms_domain=site.domain,
+                        prefix=prefix, lms_domain=site.domain,
                         end_point=courses_api_cfg['URL']
                     )
+                    break
                 except Exception as e:
                     logger.warning(
                         'No access token acquired through client_credential flow with url=>{}. Error : {}'.format(
