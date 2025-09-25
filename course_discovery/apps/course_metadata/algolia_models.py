@@ -83,7 +83,7 @@ def delegate_attributes(cls):
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
                     'product_allowed_in', 'product_blocked_in', 'learning_type', 'learning_type_exp',
-                    'product_ai_languages']
+                    'product_ai_languages', 'product_weeks_to_complete']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -344,7 +344,19 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_weeks_to_complete(self):
-        return getattr(self.advertised_course_run, 'weeks_to_complete', None)
+        """
+        Returns the number of weeks to complete from the advertised course run.
+        Returns None if not available or invalid.
+        """
+        advertised_run = getattr(self, "advertised_course_run", None)
+        if not advertised_run:
+            return None
+        weeks = getattr(advertised_run, "weeks_to_complete", None)
+        
+        # Treat None, 0, and negative values as invalid
+        if not weeks or weeks <= 0:
+            return None
+        return weeks
 
     @property
     def product_min_effort(self):
@@ -469,7 +481,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             if datetime.datetime.now(pytz.UTC) >= self.advertised_course_run.start:
                 return 3
             return self.advertised_course_run.start.timestamp()
-        return None  # Algolia will deprioritize entries where a ranked field is empty
+        if not self.advertised_course_run:
+            return None  # Algolia will deprioritize entries where a ranked field is empty
 
     @property
     def subscription_eligible(self):

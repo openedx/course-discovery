@@ -80,7 +80,7 @@ class EnglishProductIndex(BaseProductIndex):
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'), 'subscription_eligible',
-                    'subscription_prices', 'learning_type', 'learning_type_exp',
+                    'subscription_prices', 'learning_type', 'learning_type_exp', 'weeks_to_complete',
                     ('product_ai_languages', 'ai_languages'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       ('product_value_per_click_usa', 'value_per_click_usa'),
@@ -117,7 +117,7 @@ class EnglishProductIndex(BaseProductIndex):
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
             'skills.category', 'skills.subcategory', 'tags', 'subscription_eligible', 'subscription_prices',
-            'learning_type', 'learning_type_exp', 'ai_languages.translation_languages',
+            'learning_type', 'learning_type_exp', 'ai_languages.translation_languages', 'weeks_to_complete',
             'ai_languages.transcription_languages',
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
@@ -135,7 +135,7 @@ class SpanishProductIndex(BaseProductIndex):
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'), 'subscription_eligible',
-                    'subscription_prices', 'learning_type', 'learning_type_exp',
+                    'subscription_prices', 'learning_type', 'learning_type_exp', 'weeks_to_complete',
                     ('product_ai_languages', 'ai_languages'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       ('product_value_per_click_usa', 'value_per_click_usa'),
@@ -171,7 +171,7 @@ class SpanishProductIndex(BaseProductIndex):
             'contentful_fields.faq_items, contentful_fields.featured_products'
         ],
         'attributesForFaceting': [
-            'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
+            'partner', 'availability', 'weeks_to_complete', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)',
             'skills.skill', 'skills.category', 'skills.subcategory', 'tags', 'subscription_eligible',
             'subscription_prices', 'learning_type', 'learning_type_exp', 'ai_languages.translation_languages',

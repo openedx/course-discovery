@@ -1,5 +1,7 @@
 import datetime
 from collections import ChainMap
+from datetime import timedelta
+from unittest.mock import PropertyMock, patch
 
 import ddt
 import factory
@@ -7,6 +9,7 @@ import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from pytz import UTC
 
 from conftest import TEST_DOMAIN
@@ -16,10 +19,10 @@ from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCou
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
-    DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
-    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RestrictedCourseRunFactory,
-    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory, VideoFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory,
+    DegreeAdditionalMetadataFactory, DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory,
+    ProductMetaFactory, ProgramFactory, ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory,
+    RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -312,6 +315,8 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
     def test_active_course_run_beats_no_active_course_run(self):
         course_1 = self.create_course_with_basic_active_course_run()
         course_2 = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course_2.advertised_course_run = None
+        course_2.save()
         CourseRunFactory(
             course=course_2,
             start=self.YESTERDAY,
@@ -320,7 +325,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             status=CourseRunStatus.Published
         )
         assert course_1.availability_rank
-        assert not course_2.availability_rank
+        assert course_2.availability_rank is None
 
     def test_course_availability_reflects_all_course_runs(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
@@ -593,13 +598,73 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         }
 
     def test_course_ai_languages__no_advertised_run(self):
-        course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
-        assert course.product_ai_languages == {
-            'translation_languages': [],
-            'transcription_languages': []
+        course = CourseFactory()
+        with patch.object(AlgoliaProxyCourse, 'advertised_course_run', new_callable=PropertyMock) as mock_run:
+            mock_run.return_value = None 
+            proxy_course = AlgoliaProxyCourse(course)
+            assert proxy_course.product_ai_languages == {
+                'translation_languages': [],
+                'transcription_languages': []
         }
 
+    def test_product_weeks_to_complete_from_advertised_run(self):
+        """
+        Verify that AlgoliaProxyCourse correctly exposes weeks_to_complete
+        from the advertised_course_run.
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        advertised_run = course.advertised_course_run
+        advertised_run.weeks_to_complete = 7
+        advertised_run.save()
+        
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.pk)
+        assert proxy_course.product_weeks_to_complete == 7
 
+    def test_product_weeks_to_complete_returns_none_if_no_run(self):
+        """
+        Should return None if there are no course runs at all.
+        """
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course.authoring_organizations.add(OrganizationFactory())
+
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.pk)
+        assert proxy_course.product_weeks_to_complete is None
+
+    def test_product_weeks_to_complete_with_multiple_runs(self):
+        """
+        If multiple runs exist, ensure the advertised one’s weeks_to_complete is picked.
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        advertised_run = course.advertised_course_run
+        advertised_run.weeks_to_complete = 6
+        advertised_run.save()
+
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.pk)
+        assert proxy_course.product_weeks_to_complete == 6
+        
+    def test_product_weeks_to_complete_ignores_invalid_or_none_values(self):
+        """
+        Ensure that product_weeks_to_complete returns None
+        when the advertised course run has an invalid or None weeks_to_complete value.
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+
+        advertised_run = course.advertised_course_run
+        advertised_run.weeks_to_complete = None
+        advertised_run.save()
+
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.pk)
+        assert proxy_course.product_weeks_to_complete is None
+
+        # Now test with invalid value (e.g., 0 weeks)
+        advertised_run.weeks_to_complete = 0
+        advertised_run.save()
+
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.pk)
+        assert proxy_course.product_weeks_to_complete is None
 @ddt.ddt
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
