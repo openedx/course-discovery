@@ -83,7 +83,7 @@ def delegate_attributes(cls):
                      'secondary_description', 'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
                     'product_allowed_in', 'product_blocked_in', 'learning_type', 'learning_type_exp',
-                    'product_ai_languages']
+                    'product_ai_languages', 'product_weeks_to_complete']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
