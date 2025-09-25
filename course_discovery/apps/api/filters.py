@@ -143,7 +143,7 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
     credit_provider = filters.CharFilter(
         field_name='seats__credit_provider',
         lookup_expr='iexact',
-        help_text="Filter course runs by credit provider")
+        help_text="Filter course runs by credit provider (for credit seats only).")
 
     @property
     def qs(self):
@@ -152,7 +152,7 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
         if not isinstance(self.queryset, QuerySet):
             return self.queryset
 
-        return super().qs
+        return super().qs.distinct()
 
     class Meta:
         model = CourseRun

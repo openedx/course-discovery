@@ -7,7 +7,6 @@ from urllib.parse import urlencode
 import ddt
 import pytest
 import responses
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils.text import slugify
 from django.utils.timezone import now
@@ -46,9 +45,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, CourseReview, CourseType, Seat
-)
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview, CourseType
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -879,6 +876,21 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         assert not serializer.is_valid(), "Serializer should reject duplicate credit_provider"
         errors = serializer.errors.get("seats") or serializer.errors
         assert "Duplicate credit provider" in str(errors)
+
+    @pytest.mark.django_db
+    def test_non_credit_seat_with_credit_fields_rejected(self):
+        """Serializer should reject non-credit seats carrying credit metadata."""
+        verified_type = factories.SeatTypeFactory.verified()
+        cr = factories.CourseRunFactory()
+        request = make_request()
+        payload = {
+            "seats": [
+                {"type": verified_type.slug, "price": 100, "credit_provider": "BadProv", "credit_hours": 2}
+            ]
+        }
+        serializer = CourseRunSerializer(instance=cr, data=payload, partial=True, context={'request': request})
+        assert not serializer.is_valid(), "Serializer should reject credit metadata for non-credit seat"
+        assert "Non-credit seats cannot include credit metadata" in str(serializer.errors)
 
     @pytest.mark.django_db
     def test_update_credit_fields_via_course_run_serializer(self):
@@ -2002,7 +2014,7 @@ class SeatSerializerTests(TestCase):
 
     @pytest.mark.django_db
     def test_seat_serializer_includes_credit_fields(self):
-        """Ensure that SeatSerializer outputs credit_provider and credit_hours when present."""
+        """Ensure that SeatSerializer outputs credit fields for credit seats."""
         credit_type = factories.SeatTypeFactory.credit()
         seat = factories.SeatFactory(
             type=credit_type,
@@ -2013,15 +2025,21 @@ class SeatSerializerTests(TestCase):
         serialized = SeatSerializer(seat).data
         assert serialized["credit_provider"] == "asu"
         assert serialized["credit_hours"] == 3
+        assert "upgrade_deadline" in serialized
 
     @pytest.mark.django_db
-    def test_seat_serializer_defaults_credit_fields_to_none(self):
-        """Non-credit seats should serialize credit fields as None."""
+    def test_seat_serializer_hides_credit_fields_for_non_credit_seat(self):
+        """Non-credit seats should NOT expose credit fields."""
         verified_type = factories.SeatTypeFactory.verified()
-        seat = factories.SeatFactory(type=verified_type, price=100)
+        seat = factories.SeatFactory(
+            type=verified_type,
+            price=100,
+            credit_provider="fake_provider",
+            credit_hours=2,
+        )
         serialized = SeatSerializer(seat).data
-        assert serialized["credit_provider"] is None
-        assert serialized["credit_hours"] is None
+        assert "credit_provider" not in serialized or serialized["credit_provider"] is None
+        assert "credit_hours" not in serialized or serialized["credit_hours"] is None
 
 
 class MinimalPersonSerializerTests(TestCase):

@@ -820,6 +820,14 @@ class SeatSerializer(BaseModelSerializer):
             'credit_hours', 'sku', 'bulk_sku'
         )
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.type and instance.type.slug != Seat.CREDIT:
+            data.pop('credit_provider', None)
+            data.pop('credit_hours', None)
+            data.pop('upgrade_deadline', None)
+        return data
+
 
 class CourseEntitlementSerializer(BaseModelSerializer):
     """Serializer for the ``CourseEntitlement`` model."""
@@ -967,8 +975,6 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
             '_official_version',
             'course__partner',
             'restricted_run',
-            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
-            'seats'
         )
 
     class Meta:
@@ -1104,6 +1110,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         Validate credit seat metadata:
         - Prevent duplicate credit providers for credit seats.
         - Ensure credit_hours is positive if a provider is set.
+        - Ensure non-credit seats do not carry credit metadata.
         """
         providers = []
         for s in seats:
@@ -1124,6 +1131,12 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
                         raise serializers.ValidationError(
                             f"Credit hours must be a positive integer for provider {provider}"
                         )
+            else:
+                # Non-credit seat should not include credit metadata
+                if s.get('credit_provider') or s.get('credit_hours'):
+                    raise serializers.ValidationError(
+                        "Non-credit seats cannot include credit metadata fields."
+                    )
             upgrade_deadline_override = s.get('upgrade_deadline_override')
             if upgrade_deadline_override and upgrade_deadline_override < timezone.now():
                 raise serializers.ValidationError(
@@ -1184,23 +1197,32 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         instance = super().update(instance, validated_data)
         if seats_data is not None:
             for seat in seats_data:
-                seat_type = getattr(seat.get('type'), 'slug', seat.get('type'))
-                credit_provider = seat.get('credit_provider')
-                credit_hours = seat.get('credit_hours')
-                upgrade_deadline_override = seat.get('upgrade_deadline_override')
-                price = seat.get('price', 0)
-                obj_seat, created = instance.seats.get_or_create(type=seat_type, defaults={
-                    'price': price,
-                    'credit_provider': credit_provider,
-                    'credit_hours': credit_hours,
-                    'upgrade_deadline_override': upgrade_deadline_override,
-                })
+                seat_type_value = seat.get('type')
+                if isinstance(seat_type_value, str):
+                    seat_type = SeatType.objects.filter(slug=seat_type_value).first()
+                elif hasattr(seat_type_value, 'slug'):
+                    seat_type = seat_type_value
+                else:
+                    seat_type = None
+
+                if not seat_type:
+                    continue  # skip invalid seat data safely
+
+                defaults = {
+                    'price': seat.get('price', 0),
+                    'upgrade_deadline_override': seat.get('upgrade_deadline_override'),
+                    'credit_provider': seat.get('credit_provider'),
+                    'credit_hours': seat.get('credit_hours'),
+                }
+
+                obj_seat, created = instance.seats.get_or_create(type=seat_type, defaults=defaults)
 
                 if not created:
-                    obj_seat.price = price
-                    obj_seat.credit_provider = credit_provider
-                    obj_seat.credit_hours = credit_hours
-                    obj_seat.upgrade_deadline_override = upgrade_deadline_override
+                    for field, value in defaults.items():
+                        # Only overwrite if explicitly passed in seat data
+                        if field in seat:
+                            setattr(obj_seat, field, value)
+                    obj_seat.full_clean()  # ensure model validation runs
                     obj_seat.save()
         return instance
 

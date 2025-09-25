@@ -1786,14 +1786,68 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         with pytest.raises(ValidationError):
             seat.full_clean()
 
+    @pytest.mark.django_db
+    def test_credit_seat_without_provider_allowed(self):
+        """Credit seats without credit_provider should save successfully."""
+        credit_type = factories.SeatTypeFactory.credit()
+        course_run = factories.CourseRunFactory()
+        seat = factories.SeatFactory.create(
+            course_run=course_run,
+            type=credit_type,
+            credit_provider=None,
+            credit_hours=None,
+        )
+        seat.full_clean()
+        seat.save()
+        assert seat.credit_provider is None
+        assert seat.credit_hours is None
+
+    @pytest.mark.django_db
+    def test_update_or_create_seat_helper_creates_credit_seat_with_metadata(self):
+        """Verify CourseRun.update_or_create_seat_helper stores credit_provider and credit_hours."""
+        credit_type = factories.SeatTypeFactory.credit()
+        course_run = factories.CourseRunFactory()
+        seat = course_run.update_or_create_seat_helper(
+            seat_type=credit_type,
+            prices={'credit': 300},
+            upgrade_deadline_override=None,
+            credit_provider='asu',
+            credit_hours=4,
+        )
+        assert seat.credit_provider == 'asu'
+        assert seat.credit_hours == 4
+        assert seat.type.slug == Seat.CREDIT
+
     def test_upgrade_deadline_property_prefers_override(self):
         """upgrade_deadline should return override if present, else fallback to _upgrade_deadline."""
         seat = factories.SeatFactory(upgrade_deadline_override=None)
         # Initially falls back to _upgrade_deadline
-        assert seat.upgrade_deadline == seat._upgrade_deadline
+        assert seat.upgrade_deadline == seat._upgrade_deadline  # pylint: disable=protected-access
         # Override takes precedence
-        seat.upgrade_deadline_override = seat._upgrade_deadline.replace(year=seat._upgrade_deadline.year + 1)
+        seat.upgrade_deadline_override = seat._upgrade_deadline.replace(year=seat._upgrade_deadline.year + 1)  # pylint: disable=protected-access
         assert seat.upgrade_deadline == seat.upgrade_deadline_override
+
+    @patch('course_discovery.apps.course_metadata.models.IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION')
+    @patch('course_discovery.apps.course_metadata.models.generate_sku')
+    def test_generate_sku_called_when_waffle_enabled(self, mock_generate_sku, mock_switch):
+        mock_switch.is_enabled.return_value = True  # Force switch to be active
+        course_run = factories.CourseRunFactory.create(key='course-v1:org1+12+2T2025b')
+        factories.SeatFactory.create(course_run=course_run)
+        seat_type = SeatType.objects.create(slug='verified')
+        prices = {'verified': 500}
+        course_run.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override=None)
+        mock_generate_sku.assert_called_once_with(None, course_run)
+
+    @patch('course_discovery.apps.course_metadata.models.IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION')
+    @patch('course_discovery.apps.course_metadata.models.generate_sku')
+    def test_generate_sku_called_when_waffle_disable(self, mock_generate_sku, mock_switch):
+        mock_switch.is_enabled.return_value = False  # Force switch to be active
+        course_run = factories.CourseRunFactory.create(key='course-v1:org1+12+2T2025b')
+        factories.SeatFactory.create(course_run=course_run)
+        seat_type = SeatType.objects.create(slug='verified')
+        prices = {'verified': 500}
+        course_run.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override=None)
+        mock_generate_sku.assert_not_called()
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
