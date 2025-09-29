@@ -45,16 +45,15 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     default_backend = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE", None)
     static_backend = MEDIA_STORAGE_BACKEND.pop("STATICFILES_STORAGE", None)
 
-    # Unpack media storage settings.
-    # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
-    # In django==4.2.24 following line sets the DEFAULT_FILE_STORAGE and other AWS variables as per YAML.
-    vars().update(MEDIA_STORAGE_BACKEND)
-
     if default_backend:
         STORAGES["default"]["BACKEND"] = default_backend
 
     if static_backend:
         STORAGES["staticfiles"]["BACKEND"] = static_backend
+
+    # Unpack media storage settings.
+    # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
+    vars().update(MEDIA_STORAGE_BACKEND)
 
 # Reset our cache when memcache versions change
 CACHES['default']['KEY_PREFIX'] = CACHES['default'].get('KEY_PREFIX', '') + '_' + memcache.__version__
