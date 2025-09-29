@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.tasks import process_send_course_dead
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.models import OrganizationUserRole
 
-EMAIL_DELTA_DAYS = [2, 7, -1]
+EMAIL_DELTA_DAYS = [90, 30, 7, -1]
 LAST_RUN_END_DELTA = -1
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,8 @@ class Command(BaseCommand):
     help = 'Send course deadline emails to Project Coordinators and Course Editors.'
 
     DEADLINE_VARIANTS = {
-        2: "two_days_reminder",
+        90: "three_months_reminder",
+        30: "one_month_reminder",
         7: "seven_days_reminder",
         -1: "course_ended",
     }
@@ -41,8 +42,9 @@ class Command(BaseCommand):
         logger.info("Initializing course deadline email management command.")
         now = datetime.now(timezone.utc)
         courses_with_deadlines = []
-        courses_with_self_paced_runs = Course.objects.filter(
-            course_runs__pacing_type=CourseRunPacing.Self,
+        # Include both Self-paced and Instructor-paced
+        courses_with_runs = Course.objects.filter(
+            course_runs__pacing_type__in=[CourseRunPacing.Self, CourseRunPacing.Instructor],
             course_runs__end__isnull=False,
             product_source__slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG,
         ).annotate(
@@ -55,11 +57,10 @@ class Command(BaseCommand):
             'course_runs',
             'editors',
         ).distinct()
-        logger.info(f'Found {courses_with_self_paced_runs.count()} courses with self-paced runs.')
-        courses_with_self_paced_runs = courses_with_self_paced_runs.iterator(
-            chunk_size=settings.ITERATOR_CHUNK_SIZE)
+        logger.info(f'Found {courses_with_runs.count()} courses with matching runs.')
+        courses_with_runs = courses_with_runs.iterator(chunk_size=settings.ITERATOR_CHUNK_SIZE)
 
-        for course in courses_with_self_paced_runs:
+        for course in courses_with_runs:
             advertised_run = course.advertised_course_run
 
             if advertised_run:

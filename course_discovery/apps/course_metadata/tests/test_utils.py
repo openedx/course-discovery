@@ -43,7 +43,7 @@ from course_discovery.apps.course_metadata.toggles import (
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
-    is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
+    generate_sku, is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
     transform_skills_data, validate_slug_format
 )
 
@@ -1676,3 +1676,34 @@ class ValidateSlugFormatTest(TestCase):
             expected_error_message = expected_error_message.format(url_slug=slug)
             actual_error_message = str(context.exception)
             self.assertIn(expected_error_message, actual_error_message)
+
+
+@ddt.ddt
+class ValidateDummySKU(TestCase):
+    """
+    Test suite for validate generated Dummy SKU by generate_sku method
+    """
+    def test_generate_sku_with_partner(self):
+        partner = mock.Mock(id=101)
+        course = mock.Mock(uuid='abc-uuid')
+        sku = generate_sku(partner=partner, course=course)
+        self.assertIsInstance(sku, str)
+        self.assertEqual(len(sku), 7)
+
+    def test_generate_sku_without_partner(self):
+        course = mock.Mock(uuid='abc-uuid', key='course-key')
+        sku = generate_sku(partner=None, course=course)
+        self.assertIsInstance(sku, str)
+        self.assertEqual(len(sku), 7)
+
+    def test_generate_sku_invalid_combination(self):
+        partner = mock.Mock(id=None)
+        course = mock.Mock(uuid='abc-uuid')
+        with self.assertRaises(ValidationError) as context:
+            generate_sku(partner=partner, course=course)
+        self.assertIn("Unexpected combition SKU", str(context.exception))
+
+    def test_generate_sku_missing_course(self):
+        partner = mock.Mock(id=101)
+        with self.assertRaises(ValidationError):
+            generate_sku(partner=partner, course=None)
