@@ -166,8 +166,9 @@ coverage[toml]==7.10.7
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==46.0.0
+cryptography==45.0.7
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   pyjwt
     #   pyopenssl

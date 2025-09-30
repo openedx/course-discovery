@@ -131,8 +131,9 @@ code-annotations==2.3.0
     #   edx-toggles
 contentful==2.5.0
     # via -r requirements/base.txt
-cryptography==46.0.0
+cryptography==45.0.7
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   pyjwt
     #   pyopenssl

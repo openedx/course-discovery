@@ -60,3 +60,5 @@ social-auth-app-django<=5.4.3
 # upgrade it seperately. new version brings new migration.
 django-guardian==3.0.3
 
+# latest release has major upgrade.
+cryptography<46.0.0

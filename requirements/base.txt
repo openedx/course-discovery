@@ -96,8 +96,9 @@ code-annotations==2.3.0
     # via edx-toggles
 contentful==2.5.0
     # via -r requirements/base.in
-cryptography==46.0.0
+cryptography==45.0.7
     # via
+    #   -c requirements/constraints.txt
     #   pyjwt
     #   pyopenssl
     #   snowflake-connector-python
