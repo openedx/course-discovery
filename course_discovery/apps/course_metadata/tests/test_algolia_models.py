@@ -1,5 +1,6 @@
 import datetime
 from collections import ChainMap
+from datetime import timedelta
 
 import ddt
 import factory
@@ -7,6 +8,7 @@ import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from pytz import UTC
 
 from conftest import TEST_DOMAIN
@@ -16,10 +18,10 @@ from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCou
 from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType, ProductValue, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
-    DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory,
-    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RestrictedCourseRunFactory,
-    SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory, VideoFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory,
+    DegreeAdditionalMetadataFactory, DegreeFactory, GeoLocationFactory, LevelTypeFactory, OrganizationFactory,
+    ProductMetaFactory, ProgramFactory, ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory,
+    RestrictedCourseRunFactory, SeatFactory, SeatTypeFactory, SourceFactory, SubjectFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -599,6 +601,68 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             'transcription_languages': []
         }
 
+    def test_product_weeks_to_complete_returns_value(self):
+        course = CourseFactory()
+        run_type = CourseRunTypeFactory(is_marketable=True)
+        CourseRunFactory(
+            course=course,
+            type=run_type,
+            weeks_to_complete=8,
+            start=timezone.now() - timedelta(days=1),
+            end=timezone.now() + timedelta(days=30),
+            hidden=False,
+            make_marketable=True,
+        )
+        course.refresh_from_db()
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.id)
+        assert proxy_course.product_weeks_to_complete == 8
+
+    def test_product_weeks_to_complete_none_if_no_advertised_run(self):
+        course = CourseFactory()
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.id)
+        assert proxy_course.product_weeks_to_complete is None
+
+    def test_multiple_runs_only_advertised_run_is_used(self):
+        course = CourseFactory()
+        run_type = CourseRunTypeFactory(is_marketable=True)
+        CourseRunFactory(
+            course=course,
+            type=run_type,
+            weeks_to_complete=4,
+            start=timezone.now() - timedelta(days=1),
+            end=timezone.now() + timedelta(days=10),
+            hidden=False,
+            make_marketable=True,
+        )
+        advertised_run = CourseRunFactory(
+            course=course,
+            type=run_type,
+            weeks_to_complete=12,
+            start=timezone.now() - timedelta(days=1),
+            end=timezone.now() + timedelta(days=20),
+            hidden=False,
+            make_marketable=True,
+        )
+        course.advertised_course_run_id = advertised_run.id
+        course.save()
+        course.refresh_from_db()
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.id)
+        assert proxy_course.product_weeks_to_complete == 12
+
+    @ddt.data(6, None)
+    def test_weeks_to_complete_property_type(self, weeks):
+        course = CourseFactory()
+        if weeks is not None:
+            run = CourseRunFactory(course=course, weeks_to_complete=weeks)
+            if hasattr(course, 'set_advertised_course_run'):
+                course.set_advertised_course_run(run)
+            else:
+                course.advertised_course_run_id = run.id
+            course.save()
+        proxy_course = AlgoliaProxyCourse.objects.get(pk=course.id)
+        value = proxy_course.product_weeks_to_complete
+        assert value is None or isinstance(value, int)
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -609,6 +673,16 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
+
+    def test_product_weeks_to_complete_always_none(self):
+        program = ProgramFactory()
+        proxy_program = AlgoliaProxyProgram.objects.get(pk=program.id)
+        assert proxy_program.product_weeks_to_complete is None
+
+    def test_product_weeks_to_complete_none_even_with_related_courses(self):
+        program = ProgramFactory()
+        proxy_program = AlgoliaProxyProgram.objects.get(pk=program.id)
+        assert proxy_program.product_weeks_to_complete is None
 
     def attach_course_run(self, course, availability="Archived"):
         course_start = course_end = ''

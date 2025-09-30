@@ -497,6 +497,19 @@ class CourseRunFactory(SalesforceRecordFactory):
         model = CourseRun
 
     @factory.post_generation
+    def make_marketable(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.type.is_marketable = True
+            self.type.save()
+            if not self.seats.exists():
+                verified_type = SeatTypeFactory(slug="verified", name="Verified")
+                SeatFactory(course_run=self, type=verified_type, price=100)
+            self.status = CourseRunStatus.Published
+            self.save()
+
+    @factory.post_generation
     def transcript_languages(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.transcript_languages, extracted)
