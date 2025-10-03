@@ -11,10 +11,12 @@ import requests
 import responses
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.http.response import HttpResponse
 from django.test import TestCase
 from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from slugify import slugify
+from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -44,7 +46,7 @@ from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
     generate_sku, is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
-    transform_skills_data, validate_slug_format
+    transform_skills_data, validate_slug_format, is_fatal_error
 )
 
 
@@ -1161,6 +1163,16 @@ class TestGEAGApiProductDetails(TestCase):
         responses.reset()
         super().tearDown()
 
+    def test_is_fatal_code(self):
+        response_with_200 = HttpResponse(status=200)
+        response_with_400 = HttpResponse(status=400)
+        response_with_429 = HttpResponse(status=429)
+        response_with_504 = HttpResponse(status=504)
+        assert not is_fatal_error(HttpClientError(response=response_with_200))
+        assert is_fatal_error(HttpClientError(response=response_with_400))
+        assert not is_fatal_error(HttpClientError(response=response_with_429))
+        assert not is_fatal_error(HttpClientError(response=response_with_504))
+
     def mock_product_api_call(self):
         """
         Mock product api with success response.
@@ -1196,8 +1208,7 @@ class TestGEAGApiProductDetails(TestCase):
         products = fetch_getsmarter_products()
         mock_logger.assert_called_with(f'Failed to retrieve products from getsmarter API: {exception_message}')
         assert products == []
-
-
+               
 @ddt.ddt
 class CourseSlugMethodsTests(TestCase):
     """
