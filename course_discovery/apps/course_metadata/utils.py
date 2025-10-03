@@ -1,3 +1,4 @@
+import backoff
 import datetime
 import logging
 import random
@@ -71,6 +72,19 @@ def clean_query(query):
         query = query.replace(old, new)
 
     return query
+
+
+def _fatal_code(ex):
+    """
+    Give up if the error indicates that the request was invalid.
+
+    That means don't retry any 4XX code, except 429, which is rate limiting.
+    """
+    return (
+        ex.response is not None and
+        ex.response.status_code != 429 and
+        400 <= ex.response.status_code < 500
+    )
 
 
 def set_official_state(obj, model, attrs=None):
@@ -986,6 +1000,25 @@ def transform_skills_data(skills_data):
     return skills
 
 
+# The courses endpoint has 40 requests/minute rate limit.
+# This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
+# This backoff code can still fail because of the concurrent requests all requesting at the same time.
+# So even in the case of entering into the next minute, if we still exceed our limit for that min,
+# any requests that failed in both limits are still approaching their max_tries limit.
+@backoff.on_exception(
+    backoff.expo,
+    factor=60,
+    max_tries=4,
+    exception=requests.exceptions.RequestException,
+    giveup=_fatal_code,
+)
+@backoff.on_predicate(backoff.fibo, max_value=13)
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.HTTPError,
+                      max_time=60)
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.Timeout,
+                      max_time=300)
 def fetch_getsmarter_products():
     """ Returns the products details from the getsmarter API """
     products = []
