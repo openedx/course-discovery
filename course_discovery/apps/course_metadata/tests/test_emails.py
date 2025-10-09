@@ -244,23 +244,20 @@ class EmailTests(TestCase):
         """
         Verify that send_email_for_go_live's happy path works as expected
         """
+        # pylint: disable=line-too-long
         kwargs = {
             'both_regexes': [
-                'The About page for the %s course run of %s has been published.' %
+                'The About page for the %s course run of %s has been submitted for publishing. The new session will appear on the edX website following the next couple of deployments—typically within 24 to 48 business hours' %
                 (self.run_num, self.course_run.title),
-                'No further action is necessary.',
             ],
             'html_regexes': [
-                '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at ',
                 '<a href="mailto:pc@example.com">pc@example.com</a>',
             ],
             'text_regexes': [
-                '\n\nView this About page. %s\n' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com'
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at pc@example.com'
             ],
         }
-
         self.assertEmailSent(
             emails.send_email_for_go_live,
             f'^Published: {self.course_run.title}$',
@@ -725,7 +722,7 @@ class TestCourseDeadlineEmail(TestCase):
         self.course = CourseFactory(draft_version=self.draft_course, draft=False)
         self.course_run = CourseRunFactory(
             course=self.course, title_override='Test Course Run',
-            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=7),
             status=CourseRunStatus.Published
         )
         self.partner = self.course.partner
@@ -742,18 +739,18 @@ class TestCourseDeadlineEmail(TestCase):
         """
         with LogCapture(emails.logger.name) as log_capture:
             emails.send_course_deadline_email(
-                self.course, self.course_run, [self.editor.email], deadline_email_variant='two_days_reminder'
+                self.course, self.course_run, [self.editor.email], deadline_email_variant='seven_days_reminder'
             )
 
             assert len(mail.outbox) == 1
             email = mail.outbox[0]
-            assert str(email.subject) == f'Reminder: {self.course.title} ends in 2 days'
+            assert str(email.subject) == f'Reminder: {self.course.title} ends in 7 days'
             assert email.to == [self.editor.email]
             assert email.from_email == settings.PUBLISHER_FROM_EMAIL
             assert 'Hi Course Team' in email.body
             assert (
                 f'This is an automated reminder that the course "{self.course.title}" (Course Key: {self.course.key})'
-                f' is scheduled to end in 2 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
+                f' is scheduled to end in 7 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
                 in email.body
             )
             log_capture.check(

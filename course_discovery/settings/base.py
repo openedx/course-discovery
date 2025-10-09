@@ -180,7 +180,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
 
 USE_TZ = True
 
@@ -581,7 +580,18 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EXTRA_APPS = []
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+,
+    },
+}
+
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -592,7 +602,7 @@ EDX_DRF_EXTENSIONS = {
 }
 API_ROOT = None
 MEDIA_STORAGE_BACKEND = {
-    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
+    "STORAGES": STORAGES,
     'MEDIA_ROOT': MEDIA_ROOT,
     'MEDIA_URL': MEDIA_URL
 }
@@ -813,3 +823,8 @@ ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING = False
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_RESULT_EXTENDED = True
+
+# Default chunk size from pre-Django 5.0 (2000).
+# Required explicitly when using QuerySet.iterator() with prefetch_related.
+# See: https://docs.djangoproject.com/en/5.2/releases/5.0/#features-removed-in-5-0
+ITERATOR_CHUNK_SIZE = 2000

@@ -57,12 +57,12 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
-    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
-    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED,
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
-    custom_render_variations, get_course_run_statuses, get_slug_for_course, is_ocm_course,
+    custom_render_variations, generate_sku, get_course_run_statuses, get_slug_for_course, is_ocm_course,
     push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
     validate_ai_languages
 )
@@ -1694,9 +1694,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
     @property
     def image_url(self):
-        if self.image:
-            return self.image.small.url
-
+        if self.image and self.image.name:
+            variation_path = self.image.get_variation_name(self.image.name, 'small')
+            return self.image.storage.url(variation_path)
         return self.card_image_url
 
     @property
@@ -1923,7 +1923,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             return False
 
         if published_runs is None:
-            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator()
+            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator(
+                chunk_size=settings.ITERATOR_CHUNK_SIZE)
         published_runs = frozenset(published_runs)
 
         # Now separate out the active ones from the inactive
@@ -2812,12 +2813,13 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
         default_deadline = self.get_seat_default_upgrade_deadline(seat_type)
         defaults = {'upgrade_deadline': default_deadline}
-
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
-
+        # Waffle switch to control dummy SKU generation logic for 2U purpose.
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(None, self)  # Generates a SKU for the provide by Seat
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,

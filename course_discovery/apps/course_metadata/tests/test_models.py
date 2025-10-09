@@ -98,7 +98,8 @@ class TestCourse(TestCase):
 
     def test_image_url(self):
         course = factories.CourseFactory()
-        assert course.image_url == course.image.small.url
+        variation_path = course.image.get_variation_name(course.image.name, 'small')
+        assert course.image_url == course.image.storage.url(variation_path)
 
         course.image = None
         assert course.image_url == course.card_image_url
@@ -1741,6 +1742,28 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         verified_seat.refresh_from_db()
         assert verified_seat.upgrade_deadline_override is not None
         assert verified_seat.upgrade_deadline == new_deadline_override
+
+    @patch('course_discovery.apps.course_metadata.models.IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION')
+    @patch('course_discovery.apps.course_metadata.models.generate_sku')
+    def test_generate_sku_called_when_waffle_enabled(self, mock_generate_sku, mock_switch):
+        mock_switch.is_enabled.return_value = True  # Force switch to be active
+        course_run = factories.CourseRunFactory.create(key='course-v1:org1+12+2T2025b')
+        factories.SeatFactory.create(course_run=course_run)
+        seat_type = SeatType.objects.create(slug='verified')
+        prices = {'verified': 500}
+        course_run.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override=None)
+        mock_generate_sku.assert_called_once_with(None, course_run)
+
+    @patch('course_discovery.apps.course_metadata.models.IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION')
+    @patch('course_discovery.apps.course_metadata.models.generate_sku')
+    def test_generate_sku_called_when_waffle_disable(self, mock_generate_sku, mock_switch):
+        mock_switch.is_enabled.return_value = False  # Force switch to be active
+        course_run = factories.CourseRunFactory.create(key='course-v1:org1+12+2T2025b')
+        factories.SeatFactory.create(course_run=course_run)
+        seat_type = SeatType.objects.create(slug='verified')
+        prices = {'verified': 500}
+        course_run.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override=None)
+        mock_generate_sku.assert_not_called()
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -3508,11 +3531,12 @@ class ProgramTests(TestCase):
         image_url_prefix = f'{settings.MEDIA_URL}media/programs/banner_images/'
         assert image_url_prefix in self.program.banner_image.url
         for size_key in self.program.banner_image.field.variations:
-            # Get different sizes specs from the model field
-            # Then get the file path from the available files
-            sized_file = getattr(self.program.banner_image, size_key, None)
-            assert sized_file is not None
-            assert image_url_prefix in sized_file.url
+            # Use get_variation_name to get the variation file path
+            variation_path = self.program.banner_image.get_variation_name(
+                self.program.banner_image.name, size_key
+            )
+            variation_url = self.program.banner_image.storage.url(variation_path)
+            assert image_url_prefix in variation_url
 
     def test_seat_types(self):
         program = self.create_program_with_seats()

@@ -78,3 +78,14 @@ IS_COURSE_RUN_VARIANT_ID_EDITABLE = WaffleSwitch(
 IS_COURSE_RUN_VARIANT_ID_ECOMMERCE_CONSUMABLE = WaffleSwitch(
     'course_metadata.is_course_run_variant_id_ecommerce_consumable', __name__
 )
+# .. toggle_name: course_metadata.is_dummy_sku_generation
+# .. toggle_implementation: WaffleSwitch
+# .. toggle_default: False
+# .. toggle_description: Enable dummy SKU generation for 2U purposes,
+# .. toggle_use_cases: open_edx
+# .. toggle_creation_date: 2025-09-16
+# .. toggle_target_removal_date: None
+# .. toggle_tickets: PROD-4430
+IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION = WaffleSwitch(
+    'course_metadata.is_dummy_sku_generation', __name__
+)
