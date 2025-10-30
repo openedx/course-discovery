@@ -1,34 +1,75 @@
-FROM ubuntu:focal as app
+FROM ubuntu:jammy as app
 
 ARG PYTHON_VERSION=3.12
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
-# System requirements.
+# System requirements + Firefox
 RUN apt-get update && \
   apt-get install -y software-properties-common && \
   apt-add-repository -y ppa:deadsnakes/ppa && \
-  apt-get install -qy \
-  curl \
-  gettext \
-  # required by bower installer
-  git \
-  language-pack-en \
-  build-essential \
-  libmysqlclient-dev \
-  libssl-dev \
-  # TODO: Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
-  # So this apt package is needed for building Pillow on 3.12,
-  # and can be removed when version of Pillow is upgraded to 10.5.0+
-  libjpeg-dev \
-  # mysqlclient >= 2.2.0 requires pkg-config.
+  apt-get update && \
+  apt-get install -y \
   pkg-config \
   libcairo2-dev \
   python3-pip \
-  python${PYTHON_VERSION} \
-  python${PYTHON_VERSION}-dev &&\
+  python3.12 \
+  python3.12-dev \
+  build-essential \
+  default-libmysqlclient-dev \
+  libjpeg-dev \
+  zlib1g-dev \
+  libfreetype6-dev \
+  liblcms2-dev \
+  libtiff-dev \
+  libwebp-dev \
+  gettext \
+  wget \
+  curl \
+  grep \
+  git \
+  unzip \
+  locales \
+  xvfb \
+  libgtk-3-0 \
+  libdbus-glib-1-2 \
+  libasound2 \
+  libx11-xcb1 \
+  libxcb-shm0 \
+  libxcb1 \
+  libxcb-dri3-0 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libxext6 \
+  libxfixes3 \
+  libnss3 \
+  libxrender1 \
+  libxtst6 \
+  libffi7 \
+  libgl1 \
+  libpango-1.0-0 \
+  libpangocairo-1.0-0 \
+  libgdk-pixbuf2.0-0 \
+  libatk1.0-0 \
+  libcairo2 \
+  libatspi2.0-0 && \
+  # Install Firefox from Mozilla official binaries (since apt firefox is snap-based on Jammy)
+  wget -O /tmp/firefox.tar.gz "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US" && \
+  tar -xvf /tmp/firefox.tar.gz -C /opt/ && \
+  ln -s /opt/firefox/firefox /usr/local/bin/firefox && \
+  rm /tmp/firefox.tar.gz && \
   rm -rf /var/lib/apt/lists/*
+
+# Install geckodriver
+RUN wget -O /tmp/geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux64.tar.gz" && \
+    tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/ && \
+    rm /tmp/geckodriver.tar.gz && \
+    chmod +x /usr/local/bin/geckodriver
+
+# Set environment variables for Selenium
+ENV GECKODRIVER_PATH=/usr/local/bin/geckodriver
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
@@ -52,8 +93,10 @@ ENV PYTHON_VERSION "${PYTHON_VERSION}"
 
 # Setup zoneinfo for Python 3.12
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
+# Set python3.12 as the default python3 and install pip
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 && \
+    update-alternatives --set python3 /usr/bin/python${PYTHON_VERSION} && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3
 RUN pip install virtualenv
 
 RUN virtualenv -p python${PYTHON_VERSION} --always-copy ${DISCOVERY_VENV_DIR}

@@ -11,8 +11,9 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
-from course_discovery.apps.tagging.models import CourseVertical
+from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
 from course_discovery.apps.tagging.tests.factories import CourseVerticalFactory, SubVerticalFactory, VerticalFactory
 
 
@@ -75,15 +76,24 @@ class CourseTaggingDetailViewTests(BaseViewsTestCase):
 
 
 class CourseTaggingDetailViewJSTests(SiteMixin, LiveServerTestCase):
-    """
-    Functional tests using Selenium to verify the JS script filterSubVerticals behavior in the CourseTaggingDetailView.
-    """
+
+    def tearDown(self):
+        """Clean up all created objects to avoid ProtectedError on deletion."""
+
+        # Delete CourseVerticals first (depends on Course, Vertical, SubVertical)
+        CourseVertical.objects.all().delete()
+        # Delete SubVerticals and Verticals
+        SubVertical.objects.all().delete()
+        Vertical.objects.all().delete()
+        # Delete Courses
+        Course.objects.all().delete()
+        super().tearDown()
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         firefox_options = Options()
-        firefox_options.headless = True
+        firefox_options.add_argument('--headless')
         cls.driver = webdriver.Firefox(options=firefox_options)
         cls.driver.implicitly_wait(10)
 
