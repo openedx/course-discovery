@@ -1,4 +1,4 @@
-FROM ubuntu:focal as app
+FROM ubuntu:jammy as app
 
 ARG PYTHON_VERSION=3.12
 
