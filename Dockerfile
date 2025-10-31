@@ -1,40 +1,33 @@
-FROM ubuntu:focal as app
+FROM ubuntu:jammy as app
 
 ARG PYTHON_VERSION=3.12
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 # System requirements.
 RUN apt-get update && \
-  apt-get install -y software-properties-common && \
+  apt-get install -y software-properties-common curl git locales && \
   apt-add-repository -y ppa:deadsnakes/ppa && \
+  apt-get update && \
   apt-get install -qy \
-  curl \
   gettext \
-  # required by bower installer
-  git \
-  language-pack-en \
   build-essential \
-  libmysqlclient-dev \
+  default-libmysqlclient-dev \
   libssl-dev \
-  # TODO: Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
-  # So this apt package is needed for building Pillow on 3.12,
-  # and can be removed when version of Pillow is upgraded to 10.5.0+
   libjpeg-dev \
-  # mysqlclient >= 2.2.0 requires pkg-config.
   pkg-config \
   libcairo2-dev \
   python3-pip \
   python${PYTHON_VERSION} \
-  python${PYTHON_VERSION}-dev &&\
+  python${PYTHON_VERSION}-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 ARG COMMON_APP_DIR="/edx/app"
 ARG COMMON_CFG_DIR="/edx/etc"
@@ -44,22 +37,20 @@ ARG DISCOVERY_VENV_DIR="${COMMON_APP_DIR}/${DISCOVERY_SERVICE_NAME}/venvs/${DISC
 ARG DISCOVERY_CODE_DIR="${DISCOVERY_APP_DIR}/${DISCOVERY_SERVICE_NAME}"
 ARG DISCOVERY_NODEENV_DIR="${DISCOVERY_APP_DIR}/nodeenvs/${DISCOVERY_SERVICE_NAME}"
 
-ENV PATH "${DISCOVERY_VENV_DIR}/bin:${DISCOVERY_NODEENV_DIR}/bin:$PATH"
-ENV DISCOVERY_CFG "/edx/etc/discovery.yml"
-ENV DISCOVERY_CODE_DIR "${DISCOVERY_CODE_DIR}"
-ENV DISCOVERY_APP_DIR "${DISCOVERY_APP_DIR}"
-ENV PYTHON_VERSION "${PYTHON_VERSION}"
+ENV PATH="${DISCOVERY_VENV_DIR}/bin:${DISCOVERY_NODEENV_DIR}/bin:$PATH"
+ENV DISCOVERY_CFG="/edx/etc/discovery.yml"
+ENV DISCOVERY_CODE_DIR="${DISCOVERY_CODE_DIR}"
+ENV DISCOVERY_APP_DIR="${DISCOVERY_APP_DIR}"
+ENV PYTHON_VERSION="${PYTHON_VERSION}"
 
 # Setup zoneinfo for Python 3.12
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
-RUN pip install virtualenv
+# Install pip and virtualenv
+RUN python${PYTHON_VERSION} -m ensurepip --upgrade && \
+    pip install --upgrade pip virtualenv nodeenv
 
 RUN virtualenv -p python${PYTHON_VERSION} --always-copy ${DISCOVERY_VENV_DIR}
-
-# No need to activate discovery venv as it is already in path
-RUN pip install nodeenv
 
 RUN nodeenv ${DISCOVERY_NODEENV_DIR} --node=16.14.0 --prebuilt && npm install -g npm@8.5.x
 
@@ -69,27 +60,27 @@ WORKDIR ${DISCOVERY_CODE_DIR}
 # Copy over repository
 COPY . .
 
-RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production && ./node_modules/.bin/webpack --config webpack.config.js --progress
+RUN npm install --production && \
+    ./node_modules/.bin/bower install --allow-root --production && \
+    ./node_modules/.bin/webpack --config webpack.config.js --progress
 
 # Expose canonical Discovery port
 EXPOSE 8381
 
 FROM app as prod
-
-ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.production"
+ENV DJANGO_SETTINGS_MODULE="course_discovery.settings.production"
 
 RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/production.txt
-
 RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
-CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 \
+    -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
 FROM app as dev
+ENV DJANGO_SETTINGS_MODULE="course_discovery.settings.devstack"
 
-ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.devstack"
-
-RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/django.txt
-RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
+RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/django.txt && \
+    pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
 
 RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
