@@ -1,4 +1,4 @@
-FROM ubuntu:focal as app
+FROM ubuntu:jammy as app
 
 ARG PYTHON_VERSION=3.12
 
@@ -93,7 +93,7 @@ RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
 
 RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
-# Devstack related step for backwards compatibility
+# Devstack related step for backwards compatibilityy
 RUN touch ${DISCOVERY_APP_DIR}/discovery_env
 
 CMD while true; do python ./manage.py runserver 0.0.0.0:8381; sleep 2; done
