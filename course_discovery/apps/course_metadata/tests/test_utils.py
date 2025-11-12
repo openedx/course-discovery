@@ -880,10 +880,21 @@ class UtilsTests(TestCase):
             '<p>Some text</p>\n<p>· Item 1</p>\n<ul>\n<li>Item 2</li>\n</ul>\n<p>Regular paragraph</p>\n<p>· Item 3</p>'
         )
     )
+    @ddt.data(
+        (
+            '<p><em>The content of this course also forms part of the six-month online<a href="https://example.com">Example Link</a></em></p>',  # pylint: disable=line-too-long
+            '<p><em>The content of this course also forms part of the six-month online <a href="https://example.com">Example Link</a></em></p>'  # pylint: disable=line-too-long
+        ),
+        (
+            '<div><p>online course.</p><p><strong>Module 1:</strong></p></div>',
+            '<p>online course. <strong>Module 1:</strong></p>'
+        )
+    )
     @ddt.unpack
     def test_clean_html(self, content, expected):
         """ Verify the method removes unnecessary HTML attributes. """
-        assert clean_html(content) == expected
+        result = clean_html(content)
+        assert result == expected, f"\nExpected:\n{expected}\nGot:\n{result}"
 
     def test_skill_data_transformation(self):
         category_data = {
