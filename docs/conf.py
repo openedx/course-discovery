@@ -11,8 +11,6 @@
 import datetime
 import os
 
-
-
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 

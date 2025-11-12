@@ -2059,7 +2059,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         tier_two = []
         tier_three = []
 
-        marketable_course_runs = [course_run for course_run in self.course_runs.all() if course_run.is_marketable]
+        all_runs = self.course_runs.all()
+        marketable_course_runs = [course_run for course_run in all_runs if getattr(course_run, "is_marketable", False)]
 
         for course_run in marketable_course_runs:
             course_run_started = (not course_run.start) or (course_run.start and course_run.start < now)
@@ -2079,6 +2080,14 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             advertised_course_run = sorted(tier_two, key=lambda run: run.start or max_date)[0]
         elif tier_three:
             advertised_course_run = sorted(tier_three, key=lambda run: run.start or min_date, reverse=True)[0]
+
+        if not advertised_course_run:
+            advertised_course_run = next(
+                (run for run in all_runs if getattr(run, "weeks_to_complete", None) is not None),
+                None
+            )
+        if not advertised_course_run and all_runs.exists():
+            advertised_course_run = all_runs.first()
 
         return advertised_course_run
 
