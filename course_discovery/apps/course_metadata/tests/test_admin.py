@@ -295,7 +295,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         opts = Options()
-        opts.headless = True
+        # opts.headless = True
+        opts.add_argument('--headless')
         cls.browser = webdriver.Firefox(options=opts)
         cls.browser.set_window_size(1024, 768)
 

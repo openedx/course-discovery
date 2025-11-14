@@ -2,7 +2,6 @@
 import ddt
 import requests
 from django.test import TestCase
-
 from acceptance_tests.config import API_ACCESS_TOKEN, API_GATEWAY_CATALOG_ROOT, CATALOG_ID
 
 

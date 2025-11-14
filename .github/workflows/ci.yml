@@ -31,7 +31,12 @@ jobs:
           
           # Output formatted version for use in subsequent steps
           echo "Using Python Version: $FORMATTED_VERSION"
-
+      
+      - name: Install Firefox & Xvfb for headless browser tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y firefox dbus-x11 xvfb
+          
       - run: make ci_up
       - name: run tests
         env:

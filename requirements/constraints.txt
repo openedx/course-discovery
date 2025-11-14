@@ -45,7 +45,7 @@ pillow < 10.0.0
 django-debug-toolbar < 4.2.0
 
 # selenium==4.13.0 causing test failures
-selenium==4.12.0
+selenium==4.20.0
 
 # Open AI version 1.0.0 dropped support for openai.ChatCompletion which is currently in use in enterprise.
 openai<=0.28.1

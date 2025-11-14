@@ -1,5 +1,6 @@
 import logging
-
+import os
+import shutil
 import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -10,7 +11,9 @@ from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl.connections import get_connection
 from pytest_django.lazy_django import skip_if_no_django
 from xdist.scheduler import LoadScopeScheduling
-
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 
 logger = logging.getLogger(__name__)
@@ -120,7 +123,6 @@ def partner(db, site):  # pylint: disable=redefined-outer-name,unused-argument
 @pytest.fixture
 def client():
     skip_if_no_django()
-
     return Client(SERVER_NAME=TEST_DOMAIN)
 
 
@@ -140,3 +142,42 @@ def clear_es_indexes():
 
 def pytest_xdist_make_scheduler(config, log):
     return LoadScopeSchedulingDjangoOrdered(config, log)
+
+
+@pytest.fixture(scope="session")
+def firefox_binary_path():
+    # Allow override with env var FIREFOX_BIN; otherwise try to discover
+    env = os.environ.get("FIREFOX_BIN")
+    if env and os.path.isfile(env):
+        return env
+
+    # Use shutil.which to find system firefox
+    firefox = shutil.which("firefox") or shutil.which("firefox-bin")
+    if firefox:
+        return firefox
+    pytest.skip("Firefox binary not found - set FIREFOX_BIN or install Firefox in the test environment")
+
+
+@pytest.fixture(scope="session")
+def geckodriver_path():
+    # Optional: allow specifying geckodriver path via env var GECKODRIVER_PATH
+    env = os.environ.get("GECKODRIVER_PATH")
+    if env and os.path.isfile(env):
+        return env
+    # If geckodriver is on PATH, Service can find it. Return None to use default.
+    return shutil.which("geckodriver")
+
+
+@pytest.fixture
+def driver(firefox_binary_path, geckodriver_path):
+    options = Options()
+    options.binary_location = firefox_binary_path  # points to browser binary
+    # If you have a geckodriver path, pass it to Service; otherwise Service() will use PATH
+    service = Service(executable_path=geckodriver_path) if geckodriver_path else Service()
+    # Example: run headless in CI
+    if os.environ.get("CI", "false").lower() == "true":
+        options.headless = True
+    driver = webdriver.Firefox(service=service, options=options)
+    yield driver
+    driver.quit()
+ 
