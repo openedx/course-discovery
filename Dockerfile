@@ -27,7 +27,8 @@ RUN apt-get update && \
   libcairo2-dev \
   python3-pip \
   python${PYTHON_VERSION} \
-  python${PYTHON_VERSION}-dev &&\
+  python${PYTHON_VERSION}-dev \
+  firefox-esr &&\
   rm -rf /var/lib/apt/lists/*
 
 # Use UTF-8.
