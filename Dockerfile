@@ -69,7 +69,11 @@ WORKDIR ${DISCOVERY_CODE_DIR}
 # Copy over repository
 COPY . .
 
-RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production && ./node_modules/.bin/webpack --config webpack.config.js --progress
+RUN npm install --production && \
+    (./node_modules/.bin/bower install --allow-root --production || \
+     sleep 5 && ./node_modules/.bin/bower install --allow-root --production || \
+     sleep 10 && ./node_modules/.bin/bower install --allow-root --production) && \
+    ./node_modules/.bin/webpack --config webpack.config.js --progress
 
 # Expose canonical Discovery port
 EXPOSE 8381
