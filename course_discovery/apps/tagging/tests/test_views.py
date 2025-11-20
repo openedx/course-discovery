@@ -75,9 +75,20 @@ class CourseTaggingDetailViewTests(BaseViewsTestCase):
 
 
 class CourseTaggingDetailViewJSTests(SiteMixin, LiveServerTestCase):
-    """
-    Functional tests using Selenium to verify the JS script filterSubVerticals behavior in the CourseTaggingDetailView.
-    """
+
+    def tearDown(self):
+        """Clean up all created objects to avoid ProtectedError on deletion."""
+        from course_discovery.apps.tagging.models import CourseVertical, SubVertical, Vertical
+        from course_discovery.apps.course_metadata.models import Course
+
+        # Delete CourseVerticals first (depends on Course, Vertical, SubVertical)
+        CourseVertical.objects.all().delete()
+        # Delete SubVerticals and Verticals
+        SubVertical.objects.all().delete()
+        Vertical.objects.all().delete()
+        # Delete Courses
+        Course.objects.all().delete()
+        super().tearDown()
 
     @classmethod
     def setUpClass(cls):

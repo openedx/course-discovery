@@ -1,4 +1,5 @@
 """ Tests to validate configuration of the API gateway. """
+
 import ddt
 import requests
 from django.test import TestCase

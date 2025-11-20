@@ -5,7 +5,7 @@ ARG PYTHON_VERSION=3.12
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
-# System requirements.
+# System requirements + Firefox/Geckodriver for Selenium
 RUN apt-get update && \
   apt-get install -y software-properties-common && \
   apt-add-repository -y ppa:deadsnakes/ppa && \
@@ -26,9 +26,50 @@ RUN apt-get update && \
   pkg-config \
   libcairo2-dev \
   python3-pip \
-  python${PYTHON_VERSION} \
-  python${PYTHON_VERSION}-dev &&\
+  python3.12 \
+  python3.12-dev \
+  wget \
+  unzip \
+  xvfb \
+  libgtk-3-0 \
+  libdbus-glib-1-2 \
+  libasound2 \
+  libx11-xcb1 \
+  libxcb-shm0 \
+  libxcb1 \
+  libxcb-dri3-0 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libxext6 \
+  libxfixes3 \
+  libnss3 \
+  libxrender1 \
+  libxtst6 \
+  libffi7 \
+  libgl1 \
+  libpango-1.0-0 \
+  libpangocairo-1.0-0 \
+  libgdk-pixbuf2.0-0 \
+  libatk1.0-0 \
+  libcairo2 \
+  libatspi2.0-0 && \
+  # Install Firefox from Mozilla official binaries (since apt firefox is snap-based on Jammy)
+  wget -O /tmp/firefox.tar.gz "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US" && \
+  tar -xvf /tmp/firefox.tar.gz -C /opt/ && \
+  ln -s /opt/firefox/firefox /usr/local/bin/firefox && \
+  rm /tmp/firefox.tar.gz && \
   rm -rf /var/lib/apt/lists/*
+
+# Install geckodriver
+RUN GECKODRIVER_VERSION=$(curl -sL https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
+    wget -O /tmp/geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" && \
+    tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/ && \
+    rm /tmp/geckodriver.tar.gz && \
+    chmod +x /usr/local/bin/geckodriver
+
+# Set environment variables for Selenium
+ENV GECKODRIVER_PATH=/usr/local/bin/geckodriver
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
