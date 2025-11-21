@@ -5,31 +5,32 @@ ARG PYTHON_VERSION=3.12
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
-# System requirements + Firefox/Geckodriver for Selenium
+# System requirements. + Firefox/Geckodriver for Selenium
 RUN apt-get update && \
   apt-get install -y software-properties-common && \
   apt-add-repository -y ppa:deadsnakes/ppa && \
-  apt-get install -qy \
-  curl \
-  gettext \
-  # required by bower installer
-  git \
-  language-pack-en \
-  build-essential \
-  libmysqlclient-dev \
-  libssl-dev \
-  # TODO: Current version of Pillow (9.5.0) doesn't provide pre-built wheel for python 3.12,
-  # So this apt package is needed for building Pillow on 3.12,
-  # and can be removed when version of Pillow is upgraded to 10.5.0+
-  libjpeg-dev \
-  # mysqlclient >= 2.2.0 requires pkg-config.
+  apt-get update && \
+  apt-get install -y \
   pkg-config \
   libcairo2-dev \
   python3-pip \
   python3.12 \
   python3.12-dev \
+  build-essential \
+  default-libmysqlclient-dev \
+  libjpeg-dev \
+  zlib1g-dev \
+  libfreetype6-dev \
+  liblcms2-dev \
+  libtiff-dev \
+  libwebp-dev \
+  gettext \
   wget \
+  curl \
+  grep \
+  git \
   unzip \
+  locales \
   xvfb \
   libgtk-3-0 \
   libdbus-glib-1-2 \
@@ -62,14 +63,25 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 # Install geckodriver
-RUN GECKODRIVER_VERSION=$(curl -sL https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
-    wget -O /tmp/geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz" && \
+RUN wget -O /tmp/geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux64.tar.gz" && \
     tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/ && \
     rm /tmp/geckodriver.tar.gz && \
     chmod +x /usr/local/bin/geckodriver
 
 # Set environment variables for Selenium
 ENV GECKODRIVER_PATH=/usr/local/bin/geckodriver
+
+# # Install Firefox and dependencies
+# RUN apt-get update && apt-get install -y wget bzip2 libgtk-3-0 libdbus-glib-1-2 \
+#     && (apt-get install -y firefox-esr || apt-get install -y firefox)
+
+# # Install geckodriver
+# ARG GECKO_VER=v0.33.0
+# RUN wget -q "https://github.com/mozilla/geckodriver/releases/download/${GECKO_VER}/geckodriver-${GECKO_VER}-linux64.tar.gz" \
+#   && tar -xzf geckodriver-*.tar.gz \
+#   && mv geckodriver /usr/local/bin/ \
+#   && chmod +x /usr/local/bin/geckodriver \
+#   && rm geckodriver-*.tar.gz
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
