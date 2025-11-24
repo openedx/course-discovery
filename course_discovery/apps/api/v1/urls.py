@@ -20,6 +20,7 @@ from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
+from course_discovery.apps.api.v1.views.public_programs import PublicProgramViewSet
 from course_discovery.apps.api.v1.views.sources import SourceViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
@@ -69,5 +70,6 @@ router.register(r'search/courses', search_views.CourseSearchViewSet, basename='s
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, basename='search-course_runs')
 router.register(r'search/programs', search_views.ProgramSearchViewSet, basename='search-programs')
 router.register(r'search/people', search_views.PersonSearchViewSet, basename='search-people')
+router.register(r'public/programs', PublicProgramViewSet, basename='public-programs')
 
 urlpatterns += router.urls
