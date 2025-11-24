@@ -62,6 +62,7 @@ router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'topics', TopicViewSet, basename='topic')
 router.register(r'pathways', PathwayViewSet, basename='pathway')
 router.register(r'programs', ProgramViewSet, basename='program')
+router.register(r'public/programs', PublicProgramViewSet, basename='public-program')
 router.register(r'level_types', LevelTypeViewSet, basename='level_type')
 router.register(r'program_types', ProgramTypeViewSet, basename='program_type')
 router.register(r'search/limited', search_views.LimitedAggregateSearchView, basename='search-limited')
@@ -70,6 +71,5 @@ router.register(r'search/courses', search_views.CourseSearchViewSet, basename='s
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, basename='search-course_runs')
 router.register(r'search/programs', search_views.ProgramSearchViewSet, basename='search-programs')
 router.register(r'search/people', search_views.PersonSearchViewSet, basename='search-people')
-router.register(r'public/programs', PublicProgramViewSet, basename='public-programs')
 
 urlpatterns += router.urls

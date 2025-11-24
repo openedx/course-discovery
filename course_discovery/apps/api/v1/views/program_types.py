@@ -11,7 +11,7 @@ class ProgramTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """ ProgramType resource. """
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     queryset = serializers.ProgramTypeSerializer.prefetch_queryset(ProgramType.objects.all())
     serializer_class = serializers.ProgramTypeSerializer
     filter_backends = (DjangoFilterBackend,)

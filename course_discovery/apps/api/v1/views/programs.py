@@ -6,7 +6,7 @@ from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -20,7 +20,7 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
     filterset_class = filters.ProgramFilter
 
