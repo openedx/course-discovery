@@ -1,4 +1,4 @@
-FROM ubuntu:focal as app
+FROM ubuntu:jammy AS app
 
 ARG PYTHON_VERSION=3.12
 
@@ -27,7 +27,7 @@ RUN apt-get update && \
   libcairo2-dev \
   python3-pip \
   python${PYTHON_VERSION} \
-  python${PYTHON_VERSION}-dev &&\
+  python${PYTHON_VERSION}-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # Use UTF-8.
@@ -66,15 +66,15 @@ RUN nodeenv ${DISCOVERY_NODEENV_DIR} --node=16.14.0 --prebuilt && npm install -g
 # Working directory will be root of repo.
 WORKDIR ${DISCOVERY_CODE_DIR}
 
-# Copy over repository
-COPY . .
+# Cloning git repo
+RUN curl -L https://github.com/openedx/course-discovery/archive/refs/heads/master.tar.gz | tar -xz --strip-components=1
 
 RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production && ./node_modules/.bin/webpack --config webpack.config.js --progress
 
 # Expose canonical Discovery port
 EXPOSE 8381
 
-FROM app as prod
+FROM app AS prod
 
 ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.production"
 
@@ -84,7 +84,9 @@ RUN DISCOVERY_CFG=minimal.yml OPENEDX_ATLAS_PULL=true make pull_translations
 
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
-FROM app as dev
+FROM app AS dev
+
+RUN curl -L -o ${DISCOVERY_CODE_DIR}/course_discovery/settings/devstack.py https://raw.githubusercontent.com/edx/devstack/master/py_configuration_files/course_discovery.py
 
 ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.devstack"
 
@@ -100,6 +102,7 @@ CMD while true; do python ./manage.py runserver 0.0.0.0:8381; sleep 2; done
 
 ###########################################################
 # Define k8s target
-FROM prod as kubernetes
+
+FROM prod AS kubernetes
 ENV DISCOVERY_SETTINGS='kubernetes'
 ENV DJANGO_SETTINGS_MODULE="course_discovery.settings.$DISCOVERY_SETTINGS"
