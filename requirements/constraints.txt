@@ -4,7 +4,7 @@
 -c common_constraints.txt
 
 # Stay on an LTS release
-django<4.3
+django<5.3
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
@@ -54,3 +54,11 @@ openai<=0.28.1
 # importlib.resources' has no attribute 'files'
 # To be unpinned once course-discovery moves to Python 3.12
 edx-lint==5.3.7
+
+# upgrade it seperately
+social-auth-app-django<=5.4.3
+# upgrade it seperately. new version brings new migration.
+django-guardian==3.0.3
+
+# latest release has major upgrade.
+cryptography<46.0.0
