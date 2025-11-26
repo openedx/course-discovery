@@ -45,8 +45,8 @@ from course_discovery.apps.course_metadata.toggles import (
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
-    generate_sku, is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
-    transform_skills_data, validate_slug_format, is_fatal_error
+    generate_sku, is_fatal_error, is_google_drive_url, serialize_entitlement_for_ecommerce_api,
+    serialize_seat_for_ecommerce_api, transform_skills_data, validate_slug_format
 )
 
 
@@ -1208,7 +1208,8 @@ class TestGEAGApiProductDetails(TestCase):
         products = fetch_getsmarter_products()
         mock_logger.assert_called_with(f'Failed to retrieve products from getsmarter API: {exception_message}')
         assert products == []
-               
+
+
 @ddt.ddt
 class CourseSlugMethodsTests(TestCase):
     """
