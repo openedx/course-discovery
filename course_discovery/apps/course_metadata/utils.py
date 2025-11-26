@@ -1,4 +1,3 @@
-import backoff
 import datetime
 import logging
 import random
@@ -9,6 +8,7 @@ from hashlib import md5
 from tempfile import NamedTemporaryFile
 from urllib.parse import urljoin, urlparse
 
+import backoff
 import html2text
 import jsonschema
 import markdown
@@ -1014,7 +1014,7 @@ def transform_skills_data(skills_data):
 # any requests that failed in both limits are still approaching their max_tries limit.
 @backoff.on_exception(
     backoff.expo,
-    (requests.exceptions.Timeout,requests.exceptions.HTTPError),
+    (requests.exceptions.Timeout, requests.exceptions.HTTPError),
     factor=60,
     max_tries=4,
     giveup=is_fatal_error,
