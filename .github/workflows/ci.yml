@@ -45,7 +45,7 @@ jobs:
       - name: Upload coverage
         # Upload coverage only from the django52 job to avoid duplicate artifacts across the Django test matrix.
         if: matrix.db-version == 'mysql80' && matrix.django-version == 'django52'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage${{ matrix.pytest-split-group }}
           path: .coverage
@@ -62,7 +62,7 @@ jobs:
           PYTHON_VERSION: 3.12
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
       - name: Run coverage
         run: make ci_coverage
       - uses: codecov/codecov-action@v4
