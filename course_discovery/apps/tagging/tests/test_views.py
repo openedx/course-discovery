@@ -83,7 +83,7 @@ class CourseTaggingDetailViewJSTests(SiteMixin, LiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         firefox_options = Options()
-        firefox_options.headless = True
+        firefox_options.add_argument('--headless')
         cls.driver = webdriver.Firefox(options=firefox_options)
         cls.driver.implicitly_wait(10)
 
