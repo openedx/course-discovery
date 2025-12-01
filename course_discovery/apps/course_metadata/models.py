@@ -2810,13 +2810,18 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             return None
         return subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
 
-    def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
+    def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override,
+                                     credit_provider=None, credit_hours=None):
         default_deadline = self.get_seat_default_upgrade_deadline(seat_type)
         defaults = {'upgrade_deadline': default_deadline}
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
         if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
+        if seat_type.slug == Seat.CREDIT:
+            defaults['credit_provider'] = credit_provider
+            defaults['credit_hours'] = credit_hours
+
         # Waffle switch to control dummy SKU generation logic for 2U purpose.
         if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
             generate_sku(None, self)  # Generates a SKU for the provide by Seat
@@ -2824,11 +2829,13 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             course_run=self,
             type=seat_type,
             draft=True,
+            credit_provider=credit_provider if seat_type.slug == Seat.CREDIT else None,
             defaults=defaults,
         )
         return seat
 
-    def update_or_create_seats(self, run_type=None, prices=None, upgrade_deadline_override=None):
+    def update_or_create_seats(self, run_type=None, prices=None, upgrade_deadline_override=None,
+                               credit_provider=None, credit_hours=None):
         """
         Updates or creates draft seats for a course run.
 
@@ -2843,7 +2850,9 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         seats = []
         for seat_type in seat_types:
-            seats.append(self.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override))
+            seats.append(self.update_or_create_seat_helper(
+                seat_type, prices, upgrade_deadline_override,
+                credit_provider=credit_provider, credit_hours=credit_hours))
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
@@ -3234,8 +3243,10 @@ class Seat(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
     _upgrade_deadline = models.DateTimeField(null=True, blank=True, db_column='upgrade_deadline')
     upgrade_deadline_override = models.DateTimeField(null=True, blank=True)
-    credit_provider = models.CharField(max_length=255, null=True, blank=True)
-    credit_hours = models.IntegerField(null=True, blank=True)
+    credit_provider = models.CharField(max_length=255, null=True, blank=True,
+                                       help_text="The provider granting academic credit for this seat, if applicable.")
+    credit_hours = models.IntegerField(null=True, blank=True,
+                                       help_text="Number of credit hours awarded for this seat.")
     sku = models.CharField(max_length=128, null=True, blank=True)
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
 
@@ -3279,6 +3290,30 @@ class Seat(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
     @upgrade_deadline.setter
     def upgrade_deadline(self, value):
         self._upgrade_deadline = value
+
+    def clean(self):
+        """
+        Enforce unique credit seats and ensure credit fields are only allowed for credit seat types.
+        """
+        if self.type.slug == Seat.CREDIT and self.credit_provider:
+            duplicates = Seat.objects.filter(
+                course_run=self.course_run,
+                type__slug=Seat.CREDIT,
+                credit_provider=self.credit_provider,
+            )
+            if self.pk:
+                duplicates = duplicates.exclude(pk=self.pk)
+            if duplicates.exists():
+                raise ValidationError(
+                    f"A credit seat with provider '{self.credit_provider}' already exists for this course run."
+                )
+
+        if self.type and self.type.slug != Seat.CREDIT:
+            if self.credit_provider or self.credit_hours or self.upgrade_deadline:
+                raise ValidationError(
+                    'Credit fields (credit_provider, credit_hours, upgrade_deadline) '
+                    'are only valid for credit seat type.'
+                )
 
 
 class CourseEntitlement(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
