@@ -11,10 +11,12 @@ import requests
 import responses
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.http.response import HttpResponse
 from django.test import TestCase
 from edx_django_utils.cache import RequestCache
 from edx_toggles.toggles.testutils import override_waffle_switch
 from slugify import slugify
+from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -43,8 +45,8 @@ from course_discovery.apps.course_metadata.toggles import (
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
     download_and_save_course_image, download_and_save_program_image, ensure_draft_world, fetch_getsmarter_products,
-    generate_sku, is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
-    transform_skills_data, validate_slug_format
+    generate_sku, is_fatal_error, is_google_drive_url, serialize_entitlement_for_ecommerce_api,
+    serialize_seat_for_ecommerce_api, transform_skills_data, validate_slug_format
 )
 
 
@@ -1160,6 +1162,59 @@ class TestGEAGApiProductDetails(TestCase):
     def tearDown(self):
         responses.reset()
         super().tearDown()
+
+    def test_is_fatal_code(self):
+        response_with_200 = HttpResponse(status=200)
+        response_with_400 = HttpResponse(status=400)
+        response_with_429 = HttpResponse(status=429)
+        response_with_504 = HttpResponse(status=504)
+        assert not is_fatal_error(HttpClientError(response=response_with_200))
+        assert is_fatal_error(HttpClientError(response=response_with_400))
+        assert not is_fatal_error(HttpClientError(response=response_with_429))
+        assert not is_fatal_error(HttpClientError(response=response_with_504))
+
+    def test_is_fatal_code_error(self):
+        # Success codes (2xx) should not be fatal error
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=201)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=204)))
+
+        # Redirect codes (3xx) should not be fatal error
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=301)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=302)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=307)))
+
+        # Retryable client error (429 Too Many Requests) already covered
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=429)))
+
+        # Retryable server errors (5xx) should not be fatal
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=500)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=502)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=503)))
+        assert not is_fatal_error(HttpClientError(response=HttpResponse(status=504)))
+
+    def test_is_fatal_code_positive(self):
+        # Client errors (4xx) that should be fatal
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=400)))  # Bad Request
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=401)))  # Unauthorized
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=403)))  # Forbidden
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=404)))  # Not Found
+
+        # Other 4xx codes
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=410)))  # Gone
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=422)))  # Unprocessable Entity
+
+    def test_is_fatal_code_additional(self):
+        # More client errors (4xx) that should be fatal
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=405)))  # Method Not Allowed
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=406)))  # Not Acceptable
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=407)))  # Proxy Authentication Required
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=408)))  # Request Timeout
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=409)))  # Conflict
+
+        # Validation-related errors
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=415)))  # Unsupported Media Type
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=417)))  # Expectation Failed
+        assert is_fatal_error(HttpClientError(response=HttpResponse(status=451)))  # Unavailable For Legal Reason
 
     def mock_product_api_call(self):
         """

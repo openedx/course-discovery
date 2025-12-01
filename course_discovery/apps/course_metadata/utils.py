@@ -8,6 +8,7 @@ from hashlib import md5
 from tempfile import NamedTemporaryFile
 from urllib.parse import urljoin, urlparse
 
+import backoff
 import html2text
 import jsonschema
 import markdown
@@ -71,6 +72,26 @@ def clean_query(query):
         query = query.replace(old, new)
 
     return query
+
+
+def is_fatal_error(ex):
+    """
+    Return True if the exception represents a fatal client error.
+
+    Fatal means:
+    - The response exists
+    - The status code is a 4XX client error (400–499)
+    - The error is not a 429 (rate limiting)
+    """
+    response = ex.response
+    if response is None:
+        return False
+
+    code = response.status_code
+    if code == 429:
+        return False
+
+    return 400 <= code < 500
 
 
 def set_official_state(obj, model, attrs=None):
@@ -986,6 +1007,19 @@ def transform_skills_data(skills_data):
     return skills
 
 
+# The courses endpoint has 40 requests/minute rate limit.
+# This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
+# This backoff code can still fail because of the concurrent requests all requesting at the same time.
+# So even in the case of entering into the next minute, if we still exceed our limit for that min,
+# any requests that failed in both limits are still approaching their max_tries limit.
+@backoff.on_exception(
+    backoff.expo,
+    (requests.exceptions.Timeout, requests.exceptions.HTTPError),
+    factor=60,
+    max_tries=4,
+    giveup=is_fatal_error,
+    max_time=300
+)
 def fetch_getsmarter_products():
     """ Returns the products details from the getsmarter API """
     products = []
