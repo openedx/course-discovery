@@ -34,7 +34,7 @@ services:
     #   target: dev
     #   args:
     #     PYTHON_VERSION: "${PYTHON_VERSION}"
-    image: edxops/discovery-dev:latest
+    image: edxops/course-discovery-dev:latest
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
 
