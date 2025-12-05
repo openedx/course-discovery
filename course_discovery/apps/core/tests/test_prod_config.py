@@ -18,6 +18,9 @@ def test_production_media_storage(monkeypatch, tmp_path):
           AWS_STORAGE_BUCKET_NAME: tests
           MEDIA_ROOT: media
           MEDIA_URL: https://cdn.org/media/
+        STORAGES:
+          default:
+            BACKEND: storages.backends.s3boto3.S3Boto3Storage
     """)
     fake_config.write_text(fake_yaml_content)
 
