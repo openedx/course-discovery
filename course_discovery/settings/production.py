@@ -42,7 +42,6 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     vars().update(config_from_yaml)
 
     MEDIA_STORAGE_BACKEND = config_from_yaml.get("MEDIA_STORAGE_BACKEND", {})
-
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
