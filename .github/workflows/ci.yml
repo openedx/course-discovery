@@ -18,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Install edx repo tools
+        run: pip install "edx-repo-tools>=3.1.0"
       - name: Format Python Version
         id: format_python_version
         shell: bash
@@ -57,6 +59,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Install edx repo tools
+        run: pip install "edx-repo-tools>=3.1.0"
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
@@ -74,6 +78,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Install edx repo tools
+        run: pip install "edx-repo-tools>=3.1.0"
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
@@ -86,6 +92,8 @@ jobs:
         python-version: ['3.12']
     steps:
       - uses: actions/checkout@v3
+      - name: Install edx repo tools
+        run: pip install "edx-repo-tools>=3.1.0"
       - run: make ci_up
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
