@@ -1478,7 +1478,7 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
-    collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
+    collaborators = SortedManyToManyField(Collaborator, blank=True, related_name='courses_collaborated')
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
@@ -4207,7 +4207,7 @@ class Degree(Program):
         blank=True,
         null=True,
     )
-    specializations = SortedManyToManyField(Specialization, blank=True, null=True)
+    specializations = SortedManyToManyField(Specialization, blank=True)
     display_on_org_page = models.BooleanField(
         null=False, default=False,
         help_text=_('Designates whether the degree should be displayed on the owning organization\'s page')

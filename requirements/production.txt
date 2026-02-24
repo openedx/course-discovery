@@ -867,4 +867,4 @@ zope-interface==8.0.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools
+setuptools>=68
