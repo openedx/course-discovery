@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.tasks import process_send_course_dead
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.models import OrganizationUserRole
 
-EMAIL_DELTA_DAYS = [90, 30, 7, -1]
+EMAIL_DELTA_DAYS = [60, 30, 15, 7, -1]
 LAST_RUN_END_DELTA = -1
 
 logger = logging.getLogger(__name__)
@@ -29,8 +29,9 @@ class Command(BaseCommand):
     help = 'Send course deadline emails to Project Coordinators and Course Editors.'
 
     DEADLINE_VARIANTS = {
-        90: "three_months_reminder",
+        60: "two_months_reminder",
         30: "one_month_reminder",
+        15: "fifteen_days_reminder",
         7: "seven_days_reminder",
         -1: "course_ended",
     }

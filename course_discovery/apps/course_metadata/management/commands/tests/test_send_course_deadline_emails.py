@@ -110,8 +110,9 @@ class SendCourseDeadlineEmailsTests(TestCase):
             )
 
     @ddt.data(
-        (90, "three_months_reminder"),
+        (60, "two_months_reminder"),
         (30, "one_month_reminder"),
+        (15, "fifteen_days_reminder"),
         (7, "seven_days_reminder"),
         (-1, "course_ended"),
     )
@@ -122,7 +123,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
     ):
         """
         Test that the command sends emails when there are advertised course runs with end dates within
-        the specified range (90, 30, 7, -1 days).
+        the specified range (60, 30, 15, 7, -1 days).
         """
         self.non_draft_course_run.end = timezone.now() + timedelta(days=days_until_end)
         self.non_draft_course_run.save()

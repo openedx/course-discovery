@@ -3,49 +3,123 @@
 {% load django_markup %}
 
 {% block body %}
+
 <p>
     {% trans "Hi Course Team," %}
 </p>
 
+{% if days_to_expire == '60 days' or days_to_expire == '30 days' or days_to_expire == '15 days' %}
+
 <p>
-    {% if days_to_expire == '90 days' or days_to_expire == '30 days' or days_to_expire == '7 days' %}
-        {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days_to_expire %}
-        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
-        {% endblocktrans %}
-        <p>
-            {% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
-        </p>
-    {% elif days_to_expire == 'course_ended' %}
-        {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
-        This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
-        {% endblocktrans %}
-        <p>
-            {% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
-        </p>
-    {% endif %}
+{% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days_to_expire %}
+This is an automated reminder that the course "{{ course_name }}" ({{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
+{% endblocktrans %}
+</p>
+
+<p>
+{% trans "If no action is taken, the course will be automatically archived after this date. If you decide not to extend the course or create a new run at this time, please inform your dedicated Project Coordinator and share your plans. This helps ensure our internal teams remain aligned and can support you effectively." %}
+</p>
+
+<p>
+{% trans "To ensure a smooth experience for our edX Learners, please take one of the following actions:" %}
 </p>
 
 <ul>
-    <li>{% trans "Extend the current course run’s end date if the same course is meant to remain available." %}</li>
-    <li>
-        {% trans "Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners." %}
-        <a href="{{ publisher_url }}courses/{{ course_uuid }}"> {% trans "Visit the Course in Publisher" %} </a>
-    </li>
+<li>
+<strong>{% trans "Create a New Course Run:" %}</strong>
+{% trans "Planning to update the content or offer the course to a new cohort? We recommend setting up a new course run in Publisher." %}
+{% trans "You can get started" %}
+<a href="{{ publisher_url }}courses/{{ course_uuid }}"> {% trans "here" %} </a>.
+</li>
+
+<li>
+<strong>{% trans "Extend the Course End Date:" %}</strong>
+{% trans "If the content is still relevant, you can extend the course end date in Studio." %}
+{% trans "Simply visit the Schedule and Details tab" %}
+<a href="{{ course_schedule_settings_url }}"> {% trans "here" %} </a>.
+</li>
 </ul>
 
+{% elif days_to_expire == '7 days' %}
+
 <p>
-    {% trans "You can review and modify the course end settings here:" %} 
-    <a href="{{ course_schedule_settings_url }}">{{ course_schedule_settings_url }}</a>
-    <br/>
-    {% if days_to_expire == 'course_ended' %}
-        {% blocktrans with partner_marketing_site_url=partner_marketing_site_url %}
-        If no action is taken, the course will no longer be available for enrollment or access by learners on 
-        <a href="{{ partner_marketing_site_url }}">{{ partner_marketing_site_url }}</a> after the end date.
-        {% endblocktrans %}
-        <br/>
-    {% endif %}
-    {% trans "Thanks" %}
+{% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
+Our records indicate that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in 7 days on {{ course_end_date }}. Despite previous reminders, we’ve noticed that no action has been taken yet.
+{% endblocktrans %}
 </p>
 
-<!-- End Message Body -->
+<p>
+<strong>{% trans "Important:" %}</strong>
+{% trans "If no action is taken, the course will be automatically archived after the current end date. If you choose not to extend or create a new course run at this time, you must inform your dedicated Project Coordinator with your reasons. This will ensure our internal teams are properly informed about your plans." %}
+</p>
+
+<p>
+{% trans "To prevent disruption to learner access, please choose one of the following options:" %}
+</p>
+
+<ul>
+<li>
+<strong>{% trans "Create a New Course Run:" %}</strong>
+{% trans "Planning to update the content or offer the course to a new cohort? We recommend setting up a new course run in Publisher." %}
+{% trans "You can get started" %}
+<a href="{{ publisher_url }}courses/{{ course_uuid }}"> {% trans "here" %} </a>.
+</li>
+
+<li>
+<strong>{% trans "Extend the Course End Date:" %}</strong>
+{% trans "If the content is still relevant, you can extend the course end date in Studio." %}
+{% trans "Simply visit the Schedule and Details tab" %}
+<a href="{{ course_schedule_settings_url }}"> {% trans "here" %} </a>.
+</li>
+</ul>
+
+{% elif days_to_expire == 'course_ended' %}
+
+<p>
+{% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
+Our records show that the course "{{ course_name }}" (Course Key: {{ course_key }}) officially ended on {{ course_end_date }} and has now entered the archived state. Despite our previous reminders, it appears no action has been taken yet.
+{% endblocktrans %}
+</p>
+
+<p>
+<strong>{% trans "Important:" %}</strong>
+{% trans "If you decide not to extend the course or create a new course run at this time, you must inform your dedicated Project Coordinator with the reasons behind this. This will help ensure our internal teams are fully updated on your plans for the course." %}
+</p>
+
+<p>
+{% trans "If you wish to keep this course active, please choose one of the following options:" %}
+</p>
+
+<ul>
+<li>
+<strong>{% trans "Create a New Course Run:" %}</strong>
+{% trans "Planning to update the content or offer the course to a new cohort? We recommend setting up a new course run in Publisher." %}
+{% trans "You can get started" %}
+<a href="{{ publisher_url }}courses/{{ course_uuid }}"> {% trans "here" %} </a>.
+</li>
+
+<li>
+<strong>{% trans "Extend the Course End Date:" %}</strong>
+{% trans "If the content is still relevant, you can extend the course end date in Studio." %}
+{% trans "Simply visit the Schedule and Details tab" %}
+<a href="{{ course_schedule_settings_url }}"> {% trans "here" %} </a>.
+</li>
+</ul>
+
+{% endif %}
+
+<p>
+<strong>{% trans "NOTE:" %}</strong>
+{% trans "This email address isn’t monitored for replies. If you have any questions or need assistance, please reach out to your dedicated Project Coordinator." %}
+</p>
+
+<p>
+{% trans "Thank you for your attention to this—looking forward to your updates!" %}
+</p>
+
+<p>
+{% trans "Best," %}<br/>
+{% trans "edX Operational Team" %}
+</p>
+
 {% endblock body %}

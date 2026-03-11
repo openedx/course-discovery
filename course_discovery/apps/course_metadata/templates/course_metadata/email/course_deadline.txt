@@ -2,33 +2,60 @@
 
 {% trans "Hi Course Team," %}
 
-{% if days_to_expire == '90 days' or days_to_expire == '30 days' or days_to_expire == '7 days' %}
+{% if days_to_expire == '60 days' or days_to_expire == '30 days' or days_to_expire == '15 days' %}
 {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date days=days_to_expire %}
-This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
+This is an automated reminder that the course "{{ course_name }}" ({{ course_key }}) is scheduled to end in {{ days }} on {{ course_end_date }}.
 {% endblocktrans %}
-{% elif days_to_expire == 'course_ended' %}
+
+{% trans "If no action is taken, the course will be automatically archived after this date. If you decide not to extend the course or create a new run at this time, please inform your dedicated Project Coordinator and share your plans. This helps ensure our internal teams remain aligned and can support you effectively." %}
+
+{% trans "To ensure a smooth experience for our edX Learners, please take one of the following actions:" %}
+
+- {% trans "Create a New Course Run:" %}
+  {% trans "Planning to update the content or offer the course to a new cohort? We recommend setting up a new course run in Publisher." %}
+  {% trans "You can get started here:" %} {{ publisher_url }}courses/{{ course_uuid }}
+
+- {% trans "Extend the Course End Date:" %}
+  {% trans "If the content is still relevant, you can extend the course end date in Studio." %}
+  {% trans "Simply visit the Schedule and Details tab here:" %} {{ course_schedule_settings_url }}
+
+{% elif days_to_expire == '7 days' %}
+
 {% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
-This is an automated reminder that the course "{{ course_name }}" (Course Key: {{ course_key }}) has officially ended as of {{ course_end_date }}.
+Our records indicate that the course "{{ course_name }}" (Course Key: {{ course_key }}) is scheduled to end in 7 days on {{ course_end_date }}. Despite previous reminders, we’ve noticed that no action has been taken yet.
 {% endblocktrans %}
-{% endif %}
 
-{% if days_to_expire == '90 days' or days_to_expire == '30 days' or days_to_expire == '7 days' %}
-{% trans "To ensure uninterrupted learner access and enrollment, please take one of the following actions:" %}
+{% trans "Important: If no action is taken, the course will be automatically archived after the current end date. If you choose not to extend or create a new course run at this time, you must inform your dedicated Project Coordinator with your reasons. This will ensure our internal teams are properly informed about your plans." %}
+
+{% trans "To prevent disruption to learner access, please choose one of the following options:" %}
+
+- {% trans "Create a New Course Run:" %}
+  {{ publisher_url }}courses/{{ course_uuid }}
+
+- {% trans "Extend the Course End Date:" %}
+  {{ course_schedule_settings_url }}
+
 {% elif days_to_expire == 'course_ended' %}
-{% trans "If this was intentional, no action is needed. However, if this course was meant to remain available, you have two options to restore access:" %}
-{% endif %}
 
-- {% trans "Extend the current course run’s end date if the same course is meant to remain available." %}
-- {% trans "Create a new course run if you are planning to offer this course again with updated content, pacing, or a new cohort of learners." %}
-  {% trans "Visit the Course in Publisher:" %} {{ publisher_url }}courses/{{ course_uuid }}
-
-{% trans "You can review and modify the course end settings here:" %}
-{{ course_schedule_settings_url }}
-
-{% if days_to_expire == 'course_ended' %}
-{% blocktrans with partner_marketing_site_url=partner_marketing_site_url %}
-If no action is taken, the course will no longer be available for enrollment or access by learners on {{ partner_marketing_site_url }} after the end date.
+{% blocktrans with course_name=course_name course_key=course_key course_end_date=course_end_date %}
+Our records show that the course "{{ course_name }}" (Course Key: {{ course_key }}) officially ended on {{ course_end_date }} and has now entered the archived state. Despite our previous reminders, it appears no action has been taken yet.
 {% endblocktrans %}
+
+{% trans "Important: If you decide not to extend the course or create a new course run at this time, you must inform your dedicated Project Coordinator with the reasons behind this. This will help ensure our internal teams are fully updated on your plans for the course." %}
+
+{% trans "If you wish to keep this course active, please choose one of the following options:" %}
+
+- {% trans "Create a New Course Run:" %}
+  {{ publisher_url }}courses/{{ course_uuid }}
+
+- {% trans "Extend the Course End Date:" %}
+  {{ course_schedule_settings_url }}
+
 {% endif %}
 
-{% trans "Thanks" %}
+{% trans "NOTE: This email address isn’t monitored for replies. If you have any questions or need assistance, please reach out to your dedicated Project Coordinator." %}
+
+{% trans "Thank you for your attention to this—looking forward to your updates!" %}
+
+{% trans "Best," %}
+{% trans "edX Operational Team" %}

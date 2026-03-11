@@ -453,10 +453,11 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
     html_template = 'course_metadata/email/course_deadline.html'
     template = get_template(html_template)
     subject_lookup = {
-        "three_months_reminder": f"Reminder: {course.title} ends in 3 months",
-        "one_month_reminder": f"Reminder: {course.title} ends in 1 month",
-        "seven_days_reminder": f"Reminder: {course.title} ends in 7 days",
-        "course_ended": f"Reminder: {course.title} has ended",
+        "two_months_reminder": f"Course Availability Reminder: {course.title} Ends in 60 Days",
+        "one_month_reminder": f"Course Availability Reminder: {course.title} Ends in 30 Days",
+        "fifteen_days_reminder": f"Course Availability Reminder: {course.title} Ends in 15 Days",
+        "seven_days_reminder": f"Course Availability Reminder: {course.title} Ends in 7 Days",
+        "course_ended": f"Reminder: {course.title} has Ended",
     }
 
     subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
@@ -467,8 +468,9 @@ def send_course_deadline_email(course, course_run, recipients, deadline_email_va
         "course_key": course.key,
         "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
         "days_to_expire": (
-            "90 days" if deadline_email_variant == "three_months_reminder"
+            "60 days" if deadline_email_variant == "two_months_reminder"
             else "30 days" if deadline_email_variant == "one_month_reminder"
+            else "15 days" if deadline_email_variant == "fifteen_days_reminder"
             else "7 days" if deadline_email_variant == "seven_days_reminder"
             else "course_ended"
         ),
