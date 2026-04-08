@@ -61,6 +61,26 @@ class SortableSelectJSPath:
         return f'<script src="{abs_path}" defer></script>'
 
 
+class DALAdminMixin(admin.ModelAdmin):
+    """
+    Mixin for Django admin classes using django-autocomplete-light.
+    Ensures Select2 library is properly loaded before autocomplete.js.
+    Required for Django 5.2 compatibility.
+    """
+    class Media:
+        css = {
+            'all': (
+                'admin/css/autocomplete.css',
+                'select2/dist/css/select2.css',
+                'dal_select2/dist/css/choices.css',
+            )
+        }
+        js = (
+            'select2/dist/js/select2.js',
+            'admin/js/autocomplete.js',
+        )
+
+
 class ProgramEligibilityFilter(admin.SimpleListFilter):
     title = _('eligible for one-click purchase')
     parameter_name = 'eligible_for_one_click_purchase'
@@ -138,7 +158,7 @@ class ProductValueAdmin(admin.ModelAdmin):
 
 
 @admin.register(Course)
-class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
+class CourseAdmin(DALAdminMixin, DjangoObjectActions, SimpleHistoryAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner', 'product_source')
@@ -234,7 +254,16 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     course_skills.label = "view course skills"
 
     class Media:
+        css = {
+            'all': (
+                'admin/css/autocomplete.css',
+                'select2/dist/css/select2.css',
+                'dal_select2/dist/css/choices.css',
+            )
+        }
         js = (
+            'select2/dist/js/select2.js',
+            'admin/js/autocomplete.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
             'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()
@@ -444,7 +473,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
+class ProgramAdmin(DALAdminMixin, DjangoObjectActions, SimpleHistoryAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'product_source', 'status', ProgramEligibilityFilter, 'hidden')
@@ -585,7 +614,16 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
     class Media:
+        css = {
+            'all': (
+                'admin/css/autocomplete.css',
+                'select2/dist/css/select2.css',
+                'dal_select2/dist/css/choices.css',
+            )
+        }
         js = (
+            'select2/dist/js/select2.js',
+            'admin/js/autocomplete.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
             'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()

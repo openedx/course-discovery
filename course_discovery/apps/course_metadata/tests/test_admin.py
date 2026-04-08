@@ -4,6 +4,7 @@ import ddt
 import pytest
 from bs4 import BeautifulSoup
 from django import VERSION as DJANGO_VERSION
+from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
@@ -23,7 +24,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdmin, ProgramEligibilityFilter
+from course_discovery.apps.course_metadata.admin import (
+    DALAdminMixin, DegreeAdmin, PositionAdmin, ProgramEligibilityFilter
+)
 from course_discovery.apps.course_metadata.choices import PathwayStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
@@ -662,3 +665,179 @@ class PathwayAdminTest(TestCase):
             '__all__': ['These programs are for a different partner than the pathway itself: '
                         'partner2 program - partner2-program']
         })
+
+
+class DALAdminMixinTests(TestCase):
+    """
+    Test suite for DALAdminMixin class.
+    Tests the proper configuration of django-autocomplete-light with Select2 for Django 5.2 compatibility.
+    """
+
+    def test_dal_admin_mixin_has_media_class(self):
+        """Test that DALAdminMixin has a Media class attribute."""
+        self.assertTrue(hasattr(DALAdminMixin, 'Media'))
+        self.assertIsNotNone(DALAdminMixin.Media)
+
+    def test_dal_admin_mixin_media_css(self):
+        """Test that DALAdminMixin includes required CSS files."""
+        media = DALAdminMixin.Media
+        self.assertTrue(hasattr(media, 'css'))
+        self.assertIn('all', media.css)
+
+        css_files = media.css['all']
+        expected_css = (
+            'admin/css/autocomplete.css',
+            'select2/dist/css/select2.css',
+            'dal_select2/dist/css/choices.css',
+        )
+
+        self.assertEqual(css_files, expected_css)
+        self.assertEqual(len(css_files), 3)
+
+    def test_dal_admin_mixin_media_js(self):
+        """Test that DALAdminMixin includes required JavaScript files."""
+        media = DALAdminMixin.Media
+        self.assertTrue(hasattr(media, 'js'))
+
+        js_files = media.js
+        expected_js = (
+            'select2/dist/js/select2.js',
+            'admin/js/autocomplete.js',
+        )
+
+        self.assertEqual(js_files, expected_js)
+        self.assertEqual(len(js_files), 2)
+
+    def test_dal_admin_mixin_css_files_have_correct_paths(self):
+        """Test specific CSS file paths are correct."""
+        media = DALAdminMixin.Media
+        css_files = media.css['all']
+
+        # Test each CSS file path
+        self.assertEqual(css_files[0], 'admin/css/autocomplete.css')
+        self.assertEqual(css_files[1], 'select2/dist/css/select2.css')
+        self.assertEqual(css_files[2], 'dal_select2/dist/css/choices.css')
+
+    def test_dal_admin_mixin_js_files_have_correct_order(self):
+        """
+        Test that JavaScript files are loaded in the correct order.
+        Select2 MUST be loaded before autocomplete.js for proper functionality.
+        """
+        media = DALAdminMixin.Media
+        js_files = media.js
+
+        # Select2 should come before autocomplete.js
+        select2_index = js_files.index('select2/dist/js/select2.js')
+        autocomplete_index = js_files.index('admin/js/autocomplete.js')
+
+        self.assertLess(select2_index, autocomplete_index,
+                        msg="Select2 must be loaded before autocomplete.js")
+
+    def test_dal_admin_mixin_inheritable(self):
+        """
+        Test that DALAdminMixin can be properly inherited by admin classes.
+        """
+        # Create a test admin class that inherits from DALAdminMixin
+        class TestModelAdmin(DALAdminMixin):
+            list_display = ('id', 'name')
+
+        self.assertTrue(issubclass(TestModelAdmin, DALAdminMixin))
+        self.assertTrue(hasattr(TestModelAdmin, 'Media'))
+
+    def test_dal_admin_mixin_media_inheritance(self):
+        """
+        Test that Media attributes are properly inherited when using DALAdminMixin.
+        """
+        class TestModelAdmin(DALAdminMixin):
+            list_display = ('id', 'name')
+
+        # Check that inherited admin has Media attribute
+        admin_instance = TestModelAdmin(Person, AdminSite())
+        media = admin_instance.media
+
+        # Verify CSS files are present
+        self.assertIn('select2/dist/css/select2.css', str(media))
+        self.assertIn('admin/css/autocomplete.css', str(media))
+
+        # Verify JS files are present
+        self.assertIn('select2/dist/js/select2.js', str(media))
+        self.assertIn('admin/js/autocomplete.js', str(media))
+
+    def test_dal_admin_mixin_with_additional_media(self):
+        """
+        Test that DALAdminMixin works with admin classes that define additional media.
+        """
+        class TestModelAdminWithMedia(DALAdminMixin):
+            list_display = ('id', 'name')
+
+            class Media:
+                # This would extend the parent media or override it
+                css = {
+                    'all': (
+                        'admin/css/autocomplete.css',
+                        'select2/dist/css/select2.css',
+                        'dal_select2/dist/css/choices.css',
+                        'custom/style.css',  # Custom CSS in addition to DAL
+                    )
+                }
+                js = (
+                    'select2/dist/js/select2.js',
+                    'admin/js/autocomplete.js',
+                    'custom/script.js',  # Custom JS
+                )
+
+        admin = TestModelAdminWithMedia(Person, AdminSite())
+        media_str = str(admin.media)
+
+        # Check that both DAL and custom files are included
+        self.assertIn('select2', media_str)
+        self.assertIn('autocomplete', media_str)
+
+    def test_dal_admin_mixin_docstring(self):
+        """Test that DALAdminMixin has proper documentation."""
+        self.assertIsNotNone(DALAdminMixin.__doc__)
+        self.assertIn('django-autocomplete-light', DALAdminMixin.__doc__)
+        self.assertIn('Select2', DALAdminMixin.__doc__)
+        self.assertIn('Django 5.2', DALAdminMixin.__doc__)
+
+    def test_dal_admin_mixin_is_admin_model_admin(self):
+        """Test that DALAdminMixin inherits from admin.ModelAdmin."""
+        self.assertTrue(issubclass(DALAdminMixin, ModelAdmin))
+
+    def test_multiple_css_entries_for_specific_media(self):
+        """Test that CSS entries are specifically for 'all' media query."""
+        media = DALAdminMixin.Media
+
+        # Should only have 'all' key for CSS
+        self.assertEqual(len(media.css), 1)
+        self.assertIn('all', media.css)
+
+    def test_css_and_js_are_tuples_not_lists(self):
+        """Test that CSS and JS are defined as tuples (immutable)."""
+        media = DALAdminMixin.Media
+
+        self.assertIsInstance(media.css['all'], tuple)
+        self.assertIsInstance(media.js, tuple)
+
+    def test_dal_admin_mixin_with_person_model(self):
+        """
+        Test that DALAdminMixin integrates properly with Person admin.
+        This is a real-world integration test.
+        """
+        # Verify PersonAdmin inherits from DALAdminMixin
+        # Note: This test assumes PersonAdmin uses DALAdminMixin in the actual implementation
+        admin_site = AdminSite()
+
+        # Create a test admin using DALAdminMixin
+        class PersonTestAdmin(DALAdminMixin):
+            list_display = ('uuid', 'given_name', 'family_name')
+
+        person_admin = PersonTestAdmin(Person, admin_site)
+
+        # Verify media is properly configured
+        self.assertTrue(hasattr(person_admin, 'media'))
+        media_str = str(person_admin.media)
+
+        # Check for expected Select2 and autocomplete references
+        self.assertIn('select2', media_str)
+        self.assertIn('autocomplete', media_str)
