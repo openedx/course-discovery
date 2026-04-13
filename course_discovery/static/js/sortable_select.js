@@ -1,3 +1,5 @@
+var $ = window.django && window.django.jQuery ? window.django.jQuery : window.jQuery;
+
 function updateSelect2Data(el){
     var i, j,
         visibleTitlesLength,
@@ -38,6 +40,10 @@ function updateSelect2Data(el){
 }
 
 window.addEventListener('load', function(){
+    if (!$ || !$.fn || !$.fn.sortable) {
+        return;
+    }
+
     $(function() {
         $('.sortable-select').parents('.form-row').each(function(index, el){
             $(el).find('ul.select2-selection__rendered').sortable({

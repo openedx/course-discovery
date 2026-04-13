@@ -29,6 +29,7 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
+from course_discovery.apps.course_metadata.widgets import AdminModelSelect2
 from course_discovery.apps.course_metadata.views import (
     CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
 )
@@ -50,7 +51,7 @@ class CurriculumCourseMembershipForm(ModelForm):
         model = CurriculumCourseMembership
         fields = ['curriculum', 'course', 'course_run_exclusions', 'is_active']
         widgets = {
-            'course': autocomplete.ModelSelect2(url='admin_metadata:course-autocomplete')
+            'course': AdminModelSelect2(url='admin_metadata:course-autocomplete')
         }
 
 
@@ -235,8 +236,8 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     class Media:
         js = (
+            'js/admin_jquery_ui_bridge.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()
         )
 
@@ -586,8 +587,8 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     class Media:
         js = (
+            'js/admin_jquery_ui_bridge.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()
         )
 
@@ -1080,8 +1081,8 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
 
     class Media:
         js = (
+            'js/admin_jquery_ui_bridge.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             'js/sortable_select.js'
         )
 

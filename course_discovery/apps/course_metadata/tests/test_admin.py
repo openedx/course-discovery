@@ -31,6 +31,7 @@ from course_discovery.apps.course_metadata.models import (
     CourseRunType, CourseType, Degree, Person, Position, Program, ProgramType, Source
 )
 from course_discovery.apps.course_metadata.tests import factories
+from course_discovery.apps.course_metadata.widgets import AdminModelSelect2, SortedModelSelect2Multiple
 
 
 @ddt.ddt
@@ -92,6 +93,18 @@ class AdminTests(SiteMixin, TestCase):
         assert response.status_code == 200
         self.assertContains(response, reverse('admin:course_metadata_program_change', args=(self.program.id,)))
         self.assertContains(response, reverse('admin:course_metadata_program_changelist'))
+        self.assertNotContains(response, 'cdnjs.cloudflare.com/ajax/libs/select2/4.0.13')
+
+    def test_select2_widgets_load_admin_jquery_bridge(self):
+        for widget in (
+            SortedModelSelect2Multiple(url='admin_metadata:course-autocomplete'),
+            AdminModelSelect2(url='admin_metadata:course-autocomplete'),
+        ):
+            js = list(widget.media._js)
+            assert js[:2] == [
+                'admin/js/jquery.init.js',
+                'js/admin_jquery_ui_bridge.js',
+            ]
 
     def test_custom_course_selection_page_with_invalid_id(self):
         """ Verify that course selection page will return 404 for invalid program id. """
