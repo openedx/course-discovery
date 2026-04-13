@@ -36,11 +36,11 @@ beautifulsoup4==4.14.3
     #   taxonomy-connector
 billiard==4.2.4
     # via celery
-boto3==1.42.84
+boto3==1.42.88
     # via
     #   django-ses
     #   snowflake-connector-python
-botocore==1.42.84
+botocore==1.42.88
     # via
     #   boto3
     #   s3transfer
@@ -101,7 +101,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==5.2.12
+django==5.2.13
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
@@ -314,11 +314,11 @@ edx-opaque-keys[django]==4.0.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==6.2.0
+edx-rest-api-client==7.0.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-toggles==5.4.1
+edx-toggles==6.0.0
     # via
     #   edx-auth-backends
     #   edx-event-bus-kafka
@@ -342,11 +342,11 @@ filelock==3.25.2
     # via snowflake-connector-python
 getsmarter-api-clients==0.6.3
     # via -r requirements/base.in
-google-api-core==2.30.2
+google-api-core==2.30.3
     # via google-api-python-client
-google-api-python-client==2.193.0
+google-api-python-client==2.194.0
     # via -r requirements/base.in
-google-auth==2.49.1
+google-auth==2.49.2
     # via
     #   google-api-core
     #   google-api-python-client
@@ -395,7 +395,7 @@ kombu==5.6.2
     # via celery
 libsass==0.23.0
     # via django-libsass
-lxml[html-clean]==6.0.2
+lxml[html-clean]==6.0.4
     # via
     #   -r requirements/base.in
     #   lxml-html-clean
@@ -406,7 +406,7 @@ markdown==3.10.2
     # via -r requirements/base.in
 markupsafe==3.0.3
     # via jinja2
-more-itertools==11.0.1
+more-itertools==11.0.2
     # via simple-salesforce
 oauthlib==3.3.1
     # via
@@ -415,7 +415,7 @@ oauthlib==3.3.1
     #   social-auth-core
 openedx-atlas==0.7.0
     # via -r requirements/base.in
-openedx-events==11.1.0
+openedx-events==11.1.1
     # via
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
@@ -433,7 +433,7 @@ pillow==9.5.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   snowflake-connector-python
     #   zeep
