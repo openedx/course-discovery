@@ -45,12 +45,12 @@ billiard==4.2.4
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.42.84
+boto3==1.42.91
     # via
     #   -r requirements/base.txt
     #   django-ses
     #   snowflake-connector-python
-botocore==1.42.84
+botocore==1.42.91
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -132,7 +132,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==5.2.12
+django==5.2.13
     # via
     #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
@@ -359,11 +359,11 @@ edx-opaque-keys[django]==4.0.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==6.2.0
+edx-rest-api-client==7.0.0
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
-edx-toggles==5.4.1
+edx-toggles==6.0.0
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
@@ -386,21 +386,21 @@ fastavro==1.12.1
     # via
     #   -r requirements/base.txt
     #   openedx-events
-filelock==3.25.2
+filelock==3.29.0
     # via
     #   -r requirements/base.txt
     #   snowflake-connector-python
 getsmarter-api-clients==0.6.3
     # via -r requirements/base.txt
-gevent==25.9.1
+gevent==26.4.0
     # via -r requirements/production.in
-google-api-core==2.30.2
+google-api-core==2.30.3
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.193.0
+google-api-python-client==2.194.0
     # via -r requirements/base.txt
-google-auth==2.49.1
+google-auth==2.49.2
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -420,7 +420,7 @@ googleapis-common-protos==1.74.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
-greenlet==3.3.2
+greenlet==3.4.0
     # via gevent
 gspread==6.2.1
     # via -r requirements/base.txt
@@ -473,7 +473,7 @@ libsass==0.23.0
     # via
     #   -r requirements/base.txt
     #   django-libsass
-lxml[html-clean]==6.0.2
+lxml[html-clean]==6.1.0
     # via
     #   -r requirements/base.txt
     #   lxml-html-clean
@@ -488,7 +488,7 @@ markupsafe==3.0.3
     # via
     #   -r requirements/base.txt
     #   jinja2
-more-itertools==11.0.1
+more-itertools==11.0.2
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
@@ -502,13 +502,13 @@ oauthlib==3.3.1
     #   social-auth-core
 openedx-atlas==0.7.0
     # via -r requirements/base.txt
-openedx-events==11.1.0
+openedx-events==11.1.1
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
     #   edx-event-bus-redis
     #   taxonomy-connector
-packaging==26.0
+packaging==26.1
     # via
     #   -r requirements/base.txt
     #   django-nine
@@ -523,7 +523,7 @@ pillow==9.5.0
     #   -r requirements/base.txt
     #   cairosvg
     #   django-stdimage
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   -r requirements/base.txt
     #   snowflake-connector-python
@@ -802,13 +802,13 @@ zeep==4.3.2
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
-zipp==3.23.0
+zipp==3.23.1
     # via
     #   -r requirements/base.txt
     #   importlib-metadata
 zope-event==6.1
     # via gevent
-zope-interface==8.2
+zope-interface==8.3
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
