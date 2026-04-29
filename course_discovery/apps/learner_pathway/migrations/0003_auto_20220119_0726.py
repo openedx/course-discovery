@@ -3,7 +3,6 @@
 import course_discovery.apps.course_metadata.utils
 import django.core.validators
 from django.db import migrations, models
-import djchoices.choices
 import stdimage.models
 
 
@@ -27,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='learnerpathway',
             name='status',
-            field=models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive')], default='inactive', help_text='The active/inactive status of this Pathway.', max_length=16, validators=[djchoices.choices.ChoicesValidator({'active': 'Active', 'inactive': 'Inactive'})]),
+            field=models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive')], default='inactive', help_text='The active/inactive status of this Pathway.', max_length=16),
         ),
         migrations.AddField(
             model_name='learnerpathwaystep',

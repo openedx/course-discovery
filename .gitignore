@@ -103,3 +103,7 @@ webpack-stats.json
 
 # transifex exe
 tx
+
+# AI
+CLAUDE.md
+.claude/*

@@ -162,7 +162,7 @@ class PopulateProductCatalogCommandTests(TestCase):
                 self.assertEqual(len(rows), len(self.degrees))
 
                 for degree in self.degrees:
-                    with self.subTest(degree=degree):
+                    with self.subTest(degree_title=degree.title):
                         matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid.hex)]
                         self.assertEqual(len(matching_rows), 1)
 
@@ -265,7 +265,7 @@ class PopulateProductCatalogCommandTests(TestCase):
 
                 # Check that non-marketable degrees are not in the CSV
                 for degree in non_marketable_degrees:
-                    with self.subTest(degree=degree):
+                    with self.subTest(degree_title=degree.title):
                         matching_rows = [row for row in rows if row["UUID"] == str(degree.uuid.hex)]
                         self.assertEqual(
                             len(matching_rows), 0, f"Non-marketable degree '{degree.title}' should not be in the CSV"

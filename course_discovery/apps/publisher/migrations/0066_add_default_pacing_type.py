@@ -2,7 +2,6 @@
 
 
 from django.db import migrations, models
-import djchoices.choices
 
 
 class Migration(migrations.Migration):
@@ -15,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courserun',
             name='pacing_type',
-            field=models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, default='instructor_paced', max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})]),
+            field=models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, default='instructor_paced', max_length=255, null=True),
         ),
         migrations.AlterField(
             model_name='historicalcourserun',
             name='pacing_type',
-            field=models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, default='instructor_paced', max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})]),
+            field=models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, default='instructor_paced', max_length=255, null=True),
         ),
     ]

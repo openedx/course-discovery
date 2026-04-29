@@ -8,7 +8,6 @@ contentful
 django
 django-admin-sortable2
 django-autocomplete-light
-django-choices
 django-compressor
 django-config-models
 django-contrib-comments

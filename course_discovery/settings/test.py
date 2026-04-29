@@ -54,6 +54,7 @@ DATABASES = {
 }
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
+JWT_AUTH['JWT_ISSUER'] = 'test-issuer'  # PyJWT 2.12+ requires iss to be a string
 
 LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',

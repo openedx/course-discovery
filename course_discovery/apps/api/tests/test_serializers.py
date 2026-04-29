@@ -6,10 +6,12 @@ from urllib.parse import urlencode
 
 import ddt
 import responses
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django_celery_results.models import TaskResult
+from edx_django_utils.cache import RequestCache, TieredCache
 from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
@@ -2979,6 +2981,10 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
         super().setUp()
+        # Clear all cache layers to prevent test pollution from cached API responses
+        cache.clear()
+        RequestCache.clear_all_namespaces()
+        TieredCache.dangerous_clear_all_tiers()
         self.mock_access_token()
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()

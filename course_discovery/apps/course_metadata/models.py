@@ -2532,7 +2532,7 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         two_weeks = datetime.timedelta(days=14)
         after_start = (not self.start) or self.start < now
         ends_in_more_than_two_weeks = (not self.end) or (
-            now.date() <= self.end.date() - two_weeks  # pylint: disable=no-member
+            now.date() <= self.end.date() - two_weeks
         )
         return after_start and ends_in_more_than_two_weeks
 

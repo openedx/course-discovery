@@ -5,7 +5,6 @@
 -r docs.txt
 
 django-debug-toolbar
-django-elasticsearch-debug-toolbar
 edx-i18n-tools
 pywatchman                                 # For devserver code reloading
 pymemcache
