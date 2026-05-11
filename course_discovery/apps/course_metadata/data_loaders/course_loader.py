@@ -333,7 +333,7 @@ class CourseLoader(AbstractDataLoader, DataLoaderMixin):
             if not is_valid:
                 continue
             course_key = self.get_course_key(row['organization'], row['number'])
-            if Course.objects.filter_drafts(key=course_key, partner=self.partner).exists():  # pylint: disable=no-else-continue
+            if Course.objects.filter_drafts(key=course_key, partner=self.partner).exists():
                 logger.warning(f'Course with key {course_key} already exists. Skipping creation.')
                 logger.warning(f'Select Correct Operation type for the course: {course_title} - {course_key}')
                 self.ingestion_summary['others'].append(

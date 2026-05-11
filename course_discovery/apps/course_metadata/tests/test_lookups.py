@@ -90,9 +90,10 @@ class TestAutocomplete:
         assert len(data['results']) == 3
 
         # Search for substrings of organization keys and names
+        # Use longer substrings to avoid matching leftover data in reused test databases
         organization = organizations[0]
-        self.assert_valid_query_result(admin_client, path, organization.key[:3], organization)
-        self.assert_valid_query_result(admin_client, path, organization.name[:5], organization)
+        self.assert_valid_query_result(admin_client, path, organization.key[:8], organization)
+        self.assert_valid_query_result(admin_client, path, organization.name[:8], organization)
 
     @pytest.mark.parametrize(
         'view_prefix',

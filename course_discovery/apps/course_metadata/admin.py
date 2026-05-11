@@ -235,8 +235,8 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     class Media:
         js = (
+            'js/jquery_shim.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()
         )
 
@@ -586,8 +586,8 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     class Media:
         js = (
+            'js/jquery_shim.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             SortableSelectJSPath()
         )
 
@@ -1080,8 +1080,8 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
 
     class Media:
         js = (
+            'js/jquery_shim.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             'js/sortable_select.js'
         )
 

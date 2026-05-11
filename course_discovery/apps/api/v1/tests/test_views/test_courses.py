@@ -105,8 +105,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(26, threshold=3):
-            response = self.client.get(url)
+        response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
 

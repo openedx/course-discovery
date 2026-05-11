@@ -3,15 +3,9 @@
 # This file contains all common constraints for edx-repos
 -c common_constraints.txt
 
-# Stay on an LTS release
-django<5.3
-
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
 elasticsearch-dsl>=7.2,<8.0
-# Disabling this constraint as of now as we are going to use github hash for this
-# TODO: Enable this once new version is released after we move to Django 3.2
-# django-elasticsearch-dsl>=7.1,<8.0
 
 celery>=5.2.3,<6.0.0
 

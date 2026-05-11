@@ -1042,7 +1042,7 @@ class BulkOperationTaskFactory(factory.django.DjangoModelFactory):
         model = BulkOperationTask
 
     uploaded_by = factory.SubFactory(UserFactory)
-    task_type = factory.Iterator([choice[0] for choice in BulkOperationType.choices])
+    task_type = BulkOperationType.CourseCreate
     status = 'Pending'
     csv_file = factory.LazyAttribute(lambda _: SimpleUploadedFile(
         "test.csv", b"header1,header2\nvalue1,value2", content_type="text/csv"

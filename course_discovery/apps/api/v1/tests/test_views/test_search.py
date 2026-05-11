@@ -1230,13 +1230,13 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         )
         response = self.get_response({'q': 'mit'})
         assert response.status_code == 200
-        expected = {
-            'course_runs': [self.serialize_course_run_search(mit_run),
-                            self.serialize_course_run_search(harvard_run)],
-            'programs': [self.serialize_program_search(mit_program),
-                         self.serialize_program_search(harvard_program)]
-        }
-        self.assertDictEqual(response.data, expected)
+        expected_course_runs = [self.serialize_course_run_search(mit_run),
+                                self.serialize_course_run_search(harvard_run)]
+        expected_programs = [self.serialize_program_search(mit_program),
+                             self.serialize_program_search(harvard_program)]
+        # Use assertCountEqual for order-agnostic comparison since ES scoring order is non-deterministic
+        self.assertCountEqual(response.data['course_runs'], expected_course_runs)
+        self.assertCountEqual(response.data['programs'], expected_programs)
 
 
 class TestPersonFacetSearchViewSet(mixins.SerializationMixin, mixins.LoginMixin,

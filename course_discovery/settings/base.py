@@ -421,7 +421,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '200/hour',
     },
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema'
 }
 
 # http://chibisov.github.io/drf-extensions/docs/
@@ -542,7 +542,6 @@ PUBLISHER_UPGRADE_DEADLINE_DAYS = 10
 if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
     INSTALLED_APPS += [
         'debug_toolbar',
-        'elastic_panel',
     ]
 
     MIDDLEWARE += (
@@ -564,7 +563,6 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.signals.SignalsPanel',
         'debug_toolbar.panels.logging.LoggingPanel',
         'debug_toolbar.panels.redirects.RedirectsPanel',
-        'elastic_panel.panel.ElasticDebugPanel'
     ]
 
 AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"

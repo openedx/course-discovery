@@ -1,6 +1,5 @@
 import django.db.models.deletion
 import django_extensions.db.fields
-import djchoices.choices
 import sortedm2m.fields
 from django.db import migrations, models
 
@@ -184,7 +183,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='program',
             name='status',
-            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], validators=[djchoices.choices.ChoicesValidator({'deleted': 'Deleted', 'retired': 'Retired', 'active': 'Active', 'unpublished': 'Unpublished'})], max_length=24, help_text='The lifecycle status of this Program.'),
+            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], max_length=24, help_text='The lifecycle status of this Program.'),
         ),
         migrations.AddField(
             model_name='programtype',

@@ -744,15 +744,37 @@ class TestCourseDeadlineEmail(TestCase):
 
             assert len(mail.outbox) == 1
             email = mail.outbox[0]
-            assert str(email.subject) == f'Reminder: {self.course.title} ends in 7 days'
+
+            assert str(email.subject) == f'Course Availability Reminder: {self.course.title} Ends in 7 Days'
+
             assert email.to == [self.editor.email]
             assert email.from_email == settings.PUBLISHER_FROM_EMAIL
+
             assert 'Hi Course Team' in email.body
+
             assert (
-                f'This is an automated reminder that the course "{self.course.title}" (Course Key: {self.course.key})'
-                f' is scheduled to end in 7 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
+                f'Our records indicate that the course "{self.course.title}" (Course Key: {self.course.key}) '
+                f'is scheduled to end in 7 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
                 in email.body
             )
+
+            assert 'Despite previous reminders' in email.body
+
+            assert 'Important:' in email.body
+
+            assert 'If no action is taken, the course will be automatically archived after the current end date.' in email.body  # pylint: disable=line-too-long
+
+            assert 'To prevent disruption to learner access' in email.body
+
+            assert 'Create a New Course Run:' in email.body
+            assert 'Extend the Course End Date:' in email.body
+
+            assert 'NOTE:' in email.body
+            assert 'This email address isn’t monitored for replies.' in email.body
+
+            assert 'Thank you for your attention to this—looking forward to your updates!' in email.body
+            assert 'edX Operational Team' in email.body
+
             log_capture.check(
                 (
                     emails.logger.name,
