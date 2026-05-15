@@ -29,10 +29,10 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.widgets import AdminModelSelect2
 from course_discovery.apps.course_metadata.views import (
     CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
 )
+from course_discovery.apps.course_metadata.widgets import AdminModelSelect2
 from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(

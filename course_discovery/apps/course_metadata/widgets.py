@@ -12,9 +12,13 @@ class AdminSelect2MediaMixin:
 
     @property
     def media(self):
+        # Including select2.full.js here forces Django's media topological sort to place
+        # admin_jquery_ui_bridge.js before it; otherwise the bridge ends up after select2,
+        # which loads before its global jQuery alias exists.
         return forms.Media(js=(
             'admin/js/jquery.init.js',
             'js/admin_jquery_ui_bridge.js',
+            'admin/js/vendor/select2/select2.full.js',
         )) + super().media
 
 
