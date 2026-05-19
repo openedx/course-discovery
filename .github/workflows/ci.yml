@@ -17,7 +17,7 @@ jobs:
         status: ['']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Format Python Version
         id: format_python_version
         shell: bash
@@ -45,7 +45,7 @@ jobs:
       - name: Upload coverage
         # Upload coverage only from the django52 job to avoid duplicate artifacts across the Django test matrix.
         if: matrix.db-version == 'mysql80' && matrix.django-version == 'django52'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage${{ matrix.pytest-split-group }}
           path: .coverage
@@ -56,16 +56,16 @@ jobs:
     needs: pytest
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
       - name: Run coverage
         run: make ci_coverage
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -73,7 +73,7 @@ jobs:
   quality:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
           PYTHON_VERSION: 3.12
@@ -85,7 +85,7 @@ jobs:
       matrix:
         python-version: ['3.12']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}

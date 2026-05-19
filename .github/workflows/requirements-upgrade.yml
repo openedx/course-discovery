@@ -23,12 +23,12 @@ jobs:
     - name: setup target branch
       run: echo "target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; then echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi)" >> $GITHUB_ENV
    
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       with:
         ref: ${{ env.target_branch }}
 
     - name: setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@e9aba2c848f5ebd159c070c61ea2c4e2b122355e # v2.3.4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -59,7 +59,7 @@ jobs:
 
     - name: Send failure notification
       if: ${{ failure() }}
-      uses: dawidd6/action-send-mail@v5
+      uses: dawidd6/action-send-mail@7ac0fb1e367721ffc3985c672ba2e7659379bc00 # v5
       with:
         server_address: email-smtp.us-east-1.amazonaws.com
         server_port: 465
