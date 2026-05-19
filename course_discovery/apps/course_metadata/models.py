@@ -286,6 +286,10 @@ class Organization(ManageHistoryMixin, CachedMixin, TimeStampedModel):
         default=False,
         help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
     )
+    b2c_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if any of this org\'s courses are in the B2C subscription catalog'),
+    )
     organization_hex_color = models.CharField(
         help_text=_("""The 6 character-hex-value of the orgnization theme color,
             all related course under same organization will use this color as theme color.
@@ -1564,6 +1568,11 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
     )
 
+    b2c_subscription_inclusion = models.BooleanField(
+        null=True,
+        help_text=_('This field signifies if this course is in the B2C subscription catalog'),
+    )
+
     excluded_from_search = models.BooleanField(
         null=True,
         blank=True,
@@ -2397,6 +2406,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
     enterprise_subscription_inclusion = models.BooleanField(
         default=False,
         help_text=_('This calculated field signifies if this course run is in the enterprise subscription catalog'),
+    )
+
+    b2c_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if this course run is in the B2C subscription catalog'),
     )
 
     variant_id = models.UUIDField(
@@ -3509,6 +3523,11 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    b2c_subscription_inclusion = models.BooleanField(
+        null=True,
+        help_text=_('This field signifies if this course is in the B2C subscription catalog'),
+    )
+
     excluded_from_search = models.BooleanField(
         null=True,
         blank=True,

@@ -312,7 +312,7 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
     readonly_fields = [
-        'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion',
+        'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion', 'b2c_subscription_inclusion',
         'variant_id', 'fixed_price_usd', 'ai_languages'
     ]
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
@@ -451,7 +451,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     ordering = ('uuid', 'title', 'status')
     readonly_fields = (
         'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
-        'enterprise_subscription_inclusion', 'ofac_comment', 'data_modified_timestamp'
+        'enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'ofac_comment', 'data_modified_timestamp'
     )
     raw_id_fields = ('video',)
     autocomplete_fields = (
@@ -470,7 +470,7 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items', 'expected_learning_items',
         'instructor_ordering', 'enrollment_count', 'recent_enrollment_count', 'credit_value',
         'organization_short_code_override', 'organization_logo_override', 'primary_subject_override',
-        'level_type_override', 'language_override', 'enterprise_subscription_inclusion', 'in_year_value', 'labels',
+        'level_type_override', 'language_override', 'enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'in_year_value', 'labels',
         'geolocation', 'program_duration_override', 'has_ofac_restrictions', 'ofac_comment', 'data_modified_timestamp',
         'excluded_from_search', 'excluded_from_seo'
     )
