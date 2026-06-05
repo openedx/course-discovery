@@ -114,7 +114,7 @@ def process_bulk_operation(bulk_operation_task_id):
 @shared_task
 def process_send_course_deadline_email(course_key, course_run_key, recipients, email_variant=None):
     """
-    Task to send course deadline emails to recipients (e.g., Project Coordinators and Course Editors).
+    Task to send course discovery deadline emails to recipients (e.g., Project Coordinators and Course Editors).
     """
     try:
         course = Course.objects.get(key=course_key)
