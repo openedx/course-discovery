@@ -446,7 +446,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'marketing_url',
             'slug',
             'banner_image_url',
-            'enterprise_subscription_inclusion',
+            'enterprise_subscription_inclusion', 'b2c_subscription_inclusion',
         )
         read_only_fields = ('slug',)
 
@@ -1075,6 +1075,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     estimated_hours = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
+b2c_subscription_inclusion = serializers.BooleanField(required=False)
     @classmethod
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
@@ -1102,11 +1103,11 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion',
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion', 'b2c_subscription_inclusion',
             'transcript_languages_search_facet_names', 'ai_languages'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
-                            'enterprise_subscription_inclusion', 'ai_languages')
+                            'enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'ai_languages')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1217,6 +1218,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     course_type = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
     course_run_statuses = serializers.ReadOnlyField()
+    b2c_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1257,7 +1259,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion',
+                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion', 'b2c_subscription_inclusion',
                   'excluded_from_seo', 'excluded_from_search', 'course_run_statuses')
 
 
@@ -1361,6 +1363,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     skills = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
+    b2c_subscription_inclusion = serializers.BooleanField(required=False)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
     product_source = SlugRelatedFieldWithReadSerializer(
@@ -1435,10 +1438,10 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
+            'enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
             'product_source', 'data_modified_timestamp', 'excluded_from_search', 'excluded_from_seo', 'watchers',
         )
-        read_only_fields = ('enterprise_subscription_inclusion', 'product_source', 'data_modified_timestamp')
+        read_only_fields = ('enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'product_source', 'data_modified_timestamp')
         extra_kwargs = {
             'partner': {'write_only': True}
         }
@@ -2252,6 +2255,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     topics = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField()
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
+    b2c_subscription_inclusion = serializers.BooleanField(required=False)
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
     is_2u_degree_program = serializers.BooleanField()
     in_year_value = ProductValueSerializer(required=False)
@@ -2333,11 +2337,11 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
+            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
             'product_source', 'excluded_from_search', 'excluded_from_seo',
         )
-        read_only_fields = ('enterprise_subscription_inclusion', 'product_source',)
+        read_only_fields = ('enterprise_subscription_inclusion', 'b2c_subscription_inclusion', 'product_source',)
 
 
 class PathwaySerializer(BaseModelSerializer):
