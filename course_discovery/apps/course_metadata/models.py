@@ -1564,6 +1564,11 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
     )
 
+    b2c_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if this course is in the B2C subscription catalog'),
+    )
+
     excluded_from_search = models.BooleanField(
         null=True,
         blank=True,
