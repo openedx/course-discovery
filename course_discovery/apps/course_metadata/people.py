@@ -19,9 +19,19 @@ class MarketingSitePeople:
         )
 
     def _get_node_data(self, person):
+        # Build full name safely to avoid "null" appearing on marketing site
+        full_name = " ".join(
+            part for part in [person.given_name, person.family_name]
+            if part
+        )
+
+        # Preserve salutation if present
+        if person.salutation:
+            full_name = f"{person.salutation} {full_name}"
+
         return {
             'field_person_slug': person.slug,
-            'title': person.full_name,
+            'title': full_name.strip(),
             'type': 'person',
             'status': 1 if person.published else 0
         }
