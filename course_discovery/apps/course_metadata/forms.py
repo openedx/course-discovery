@@ -36,20 +36,6 @@ class ProgramAdminForm(forms.ModelForm):
                     'class': 'sortable-select',
                 },
             ),
-            'credit_backing_organizations': autocomplete.ModelSelect2Multiple(
-                url='admin_metadata:organisation-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                    'class': 'sortable-select',
-                }
-            ),
-            'instructor_ordering': autocomplete.ModelSelect2Multiple(
-                url='admin_metadata:person-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                    'class': 'sortable-select',
-                }
-            ),
         }
 
     def __init__(self, *args, **kwargs):

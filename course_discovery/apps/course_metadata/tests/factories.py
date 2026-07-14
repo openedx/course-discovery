@@ -76,7 +76,7 @@ class CourseFactory(factory.DjangoModelFactory):
     key = FuzzyText(prefix='course-id/')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     card_image_url = FuzzyURL()
-    partner = factory.SubFactory(PartnerFactory)
+    org = FuzzyText()
 
     class Meta:
         model = Course
@@ -212,8 +212,8 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     uuid = factory.LazyFunction(uuid4)
     status = ProgramStatus.Active
+    org = FuzzyText()
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
-    partner = factory.SubFactory(PartnerFactory)
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

@@ -52,7 +52,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
 
     def test_data(self):
         request = make_request()
-        course = CourseFactory(partner=self.partner)
+        course = CourseFactory(org='test-org')
         CourseRunFactory.create_batch(2, course=course)
         serializer = self.serializer_class(course, context={'request': request})
         expected = self.get_expected_data(course, request)
@@ -255,8 +255,9 @@ class MinimalProgramSerializerTests(TestCase):
         return {
             'uuid': str(program.uuid),
             'title': program.title,
-            'type': program.type.name,
             'status': program.status,
+            'org': program.org,
+            'visibility': program.visibility,
             'courses': MinimalProgramCourseSerializer(
                 program.courses,
                 many=True,
@@ -267,10 +268,7 @@ class MinimalProgramSerializerTests(TestCase):
                 }).data,
             'card_image_url': program.card_image_url,
             'languages': program.languages,
-            'visibility': program.visibility,
-            'partner': program.partner,
             'duration': program.duration,
-            'language': program.language,
             'start': program.start,
             'end': program.end,
             'enrollment_start': program.enrollment_start,

@@ -154,9 +154,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
             filters['uuid'] = kwargs['uuid']        # program uuid
 
         return Program.objects.filter(**filters).prefetch_related(
-            # `type` is serialized by a third-party serializer. Providing this field name allows us to
-            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
-            # `ProgramType` on `Program`.
             Prefetch(
                 'courses',
                 queryset=MinimalProgramCourseSerializer.prefetch_queryset()
@@ -296,19 +293,8 @@ class ProgramSerializer(MinimalProgramSerializer):
             filters['uuid'] = kwargs['uuid']        # program uuid
 
         return Program.objects.filter(**filters).prefetch_related(
-            # `type` is serialized by a third-party serializer. Providing this field name allows us to
-            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
-            # `ProgramType` on `Program`.
-            # We need the full Course prefetch here to get CourseRun information that methods on the Program
-            # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
             Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(org=org)),
         )
-
-    def get_applicable_seat_types(self, obj):
-        if not obj.type:
-            return []
-
-        return list(obj.type.applicable_seat_types.values_list('slug', flat=True))
 
     class Meta(MinimalProgramSerializer.Meta):
         model = Program

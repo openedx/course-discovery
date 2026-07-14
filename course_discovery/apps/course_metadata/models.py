@@ -609,15 +609,6 @@ class Program(TimeStampedModel):
         return self.title
 
     @property
-    def marketing_url(self):
-        if self.marketing_slug:
-            type_node = 'empty_type' if not self.type else self.type.slug.lower()
-            path = '{type}/{slug}'.format(type=type_node, slug=self.marketing_slug)
-            return urljoin(self.partner.marketing_site_url_root, path)
-
-        return None
-
-    @property
     def course_runs(self):
         """
         Warning! Only call this method after retrieving programs from `ProgramSerializer.prefetch_queryset()`.

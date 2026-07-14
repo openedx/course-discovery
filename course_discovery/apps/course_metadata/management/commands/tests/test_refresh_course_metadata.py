@@ -149,7 +149,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             # Courses must exist for the command to use multiple threads. If there are no
             # courses, the command won't risk race conditions between threads trying to
             # create the same course.
-            CourseFactory(partner=self.partner)
+            CourseFactory(org='test-org')
             with mock.patch('concurrent.futures.ProcessPoolExecutor.submit') as mock_executor:
                 call_command('refresh_course_metadata')
 

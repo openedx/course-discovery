@@ -18,7 +18,7 @@ from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
-from course_discovery.apps.course_metadata.models import Program, ProgramType
+from course_discovery.apps.course_metadata.models import Program
 
 
 class ProgramViewSet(viewsets.ModelViewSet):
@@ -87,11 +87,6 @@ class ProgramViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
 
-        if r'type' in input_data:
-            input_data[r'type'] = ProgramType.objects.get(
-                name=input_data[r'type']
-            )
-
         site_org = input_data.get('org', None)
         if not site_org:
             raise ValidationError('miss argument `org`')
@@ -127,11 +122,6 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
-
-        if r'type' in input_data:
-            input_data[r'type'] = ProgramType.objects.get(
-                name=input_data[r'type']
-            )
 
         if r'released_date' in input_data:
             input_data[r'released_date'] = datetime.now()

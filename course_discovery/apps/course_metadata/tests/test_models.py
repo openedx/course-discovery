@@ -257,18 +257,13 @@ class ProgramTests(TestCase):
         factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
 
         applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
-        return factories.ProgramFactory(type=program_type, courses=[course_run.course])
+        return factories.ProgramFactory(courses=[course_run.course])
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""
         self.assertEqual(str(self.program), self.program.title)
-
-    def test_marketing_url_without_slug(self):
-        """ Verify the property returns None if the Program has no marketing_slug set. """
-        self.program.marketing_slug = ''
-        self.assertIsNone(self.program.marketing_url)
 
     def test_canonical_course_runs(self):
         course = self.course_runs[0].course
@@ -307,11 +302,6 @@ class ProgramTests(TestCase):
             course_run.course.canonical_course_run = course_run
             course_run.course.save()
 
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
-
-        self.program.type = program_type
-
     def create_program_with_multiple_course_runs(self, set_all_dates=True):
         currency = Currency.objects.get(code='USD')
         single_course_course_runs = factories.CourseRunFactory.create_batch(3)
@@ -344,13 +334,11 @@ class ProgramTests(TestCase):
             day_separation += 1
         course.canonical_course_run = course_runs_same_course[2]
         course.save()
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         program_courses = [course_run.course for course_run in single_course_course_runs]
         program_courses.append(course)
 
-        return factories.ProgramFactory(type=program_type, courses=program_courses)
+        return factories.ProgramFactory(courses=program_courses)
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):

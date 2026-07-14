@@ -15,13 +15,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 import unittest
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.admin import PositionAdmin
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.forms import ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Person, Position, Program, Seat, SeatType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -42,14 +41,14 @@ class AdminTests(SiteMixin, TestCase):
             courses=self.courses
         )
 
-    def _post_data(self, status=ProgramStatus.Unpublished, marketing_slug='/foo'):
+    def _post_data(self, status=ProgramStatus.Unpublished):
         return {
             'title': 'some test title',
             'courses': [self.courses[0].id],
-            'type': self.program.type.id,
             'status': status,
-            'marketing_slug': marketing_slug,
-            'partner': self.program.partner.id
+            'org': self.program.org or 'test-org',
+            'duration': 0,
+            'visibility': 0,
         }
 
     def assert_form_valid(self, data, files):
@@ -92,7 +91,7 @@ class AdminTests(SiteMixin, TestCase):
 
         banner_image = make_image_file('test_banner.jpg') if has_banner_image else ''
 
-        data = self._post_data(status=status, marketing_slug='/foo')
+        data = self._post_data(status=status)
         files = {'banner_image': banner_image}
 
         if status == ProgramStatus.Active:
@@ -173,7 +172,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
         self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run], status=ProgramStatus.Unpublished
+            courses=self.courses, status=ProgramStatus.Unpublished
         )
 
         self.user = UserFactory(is_staff=True, is_superuser=True)
@@ -190,8 +189,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def _wait_for_add_edit_page_to_load(self):
         self._wait_for_page_load('change-form')
 
-    def _wait_for_excluded_course_runs_page_to_load(self):
-        self._wait_for_page_load('change-program-excluded-course-runs-form')
+    def _wait_for_changelist_to_load(self):
+        self._wait_for_page_load('change-list')
 
     def _navigate_to_edit_page(self):
         url = self._build_url(reverse(self.edit_view_name, args=(self.program.id,)))
@@ -204,7 +203,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
     def _submit_program_form(self):
         self.browser.find_element_by_css_selector('input[type=submit][name=_save]').click()
-        self._wait_for_excluded_course_runs_page_to_load()
+        self._wait_for_changelist_to_load()
 
     def assert_form_fields_present(self):
         """ Asserts the correct fields are rendered on the form. """
@@ -214,15 +213,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
-            'field-uuid', 'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner',
-            'field-banner_image', 'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug',
-            'field-overview', 'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort',
-            'field-weeks_to_complete', 'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week',
-            'field-courses', 'field-order_courses_by_start_date', 'field-custom_course_runs_display',
-            'field-excluded_course_runs', 'field-authoring_organizations', 'field-credit_backing_organizations',
-            'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
-            'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
-            'field-instructor_ordering',
+            'field-uuid', 'field-title', 'field-status', 'field-org',
+            'field-card_image_url', 'field-courses',
         ]
         self.assertEqual(actual, expected)
 
@@ -233,38 +225,25 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self.assert_form_fields_present()
 
         program = factories.ProgramFactory.build(
-            partner=Partner.objects.first(),
             status=ProgramStatus.Unpublished,
-            type=ProgramType.objects.first(),
-            marketing_slug='foo'
         )
         self.browser.find_element_by_id('id_title').send_keys(program.title)
-        self.browser.find_element_by_id('id_subtitle').send_keys(program.subtitle)
-        self.browser.find_element_by_id('id_marketing_slug').send_keys(program.marketing_slug)
         self._select_option('id_status', program.status)
-        self._select_option('id_type', str(program.type.id))
-        self._select_option('id_partner', str(program.partner.id))
         self._submit_program_form()
 
         actual = Program.objects.latest()
         self.assertEqual(actual.title, program.title)
-        self.assertEqual(actual.subtitle, program.subtitle)
-        self.assertEqual(actual.marketing_slug, program.marketing_slug)
         self.assertEqual(actual.status, program.status)
-        self.assertEqual(actual.type, program.type)
-        self.assertEqual(actual.partner, program.partner)
 
     def test_program_update(self):
         self._navigate_to_edit_page()
         self.assert_form_fields_present()
 
         title = 'Test Program'
-        subtitle = 'This is a test.'
 
         # Update the program
         data = (
             ('title', title),
-            ('subtitle', subtitle),
         )
 
         for field, value in data:
@@ -277,7 +256,6 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         # Verify the program was updated
         self.program = Program.objects.get(pk=self.program.pk)
         self.assertEqual(self.program.title, title)
-        self.assertEqual(self.program.subtitle, subtitle)
 
 
 class PersonPositionAdminTest(TestCase):
