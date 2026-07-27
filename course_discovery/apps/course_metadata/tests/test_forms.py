@@ -70,3 +70,75 @@ class ProgramAdminFormTests(SiteMixin, TestCase):
         form = ProgramAdminForm(data=data)
 
         self.assertTrue(form.is_valid())
+
+    def test_b2c_program_with_only_b2c_courses_can_be_saved(self):
+        enabled_course_1 = factories.CourseFactory(
+            title='B2C-enabled course 1',
+            b2c_subscription_inclusion=True,
+        )
+        enabled_course_2 = factories.CourseFactory(
+            title='B2C-enabled course 2',
+            b2c_subscription_inclusion=True,
+        )
+
+        data = self._post_data(status=ProgramStatus.Unpublished)
+        data['authoring_organizations'] = []
+        data['courses'] = [enabled_course_1.id, enabled_course_2.id]
+        data['b2c_subscription_inclusion'] = 'on'
+
+        form = ProgramAdminForm(data=data)
+        self.assertTrue(form.is_valid())
+
+        program = form.save()
+        self.assertTrue(program.b2c_subscription_inclusion)
+        self.assertEqual(list(program.courses.order_by('id')), [enabled_course_1, enabled_course_2])
+
+    def test_b2c_program_with_non_b2c_course_cannot_be_saved(self):
+        enabled_course = factories.CourseFactory(
+            title='B2C-enabled course',
+            b2c_subscription_inclusion=True,
+        )
+        disabled_course = factories.CourseFactory(
+            title='Non-B2C course',
+            b2c_subscription_inclusion=False,
+        )
+        disabled_course_2 = factories.CourseFactory(
+            title='Non-B2C course 2',
+            b2c_subscription_inclusion=False,
+        )
+
+        data = self._post_data(status=ProgramStatus.Unpublished)
+        data['authoring_organizations'] = []
+        data['courses'] = [enabled_course.id, disabled_course.id, disabled_course_2.id]
+        data['b2c_subscription_inclusion'] = 'on'
+
+        form = ProgramAdminForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['__all__'],
+            [
+                'All courses in a B2C subscription program must support B2C subscription inclusion. '
+                'Remove or update the following courses before saving: Non-B2C course, Non-B2C course 2.'
+            ]
+        )
+
+    def test_non_b2c_program_can_be_saved_with_mixed_courses(self):
+        enabled_course = factories.CourseFactory(
+            title='B2C-enabled course',
+            b2c_subscription_inclusion=True,
+        )
+        disabled_course = factories.CourseFactory(
+            title='Non-B2C course',
+            b2c_subscription_inclusion=False,
+        )
+
+        data = self._post_data(status=ProgramStatus.Unpublished)
+        data['authoring_organizations'] = []
+        data['courses'] = [enabled_course.id, disabled_course.id]
+
+        form = ProgramAdminForm(data=data)
+        self.assertTrue(form.is_valid())
+
+        program = form.save()
+        self.assertFalse(program.b2c_subscription_inclusion)
+        self.assertEqual(list(program.courses.order_by('id')), [enabled_course, disabled_course])

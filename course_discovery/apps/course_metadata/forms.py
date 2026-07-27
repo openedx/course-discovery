@@ -92,17 +92,41 @@ class ProgramAdminForm(forms.ModelForm):
 
     def clean(self):
 
-        super().clean()
+        cleaned_data = super().clean()
 
-        status = self.cleaned_data.get('status')
-        banner_image = self.cleaned_data.get('banner_image')
+        status = cleaned_data.get('status')
+        banner_image = cleaned_data.get('banner_image')
+        b2c_subscription_inclusion = cleaned_data.get('b2c_subscription_inclusion')
+        courses = cleaned_data.get('courses')
+        if courses is None:
+            courses = Course.objects.none()
 
         if status == ProgramStatus.Active and not banner_image:
             raise ValidationError(_(
                 'Programs can only be activated if they have a banner image.'
             ))
 
-        return self.cleaned_data
+        if b2c_subscription_inclusion:
+            if hasattr(courses, 'filter'):
+                invalid_titles = list(
+                    courses.filter(b2c_subscription_inclusion=False)
+                    .order_by('title')
+                    .values_list('title', flat=True)
+                )
+            else:
+                invalid_titles = list(
+                    Course.objects.filter(
+                        id__in=[course.id for course in courses],
+                        b2c_subscription_inclusion=False,
+                    ).order_by('title').values_list('title', flat=True)
+                )
+            if invalid_titles:
+                raise ValidationError(_(
+                    'All courses in a B2C subscription program must support B2C subscription inclusion. '
+                    'Remove or update the following courses before saving: %(courses)s.'
+                ), params={'courses': ', '.join(invalid_titles)})
+
+        return cleaned_data
 
     def clean_authoring_organizations(self):
         """
