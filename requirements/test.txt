@@ -18,7 +18,7 @@ amqp==5.3.1
     # via
     #   -r requirements/base.txt
     #   kombu
-asgiref==3.11.1
+asgiref==3.12.1
     # via
     #   -r requirements/base.txt
     #   django
@@ -45,7 +45,7 @@ attrs==26.1.0
     #   zeep
 backoff==2.2.1
     # via -r requirements/base.txt
-beautifulsoup4==4.14.3
+beautifulsoup4==4.15.0
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -58,20 +58,20 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.42.84
+boto3==1.43.56
     # via
     #   -r requirements/base.txt
     #   django-ses
     #   snowflake-connector-python
-botocore==1.42.84
+botocore==1.43.56
     # via
     #   -r requirements/base.txt
     #   boto3
     #   s3transfer
     #   snowflake-connector-python
-bracex==2.6
+bracex==3.0.1
     # via wcmatch
-cachetools==7.0.5
+cachetools==7.1.6
     # via tox
 cairocffi==1.7.1
     # via
@@ -85,25 +85,25 @@ celery==5.6.3
     #   -r requirements/base.txt
     #   django-celery-results
     #   taxonomy-connector
-certifi==2026.2.25
+certifi==2026.7.22
     # via
     #   -r requirements/base.txt
     #   elasticsearch
     #   requests
     #   selenium
     #   snowflake-connector-python
-cffi==2.0.0
+cffi==2.1.0
     # via
     #   -r requirements/base.txt
     #   cairocffi
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via
     #   -r requirements/base.txt
     #   requests
     #   snowflake-connector-python
-click==8.3.2
+click==8.4.2
     # via
     #   -r requirements/base.txt
     #   celery
@@ -143,7 +143,7 @@ colorama==0.4.6
     #   tox
 contentful==2.5.0
     # via -r requirements/base.txt
-coverage[toml]==7.13.5
+coverage[toml]==7.15.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -171,7 +171,7 @@ defusedxml==0.7.1
     #   social-auth-core
 dill==0.4.1
     # via pylint
-distlib==0.4.0
+distlib==0.4.3
     # via virtualenv
     # via
     #   -c requirements/common_constraints.txt
@@ -227,7 +227,7 @@ django-appconf==1.2.0
     # via
     #   -r requirements/base.txt
     #   django-compressor
-django-autocomplete-light==3.12.1
+django-autocomplete-light==5.0.0
     # via -r requirements/base.txt
 django-celery-results==2.6.0
     # via -r requirements/base.txt
@@ -241,7 +241,7 @@ django-contrib-comments==2.2.0
     # via -r requirements/base.txt
 django-cors-headers==4.9.0
     # via -r requirements/base.txt
-django-countries==8.2.0
+django-countries==9.0.0
     # via -r requirements/base.txt
 django-crum==0.7.9
     # via
@@ -260,7 +260,7 @@ django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.txt
 django-extensions==4.1
     # via -r requirements/base.txt
-django-filter==25.2
+django-filter==26.1
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
@@ -288,17 +288,17 @@ django-nine==0.2.7
     # via
     #   -r requirements/base.txt
     #   django-elasticsearch-dsl-drf
-django-object-actions==5.0.0
+django-object-actions==5.1.2
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
-django-parler==2.3
+django-parler==2.4
     # via -r requirements/base.txt
 django-ses==4.7.2
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
-django-simple-history==3.11.0
+django-simple-history==3.13.0
     # via -r requirements/base.txt
 django-solo==2.5.1
     # via
@@ -324,7 +324,7 @@ django-waffle==5.0.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==3.2.3
+django-webpack-loader==3.2.4
     # via -r requirements/base.txt
 djangorestframework==3.17.1
     # via
@@ -402,11 +402,11 @@ edx-opaque-keys[django]==4.0.0
     #   edx-drf-extensions
     #   openedx-events
     #   taxonomy-connector
-edx-rest-api-client==6.2.0
+edx-rest-api-client==7.0.0
     # via
     #   -r requirements/base.txt
     #   taxonomy-connector
-edx-toggles==5.4.1
+edx-toggles==6.0.0
     # via
     #   -r requirements/base.txt
     #   edx-auth-backends
@@ -427,17 +427,17 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl-drf
 execnet==2.1.2
     # via pytest-xdist
-face==26.0.0
+face==26.0.1
     # via glom
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==40.13.0
+faker==40.36.0
     # via factory-boy
-fastavro==1.12.1
+fastavro==1.12.2
     # via
     #   -r requirements/base.txt
     #   openedx-events
-filelock==3.25.2
+filelock==3.32.0
     # via
     #   -r requirements/base.txt
     #   python-discovery
@@ -450,13 +450,13 @@ getsmarter-api-clients==0.6.3
     # via -r requirements/base.txt
 glom==22.1.0
     # via semgrep
-google-api-core==2.30.2
+google-api-core==2.33.0
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-api-python-client==2.193.0
+google-api-python-client==2.198.0
     # via -r requirements/base.txt
-google-auth==2.49.1
+google-auth==2.56.2
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -464,15 +464,15 @@ google-auth==2.49.1
     #   google-auth-httplib2
     #   google-auth-oauthlib
     #   gspread
-google-auth-httplib2==0.3.1
+google-auth-httplib2==0.4.0
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
-google-auth-oauthlib==1.3.1
+google-auth-oauthlib==1.4.0
     # via
     #   -r requirements/base.txt
     #   gspread
-googleapis-common-protos==1.74.0
+googleapis-common-protos==1.75.0
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -482,12 +482,12 @@ h11==0.16.0
     # via wsproto
 html2text==2025.4.15
     # via -r requirements/base.txt
-httplib2==0.31.2
+httplib2==0.32.0
     # via
     #   -r requirements/base.txt
     #   google-api-python-client
     #   google-auth-httplib2
-idna==3.11
+idna==3.18
     # via
     #   -r requirements/base.txt
     #   requests
@@ -536,18 +536,18 @@ libsass==0.23.0
     # via
     #   -r requirements/base.txt
     #   django-libsass
-lxml[html-clean]==6.0.2
+lxml[html-clean]==6.1.1
     # via
     #   -r requirements/base.txt
     #   lxml-html-clean
     #   zeep
-lxml-html-clean==0.4.4
+lxml-html-clean==0.4.5
     # via
     #   -r requirements/base.txt
     #   lxml
 markdown==3.10.2
     # via -r requirements/base.txt
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via rich
 markupsafe==3.0.3
     # via
@@ -559,7 +559,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mock==5.2.0
     # via -r requirements/test.in
-more-itertools==11.0.1
+more-itertools==11.1.0
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
@@ -573,7 +573,7 @@ oauthlib==3.3.1
     #   social-auth-core
 openedx-atlas==0.7.0
     # via -r requirements/base.txt
-openedx-events==11.1.0
+openedx-events==11.2.0
     # via
     #   -r requirements/base.txt
     #   edx-event-bus-kafka
@@ -583,7 +583,7 @@ outcome==1.3.0.post0
     # via
     #   trio
     #   trio-websocket
-packaging==26.0
+packaging==26.2
     # via
     #   -r requirements/base.txt
     #   django-nine
@@ -603,7 +603,7 @@ pillow==9.5.0
     #   -r requirements/base.txt
     #   cairosvg
     #   django-stdimage
-platformdirs==4.9.4
+platformdirs==4.11.0
     # via
     #   -r requirements/base.txt
     #   pylint
@@ -617,15 +617,15 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
     #   tox
-prompt-toolkit==3.0.52
+prompt-toolkit==3.0.53
     # via
     #   -r requirements/base.txt
     #   click-repl
-proto-plus==1.27.2
+proto-plus==1.28.2
     # via
     #   -r requirements/base.txt
     #   google-api-core
-protobuf==7.34.1
+protobuf==7.35.1
     # via
     #   -r requirements/base.txt
     #   google-api-core
@@ -635,7 +635,7 @@ psutil==7.2.2
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pyasn1==0.6.3
+pyasn1==0.6.4
     # via
     #   -r requirements/base.txt
     #   pyasn1-modules
@@ -665,7 +665,7 @@ pyjwt[crypto]==2.12.1
     #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
-pylint==4.0.5
+pylint==4.0.6
     # via
     #   edx-lint
     #   pylint-celery
@@ -673,7 +673,7 @@ pylint==4.0.5
     #   pylint-plugin-utils
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.7.0
+pylint-django==2.8.0
     # via edx-lint
 pylint-plugin-utils==0.9.0
     # via
@@ -681,7 +681,7 @@ pylint-plugin-utils==0.9.0
     #   pylint-django
 pymemcache==4.0.0
     # via -r requirements/test.in
-pymongo==4.16.0
+pymongo==4.17.0
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
@@ -697,11 +697,11 @@ pyparsing==3.3.2
     # via
     #   -r requirements/base.txt
     #   httplib2
-pyproject-api==1.10.0
+pyproject-api==1.11.0
     # via tox
 pysocks==1.7.1
     # via urllib3
-pytest==9.0.2
+pytest==9.1.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -713,7 +713,7 @@ pytest-cov==7.1.0
     # via -r requirements/test.in
 pytest-django==4.12.0
     # via -r requirements/test.in
-pytest-responses==0.5.1
+pytest-responses==0.6.0
     # via -r requirements/test.in
 pytest-split==0.11.0
     # via -r requirements/test.in
@@ -727,7 +727,7 @@ python-dateutil==2.9.0.post0
     #   contentful
     #   elasticsearch-dsl
     #   freezegun
-python-discovery==1.2.1
+python-discovery==1.5.0
     # via
     #   tox
     #   virtualenv
@@ -749,14 +749,13 @@ python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   social-auth-core
-pytz==2026.1.post1
+pytz==2026.3.post1
     # via
     #   -r requirements/base.txt
     #   drf-yasg
     #   getsmarter-api-clients
     #   snowflake-connector-python
     #   taxonomy-connector
-    #   zeep
 pyyaml==6.0.3
     # via
     #   -r requirements/base.txt
@@ -768,7 +767,7 @@ rcssmin==1.2.2
     # via
     #   -r requirements/base.txt
     #   django-compressor
-redis==7.4.0
+redis==8.0.1
     # via
     #   -r requirements/base.txt
     #   walrus
@@ -777,7 +776,7 @@ referencing==0.37.0
     #   -r requirements/base.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.33.1
+requests==2.34.2
     # via
     #   -r requirements/base.txt
     #   algoliasearch
@@ -811,17 +810,17 @@ requests-toolbelt==0.10.1
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   zeep
-responses==0.26.0
+responses==0.26.2
     # via
     #   -r requirements/test.in
     #   pytest-responses
-rich==14.3.3
+rich==15.0.0
     # via semgrep
 rjsmin==1.2.5
     # via
     #   -r requirements/base.txt
     #   django-compressor
-rpds-py==0.30.0
+rpds-py==2026.6.3
     # via
     #   -r requirements/base.txt
     #   jsonschema
@@ -830,7 +829,7 @@ ruamel-yaml==0.17.40
     # via semgrep
 ruamel-yaml-clib==0.2.15
     # via ruamel-yaml
-s3transfer==0.16.0
+s3transfer==0.19.2
     # via
     #   -r requirements/base.txt
     #   boto3
@@ -844,7 +843,7 @@ semantic-version==2.10.0
     #   edx-drf-extensions
 semgrep==1.52.0
     # via -r requirements/test.in
-simple-salesforce==1.12.9
+simple-salesforce==1.12.10
     # via -r requirements/base.txt
 six==1.17.0
     # via
@@ -865,11 +864,13 @@ snowflake-connector-python==4.3.0
     # via -r requirements/base.txt
 social-auth-app-django==5.4.3
     # via
+    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.txt
     #   edx-auth-backends
-social-auth-core==4.8.5
+social-auth-core==4.8.7
     # via
+    #   -c requirements/common_constraints.txt
     #   -r requirements/base.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -878,7 +879,7 @@ sortedcontainers==2.4.0
     #   -r requirements/base.txt
     #   snowflake-connector-python
     #   trio
-soupsieve==2.8.3
+soupsieve==2.9.1
     # via
     #   -r requirements/base.txt
     #   beautifulsoup4
@@ -886,15 +887,15 @@ sqlparse==0.5.5
     # via
     #   -r requirements/base.txt
     #   django
-stevedore==5.7.0
+stevedore==5.9.0
     # via
     #   -r requirements/base.txt
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==2.4.0
+taxonomy-connector==3.0.0
     # via -r requirements/base.txt
-testfixtures==11.0.0
+testfixtures==12.3.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via
@@ -909,12 +910,12 @@ tomli==2.0.2
     # via semgrep
 tomli-w==1.2.0
     # via tox
-tomlkit==0.14.0
+tomlkit==0.15.1
     # via
     #   -r requirements/base.txt
     #   pylint
     #   snowflake-connector-python
-tox==4.52.0
+tox==4.58.0
     # via -r requirements/test.in
 trio==0.33.0
     # via
@@ -922,7 +923,7 @@ trio==0.33.0
     #   trio-websocket
 trio-websocket==0.12.2
     # via selenium
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   -r requirements/base.txt
     #   beautifulsoup4
@@ -933,11 +934,12 @@ typing-extensions==4.15.0
     #   semgrep
     #   simple-salesforce
     #   snowflake-connector-python
-tzdata==2026.1
+    #   testfixtures
+tzdata==2026.3
     # via
     #   -r requirements/base.txt
     #   kombu
-tzlocal==5.3.1
+tzlocal==5.4.4
     # via
     #   -r requirements/base.txt
     #   celery
@@ -963,7 +965,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.2.0
+virtualenv==21.7.0
     # via tox
 walrus==0.9.8
     # via
@@ -971,7 +973,7 @@ walrus==0.9.8
     #   edx-event-bus-redis
 wcmatch==8.5.2
     # via semgrep
-wcwidth==0.6.0
+wcwidth==0.8.2
     # via
     #   -r requirements/base.txt
     #   prompt-toolkit
@@ -984,11 +986,11 @@ wsproto==1.3.2
     # via trio-websocket
 xss-utils==1.0.0
     # via -r requirements/base.txt
-zeep==4.3.2
+zeep==4.3.3
     # via
     #   -r requirements/base.txt
     #   simple-salesforce
-zipp==3.23.0
+zipp==4.1.0
     # via
     #   -r requirements/base.txt
     #   importlib-metadata
