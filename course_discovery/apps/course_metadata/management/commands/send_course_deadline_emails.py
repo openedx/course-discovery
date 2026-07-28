@@ -43,8 +43,7 @@ class Command(BaseCommand):
         logger.info("Initializing course deadline email management command.")
         now = datetime.now(timezone.utc)
         courses_with_deadlines = []
-        # Include both Self-paced and Instructor-paced
-        courses_with_runs = Course.objects.filter(
+        matching_course_ids = Course.objects.filter(
             course_runs__pacing_type__in=[CourseRunPacing.Self, CourseRunPacing.Instructor],
             course_runs__end__isnull=False,
             product_source__slug=settings.DEFAULT_PRODUCT_SOURCE_SLUG,
@@ -54,10 +53,14 @@ class Command(BaseCommand):
                 output_field=DurationField())
         ).filter(
             days_until_end__in=[timedelta(days=d) for d in EMAIL_DELTA_DAYS]
+        ).values_list('pk', flat=True).distinct()
+
+        courses_with_runs = Course.objects.filter(
+            pk__in=matching_course_ids,
         ).prefetch_related(
             'course_runs',
             'editors',
-        ).distinct()
+        )
         logger.info(f'Found {courses_with_runs.count()} courses with matching runs.')
         courses_with_runs = courses_with_runs.iterator(chunk_size=settings.ITERATOR_CHUNK_SIZE)
 
@@ -65,7 +68,14 @@ class Command(BaseCommand):
             advertised_run = course.advertised_course_run
 
             if advertised_run:
-                if not course.course_runs.filter(status=CourseRunStatus.Reviewed).exists():
+                if not advertised_run.end:
+                    logger.info(
+                        f"Course {course.title} ({course.key}) advertised course run "
+                        f"has no end date; skipping deadline reminder."
+                    )
+                    continue
+
+                if not self.has_subsequent_course_run(course, advertised_run):
                     days_until_end = (advertised_run.end.date() - now.date()).days
                     if days_until_end in EMAIL_DELTA_DAYS:
                         self.handle_send_email_to_pcs_and_editors(
@@ -77,16 +87,24 @@ class Command(BaseCommand):
                                     f"with end date within the specified range.")
                 else:
                     logger.info(
-                        f"Course {course.title} ({course.key}) has an active course run with status Scheduled."
+                        f"Course {course.title} ({course.key}) has a subsequent active course run."
                     )
 
-            elif not advertised_run:
-                last_course_run = course.course_runs.last()
-                days_since_end = (last_course_run.end.date() - now.date()).days
+            else:
+                latest_course_run = self.get_latest_course_run(course)
+
+                if not latest_course_run or not latest_course_run.end:
+                    logger.info(
+                        f"Course {course.title} ({course.key}) has no course run "
+                        f"with end date within the specified range."
+                    )
+                    continue
+
+                days_since_end = (latest_course_run.end.date() - now.date()).days
 
                 if days_since_end == LAST_RUN_END_DELTA:
                     self.handle_send_email_to_pcs_and_editors(
-                        course, last_course_run, email_variant=self.DEADLINE_VARIANTS.get(days_since_end)
+                        course, latest_course_run, email_variant=self.DEADLINE_VARIANTS.get(days_since_end)
                     )
                     courses_with_deadlines.append(course)
                     logger.info(f'Deadline email has been scheduled for course {course.title} ({course.key}).')
@@ -114,6 +132,41 @@ class Command(BaseCommand):
         logger.info(f"Scheduling deadline email for course {course.title} ({course.key}).")
         process_send_course_deadline_email.apply_async(
             args=[course.key, course_run.key, recipients, email_variant],
+        )
+
+    def has_subsequent_course_run(self, course, course_run):
+        """
+        Return True when the course already has a later reviewed or published run.
+        """
+        reference_key = self.get_course_run_sort_key(course_run)
+        candidate_runs = course.course_runs.filter(
+            status__in=[CourseRunStatus.Reviewed, CourseRunStatus.Published],
+        ).exclude(pk=course_run.pk)
+
+        return any(self.get_course_run_sort_key(run) > reference_key for run in candidate_runs)
+
+    def get_latest_course_run(self, course):
+        """
+        Return the most recent course run using a deterministic sort key.
+        """
+        course_runs = list(course.course_runs.all())
+        if not course_runs:
+            return None
+
+        return max(course_runs, key=self.get_course_run_sort_key)
+
+    @staticmethod
+    def get_course_run_sort_key(course_run):
+        """
+        Sort course runs by their best available chronology fields.
+        """
+        min_datetime = datetime.min.replace(tzinfo=timezone.utc)
+        primary_schedule_date = course_run.start or course_run.end or min_datetime
+        return (
+            primary_schedule_date,
+            course_run.end or min_datetime,
+            course_run.created or min_datetime,
+            course_run.pk or 0,
         )
 
     def log_courses_with_deadlines(self, courses):

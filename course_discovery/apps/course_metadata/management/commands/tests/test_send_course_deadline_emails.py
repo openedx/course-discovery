@@ -153,13 +153,14 @@ class SendCourseDeadlineEmailsTests(TestCase):
 
         self.assertEqual(called_kwargs['args'], expected_args)
 
-    def test_with_course_run_with_end_date_within_range_but_with_scheduled_run_in_place(self):
+    @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
+    def test_with_course_run_with_end_date_within_range_but_with_reviewed_run_in_place(self, mock_apply_async):
         """
-        Test that the command does not send emails when there is an active course run with Scheduled status
+        Test that the command does not send emails when there is a subsequent Reviewed run.
         """
         self.non_draft_course_run.end = timezone.now() + timedelta(days=7)
         self.non_draft_course_run.save()
-        scheduled_run = CourseRunFactory(
+        reviewed_run = CourseRunFactory(
             course=self.non_draft_course,
             status=CourseRunStatus.Reviewed,
             pacing_type=CourseRunPacing.Self,
@@ -168,7 +169,7 @@ class SendCourseDeadlineEmailsTests(TestCase):
             draft=False,
         )
         SeatFactory(
-            course_run=scheduled_run,
+            course_run=reviewed_run,
             type=SeatTypeFactory.verified(),
             upgrade_deadline=timezone.now() + timedelta(days=100)
         )
@@ -183,9 +184,186 @@ class SendCourseDeadlineEmailsTests(TestCase):
                     LOGGER_PATH,
                     'INFO',
                     f"Course {self.non_draft_course.title} ({self.non_draft_course.key}) "
-                    f"has an active course run with status Scheduled."),
+                    f"has a subsequent active course run."),
                 (LOGGER_PATH, 'INFO', "No courses with deadline within the specified range were found."),
             )
+
+        mock_apply_async.assert_not_called()
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
+    def test_with_course_run_with_end_date_within_range_but_with_newer_reviewed_run_missing_dates(
+        self, mock_apply_async
+    ):
+        """
+        Test that a reviewed run without schedule dates does not suppress reminders.
+        """
+        self.non_draft_course_run.end = timezone.now() + timedelta(days=7)
+        self.non_draft_course_run.save()
+        CourseRunFactory(
+            course=self.non_draft_course,
+            status=CourseRunStatus.Reviewed,
+            pacing_type=CourseRunPacing.Self,
+            start=None,
+            end=None,
+            draft=False,
+        )
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            self.run_command()
+
+            log_capture.check(
+                (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Scheduling deadline email for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Deadline email has been scheduled for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Scheduled course deadline emails for:\n'
+                    f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"
+                ),
+            )
+
+        mock_apply_async.assert_called_once()
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
+    def test_with_course_run_with_end_date_within_range_but_with_published_run_in_place(self, mock_apply_async):
+        """
+        Test that the command does not send emails when a newer published course run exists.
+        """
+        self.non_draft_course_run.end = timezone.now() + timedelta(days=7)
+        self.non_draft_course_run.save()
+        published_run = CourseRunFactory(
+            course=self.non_draft_course,
+            status=CourseRunStatus.Published,
+            pacing_type=CourseRunPacing.Self,
+            start=timezone.now() + timedelta(days=7),
+            end=timezone.now() + timedelta(days=100),
+            draft=False,
+        )
+        SeatFactory(
+            course_run=published_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=timezone.now() + timedelta(days=100)
+        )
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            self.run_command()
+
+            log_capture.check(
+                (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f"Course {self.non_draft_course.title} ({self.non_draft_course.key}) "
+                    f"has no advertised run with end date within the specified range."),
+                (LOGGER_PATH, 'INFO', "No courses with deadline within the specified range were found."),
+            )
+
+        mock_apply_async.assert_not_called()
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
+    def test_no_advertised_run_uses_latest_run_deterministically(self, mock_apply_async):
+        """
+        Test that the no-advertised-run fallback picks the latest schedule run.
+        """
+        self.non_draft_course_run.status = CourseRunStatus.Unpublished
+        self.non_draft_course_run.end = timezone.now() - timedelta(days=1)
+        self.non_draft_course_run.save()
+
+        CourseRunFactory(
+            course=self.non_draft_course,
+            status=CourseRunStatus.Reviewed,
+            pacing_type=CourseRunPacing.Self,
+            start=None,
+            end=None,
+            draft=False,
+        )
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            self.run_command()
+
+            log_capture.check(
+                (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Scheduling deadline email for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Deadline email has been scheduled for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Scheduled course deadline emails for:\n'
+                    f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"
+                ),
+            )
+
+        mock_apply_async.assert_called_once()
+
+    @mock.patch('course_discovery.apps.course_metadata.tasks.process_send_course_deadline_email.apply_async')
+    def test_does_not_schedule_duplicate_email_for_same_course_with_multiple_matching_runs(
+        self, mock_apply_async
+    ):
+        """
+        Test that the command only schedules one reminder for a course even if multiple runs match.
+        """
+        self.non_draft_course_run.end = timezone.now() + timedelta(days=30)
+        self.non_draft_course_run.save()
+        CourseRunFactory(
+            course=self.non_draft_course,
+            status=CourseRunStatus.Unpublished,
+            pacing_type=CourseRunPacing.Self,
+            start=timezone.now() - timedelta(days=10),
+            end=timezone.now() + timedelta(days=15),
+            draft=False,
+        )
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            self.run_command()
+
+            log_capture.check(
+                (LOGGER_PATH, 'INFO', "Initializing course deadline email management command."),
+                (LOGGER_PATH, 'INFO', 'Found 1 courses with matching runs.'),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Scheduling deadline email for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    f'Deadline email has been scheduled for course '
+                    f'{self.non_draft_course.title} ({self.non_draft_course.key}).'
+                ),
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Scheduled course deadline emails for:\n'
+                    f"- {self.non_draft_course.title} ({self.non_draft_course.uuid})"
+                ),
+            )
+
+        mock_apply_async.assert_called_once()
 
     def test_with_course_run_just_ended(self):
         """
