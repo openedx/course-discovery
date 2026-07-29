@@ -2088,7 +2088,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
             'labels', 'taxi_form', 'program_duration_override', 'data_modified_timestamp',
             'excluded_from_search', 'excluded_from_seo', 'subscription', 'has_ofac_restrictions', 'ofac_comment',
-            'course_run_statuses',
+            'course_run_statuses', 'b2c_subscription_inclusion',
         )
         read_only_fields = (
             'uuid', 'marketing_url', 'banner_image', 'data_modified_timestamp', 'has_ofac_restrictions', 'ofac_comment'

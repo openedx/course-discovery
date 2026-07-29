@@ -293,6 +293,46 @@ class TestProgramViewSet(SerializationMixin):
 
         self.assert_list_results(url, expected, 18)
 
+    def test_filter_by_b2c_subscription_inclusion_true(self):
+        """ Verify that the endpoint filters programs to B2C-enabled programs. """
+        non_b2c_program = self.create_program()
+        non_b2c_program.b2c_subscription_inclusion = False
+        non_b2c_program.save()
+
+        b2c_program = self.create_program()
+        b2c_program.b2c_subscription_inclusion = True
+        b2c_program.save()
+
+        url = self.list_path + '?b2c_subscription_inclusion=true'
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        result_uuids = {program['uuid'] for program in response.data['results']}
+
+        assert str(b2c_program.uuid) in result_uuids
+        assert str(non_b2c_program.uuid) not in result_uuids
+        assert all(program['b2c_subscription_inclusion'] for program in response.data['results'])
+
+    def test_filter_by_b2c_subscription_inclusion_false(self):
+        """ Verify that the endpoint filters programs to non-B2C programs. """
+        non_b2c_program = self.create_program()
+        non_b2c_program.b2c_subscription_inclusion = False
+        non_b2c_program.save()
+
+        b2c_program = self.create_program()
+        b2c_program.b2c_subscription_inclusion = True
+        b2c_program.save()
+
+        url = self.list_path + '?b2c_subscription_inclusion=false'
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        result_uuids = {program['uuid'] for program in response.data['results']}
+
+        assert str(non_b2c_program.uuid) in result_uuids
+        assert str(b2c_program.uuid) not in result_uuids
+        assert all(program['b2c_subscription_inclusion'] is False for program in response.data['results'])
+
     def test_filter_by_timestamp(self):
         """
         Verify that the endpoint filters programs based on modified timestamp.
