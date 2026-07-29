@@ -446,6 +446,50 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
+    def test_list_b2c_subscription_inclusion_filter(self):
+        """ Verify the endpoint filters courses by b2c_subscription_inclusion. """
+        self.course.b2c_subscription_inclusion = False
+        self.course.save()
+
+        b2c_course = CourseFactory(
+            partner=self.partner,
+            b2c_subscription_inclusion=True,
+            key='edX+B2C101',
+        )
+        b2c_course.authoring_organizations.add(self.org)
+
+        url = reverse('api:v1:course-list') + '?b2c_subscription_inclusion=true'
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        result_keys = {course['key'] for course in response.data['results']}
+
+        assert b2c_course.key in result_keys
+        assert self.course.key not in result_keys
+        assert all(course['b2c_subscription_inclusion'] for course in response.data['results'])
+
+    def test_list_b2c_subscription_inclusion_filter_false(self):
+        """ Verify the endpoint filters courses by b2c_subscription_inclusion=false. """
+        self.course.b2c_subscription_inclusion = False
+        self.course.save()
+
+        b2c_course = CourseFactory(
+            partner=self.partner,
+            b2c_subscription_inclusion=True,
+            key='edX+B2C101',
+        )
+        b2c_course.authoring_organizations.add(self.org)
+
+        url = reverse('api:v1:course-list') + '?b2c_subscription_inclusion=false'
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        result_keys = {course['key'] for course in response.data['results']}
+
+        assert self.course.key in result_keys
+        assert b2c_course.key not in result_keys
+        assert all(course['b2c_subscription_inclusion'] is False for course in response.data['results'])
+
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
         url = reverse('api:v1:course-list') + '?exclude_utm=1'

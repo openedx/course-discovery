@@ -87,6 +87,7 @@ class FilterSetMixin:
 class CourseFilter(filters.FilterSet):
     keys = CharListFilter(field_name='key', lookup_expr='in')
     uuids = UUIDListFilter()
+    b2c_subscription_inclusion = filters.BooleanFilter(field_name='b2c_subscription_inclusion')
     course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
     editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
     course_type = filters.CharFilter(method='filter_by_course_type')
@@ -94,7 +95,7 @@ class CourseFilter(filters.FilterSet):
 
     class Meta:
         model = Course
-        fields = ('keys', 'uuids',)
+        fields = ('keys', 'uuids', 'b2c_subscription_inclusion')
 
     def filter_by_course_run_statuses(self, queryset, _, value):
         statuses = set(value.split(','))
