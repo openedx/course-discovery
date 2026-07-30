@@ -162,11 +162,12 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
     type = filters.CharFilter(field_name='type__translations__name_t', lookup_expr='iexact')
     types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
+    b2c_subscription_inclusion = filters.BooleanFilter(field_name='b2c_subscription_inclusion')
     timestamp = filters.DateTimeFilter(field_name='data_modified_timestamp', lookup_expr='gte')
 
     class Meta:
         model = Program
-        fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types',)
+        fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types', 'b2c_subscription_inclusion')
 
 
 class ProgramTypeFilter(filters.FilterSet):

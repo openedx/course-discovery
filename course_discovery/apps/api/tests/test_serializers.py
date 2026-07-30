@@ -1181,6 +1181,7 @@ class MinimalProgramSerializerTests(TestCase):
             'excluded_from_search': program.excluded_from_search,
             'has_ofac_restrictions': program.has_ofac_restrictions,
             'ofac_comment': program.ofac_comment,
+            'b2c_subscription_inclusion': program.b2c_subscription_inclusion,
             'subscription_eligible': None,
             'subscription_prices': [],
             'course_run_statuses': program.course_run_statuses,
