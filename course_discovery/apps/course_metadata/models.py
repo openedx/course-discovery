@@ -1565,9 +1565,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
     )
 
     b2c_subscription_inclusion = models.BooleanField(
-        default=False,
         blank=True,
-        help_text=_('This field signifie if this course is in the B2C subscription catalog'),
+        default=False,
+        help_text=_('Signifies whether this course is included in the B2c subscription catalog.'),
     )
 
     excluded_from_search = models.BooleanField(
@@ -3487,7 +3487,7 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
     b2c_subscription_inclusion = models.BooleanField(
         blank=True,
         default=False,
-        help_text=_('Signifies whether this program is included in the B2C subscription catalog.'),
+        help_text=_('Signifies whether this program is included in the B2c subscription catalog.'),
     )
     organization_short_code_override = models.CharField(max_length=255, blank=True, help_text=_(
         'A field to override Organization short code alias specific for this program.')
