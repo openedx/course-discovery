@@ -3,6 +3,35 @@
 from django.db import migrations, models
 
 
+def update_row_format(apps, schema_editor):
+    if schema_editor.connection.vendor != "mysql":
+        return
+
+    tables = [
+        "course_metadata_program",
+        "course_metadata_historicalprogram",
+    ]
+
+    with schema_editor.connection.cursor() as cursor:
+        for table in tables:
+            cursor.execute(
+                """
+                SELECT ROW_FORMAT
+                FROM information_schema.tables
+                WHERE table_schema = DATABASE()
+                  AND table_name = %s
+                """,
+                [table],
+            )
+
+            result = cursor.fetchone()
+
+            if result and result[0] and result[0].upper() != "DYNAMIC":
+                cursor.execute(
+                    f"ALTER TABLE {schema_editor.quote_name(table)} ROW_FORMAT=DYNAMIC"
+                )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +39,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            update_row_format,
+            reverse_code=migrations.RunPython.noop,
+        ),
         migrations.AddField(
             model_name='historicalprogram',
             name='b2c_subscription_inclusion',
