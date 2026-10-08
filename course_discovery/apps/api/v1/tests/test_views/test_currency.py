@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.core.cache import cache
+from django.test import override_settings
 from django.urls import reverse
 from testfixtures import LogCapture
 
@@ -18,6 +19,12 @@ class TestCurrencyCurrencyView:
         response = client.get(self.list_path)
         assert response.status_code == 401
 
+    @override_settings(CACHES={
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'currency-test',
+        },
+    })
     def test_get(self, admin_client, django_cache, responses, settings):  # pylint: disable=unused-argument
         settings.OPENEXCHANGERATES_API_KEY = 'test'
         cache_key = exchange_rate_cache_key()
