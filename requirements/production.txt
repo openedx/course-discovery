@@ -60,7 +60,7 @@ cairocffi==1.7.1
     # via
     #   -r requirements/base.txt
     #   cairosvg
-cairosvg==2.9.0
+cairosvg==2.9.1
     # via -r requirements/base.txt
 celery==5.6.3
     # via
