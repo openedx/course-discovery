@@ -9,6 +9,7 @@ from django_filters import rest_framework as filters
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.filters import OrderingFilter
 
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import BulkOperationStatus, CourseRunStatus, ProgramStatus
@@ -153,6 +154,40 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
     class Meta:
         model = CourseRun
         fields = ('keys', 'hidden', 'license',)
+
+
+class NestedCourseRunOrderingFilter(OrderingFilter):
+    """
+    Applies ordering to CourseRun querysets used as nested data in course responses.
+
+    This uses a dedicated query parameter to avoid conflicting with the top-level
+    course ordering behavior.
+    """
+
+    ordering_param = 'course_runs_ordering'
+    allowed_ordering_fields = ('key', 'start')
+
+    def get_ordering(self, request, queryset, view):
+        params = request.query_params.get(self.ordering_param)
+
+        if not params:
+            return None
+
+        fields = [param.strip() for param in params.split(',')]
+        ordering = [
+            field for field in fields
+            if field.lstrip('-') in self.allowed_ordering_fields
+        ]
+
+        return ordering or None
+
+    def filter_queryset(self, request, queryset, view):
+        ordering = self.get_ordering(request, queryset, view)
+
+        if ordering:
+            return queryset.order_by(*ordering)
+
+        return queryset
 
 
 class ProgramFilter(FilterSetMixin, filters.FilterSet):

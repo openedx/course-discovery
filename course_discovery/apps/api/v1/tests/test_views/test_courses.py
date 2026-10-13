@@ -295,6 +295,98 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         self.assertListEqual(response.data['course_run_keys'], expected_keys)
         self.assertListEqual([run['key'] for run in response.data['course_runs']], expected_keys)
 
+    @ddt.data(
+        (
+            'start',
+            [
+                'course-v1:edX+Fake101+2000',
+                'course-v1:edX+Fake101+2003',
+                'course-v1:edX+Fake101+2007',
+            ],
+        ),
+        (
+            '-start',
+            [
+                'course-v1:edX+Fake101+2007',
+                'course-v1:edX+Fake101+2003',
+                'course-v1:edX+Fake101+2000',
+            ],
+        ),
+        (
+            'key',
+            [
+                'course-v1:edX+Fake101+2000',
+                'course-v1:edX+Fake101+2003',
+                'course-v1:edX+Fake101+2007',
+            ],
+        ),
+        (
+            '-key',
+            [
+                'course-v1:edX+Fake101+2007',
+                'course-v1:edX+Fake101+2003',
+                'course-v1:edX+Fake101+2000',
+            ],
+        ),
+    )
+    @ddt.unpack
+    def test_list_course_runs_ordering(self, course_runs_ordering, expected_keys):
+        """Verify that course runs inside course list responses can be ordered."""
+        CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2003',
+            start=datetime.datetime(2003, 1, 1, tzinfo=pytz.UTC),
+        )
+        CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2000',
+            start=datetime.datetime(2000, 1, 1, tzinfo=pytz.UTC),
+        )
+        CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2007',
+            start=datetime.datetime(2007, 1, 1, tzinfo=pytz.UTC),
+        )
+
+        url = reverse('api:v1:course-list')
+        url = f'{url}?course_runs_ordering={course_runs_ordering}'
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert len(response.data['results']) == 1
+        assert [run['key'] for run in response.data['results'][0]['course_runs']] == expected_keys
+        assert response.data['results'][0]['course_run_keys'] == expected_keys
+
+    def test_list_course_runs_ordering_ignores_invalid_fields(self):
+        """Verify that invalid nested course run ordering fields are ignored."""
+        run1 = CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2003',
+            start=datetime.datetime(2003, 1, 1, tzinfo=pytz.UTC),
+        )
+        run2 = CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2000',
+            start=datetime.datetime(2000, 1, 1, tzinfo=pytz.UTC),
+        )
+        run3 = CourseRunFactory(
+            course=self.course,
+            key='course-v1:edX+Fake101+2007',
+            start=datetime.datetime(2007, 1, 1, tzinfo=pytz.UTC),
+        )
+
+        url = reverse('api:v1:course-list')
+        url = f'{url}?course_runs_ordering=invalid_field'
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+
+        expected_keys = [run2.key, run1.key, run3.key]
+        assert [run['key'] for run in response.data['results'][0]['course_runs']] == expected_keys
+        assert response.data['results'][0]['course_run_keys'] == expected_keys
+
     @ddt.data(True, False)
     def test_course_runs_restriction(self, include_restriction_param):
         run_restricted = CourseRunFactory(

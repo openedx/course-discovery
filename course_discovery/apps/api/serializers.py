@@ -1246,11 +1246,9 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
         if course_runs is None:
             course_runs = CourseRun.objects.all()
 
-        # Ordering feels like a sneaky thing to be doing in a prefetch method, but it's done here just so that it's
-        # harder to forget to do. Course runs in a course have an obviously correct ordering, and that ordering wants
-        # to be preserved whether we're in a program or course endpoint. (Course runs in general don't have a default
-        # ordering like this, because it's less obvious in other contexts how runs should be ordered.)
-        course_runs = course_runs.order_by('start', 'id')
+        # Preserve explicit ordering while maintaining the default behavior.
+        if not course_runs.ordered:
+            course_runs = course_runs.order_by('start', 'id')
 
         return Prefetch('course_runs', queryset=serializer_class.prefetch_queryset(queryset=course_runs))
 

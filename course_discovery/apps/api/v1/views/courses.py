@@ -129,6 +129,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if q:
             queryset = Course.search(q, queryset=queryset)
             course_runs = CourseRun.objects.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
+            course_runs = filters.NestedCourseRunOrderingFilter().filter_queryset(
+                self.request,
+                course_runs,
+                CourseRunViewSet,
+            )
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=queryset, partner=partner, course_runs=course_runs
             )
@@ -156,6 +161,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 programs = Program.objects.exclude(status=ProgramStatus.Deleted)
 
             course_runs = course_runs.exclude(restricted_run__restriction_type__in=excluded_restriction_types)
+            course_runs = filters.NestedCourseRunOrderingFilter().filter_queryset(
+                self.request,
+                course_runs,
+                CourseRunViewSet,
+            )
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=queryset,
                 course_runs=course_runs,
