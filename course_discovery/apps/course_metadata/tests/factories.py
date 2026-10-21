@@ -1,6 +1,7 @@
 from random import randint
 
 import factory
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import post_save
 from edx_django_utils.cache import TieredCache, get_cache_key
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
@@ -482,7 +483,10 @@ class CourseRunFactory(SalesforceRecordFactory):
     type = factory.SubFactory(CourseRunTypeFactory)
     variant_id = factory.LazyFunction(uuid4)
     fixed_price_usd = FuzzyDecimal(0.0, 650.0)
-    translation_languages = [{'code': 'fr', 'label': 'French'}]
+    ai_languages = {
+        'translation_languages': [{'code': 'fr', 'label': 'French'}],
+        'transcription_languages': [{'code': 'en', 'label': 'English'}, {'code': 'bs', 'label': 'Bosnian'}]
+    }
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):
@@ -749,6 +753,14 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.curricula, extracted)
 
+    # This hook must be the last one as it is responsible for refreshing the
+    # object to pick up any changes that may have been made in the database
+    # while running the other postgen hooks (e.g in signal handlers)
+    @factory.post_generation
+    def refresh(self, create, extracted, **kwargs):
+        if create and extracted:  # pragma: no cover
+            self.refresh_from_db()
+
 
 class ProgramFactory(ProgramBaseFactory):
     status = ProgramStatus.Active
@@ -936,6 +948,11 @@ class BulkUploadTagsConfigFactory(factory.django.DjangoModelFactory):
         model = BulkUploadTagsConfig
 
 
+class ArchiveCoursesConfigFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ArchiveCoursesConfig
+
+
 class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = GeotargetingDataLoaderConfiguration
@@ -1006,3 +1023,28 @@ class RestrictedCourseRunFactory(factory.django.DjangoModelFactory):
 
     course_run = factory.SubFactory(CourseRunFactory)
     restriction_type = FuzzyChoice([name for name, __ in CourseRunRestrictionType.choices])
+
+
+class CourseProxy(SearchAfterMixin, Course):
+    """Proxy model for testing SearchAfterMixin with Course."""
+    class Meta:
+        proxy = True
+
+
+class CourseProxyFactory(CourseFactory):
+    """Factory for the CourseProxy proxy model."""
+    class Meta:
+        model = CourseProxy
+
+
+class BulkOperationTaskFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BulkOperationTask
+
+    uploaded_by = factory.SubFactory(UserFactory)
+    task_type = BulkOperationType.CourseCreate
+    status = 'Pending'
+    csv_file = factory.LazyAttribute(lambda _: SimpleUploadedFile(
+        "test.csv", b"header1,header2\nvalue1,value2", content_type="text/csv"
+    ))
+    task_id = factory.Sequence(lambda n: f"fake-task-id-{n}")

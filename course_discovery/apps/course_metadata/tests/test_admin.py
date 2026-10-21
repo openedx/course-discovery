@@ -3,10 +3,12 @@ import itertools
 import ddt
 import pytest
 from bs4 import BeautifulSoup
+from django import VERSION as DJANGO_VERSION
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.test import LiveServerTestCase, TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK
 from selenium import webdriver
@@ -22,10 +24,12 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdmin, ProgramEligibilityFilter
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import PathwayStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Degree, Person, Position, Program, ProgramType, Source
+from course_discovery.apps.course_metadata.models import (
+    CourseRunType, CourseType, Degree, Person, Position, Program, ProgramType, Source
+)
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -127,8 +131,7 @@ class AdminTests(SiteMixin, TestCase):
 
         course = factories.CourseFactory(authoring_organizations=[org1, org2, org3])
 
-        new_ordering = (',').join(map(lambda org: str(org.id), [org2, org3, org1]))
-        params = {'authoring_organizations': new_ordering}
+        params = {'authoring_organizations': [org2.id, org3.id, org1.id]}
 
         post_url = reverse('admin:course_metadata_course_change', args=(course.id,))
         response = self.client.post(post_url, params)
@@ -222,6 +225,63 @@ class AdminTests(SiteMixin, TestCase):
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
         assert response.status_code == 200
 
+    @ddt.data(
+        [{'RETIRED_COURSE_TYPES': ['audit']}, False, CourseType],
+        [{'RETIRED_RUN_TYPES': ['audit']}, False, CourseRunType],
+        [{}, True, CourseType],
+        [{}, True, CourseRunType]
+    )
+    @ddt.unpack
+    def test_retired_product_types_not_in_options(self, custom_settings, audit_in_options, type_model):
+        """ Verify that new objects (courses/courseruns) can not have a retired type"""
+        audit_type = type_model.objects.get(slug='audit')
+        url_name = (
+            "admin:course_metadata_course_add"
+            if type_model is CourseType
+            else "admin:course_metadata_courserun_add"
+        )
+        url = reverse(url_name)
+        with override_settings(**custom_settings):
+            response = self.client.get(url)
+            assert response.status_code == 200
+
+        soup = BeautifulSoup(response.content)
+        type_options = soup.find('select', {'name': 'type'}).find_all('option')
+        type_option_names = map(lambda opt: opt.get_text(), type_options)
+        assert (audit_type.name in type_option_names) == audit_in_options
+
+    @ddt.data(
+        [{'RETIRED_COURSE_TYPES': ['audit']}, CourseType],
+        [{'RETIRED_RUN_TYPES': ['audit']}, CourseRunType],
+        [{}, CourseType],
+        [{}, CourseRunType]
+    )
+    @ddt.unpack
+    def test_retired_product_types_in_options(self, custom_settings, type_model):
+        """ Verify that objects associated to retired types keep showing it in the type dropdown """
+        audit_type = type_model.objects.get(slug='audit')
+
+        url_name = (
+            "admin:course_metadata_course_change"
+            if type_model is CourseType
+            else "admin:course_metadata_courserun_change"
+        )
+        product = (
+            factories.CourseFactory(type=audit_type)
+            if type_model is CourseType
+            else factories.CourseRunFactory(type=audit_type)
+        )
+
+        url = reverse(url_name, args=(product.id,))
+        with override_settings(**custom_settings):
+            response = self.client.get(url)
+            assert response.status_code == 200
+
+        soup = BeautifulSoup(response.content)
+        type_options = soup.find('select', {'name': 'type'}).find_all('option')
+        type_option_names = map(lambda opt: opt.get_text(), type_options)
+        assert audit_type.name in type_option_names
+
 
 class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     """ Functional Tests for Admin page."""
@@ -235,7 +295,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         opts = Options()
-        opts.headless = True
+        opts.add_argument('--headless')
         cls.browser = webdriver.Firefox(options=opts)
         cls.browser.set_window_size(1024, 768)
 
@@ -426,7 +486,8 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
         """ Verify that one click purchase eligible programs pass the filter. """
         verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
-        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
+        value = [1] if DJANGO_VERSION >= (5, 2) else 1
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: value}, None, None)
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)
         factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
@@ -439,7 +500,8 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_ineligible_programs(self):
         """ Verify programs ineligible for one-click purchase do not pass the filter. """
-        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 0}, None, None)
+        value = [0] if DJANGO_VERSION >= (5, 2) else 0
+        program_filter = ProgramEligibilityFilter(None, {self.parameter_name: value}, None, None)
         one_click_purchase_ineligible_program = factories.ProgramFactory(one_click_purchase_enabled=False)
         with self.assertNumQueries(4):
             assert list(program_filter.queryset({}, Program.objects.all())) == [one_click_purchase_ineligible_program]
@@ -569,6 +631,7 @@ class PathwayAdminTest(TestCase):
             'email': 'email@example.com',
             'programs': [program1.id],
             'pathway_type': PathwayType.CREDIT.value,
+            'status': PathwayStatus.Published
         }
         form = PathwayAdminForm(data=data)
 
@@ -591,6 +654,7 @@ class PathwayAdminTest(TestCase):
             'email': 'email@example.com',
             'programs': [program1.id, program2.id],
             'pathway_type': PathwayType.INDUSTRY.value,
+            'status': PathwayStatus.Unpublished
         }
         form = PathwayAdminForm(data=data)
 

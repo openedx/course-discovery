@@ -5,26 +5,26 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['py38', 'py311', 'py312']
-        django-version: ['django42']
+        python-version: ['py312']
+        django-version: ['django52']
         db-version: ['mysql80']
         pytest-split-group: [1, 2, 3, 4, 5, 6]
         status: ['']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Format Python Version
         id: format_python_version
         shell: bash
         run: |
           # Remove 'py' and insert a dot to format the version
-          FORMATTED_VERSION=${{ matrix.python-version }}  # e.g., py38
-          FORMATTED_VERSION=${FORMATTED_VERSION/py3/3.}    # becomes 3.8
+          FORMATTED_VERSION=${{ matrix.python-version }}  # e.g., py312
+          FORMATTED_VERSION=${FORMATTED_VERSION/py3/3.}    # becomes 3.12
           
           # Set environment variables
           echo "PYTHON_VERSION=$FORMATTED_VERSION" >> $GITHUB_ENV
@@ -43,44 +43,49 @@ jobs:
         # See https://github.com/actions/toolkit/issues/399
         continue-on-error: ${{ matrix.status == 'ignored' }}
       - name: Upload coverage
-        if: matrix.db-version == 'mysql80'
-        uses: actions/upload-artifact@v2
+        # Upload coverage only from the django52 job to avoid duplicate artifacts across the Django test matrix.
+        if: matrix.db-version == 'mysql80' && matrix.django-version == 'django52'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage${{ matrix.pytest-split-group }}
           path: .coverage
+          include-hidden-files: true
 
   # Combine and upload coverage reports.
   coverage:
     needs: pytest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
-          PYTHON_VERSION: 3.8
+          PYTHON_VERSION: 3.12
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
       - name: Run coverage
         run: make ci_coverage
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   quality:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
-          PYTHON_VERSION: 3.8
+          PYTHON_VERSION: 3.12
       - run: make ci_quality
 
   semgrep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.8', '3.11', '3.12']
+        python-version: ['3.12']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - run: make ci_up
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}

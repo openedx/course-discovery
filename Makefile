@@ -53,20 +53,19 @@ $(COMMON_CONSTRAINTS_TXT):
 
 
 upgrade: $(COMMON_CONSTRAINTS_TXT)
-	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
-	sed 's/Django<4.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
-	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
-	pip-compile --allow-unsafe --upgrade -o requirements/pip.txt requirements/pip.in
-	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
+	pip-compile --allow-unsafe --rebuild --upgrade -o requirements/pip.txt requirements/pip.in
+	pip-compile --rebuild --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
 	pip install -q -r requirements/pip.txt
 	pip install -q -r requirements/pip_tools.txt
-	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
-	pip-compile --upgrade -o requirements/local.txt requirements/local.in
-	pip-compile --upgrade -o requirements/production.txt requirements/production.in
+	pip-compile --rebuild --upgrade -o requirements/base.txt requirements/base.in
+	pip-compile --rebuild --upgrade -o requirements/docs.txt requirements/docs.in
+	pip-compile --rebuild --upgrade -o requirements/test.txt requirements/test.in
+	pip-compile --rebuild --upgrade -o requirements/local.txt requirements/local.in
+	pip-compile --rebuild --upgrade -o requirements/production.txt requirements/production.in
 	# Let tox control the Django version for tests
-	grep -e "^django==" requirements/local.txt > requirements/django.txt
+	sed -i.tmp '/^[dD]jango==/d' requirements/test.txt
+	rm requirements/test.txt.tmp
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
 	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
@@ -92,10 +91,10 @@ html_coverage: ## Generate and view HTML coverage report
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 extract_translations: ## Extract strings to be translated, outputting .po and .mo files
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on CI.
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool dummy
-	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin compilemessages
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 ifeq ($(OPENEDX_ATLAS_PULL),)

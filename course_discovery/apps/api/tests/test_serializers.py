@@ -6,8 +6,12 @@ from urllib.parse import urlencode
 
 import ddt
 import responses
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.text import slugify
+from django.utils.timezone import now
+from django_celery_results.models import TaskResult
+from edx_django_utils.cache import RequestCache, TieredCache
 from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
@@ -16,22 +20,22 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
-    CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
-    ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
-    CourseLocationRestrictionSerializer, CourseRecommendationSerializer, CourseReviewSerializer, CourseRunSerializer,
-    CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
-    CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
-    DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer, IconTextPairingSerializer, ImageSerializer,
-    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
-    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SourceSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, BulkOperationTaskSerializer,
+    CatalogSerializer, CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer,
+    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
+    CourseEntitlementSerializer, CourseLocationRestrictionSerializer, CourseRecommendationSerializer,
+    CourseReviewSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
+    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer,
+    DegreeAdditionalMetadataSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer,
+    FactSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer,
+    IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer, MinimalCourseRunSerializer,
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer,
+    PositionSerializer, PrerequisiteSerializer, ProductMetaSerializer, ProductValueSerializer,
+    ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SourceSerializer,
+    SubjectSerializer, TaxiFormSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
@@ -42,7 +46,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel, CourseReview, CourseType
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -53,16 +57,16 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
-    CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
-    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeCostFactory,
-    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramSubscriptionFactory,
-    ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
-    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    AdditionalMetadataFactory, AdditionalPromoAreaFactory, BulkOperationTaskFactory, CertificateInfoFactory,
+    CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
+    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CourseTypeFactory,
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
+    DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory,
+    ProgramSubscriptionFactory, ProgramSubscriptionPriceFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
+    SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -636,6 +640,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'external_key': course_run.external_key,
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
+            'is_marketable_external': course_run.is_marketable_external,
             'availability': course_run.availability,
             'variant_id': str(course_run.variant_id),
             'fixed_price_usd': str(course_run.fixed_price_usd),
@@ -647,6 +652,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
         }
 
 
+@ddt.ddt
 class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
 
     def test_data(self):
@@ -655,6 +661,73 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         serializer = self.serializer_class(course_run, context={'request': request})
         expected = self.get_expected_data(course_run, request)
         assert serializer.data == expected
+
+    @ddt.data(
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.Reviewed,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': True
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.LegalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.EXECUTIVE_EDUCATION_2U,
+            'status': CourseRunStatus.Unpublished,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.PROFESSIONAL,
+            'status': CourseRunStatus.InternalReview,
+            'is_marketable': False,
+            'has_future_start_date': True,
+            'expected_is_marketable_external': False
+        },
+        {
+            'course_type': CourseType.VERIFIED_AUDIT,
+            'status': CourseRunStatus.Published,
+            'is_marketable': True,
+            'has_future_start_date': False,
+            'expected_is_marketable_external': True
+        },
+    )
+    @ddt.unpack
+    def test_is_marketable_external(
+        self, course_type, status, is_marketable,
+        has_future_start_date, expected_is_marketable_external
+    ):
+        course_type_instance = CourseTypeFactory(slug=course_type)
+        current_time = datetime.datetime.now(tz=UTC)
+        start_date = current_time + datetime.timedelta(
+            days=10) if has_future_start_date else current_time - datetime.timedelta(days=10)
+        go_live_date = current_time + datetime.timedelta(days=5)  # Assuming go_live_date is 5 days in the future
+
+        course_run = CourseRunFactory(
+            course=CourseFactory(type=course_type_instance),
+            status=status,
+            start=start_date,
+            go_live_date=go_live_date
+        )
+        seat = SeatFactory(course_run=course_run, type=SeatTypeFactory.verified())
+        course_run.seats.set([seat])
+
+        assert course_run.is_marketable == is_marketable
+        assert course_run.is_marketable_external == expected_is_marketable_external
 
     def test_get_lms_course_url(self):
         partner = PartnerFactory()
@@ -713,7 +786,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'transcript_languages_search_facet_names': [
                 lang.get_search_facet_display() for lang in course_run.transcript_languages.all()
             ],
-            'translation_languages': course_run.translation_languages,
+            'ai_languages': course_run.ai_languages,
         })
         return expected
 
@@ -1519,6 +1592,7 @@ class PathwaySerializerTest(TestCase):
             'destination_url': pathway.destination_url,
             'pathway_type': pathway.pathway_type,
             'course_run_statuses': [],
+            'status': 'unpublished'
         }
         self.assertDictEqual(serializer.data, expected)
 
@@ -2035,6 +2109,50 @@ class CertificateInfoSerializerTests(TestCase):
             'blurb': certificate_info.blurb,
         }
         assert serializer.data == expected
+
+
+class BulkOperationTaskSerializerTests(TestCase):
+    serializer_class = BulkOperationTaskSerializer
+
+    def test_data(self):
+        """
+        Test that the BulkOperationTaskSerializer returns the expected data.
+        """
+        bulk_operation = BulkOperationTaskFactory()
+        serializer = BulkOperationTaskSerializer(bulk_operation)
+        expected = {
+            'id': bulk_operation.id,
+            'uploaded_by': bulk_operation.uploaded_by.username,
+            'created': json_date_format(bulk_operation.created),
+            'modified': json_date_format(bulk_operation.modified),
+            'csv_file': bulk_operation.csv_file.url,
+            'task_summary': bulk_operation.task_summary,
+            'task_type': bulk_operation.task_type,
+            'status': bulk_operation.status,
+            'task_id': bulk_operation.task_id,
+            'result': None
+        }
+        assert serializer.data == expected
+
+    def test_data_without_include_result(self):
+        """
+        Test that the 'result' field is None when include_result is not provided in context.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id='dummy-task-id')
+        TaskResult.objects.create(task_id='dummy-task-id', result='{"success": true}', date_done=now())
+
+        serializer = BulkOperationTaskSerializer(bulk_operation)
+        self.assertIsNone(serializer.data.get('result'))
+
+    def test_data_with_include_result(self):
+        """
+        Test that the 'result' field is populated when include_result is passed as True in context.
+        """
+        bulk_operation = BulkOperationTaskFactory(task_id='dummy-task-id')
+        task_result = TaskResult.objects.create(task_id='dummy-task-id', result='{"success": true}', date_done=now())
+
+        serializer = BulkOperationTaskSerializer(bulk_operation, context={'include_result': True})
+        self.assertEqual(serializer.data['result'], task_result.result)
 
 
 class AdditionalMetadataSerializerTests(TestCase):
@@ -2593,6 +2711,7 @@ class PersonSearchDocumentSerializerTest(ElasticsearchTestMixin, TestCase):
             'profile_image_url': person.get_profile_image_url,
             'full_name': person.full_name,
             'organizations': [],
+            'partner': person.partner.short_code,
         }
 
     def test_data(self):
@@ -2862,6 +2981,10 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
         super().setUp()
+        # Clear all cache layers to prevent test pollution from cached API responses
+        cache.clear()
+        RequestCache.clear_all_namespaces()
+        TieredCache.dangerous_clear_all_tiers()
         self.mock_access_token()
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()

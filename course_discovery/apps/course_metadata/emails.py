@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 
 import dateutil.parser
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.utils.translation import gettext as _
@@ -416,3 +417,74 @@ def send_email_for_slug_updates(stats, to_users, subject=None):
     attachment.add_header('Content-Disposition', 'attachment', filename='slugs_update_summary.csv')
     email_msg.attach(attachment)
     email_msg.send()
+
+
+def send_email_for_course_archival(report, csv_report, to_users):
+    """
+    Send an overall report of a archive_courses mgmt command run
+    """
+    success_count = len(report['successes'])
+    failure_count = len(report['failures'])
+    context = {
+        'total_count': report['total_count'],
+        'failure_count': failure_count,
+        'success_count': success_count,
+        'failures': report['failures']
+    }
+    html_template = 'course_metadata/email/course_archival.html'
+    template = get_template(html_template)
+    html_content = template.render(context)
+
+    email = EmailMessage(
+        "Course Archival Command Summary",
+        html_content,
+        settings.PUBLISHER_FROM_EMAIL,
+        to_users,
+    )
+    email.attach("report.csv", csv_report, "text/csv")
+    email.content_subtype = "html"
+    email.send()
+
+
+def send_course_deadline_email(course, course_run, recipients, deadline_email_variant=None):
+    """
+    Send course deadline email to the recipients.
+    """
+    html_template = 'course_metadata/email/course_deadline.html'
+    template = get_template(html_template)
+    subject_lookup = {
+        "two_months_reminder": f"Course Availability Reminder: {course.title} Ends in 60 Days",
+        "one_month_reminder": f"Course Availability Reminder: {course.title} Ends in 30 Days",
+        "fifteen_days_reminder": f"Course Availability Reminder: {course.title} Ends in 15 Days",
+        "seven_days_reminder": f"Course Availability Reminder: {course.title} Ends in 7 Days",
+        "course_ended": f"Reminder: {course.title} has Ended",
+    }
+
+    subject = subject_lookup.get(deadline_email_variant, f"Reminder: {course.title} deadline is approaching")
+
+    context = {
+        "course_uuid": course.uuid,
+        "course_name": course.title,
+        "course_key": course.key,
+        "course_end_date": (course_run.end.strftime("%m/%d/%Y") if course_run.end else None),
+        "days_to_expire": (
+            "60 days" if deadline_email_variant == "two_months_reminder"
+            else "30 days" if deadline_email_variant == "one_month_reminder"
+            else "15 days" if deadline_email_variant == "fifteen_days_reminder"
+            else "7 days" if deadline_email_variant == "seven_days_reminder"
+            else "course_ended"
+        ),
+        "publisher_url": course.partner.publisher_url,
+        "course_schedule_settings_url": f"{course.partner.studio_url}/settings/details/{course_run.key}#schedule",
+        "partner_marketing_site_url": course.partner.marketing_site_url_root,
+    }
+    html_content = template.render(context)
+    email = EmailMessage(
+        subject,
+        html_content,
+        settings.PUBLISHER_FROM_EMAIL,
+        recipients,
+    )
+    email.content_subtype = "html"
+    email.send()
+    logger.info(f"Course deadline email sent to {recipients} for course {course.title}")

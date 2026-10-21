@@ -3,11 +3,13 @@ from dal import autocomplete
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.utils import model_ngettext
+from django.db.models import Prefetch
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
+from django.templatetags.static import static
 from django.urls import re_path, reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, html_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
@@ -52,6 +54,13 @@ class CurriculumCourseMembershipForm(ModelForm):
         }
 
 
+@html_safe
+class SortableSelectJSPath:
+    def __str__(self):
+        abs_path = static('js/sortable_select.js')
+        return f'<script src="{abs_path}" defer></script>'
+
+
 class ProgramEligibilityFilter(admin.SimpleListFilter):
     title = _('eligible for one-click purchase')
     parameter_name = 'eligible_for_one_click_purchase'
@@ -85,6 +94,9 @@ class SeatInline(admin.TabularInline):
     readonly_fields = ('_upgrade_deadline', )
     raw_id_fields = ('draft_version', 'currency')
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('draft_version', 'currency')
+
 
 class PositionInline(admin.TabularInline):
     model = Position
@@ -114,6 +126,7 @@ class AdditionalMetadataInline(admin.TabularInline):
 @admin.register(GeoLocation)
 class GeoLocationAdmin(admin.ModelAdmin):
     """Admin for GeoLocation model."""
+    search_fields = ('location_name', )
 
 
 @admin.register(ProductValue)
@@ -121,6 +134,7 @@ class ProductValueAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'per_click_usa', 'per_click_international', 'per_lead_usa', 'per_lead_international'
     ]
+    search_fields = ('id',)
 
 
 @admin.register(Course)
@@ -132,8 +146,15 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     readonly_fields = ['enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number']
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
-    autocomplete_fields = ['canonical_course_run']
+    autocomplete_fields = [
+        'canonical_course_run', 'geolocation', 'in_year_value', 'video', 'extra_description',
+        'additional_metadata'
+    ]
     change_actions = ('course_skills', 'refresh_course_skills')
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('canonical_course_run').prefetch_related('location_restriction')
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
@@ -212,6 +233,13 @@ class CourseAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     course_skills.label = "view course skills"
 
+    class Media:
+        js = (
+            'js/jquery_shim.js',
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            SortableSelectJSPath()
+        )
+
 
 @admin.register(CourseEditor)
 class CourseEditorAdmin(admin.ModelAdmin):
@@ -223,6 +251,8 @@ class CourseEditorAdmin(admin.ModelAdmin):
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(SimpleHistoryAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
+    raw_id_fields = ('course', 'draft_version',)
+    search_fields = ['course__title', 'course__key']
 
     @admin.display(
         description='Course key'
@@ -230,8 +260,9 @@ class CourseEntitlementAdmin(SimpleHistoryAdmin):
     def get_course_key(self, obj):
         return obj.course.key
 
-    raw_id_fields = ('course', 'draft_version',)
-    search_fields = ['course__title', 'course__key']
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('course', 'mode', 'partner')
 
 
 @admin.register(Mode)
@@ -242,6 +273,7 @@ class ModeAdmin(admin.ModelAdmin):
 @admin.register(Track)
 class TrackAdmin(admin.ModelAdmin):
     list_display = ['mode', 'seat_type']
+    list_select_related = ['seat_type', 'mode']
 
 
 @admin.register(CourseRunType)
@@ -281,11 +313,20 @@ class CourseRunAdmin(SimpleHistoryAdmin):
     raw_id_fields = ('course', 'draft_version',)
     readonly_fields = [
         'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion',
-        'variant_id', 'fixed_price_usd', 'translation_languages'
+        'variant_id', 'fixed_price_usd', 'ai_languages'
     ]
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key', 'variant_id')
     save_error = False
     form = CourseRunAdminForm
+    autocomplete_fields = (
+        'video',
+    )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related(
+            'course', 'draft_version', 'language', 'type'
+        )
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -318,6 +359,49 @@ class CourseRunAdmin(SimpleHistoryAdmin):
 
             msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')
             messages.add_message(request, messages.ERROR, msg)
+
+
+@admin.register(BulkOperationTask)
+class BulkOperationTaskAdmin(admin.ModelAdmin):
+    """
+    Admin for BulkOperationTask model.
+    """
+    readonly_fields = ['status', 'uploaded_by', 'task_summary', 'task_result_status_summary']
+    list_display = ('id', 'csv_file', 'task_type', 'uploaded_by', 'status', 'task_id')
+    list_filter = ('task_type', 'status')
+
+    def get_fields(self, request, obj=None):
+        if obj:
+            return [
+                "csv_file", "task_type", "status", "task_id", "uploaded_by", "task_summary",
+                "task_result_status_summary",
+            ]
+        else:
+            return ['csv_file', 'task_type']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Save the model instance and set the uploaded_by to the current user.
+        """
+        if not change:
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+
+    @admin.display(
+        description='Task Result Status Summary'
+    )
+    def task_result_status_summary(self, obj):
+        """
+        Returns a formatted string with the status and result of the task
+        associated with bulk task.
+        """
+        if not obj.task_id:
+            return "No task ID"
+        try:
+            result = TaskResult.objects.get(task_id=obj.task_id)
+            return f"{result.status}: {result.result}"
+        except TaskResult.DoesNotExist:
+            return "No result found"
 
 
 class CourseInline(admin.TabularInline):
@@ -370,6 +454,9 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
         'enterprise_subscription_inclusion', 'ofac_comment', 'data_modified_timestamp'
     )
     raw_id_fields = ('video',)
+    autocomplete_fields = (
+        'in_year_value',
+    )
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
 
@@ -390,6 +477,30 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
     change_actions = ('refresh_program_skills', )
 
     save_error = False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related(
+            'partner',
+            'type'
+        ).prefetch_related(
+            'courses',
+            'authoring_organizations',
+            'credit_backing_organizations',
+        )
+        return queryset
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Optimize ForeignKey dropdowns by customizing the queryset.
+        """
+        if db_field.name == 'primary_subject_override':
+            kwargs['queryset'] = Subject.objects.all()
+        if db_field.name == 'level_type_override':
+            kwargs['queryset'] = LevelType.objects.all()
+        if db_field.name == 'type':
+            kwargs['queryset'] = ProgramType.objects.all()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -475,9 +586,9 @@ class ProgramAdmin(DjangoObjectActions, SimpleHistoryAdmin):
 
     class Media:
         js = (
+            'js/jquery_shim.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
-            'js/sortable_select.js'
+            SortableSelectJSPath()
         )
 
 
@@ -491,6 +602,15 @@ class PathwayAdmin(admin.ModelAdmin):
     @admin.display(description='Programs')
     def get_programs(self, obj):
         return [*obj.programs.all()]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('partner').prefetch_related(
+            Prefetch('programs', queryset=Program.objects.prefetch_related(
+                'courses__course_runs',
+            ))
+        )
+        return queryset
 
 
 @admin.register(ProgramType)
@@ -515,16 +635,20 @@ class SeatTypeAdmin(admin.ModelAdmin):
 @admin.register(Endorsement)
 class EndorsementAdmin(admin.ModelAdmin):
     list_display = ('endorser',)
+    search_fields = ('quote', 'endorser__given_name', 'endorser__family_name')
+    list_select_related = ['endorser', ]
 
 
 @admin.register(CorporateEndorsement)
 class CorporateEndorsementAdmin(admin.ModelAdmin):
     list_display = ('corporation_name',)
+    search_fields = ('corporation_name', 'statement',)
 
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ('question',)
+    list_display = ('id', 'question', 'answer')
+    search_fields = ('id', 'question',)
 
 
 @admin.register(Ranking)
@@ -535,7 +659,11 @@ class RankingAdmin(admin.ModelAdmin):
 @admin.register(AdditionalPromoArea)
 class AdditionalPromoAreaAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'courses')
-    search_fields = ('description',)
+    search_fields = ('description', 'title')
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related('extra_description')
 
     def courses(self, obj):
         return ', '.join([
@@ -547,6 +675,17 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 class FactAdmin(admin.ModelAdmin):
     list_display = ('heading', 'blurb', 'courses')
     search_fields = ('heading', 'blurb',)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.prefetch_related(
+            Prefetch(
+                "related_course_additional_metadata",
+                queryset=AdditionalMetadata.objects.prefetch_related("related_courses"),
+            )
+        )
+
+        return queryset
 
     def courses(self, obj):
 
@@ -562,6 +701,9 @@ class FactAdmin(admin.ModelAdmin):
 class CertificateInfoAdmin(admin.ModelAdmin):
     list_display = ('heading', 'blurb', 'courses')
     search_fields = ('heading', 'blurb',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('related_course_additional_metadata__related_courses')
 
     def courses(self, obj):
 
@@ -581,6 +723,17 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
     )
     search_fields = ('external_identifier', 'external_url')
     list_filter = ('product_status', )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related(
+            'related_courses',
+            'facts',
+        ).select_related(
+            'taxi_form',
+            'product_meta',
+            'certificate_info',
+        )
 
     def courses(self, obj):
         return ', '.join([
@@ -642,6 +795,9 @@ class SubjectAdmin(TranslatableAdmin):
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'name', 'slug',)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('partner').prefetch_related('translations')
+
 
 @admin.register(Topic)
 class TopicAdmin(TranslatableAdmin):
@@ -659,6 +815,12 @@ class PersonAdmin(admin.ModelAdmin):
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'partner',
+            'bio_language',
+        )
 
 
 @admin.register(Position)
@@ -695,6 +857,14 @@ class LevelTypeAdmin(SortableAdminMixin, TranslatableAdmin):
     list_display = ('name_t', 'sort_value')
     search_fields = ('name_t',)
     fields = ('name_t',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related(
+            Prefetch('translations', queryset=LevelTypeTranslation.objects.all(), to_attr='translated_names')
+        )
+
+    def name_t(self, obj):
+        return obj.translated_names[0].name_t if obj.translated_names else obj.name
 
 
 class CurriculumProgramMembershipInline(admin.TabularInline):
@@ -781,10 +951,16 @@ class IconTextPairingInline(admin.StackedInline):
 class DegreeDeadlineAdmin(admin.ModelAdmin):
     list_display = ('degree', 'semester', 'name', 'date', 'time')
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
+
 
 @admin.register(DegreeCost)
 class DegreeCostAdmin(admin.ModelAdmin):
     list_display = ('degree', 'description', 'amount')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
 
 
 class DegreeDeadlineInlineAdmin(admin.StackedInline):
@@ -804,6 +980,9 @@ class DegreeAdditionalMetadataInlineAdmin(admin.StackedInline):
 @admin.register(DegreeAdditionalMetadata)
 class DegreeAdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = ('degree', 'external_url', 'external_identifier', 'organic_url')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('degree')
 
 
 @admin.register(Specialization)
@@ -842,6 +1021,9 @@ class DegreeAdmin(admin.ModelAdmin):
     )
     actions = ['publish_degrees', 'unpublish_degrees', 'display_degrees_on_org_page', 'hide_degrees_on_org_page']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('additional_metadata')
+
     def change_degree_status(self, request, queryset, status):
         """
         Changes the status of a degree.
@@ -877,7 +1059,7 @@ class DegreeAdmin(admin.ModelAdmin):
         updated = queryset.update(display_on_org_page=True)
         self.message_user(
             request,
-            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to display on org page.",
+            f"{updated} {'degrees were' if updated > 1 else 'degree was'} successfully set to display on org page.",
             messages.SUCCESS,
         )
 
@@ -886,7 +1068,7 @@ class DegreeAdmin(admin.ModelAdmin):
         updated = queryset.update(display_on_org_page=False)
         self.message_user(
             request,
-            f"{updated} {'degrees were' if updated>1 else 'degree was'} successfully set to be hidden on org page.",
+            f"{updated} {'degrees were' if updated > 1 else 'degree was'} successfully set to be hidden on org page.",
             messages.SUCCESS,
         )
 
@@ -898,8 +1080,8 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
 
     class Media:
         js = (
+            'js/jquery_shim.js',
             'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-            'bower_components/jquery/dist/jquery.min.js',
             'js/sortable_select.js'
         )
 
@@ -1017,6 +1199,14 @@ class BulkUploadTagsConfigurationAdmin(admin.ModelAdmin):
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
 
 
+@admin.register(ArchiveCoursesConfig)
+class ArchiveCoursesConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for ArchiveCoursesConfig model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
 @admin.register(OrganizationMapping)
 class OrganizationMappingAdmin(admin.ModelAdmin):
     """
@@ -1050,6 +1240,9 @@ class ProgramSubscriptionPriceAdmin(admin.ModelAdmin):
 class RestrictedCourseRunAdmin(admin.ModelAdmin):
     list_display = ['course_run', 'restriction_type']
     search_fields = ['course_run__key', 'restriction_type']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('course_run__course')
 
 
 class CourseReviewAdmin(admin.ModelAdmin):

@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django_extensions.db.fields
-import djchoices.choices
 import simple_history.models
 import uuid
 
@@ -28,7 +27,7 @@ class Migration(migrations.Migration):
                 ('draft', models.BooleanField(default=False, help_text='Is this a draft version?')),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
                 ('key', models.CharField(max_length=255)),
-                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished'), ('reviewed', 'Reviewed'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review')], db_index=True, default='unpublished', max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'review_by_internal': 'Awaiting Internal Review', 'review_by_legal': 'Awaiting Review from Legal', 'reviewed': 'Reviewed', 'unpublished': 'Unpublished'})])),
+                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished'), ('reviewed', 'Reviewed'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review')], db_index=True, default='unpublished', max_length=255)),
                 ('title_override', models.CharField(blank=True, default=None, help_text="Title specific for this run of a course. Leave this value blank to default to the parent course's title.", max_length=255, null=True)),
                 ('start', models.DateTimeField(blank=True, db_index=True, null=True)),
                 ('end', models.DateTimeField(blank=True, db_index=True, null=True)),
@@ -41,7 +40,7 @@ class Migration(migrations.Migration):
                 ('min_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated minimum number of hours per week needed to complete a course run.', null=True)),
                 ('max_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated maximum number of hours per week needed to complete a course run.', null=True)),
                 ('weeks_to_complete', models.PositiveSmallIntegerField(blank=True, help_text='Estimated number of weeks needed to complete this course run.', null=True)),
-                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})])),
+                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True)),
                 ('enrollment_count', models.IntegerField(blank=True, default=0, help_text='Total number of learners who have enrolled in this course run', null=True)),
                 ('recent_enrollment_count', models.IntegerField(blank=True, default=0, help_text='Total number of learners who have enrolled in this course run in the last 6 months', null=True)),
                 ('card_image_url', models.URLField(blank=True, null=True)),

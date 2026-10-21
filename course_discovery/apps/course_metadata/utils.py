@@ -4,10 +4,12 @@ import random
 import re
 import string
 import uuid
+from hashlib import md5
 from tempfile import NamedTemporaryFile
 from urllib.parse import urljoin, urlparse
 
 import html2text
+import jsonschema
 import markdown
 import pytz
 import requests
@@ -30,7 +32,7 @@ from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import (
-    DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
+    AI_LANG_SCHEMA, DEFAULT_SLUG_FORMAT_ERROR_MSG, HTML_TAGS_ATTRIBUTE_WHITELIST, IMAGE_TYPES, SLUG_FORMAT_REGEX,
     SUBDIRECTORY_SLUG_FORMAT_REGEX
 )
 from course_discovery.apps.course_metadata.exceptions import (
@@ -692,7 +694,6 @@ def get_salesforce_util(partner):
 
 
 class HTML2TextWithLangSpans(html2text.HTML2Text):
-    # pylint: disable=abstract-method
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -785,8 +786,6 @@ def clean_html(content):
         is_list_with_dir_attr_present = True
 
     cleaned = str(soup)
-    # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
-    cleaned = cleaned.replace('·', '&middot;')
     # Need to clean empty <b> and <p> tags which are converted to <hr/> by html2text
     cleaned = cleaned.replace('<p><b></b></p>', '')
     html_converter = HTML2TextWithLangSpans(bodywidth=None)
@@ -1028,6 +1027,16 @@ def data_modified_timestamp_update(sender, instance, **kwargs):  # pylint: disab
         instance.update_product_data_modified_timestamp()
 
 
+def data_modified_timestamp_update__deletion(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Receiver function to trigger update data modified timestamp on Course or Program
+    when one of their related models is being deleted. Note that deletion of only a select few
+    models will trigger this (see `signals.py`)
+    """
+    if hasattr(instance, 'field_tracker') and hasattr(instance, 'update_product_data_modified_timestamp'):
+        instance.update_product_data_modified_timestamp(bypass_has_changed=True)
+
+
 def is_valid_slug_format(val):
     """
     Checks whether a given value follows the slug format, taking into account the selected slug format based on the
@@ -1138,11 +1147,12 @@ def get_slug_for_course(course):
         # course slug is None for courses which are created from studio
         if not course_slug:
             course_slug = slugify(course.title)
-            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
-            if is_existing_slug(slug, course):
-                logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
-                course_slug = f"{course.title}-{get_existing_slug_count(slug) + 1}"
+
         slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
+        if is_existing_slug(slug, course):
+            logger.info(f"Slug '{slug}' already exists in DB, recreating slug by adding a number in course_title")
+            course_slug = f"{course_slug}-{get_existing_slug_count(slug) + 1}"
+            slug = f"learn/{primary_subject_slug}/{organization_slug}-{course_slug}"
         return slug, None
 
     if course.type.slug == CourseType.BOOTCAMP_2U:
@@ -1265,3 +1275,41 @@ def get_course_run_statuses(statuses, course_runs):
         else:
             statuses.add(course_run.status)
     return statuses
+
+
+def validate_ai_languages(ai_langs):
+    """
+    Verify that the ai_langs json matches the `AI_LANG_SCHEMA` schema before saving
+    """
+    try:
+        jsonschema.validate(ai_langs, AI_LANG_SCHEMA)
+    except Exception as exc:
+        raise ValidationError("Could not validate ai_languages field") from exc
+
+
+def bulk_operation_upload_to_path(instance, filename):  # pylint: disable=unused-argument
+    """
+    Utility method used on BulkOperationTask csv_file field to generate unique file names.
+    """
+    return f"bulk_operations/uploads/{str(uuid.uuid4())}/{filename}"
+
+
+def generate_sku(partner=None, course=None):
+    """
+    Generates a SKU for the provide by entitlements and seats combination.
+    Example: 76E4E71
+    """
+    try:
+        if partner and getattr(partner, 'id', None) and course is not None:
+            _hash = ' '.join((str(course.uuid), str(partner.id))).encode('utf-8')
+            logger.info('Initiating SKU generation for the course entitlements.')
+        elif partner is None:
+            _hash = ' '.join((str(course.uuid), str(course.key))).encode('utf-8')
+            logger.info('Initiating SKU generation for the seats.')
+        else:
+            raise Exception('Unexpected entitlements and seats')
+        md5_hash = md5(_hash.lower())
+        digest = md5_hash.hexdigest()[-7:]
+        return digest.upper()
+    except Exception as exc:
+        raise ValidationError("Unexpected combition SKU") from exc

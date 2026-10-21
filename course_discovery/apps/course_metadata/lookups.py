@@ -4,7 +4,10 @@ from dal import autocomplete
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
-from .models import Course, CourseRun, Organization, Person, Program
+from course_discovery.apps.course_metadata.models import (
+    FAQ, Collaborator, CorporateEndorsement, Course, CourseRun, Endorsement, ExpectedLearningItem, JobOutlookItem,
+    Organization, Person, Program
+)
 
 
 class CourseAutocomplete(autocomplete.Select2QuerySetView):
@@ -13,6 +16,30 @@ class CourseAutocomplete(autocomplete.Select2QuerySetView):
             qs = Course.objects.all()
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(title__icontains=self.q))
+
+            return qs
+
+        return []
+
+
+class CollaboratorAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = Collaborator.objects.all()
+            if self.q:
+                qs = qs.filter(Q(name__icontains=self.q) | Q(uuid__icontains=self.q.strip()))
+
+            return qs
+
+        return []
+
+
+class CorporateEndorsementAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = CorporateEndorsement.objects.all()
+            if self.q:
+                qs = qs.filter(Q(corporation_name__icontains=self.q) | Q(statement__icontains=self.q))
 
             return qs
 
@@ -30,6 +57,54 @@ class CourseRunAutocomplete(autocomplete.Select2QuerySetView):
 
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(course__title__icontains=self.q))
+
+            return qs
+
+        return []
+
+
+class EndorsementAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = Endorsement.objects.all()
+            if self.q:
+                qs = qs.filter(quote__icontains=self.q)
+
+            return qs
+
+        return []
+
+
+class ExpectedLearningItemAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = ExpectedLearningItem.objects.all()
+            if self.q:
+                qs = qs.filter(value__icontains=self.q)
+
+            return qs
+
+        return []
+
+
+class FAQAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = FAQ.objects.all()
+            if self.q:
+                qs = qs.filter(Q(question__icontains=self.q) | Q(answer__icontains=self.q))
+
+            return qs
+
+        return []
+
+
+class JobOutlookItemAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            qs = JobOutlookItem.objects.all()
+            if self.q:
+                qs = qs.filter(value__icontains=self.q)
 
             return qs
 

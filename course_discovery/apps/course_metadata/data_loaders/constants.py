@@ -17,6 +17,8 @@ class CSVIngestionErrors:
     LOGO_IMAGE_DOWNLOAD_FAILURE = 'LOGO_IMAGE_DOWNLOAD_FAILURE'
     COURSE_UPDATE_ERROR = 'COURSE_UPDATE_ERROR'
     COURSE_RUN_UPDATE_ERROR = 'COURSE_RUN_UPDATE_ERROR'
+    COURSE_RUN_NOT_FOUND = 'COURSE_RUN_NOT_FOUND'
+    COURSE_NOT_FOUND = 'COURSE_NOT_FOUND'
 
 
 class CSVIngestionErrorMessages:
@@ -45,6 +47,10 @@ class CSVIngestionErrorMessages:
     COURSE_UPDATE_ERROR = '[COURSE_UPDATE_ERROR] Unable to update course {course_title} in the system. The update ' \
                           'failed with the exception: {exception_message}'
 
+    COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR = '[COURSE_ENTITLEMENT_PRICE_UPDATE_ERROR] Unable to update ' \
+                                            'course entitlement price for the course {course_title} in the system. ' \
+                                            'The update failed with the exception: {exception_message}'
+
     COURSE_RUN_UPDATE_ERROR = '[COURSE_RUN_UPDATE_ERROR] Unable to update course run of the course {course_title} ' \
                               'in the system. The update failed with the exception: {exception_message}'
 
@@ -60,7 +66,54 @@ CSV_LOADER_ERROR_LOG_SEQUENCE = [
     CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, CSVIngestionErrors.MISSING_REQUIRED_DATA,
     CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE,
     CSVIngestionErrors.COURSE_CREATE_ERROR, CSVIngestionErrors.COURSE_UPDATE_ERROR,
-    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
+    CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, CSVIngestionErrors.COURSE_RUN_NOT_FOUND,
+    CSVIngestionErrors.COURSE_RUN_CREATE_ERROR, CSVIngestionErrors.COURSE_NOT_FOUND
+]
+
+
+class CourseEditorIngestionErrors:
+    """
+    Error codes for CourseEditorsLoader ingestion failures.
+    """
+    USER_NOT_FOUND = 'USER_NOT_FOUND'
+    USER_ORG_MISMATCH = 'USER_ORG_MISMATCH'
+    COURSE_NOT_FOUND = 'COURSE_NOT_FOUND'
+    MISSING_REQUIRED_DATA = 'MISSING_REQUIRED_DATA'
+    COURSE_EDITOR_ADD_ERROR = 'COURSE_EDITOR_ADD_ERROR'
+    COURSE_EDITOR_REMOVE_ERROR = 'COURSE_EDITOR_REMOVE_ERROR'
+    UNSUPPORTED_ACTION = 'UNSUPPORTED_ACTION'
+
+
+class CourseEditorIngestionErrorMessages:
+    """
+    Error message templates for CourseEditorsLoader ingestion.
+    """
+    USER_NOT_FOUND = '[USER_NOT_FOUND] [Row {index}] Unable to find user with identifier "{user_identifier}".'
+    USER_ORG_MISMATCH = (
+        '[USER_ORG_MISMATCH] [Row {index}] User "{user_identifier}" does not belong to any '
+        'authoring organization for course "{course_title}".'
+    )
+    COURSE_NOT_FOUND = '[COURSE_NOT_FOUND] [Row {index}] Unable to find course with identifier "{course_identifier}".'
+    MISSING_REQUIRED_DATA = '[MISSING_REQUIRED_DATA] [Row {index}] Missing required field(s): {missing_fields}'
+    COURSE_EDITOR_ADD_ERROR = (
+        '[COURSE_EDITOR_ADD_ERROR] [Row {index}] Failed to create CourseEditor for user '
+        '"{user_identifier}" and course "{course_title}": {exception}'
+    )
+    COURSE_EDITOR_REMOVE_ERROR = (
+        '[COURSE_EDITOR_REMOVE_ERROR] [Row {index}] Failed to remove CourseEditor for user '
+        '"{user_identifier}" and course "{course_title}": {exception}'
+    )
+    UNSUPPORTED_ACTION = "[UNSUPPORTED_ACTION] [Row {index}] Unsupported action '{action}' for course editor."
+
+
+COURSE_EDITOR_LOADER_ERROR_LOG_SEQUENCE = [
+    CourseEditorIngestionErrors.MISSING_REQUIRED_DATA,
+    CourseEditorIngestionErrors.USER_NOT_FOUND,
+    CourseEditorIngestionErrors.USER_ORG_MISMATCH,
+    CourseEditorIngestionErrors.COURSE_EDITOR_ADD_ERROR,
+    CourseEditorIngestionErrors.COURSE_NOT_FOUND,
+    CourseEditorIngestionErrors.COURSE_EDITOR_REMOVE_ERROR,
+    CourseEditorIngestionErrors.UNSUPPORTED_ACTION
 ]
 
 

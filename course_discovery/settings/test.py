@@ -54,6 +54,7 @@ DATABASES = {
 }
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
+JWT_AUTH['JWT_ISSUER'] = 'test-issuer'  # PyJWT 2.12+ requires iss to be a string
 
 LOGGING['handlers']['local'] = {
     'class': 'logging.NullHandler',
@@ -161,3 +162,10 @@ COURSE_URL_SLUGS_PATTERN = {
 ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 10000
 
 ELASTICSEARCH_DSL_LOAD_PER_QUERY = 10000
+
+ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = ['enterprise']
+
+RETIRED_RUN_TYPES = ['paid-bootcamp', 'unpaid-bootcamp']
+RETIRED_COURSE_TYPES = ['bootcamp-2u']
+
+VERTICALS_MANAGEMENT_GROUPS = ['Vertical Managers']

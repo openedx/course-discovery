@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django_extensions.db.fields
-import djchoices.choices
 import simple_history.models
 import uuid
 
@@ -28,7 +27,7 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(blank=True, db_index=True, default=uuid.uuid4, editable=False, verbose_name='UUID')),
                 ('title', models.CharField(db_index=True, help_text='The user-facing display title for this Program.', max_length=255)),
                 ('subtitle', models.CharField(blank=True, help_text='A brief, descriptive subtitle for the Program.', max_length=255)),
-                ('status', models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], db_index=True, help_text='The lifecycle status of this Program.', max_length=24, validators=[djchoices.choices.ChoicesValidator({'active': 'Active', 'deleted': 'Deleted', 'retired': 'Retired', 'unpublished': 'Unpublished'})])),
+                ('status', models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], db_index=True, help_text='The lifecycle status of this Program.', max_length=24)),
                 ('marketing_slug', models.CharField(db_index=True, help_text='Slug used to generate links to the marketing site', max_length=255)),
                 ('order_courses_by_start_date', models.BooleanField(default=True, help_text='If this box is not checked, courses will be ordered as in the courses select box above.', verbose_name='Order Courses By Start Date')),
                 ('overview', models.TextField(blank=True, null=True)),

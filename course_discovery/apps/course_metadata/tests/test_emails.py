@@ -10,6 +10,7 @@ from django.core import mail
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
+from pytz import UTC
 from testfixtures import LogCapture, StringComparison
 
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -243,23 +244,20 @@ class EmailTests(TestCase):
         """
         Verify that send_email_for_go_live's happy path works as expected
         """
+        # pylint: disable=line-too-long
         kwargs = {
             'both_regexes': [
-                'The About page for the %s course run of %s has been published.' %
+                'The About page for the %s course run of %s has been submitted for publishing. The new session will appear on the edX website following the next couple of deployments—typically within 24 to 48 business hours' %
                 (self.run_num, self.course_run.title),
-                'No further action is necessary.',
             ],
             'html_regexes': [
-                '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):',
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at ',
                 '<a href="mailto:pc@example.com">pc@example.com</a>',
             ],
             'text_regexes': [
-                '\n\nView this About page. %s\n' % self.course_run.marketing_url,
-                r'For questions or comments, please contact your Project Coordinator\(s\):pc@example.com'
+                r'Note: This is a no-reply email. For any questions or comments, please contact your Project Coordinator at pc@example.com'
             ],
         }
-
         self.assertEmailSent(
             emails.send_email_for_go_live,
             f'^Published: {self.course_run.title}$',
@@ -588,8 +586,8 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 1 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Rerun</th></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>Yes</td></tr>",
+                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Future Variant</th><th style='padding: 5px;'>Rerun</th></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'></td><td style='padding: 5px;'>{variant_id}</td><td style='padding: 5px;'>None</td><td style='padding: 5px;'>No</td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
@@ -612,19 +610,22 @@ class TestIngestionEmail(TestCase):
                         'uuid': uuid,
                         'external_course_marketing_type': 'sprint',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': True,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'course_stack',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': False,
                     },
                     {
                         'uuid': uuid,
                         'external_course_marketing_type': 'short_course',
                         'url_slug': url_slug,
-                        'rerun': True
+                        'rerun': True,
+                        'is_future_variant': True,
                     },
                 ],
             }
@@ -639,10 +640,10 @@ class TestIngestionEmail(TestCase):
                 "<tr><th>New Products</th><td> 3 </td></tr>",
                 "<tr><th>Updated Products</th><td> 0 </td></tr>",
                 "<h3>New Products</h3>",
-                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Rerun</th></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>sprint</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>course_stack</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
-                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>short_course</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td></tr>",
+                "<tr><th style='padding: 5px;'>Course UUID</th><th style='padding: 5px;'>URL Slug</th><th style='padding: 5px;'>External Course Marketing Type</th><th style='padding: 5px;'>Variant ID</th><th style='padding: 5px;'>Restriction Type</th><th style='padding: 5px;'>Future Variant</th><th style='padding: 5px;'>Rerun</th></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>sprint</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>course_stack</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>No</td><td style='padding: 5px;'>Yes</td></tr>",
+                f"<tr><td style='padding: 5px;'><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></td><td style='padding: 5px;'>{url_slug}</td><td style='padding: 5px;'>short_course</td><td style='padding: 5px;'></td><td style='padding: 5px;'></td><td style='padding: 5px;'>Yes</td><td style='padding: 5px;'>Yes</td></tr>",
             ]
         )
         # pylint: enable=line-too-long
@@ -709,3 +710,75 @@ class TestSlugUpdatesEmail(TestCase):
         assert email.attachments[0].get_filename() == 'slugs_update_summary.csv'
         assert email.attachments[0].get_content_type() == 'text/csv'
         assert email.attachments[0].get_payload() == stats
+
+
+class TestCourseDeadlineEmail(TestCase):
+    """
+    Test suite for course deadline email.
+    """
+    def setUp(self):
+        super().setUp()
+        self.draft_course = CourseFactory(title='Draft Course', key='edX+draft_course', draft=True)
+        self.course = CourseFactory(draft_version=self.draft_course, draft=False)
+        self.course_run = CourseRunFactory(
+            course=self.course, title_override='Test Course Run',
+            start=datetime.datetime.now(UTC), end=datetime.datetime.now(UTC) + datetime.timedelta(days=7),
+            status=CourseRunStatus.Published
+        )
+        self.partner = self.course.partner
+        self.editor = UserFactory(
+            email='editor@example.com',
+            first_name='Test',
+            last_name='Editor',
+        )
+        CourseEditorFactory(user=self.editor, course=self.draft_course)
+
+    def test_send_course_deadline_email(self):
+        """
+        Verify that the course deadline email is sent correctly.
+        """
+        with LogCapture(emails.logger.name) as log_capture:
+            emails.send_course_deadline_email(
+                self.course, self.course_run, [self.editor.email], deadline_email_variant='seven_days_reminder'
+            )
+
+            assert len(mail.outbox) == 1
+            email = mail.outbox[0]
+
+            assert str(email.subject) == f'Course Availability Reminder: {self.course.title} Ends in 7 Days'
+
+            assert email.to == [self.editor.email]
+            assert email.from_email == settings.PUBLISHER_FROM_EMAIL
+
+            assert 'Hi Course Team' in email.body
+
+            assert (
+                f'Our records indicate that the course "{self.course.title}" (Course Key: {self.course.key}) '
+                f'is scheduled to end in 7 days on {self.course_run.end.strftime("%m/%d/%Y")}.'
+                in email.body
+            )
+
+            assert 'Despite previous reminders' in email.body
+
+            assert 'Important:' in email.body
+
+            assert 'If no action is taken, the course will be automatically archived after the current end date.' in email.body  # pylint: disable=line-too-long
+
+            assert 'To prevent disruption to learner access' in email.body
+
+            assert 'Create a New Course Run:' in email.body
+            assert 'Extend the Course End Date:' in email.body
+
+            assert 'NOTE:' in email.body
+            assert 'This email address isn’t monitored for replies.' in email.body
+
+            assert 'Thank you for your attention to this—looking forward to your updates!' in email.body
+            assert 'edX Operational Team' in email.body
+
+            log_capture.check(
+                (
+                    emails.logger.name,
+                    'INFO',
+                    f'Course deadline email sent to {[self.editor.email]} for course {self.course.title}'
+                )
+            )

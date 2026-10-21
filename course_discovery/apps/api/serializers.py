@@ -11,6 +11,7 @@ from uuid import uuid4
 
 import pytz
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.query import Prefetch
@@ -28,24 +29,25 @@ from taggit.serializers import TaggitSerializer, TagListSerializerField
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
+from course_discovery.apps.api.cache import get_utm_source_request_cache_key
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )
-from course_discovery.apps.api.utils import StudioAPI, get_excluded_restriction_types
+from course_discovery.apps.api.utils import StudioAPI, get_excluded_restriction_types, use_request_cache
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import update_instance
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
-    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseReview, CourseRun,
-    CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
-    Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing,
-    Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position,
-    Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription,
-    ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic,
-    Track, Video
+    FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, BulkOperationTask, CertificateInfo,
+    Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction,
+    CourseReview, CourseRun, CourseRunType, CourseType, CourseUrlSlug, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
+    GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
+    PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue, Program, ProgramLocationRestriction,
+    ProgramSubscription, ProgramSubscriptionPrice, ProgramType, Ranking, Seat, SeatType, Source, Specialization,
+    Subject, TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 from course_discovery.apps.course_metadata.utils import (
@@ -147,6 +149,7 @@ def get_lms_course_url_for_archived(partner, course_key):
     return f'{lms_url}/courses/{course_key}/course/'
 
 
+@use_request_cache("utm_source_cache", get_utm_source_request_cache_key)
 def get_utm_source_for_user(partner, user):
     """
     Return the utm source for the user.
@@ -959,7 +962,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course', 'type').prefetch_related(
+        return queryset.select_related('course', 'type', 'course__type').prefetch_related(
             '_official_version',
             'course__partner',
             'restricted_run',
@@ -971,7 +974,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         fields = ('key', 'uuid', 'title', 'external_key', 'fixed_price_usd', 'image', 'short_description',
                   'marketing_url', 'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
                   'weeks_to_complete', 'pacing_type', 'type', 'restriction_type', 'run_type', 'status', 'is_enrollable',
-                  'is_marketable', 'term', 'availability', 'variant_id')
+                  'is_marketable', 'is_marketable_external', 'term', 'availability', 'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -1078,6 +1081,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
         return queryset.select_related(
             'course__level_type',
+            'course__type',
             'course__video__image',
             'course__additional_metadata',
             'language',
@@ -1099,10 +1103,10 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion',
-            'transcript_languages_search_facet_names', 'translation_languages'
+            'transcript_languages_search_facet_names', 'ai_languages'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
-                            'enterprise_subscription_inclusion', 'translation_languages')
+                            'enterprise_subscription_inclusion', 'ai_languages')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1165,7 +1169,7 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('course').prefetch_related(
+        return queryset.select_related('course', 'course__type').prefetch_related(
             Prefetch('course__programs', queryset=(
                 Program.objects.select_related('type', 'partner').prefetch_related('excluded_course_runs', 'courses')
             ))
@@ -2368,6 +2372,7 @@ class PathwaySerializer(BaseModelSerializer):
             'email',
             'programs',
             'description',
+            'status',
             'destination_url',
             'pathway_type',
             'course_run_statuses',
@@ -2739,7 +2744,9 @@ class MetadataWithType(MetadataWithRelatedChoices):
             ],
         } for course_type in CourseType.objects.prefetch_related(
             'course_run_types__tracks__mode', 'entitlement_types', 'white_listed_orgs'
-        ).exclude(slug=CourseType.EMPTY) if not course_type.white_listed_orgs.exists() or user.is_staff or
+        ).exclude(
+            slug__in=[CourseType.EMPTY, *settings.RETIRED_COURSE_TYPES]
+        ) if not course_type.white_listed_orgs.exists() or user.is_staff or
             user.groups.filter(organization_extension__organization__in=course_type.white_listed_orgs.all()).exists()]
         return info
 
@@ -2768,3 +2775,34 @@ class CourseReviewSerializer(serializers.ModelSerializer):
             'most_common_goal_learners_percentage',
             'total_enrollments'
         )
+
+
+class BulkOperationTaskSerializer(serializers.ModelSerializer):
+    """
+    Serializer for BulkOperationTask model.
+    """
+    uploaded_by = serializers.SerializerMethodField(read_only=True)
+    result = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BulkOperationTask
+        fields = '__all__'
+        read_only_fields = ('task_id',)
+
+    def get_uploaded_by(self, obj):
+        """
+        Return the username of the user who uploaded the task.
+        """
+        return obj.uploaded_by.username if obj.uploaded_by else None
+
+    def get_result(self, obj):
+        """
+        Return the result of the task if `include_result` is set to True in the context.
+        If no result is available, return None.
+        """
+        include_result = self.context.get('include_result', False)
+        if not include_result:
+            return None
+
+        task_result = obj.task_result
+        return task_result.result if task_result else None

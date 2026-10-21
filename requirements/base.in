@@ -1,3 +1,5 @@
+-c constraints.txt
+
 algoliasearch_django
 backoff
 beautifulsoup4
@@ -6,7 +8,6 @@ contentful
 django
 django-admin-sortable2
 django-autocomplete-light
-django-choices
 django-compressor
 django-config-models
 django-contrib-comments
@@ -64,6 +65,7 @@ gspread
 html2text
 lxml[html_clean]
 jsonfield
+jsonschema
 markdown
 openedx-atlas
 pillow
@@ -80,3 +82,4 @@ xss-utils
 taxonomy-connector
 importlib-metadata
 snowflake-connector-python
+django-celery-results

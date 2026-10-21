@@ -3,15 +3,9 @@
 # This file contains all common constraints for edx-repos
 -c common_constraints.txt
 
-# Stay on an LTS release
-django<4.3
-
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
 elasticsearch-dsl>=7.2,<8.0
-# Disabling this constraint as of now as we are going to use github hash for this
-# TODO: Enable this once new version is released after we move to Django 3.2
-# django-elasticsearch-dsl>=7.1,<8.0
 
 celery>=5.2.3,<6.0.0
 
@@ -27,13 +21,8 @@ authlib==1.0.0rc1
 # Remove this pin after fixing them.
 django-stdimage<=5.3.0
 
-semgrep==0.102.0
-
 # Pinning sphinx as new major release is causing error while installing requirements.
 sphinx<6.0.0
-
-# This dependency is causing issues with semgrep CI, failing on metadata checks
-cairocffi < 1.5.0
 
 # 1.0.0 has breaking changes
 requests-toolbelt==0.10.1
@@ -55,15 +44,15 @@ selenium==4.12.0
 # Open AI version 1.0.0 dropped support for openai.ChatCompletion which is currently in use in enterprise.
 openai<=0.28.1
 
-# Version 3.5.0 is causing some tests (learner_pathway models, test_add_provisioning_data, etc.) to fail
-# all of a sudden. The v3.5.0 introduces some ordering changes in `loadscope` dist and that is causing an existing test(s)
-# that do not clean up properly to cause failures. Pinning the version to unblock requirements upgrade.
-# This is happening on some other open source repositories as well.
-# https://github.com/PrefectHQ/prefect/pull/11229/files
-# https://github.com/hyperspy/hyperspy/pull/3274
-pytest-xdist < 3.5.0
-
 # 5.4.0 is breaking for Python 3.8 and 3.11 CI checks with error
 # importlib.resources' has no attribute 'files'
 # To be unpinned once course-discovery moves to Python 3.12
 edx-lint==5.3.7
+
+# upgrade it seperately
+social-auth-app-django<=5.4.3
+# upgrade it seperately. new version brings new migration.
+django-guardian==3.0.3
+
+# latest release has major upgrade.
+cryptography<46.0.0

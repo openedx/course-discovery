@@ -1,8 +1,8 @@
 import datetime
 import json
-import sys
 import urllib.parse
 import uuid
+from operator import itemgetter
 
 import ddt
 import factory
@@ -10,6 +10,7 @@ import pytz
 from django.core.management import call_command
 from django.db.models import signals
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
@@ -69,12 +70,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             'next': None,
         }
         actual = response_data['objects'] if path == self.faceted_path else response_data
-        if sys.version_info > (3, 9):
-            # Remove this pylint disable once discovery reaches python 3.11+
-            # pylint: disable=unsupported-binary-operation
-            self.assertEqual(actual, actual | expected)  # pragma: no cover
-        else:
-            self.assertDictContainsSubset(expected, actual)
+        self.assertEqual(actual, actual | expected)  # pragma: no cover
 
         return course_run, response_data
 
@@ -99,12 +95,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             },
         }
 
-        if sys.version_info > (3, 9):
-            # Remove this pylint disable once discovery reaches python 3.11+
-            # pylint: disable=unsupported-binary-operation
-            self.assertEqual(response_data['queries'], response_data['queries'] | expected)  # pragma: no cover
-        else:
-            self.assertDictContainsSubset(expected, response_data['queries'])
+        self.assertEqual(response_data['queries'], response_data['queries'] | expected)  # pragma: no cover
 
     @ddt.data(faceted_path, list_path, detailed_path)
     def test_authentication(self, path):
@@ -160,12 +151,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             'count': 1,
         }
         actual = response_data['fields']['pacing_type'][0]
-        if sys.version_info > (3, 9):
-            # Remove this pylint disable once discovery reaches python 3.11+
-            # pylint: disable=unsupported-binary-operation
-            self.assertEqual(actual, actual | expected)  # pragma: no cover
-        else:
-            self.assertDictContainsSubset(expected, actual)
+        self.assertEqual(actual, actual | expected)  # pragma: no cover
 
     def test_invalid_query_facet(self):
         """ Verify the endpoint returns HTTP 400 if an invalid facet is requested. """
@@ -223,10 +209,10 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 22),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 22),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 23),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -250,12 +236,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
                 self.serialize_course_run_search(course_run, serializer=serializer)
             ]
         }
-        if sys.version_info > (3, 9):
-            # Remove this pylint disable once discovery reaches python 3.11+
-            # pylint: disable=unsupported-binary-operation
-            self.assertEqual(response_data, response_data | expected)  # pragma: no cover
-        else:
-            self.assertDictContainsSubset(expected, response_data)
+        self.assertEqual(response_data, response_data | expected)  # pragma: no cover
 
         # Check that the program is indeed the active one.
         for key in result_location_keys:
@@ -618,7 +599,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 9), (False, 9))
+    @ddt.data((True, 10), (False, 10))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -718,6 +699,25 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         expected_course_run_keys = [course_run.key for course_run in expected_course_runs]
         assert set(actual_course_run_keys) == set(expected_course_run_keys)
 
+    @ddt.data("course", "courserun")
+    def test_retired_courses_and_runs_not_indexed(self, content_type):
+        """ Verify that courses and runs corresponding to retired types are not indexed. """
+
+        run1, run2, run3 = CourseRunFactory.create_batch(3, course__partner=self.partner)
+        with override_settings(RETIRED_RUN_TYPES=[run1.type.slug], RETIRED_COURSE_TYPES=[run1.course.type.slug]):
+            call_command('search_index', '--rebuild', '-f')
+
+        response = self.get_response(query={"content_type": content_type}, endpoint=self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['count'] == 2
+        if content_type == "course":
+            expected = [self.serialize_course_search(run2.course), self.serialize_course_search(run3.course)]
+        else:
+            expected = [self.serialize_course_run_search(run2), self.serialize_course_run_search(run3)]
+
+        assert sorted(response_data['results'], key=itemgetter('key')) == sorted(expected, key=itemgetter('key'))
+
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
         was not provided. """
@@ -784,28 +784,37 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         assert expected == actual
 
-    @ddt.data(True, False)
-    def test_learner_pathway_feature_flag(self, include_learner_pathways):
+    def test_results_include_person_objects(self):
+        """ Verify that a get against search/all includes person objects. """
+        person = PersonFactory(partner=self.partner)
+        response = self.client.get(self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["count"] == 1
+        assert response_data["results"] == [self.serialize_person_search(person)]
+
+    @ddt.data((True, 10, 8), (False, 0, 4))
+    @ddt.unpack
+    def test_learner_pathway_feature_flag(self, include_learner_pathways, expected_result_count, expected_query_count):
         """ Verify the include_learner_pathways feature flag works as expected."""
-        LearnerPathwayStepFactory(pathway__partner=self.partner)
+        LearnerPathwayStepFactory.create_batch(10, pathway__partner=self.partner)
         pathways = LearnerPathway.objects.all()
-        assert pathways.count() == 1
+        assert pathways.count() == 10
         query = {
             'include_learner_pathways': include_learner_pathways,
         }
 
-        response = self.get_response(
-            query,
-            self.list_path
-        )
+        with self.assertNumQueries(expected_query_count):
+            response = self.get_response(query, self.list_path)
+
         assert response.status_code == 200
         response_data = response.json()
 
+        assert response_data['count'] == expected_result_count
+
         if include_learner_pathways:
-            assert response_data['count'] == 1
-            assert response_data['results'][0] == self.serialize_learner_pathway_search(pathways[0])
-        else:
-            assert response_data['count'] == 0
+            for pathway in pathways:
+                assert self.serialize_learner_pathway_search(pathway) in response.data['results']
 
 
 class LimitedAggregateSearchViewSetTests(
@@ -1221,13 +1230,13 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         )
         response = self.get_response({'q': 'mit'})
         assert response.status_code == 200
-        expected = {
-            'course_runs': [self.serialize_course_run_search(mit_run),
-                            self.serialize_course_run_search(harvard_run)],
-            'programs': [self.serialize_program_search(mit_program),
-                         self.serialize_program_search(harvard_program)]
-        }
-        self.assertDictEqual(response.data, expected)
+        expected_course_runs = [self.serialize_course_run_search(mit_run),
+                                self.serialize_course_run_search(harvard_run)]
+        expected_programs = [self.serialize_program_search(mit_program),
+                             self.serialize_program_search(harvard_program)]
+        # Use assertCountEqual for order-agnostic comparison since ES scoring order is non-deterministic
+        self.assertCountEqual(response.data['course_runs'], expected_course_runs)
+        self.assertCountEqual(response.data['programs'], expected_programs)
 
 
 class TestPersonFacetSearchViewSet(mixins.SerializationMixin, mixins.LoginMixin,

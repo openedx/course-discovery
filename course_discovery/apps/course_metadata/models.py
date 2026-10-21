@@ -19,6 +19,7 @@ from django.db.models import F, Q, UniqueConstraint
 from django.db.models.query import Prefetch
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_celery_results.models import TaskResult
 from django_countries import countries as COUNTRIES
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
@@ -40,11 +41,12 @@ from stdimage.models import StdImageField
 from taggit_autosuggest.managers import TaggableManager
 from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 
-from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.core.models import Currency, Partner, User
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType, CourseRunStatus,
-    ExternalCourseMarketingType, ExternalProductStatus, PayeeType, ProgramStatus, ReportingType
+    BulkOperationStatus, BulkOperationType, CertificateType, CourseLength, CourseRunPacing, CourseRunRestrictionType,
+    CourseRunStatus, ExternalCourseMarketingType, ExternalProductStatus, PathwayStatus, PayeeType, ProgramStatus,
+    ReportingType
 )
 from course_discovery.apps.course_metadata.constants import SUBDIRECTORY_SLUG_FORMAT_REGEX, PathwayType
 from course_discovery.apps.course_metadata.fields import AutoSlugWithSlashesField, HtmlField, NullHtmlField
@@ -55,13 +57,14 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.toggles import (
-    IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED,
-    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
+    IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED,
+    IS_SUBDIRECTORY_SLUG_FORMAT_FOR_BOOTCAMP_ENABLED, IS_SUBDIRECTORY_SLUG_FORMAT_FOR_EXEC_ED_ENABLED
 )
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, clear_slug_request_cache_for_course, custom_render_variations,
-    get_course_run_statuses, get_slug_for_course, is_ocm_course, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
+    UploadToFieldNamePath, bulk_operation_upload_to_path, clean_query, clear_slug_request_cache_for_course,
+    custom_render_variations, generate_sku, get_course_run_statuses, get_slug_for_course, is_ocm_course,
+    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
+    validate_ai_languages
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.ietf_language_tags.utils import serialize_language
@@ -97,9 +100,11 @@ class ManageHistoryMixin(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Sets the parameter 'skip_history_on_save' if the object is not changed
+        Sets the parameter 'skip_history_on_save' if the object is not changed. This is only applicable for already
+        created object. Any new object will always have a history entry. This is added to avoid the changes
+        introduced in django-simple-history in https://github.com/jazzband/django-simple-history/pull/1262.
         """
-        if not self.has_changed:
+        if not self.has_changed and self.pk:
             setattr(self, 'skip_history_when_saving', True)  # pylint: disable=literal-used-as-attribute
 
         super().save(*args, **kwargs)
@@ -789,11 +794,14 @@ class Fact(ManageHistoryMixin, AbstractHeadingBlurbModel):
         if self.has_changed:
             logger.info(
                 f"Fact update_product_data_modified_timestamp triggered for {self.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
             Course.everything.filter(additional_metadata__facts__pk=self.pk).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(additional_metadata__facts__pk=self.pk)
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
 class CertificateInfo(ManageHistoryMixin, AbstractHeadingBlurbModel):
@@ -809,8 +817,13 @@ class CertificateInfo(ManageHistoryMixin, AbstractHeadingBlurbModel):
 
     def update_product_data_modified_timestamp(self):
         if self.has_changed:
-            logger.info(f"Changes detected in CertificateInfo {self.pk}, updating related courses")
+            logger.info(f"Changes detected in CertificateInfo {self.pk}, updating related product timestamps")
             Course.everything.filter(additional_metadata__certificate_info__pk=self.pk).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(additional_metadata__certificate_info__pk=self.pk)
+            ).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
 
@@ -845,9 +858,14 @@ class ProductMeta(ManageHistoryMixin, TimeStampedModel):
         if self.has_changed or bypass_has_changed:
             logger.info(
                 f"ProductMeta update_product_data_modified_timestamp triggered for {self.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
             Course.everything.filter(additional_metadata__product_meta__pk=self.pk).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(additional_metadata__product_meta__pk=self.pk)
+            ).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
 
@@ -881,6 +899,25 @@ class TaxiForm(ManageHistoryMixin, TimeStampedModel):
         if not self.pk:
             return False
         return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"TaxiForm update_product_data_modified_timestamp triggered for {self.form_id}."
+                f"Updating data modified timestamp for related products."
+            )
+            if hasattr(self, 'additional_metadata') and self.additional_metadata:
+                self.additional_metadata.related_courses.all().update(
+                    data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+                )
+                Program.objects.filter(
+                    courses__in=self.additional_metadata.related_courses.all()
+                ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            if hasattr(self, 'program') and self.program:
+                Program.objects.filter(pk=self.program.id).update(
+                    data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+                )
 
     def __str__(self):
         return f"{self.title}({self.form_id})"
@@ -978,11 +1015,14 @@ class AdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
         if self.has_changed or bypass_has_changed:
             logger.info(
                 f"AdditionalMetadata update_product_data_modified_timestamp triggered for {self.external_identifier}."
-                f"Updating data modified timestamp for related courses."
+                f"Updating data modified timestamp for related products."
             )
             self.related_courses.all().update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            Program.objects.filter(
+                courses__in=self.related_courses.all()
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
@@ -1138,6 +1178,86 @@ class PkSearchableMixin:
         return filtered_queryset
 
 
+class SearchAfterMixin:
+    """
+    Represents objects to query Elasticsearch with `search_after` pagination and load by primary key.
+    """
+
+    @classmethod
+    def search(
+        cls,
+        query,
+        queryset=None,
+        page_size=settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION,
+        partner=None,
+        identifiers=None,
+        document=None,
+        sort_field="id",
+    ):
+        """
+        Queries the Elasticsearch index with optional pagination using `search_after`.
+
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+            queryset (models.QuerySet) -- base queryset to search, defaults to objects.all()
+            page_size (int) -- Number of results per page.
+            partner (object) -- To be included in the ES query.
+            identifiers (object) -- UUID or key of a product.
+            document (object) -- ES Document for the given model.
+            sort_field (str) -- Field to sort results by. Defaults to 'id'.
+
+        Returns:
+            QuerySet
+        """
+        query = clean_query(query)
+        if queryset is None:
+            queryset = cls.objects.all()
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            return queryset
+
+        logger.info(f"Attempting Elasticsearch document search against query: {query}")
+        es_document = document or next(iter(registry.get_documents(models=(cls,))), None)
+
+        must_queries = [ESDSLQ('query_string', query=query, analyze_wildcard=True)]
+        if partner:
+            must_queries.append(partner)
+        if identifiers:
+            must_queries.append(identifiers)
+
+        dsl_query = ESDSLQ('bool', must=must_queries)
+
+        all_ids = set()
+        search_after = None
+
+        while True:
+            search = (
+                es_document.search()
+                .query(dsl_query)
+                .sort(sort_field)
+                .extra(size=page_size)
+            )
+
+            search = search.extra(search_after=search_after) if search_after else search
+
+            results = search.execute()
+
+            ids = {result.pk for result in results}
+            if not ids:
+                logger.info("No more results found.")
+                break
+
+            all_ids.update(ids)
+            search_after = results[-1].meta.sort if results[-1] else None
+            logger.info(f"Fetched {len(ids)} records; total so far: {len(all_ids)}")
+
+        filtered_queryset = queryset.filter(pk__in=all_ids)
+        logger.info(f"Filtered queryset of size {len(filtered_queryset)} for query: {query}")
+        return filtered_queryset
+
+
 class Collaborator(TimeStampedModel):
     """
     Collaborator model, defining any collaborators who helped write course content.
@@ -1207,9 +1327,15 @@ class ProductValue(ManageHistoryMixin, TimeStampedModel):
         if self.has_changed:
             logger.info(
                 f"Changes detected in ProductValue {self.pk}, updating data modified "
-                f"timestamps for related courses."
+                f"timestamps for related products."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            Program.objects.filter(
+                courses__in=self.courses.all()
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
 class GeoLocation(ManageHistoryMixin, TimeStampedModel):
@@ -1265,9 +1391,15 @@ class GeoLocation(ManageHistoryMixin, TimeStampedModel):
         if self.has_changed:
             logger.info(
                 f"Changes detected in GeoLocation {self.pk}, updating data modified "
-                f"timestamps for related courses."
+                f"timestamps for related products."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            Program.objects.filter(
+                courses__in=self.courses.all()
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+
+            self.programs.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
 class AbstractLocationRestrictionModel(TimeStampedModel):
@@ -1306,9 +1438,12 @@ class CourseLocationRestriction(ManageHistoryMixin, AbstractLocationRestrictionM
         if self.has_changed:
             logger.info(
                 f"Changes detected in CourseLocationRestriction {self.pk}, updating data modified "
-                f"timestamps for related courses."
+                f"timestamps for related products."
             )
             self.courses.all().update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
+            Program.objects.filter(
+                courses__in=self.courses.all()
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
 
 class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
@@ -1512,12 +1647,18 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
         elif self.draft and self.has_changed:
             now = datetime.datetime.now(pytz.UTC)
             self.data_modified_timestamp = now
+            Program.objects.filter(
+                courses__in=Course.everything.filter(key=self.key)
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
 
     def set_data_modified_timestamp(self):
         """
         Set the data modified timestamp for both draft & non-draft version of the course.
         """
         Course.everything.filter(key=self.key).update(
+            data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+        )
+        Program.objects.filter(courses__in=Course.everything.filter(key=self.key)).update(
             data_modified_timestamp=datetime.datetime.now(pytz.UTC)
         )
         self.refresh_from_db()
@@ -1553,9 +1694,9 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
 
     @property
     def image_url(self):
-        if self.image:
-            return self.image.small.url
-
+        if self.image and self.image.name:
+            variation_path = self.image.get_variation_name(self.image.name, 'small')
+            return self.image.storage.url(variation_path)
         return self.card_image_url
 
     @property
@@ -1709,14 +1850,28 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             if course_run.language is not None
         })
 
-    @property
-    def languages_codes(self):
+    def languages_codes(self, exclude_inactive_runs=False):
         """
         Returns a string of languages codes used in this course. The languages codes are separated by comma.
         This property will ignore restricted runs and course runs with no language set.
+
+        Arguments:
+            exclude_inactive_runs (bool): whether to exclude inactive runs
         """
-        filtered_course_runs = self.active_course_runs.filter(language__isnull=False, restricted_run__isnull=True)
-        return ','.join(course_run.language.code for course_run in filtered_course_runs)
+        if exclude_inactive_runs:
+            language_codes = set(
+                course_run.language.code for course_run in self.active_course_runs.filter(
+                    language__isnull=False, restricted_run__isnull=True
+                )
+            )
+        else:
+            language_codes = set(
+                course_run.language.code for course_run in self.course_runs.filter(
+                    language__isnull=False, restricted_run__isnull=True
+                )
+            )
+
+        return ", ".join(sorted(language_codes))
 
     @property
     def first_enrollable_paid_seat_price(self):
@@ -1768,7 +1923,8 @@ class Course(ManageHistoryMixin, DraftModelMixin, PkSearchableMixin, CachedMixin
             return False
 
         if published_runs is None:
-            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator()
+            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator(
+                chunk_size=settings.ITERATOR_CHUNK_SIZE)
         published_runs = frozenset(published_runs)
 
         # Now separate out the active ones from the inactive
@@ -2166,13 +2322,12 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('Estimated number of weeks needed to complete this course run.'))
     language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
-    translation_languages = models.JSONField(
+    ai_languages = models.JSONField(
         null=True,
         blank=True,
-        help_text=_('A JSON list detailing the available translations for this run. '
-                    'Each element in the list is a dictionary containing two keys: the language code '
-                    'and the language label. These entries represent the languages into which the run '
-                    'content can be translated.')
+        validators=[validate_ai_languages],
+        help_text=_('A JSON dict detailing the available translations and transcriptions for this run. '
+                    'The dict has two keys: translation_languages and transcription_languages.')
     )
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices)
@@ -2297,6 +2452,12 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             Course.everything.filter(key=self.course.key).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(key=self.course.key)
+            ).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
             self.course.refresh_from_db()
 
     class Meta:
@@ -2370,7 +2531,9 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         now = datetime.datetime.now(pytz.UTC)
         two_weeks = datetime.timedelta(days=14)
         after_start = (not self.start) or self.start < now
-        ends_in_more_than_two_weeks = (not self.end) or (now.date() <= self.end.date() - two_weeks)
+        ends_in_more_than_two_weeks = (not self.end) or (
+            now.date() <= self.end.date() - two_weeks
+        )
         return after_start and ends_in_more_than_two_weeks
 
     def is_current_and_still_upgradeable(self):
@@ -2584,13 +2747,6 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         now = datetime.datetime.now(pytz.UTC)
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
-        # Use external course availability for ExecEd course run types
-        # Check additional_metadata existence as a fail safe for some unit tests
-        # where this flow is triggered via signals before AdditionalMetadata object can be persisted
-        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION] and \
-                self.course.additional_metadata:
-            return self.external_course_availability
-
         if self.has_ended(now):
             return _('Archived')
         elif self.start and (self.start <= now):
@@ -2649,27 +2805,21 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
                 raise ValidationError(_('Switching seat types after being reviewed is not supported. Please reach out '
                                         'to your project coordinator for additional help if necessary.'))
 
-    def get_seat_upgrade_deadline(self, seat_type):
-        deadline = None
-        # only verified seats have a deadline specified
-        if seat_type.slug == Seat.VERIFIED:
-            seats = self.seats.filter(type=seat_type)
-            if seats:
-                deadline = seats[0].upgrade_deadline
-            else:
-                deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-        return deadline
+    def get_seat_default_upgrade_deadline(self, seat_type):
+        if seat_type.slug != Seat.VERIFIED:
+            return None
+        return subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
 
     def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
-        defaults = {
-            'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
-        }
+        default_deadline = self.get_seat_default_upgrade_deadline(seat_type)
+        defaults = {'upgrade_deadline': default_deadline}
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
-
-        if upgrade_deadline_override and seat_type.slug == Seat.VERIFIED:
+        if seat_type.slug == Seat.VERIFIED:
             defaults['upgrade_deadline_override'] = upgrade_deadline_override
-
+        # Waffle switch to control dummy SKU generation logic for 2U purpose.
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(None, self)  # Generates a SKU for the provide by Seat
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
@@ -2823,7 +2973,15 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
+            has_end_changed = self.field_tracker.has_changed('end')
+
             super().save(*args, **kwargs)
+
+            if has_end_changed:
+                for seat in self.seats.filter(type=Seat.VERIFIED):
+                    seat.upgrade_deadline_override = None
+                    seat.save(update_fields=['upgrade_deadline_override'])
+
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
@@ -2948,6 +3106,27 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
 
         is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
+
+    @property
+    def is_marketable_external(self):
+        """
+        Determines if the course_run is suitable for external marketing.
+
+        If already marketable, simply return self.is_marketable.
+
+        Else, a course run is deemed suitable for external marketing if it is an
+        executive education (EE) course, the discovery service status is
+        'Reviewed', and the course go_live_date & start_date is in the future.
+        """
+        if self.is_marketable:
+            return self.is_marketable
+        is_exec_ed_course = self.course.type.slug == CourseType.EXECUTIVE_EDUCATION_2U
+        if is_exec_ed_course:
+            current_time = datetime.datetime.now(pytz.UTC)
+            is_reviewed = self.status == CourseRunStatus.Reviewed
+            has_future_go_live_date = self.go_live_date and self.go_live_date > current_time
+            return is_reviewed and self.is_upcoming() and has_future_go_live_date
+        return False
 
     @property
     def is_active(self):
@@ -3083,11 +3262,14 @@ class Seat(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
         if self.draft and self.has_changed:
             logger.info(
                 f"Seat update_product_data_modified_timestamp triggered for {self.pk}."
-                f"Updating timestamp for related courses."
+                f"Updating timestamp for related products."
             )
             Course.everything.filter(key=self.course_run.course.key).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(key=self.course_run.course.key)
+            ).update(data_modified_timestamp=datetime.datetime.now(pytz.UTC))
             self.course_run.course.refresh_from_db()
 
     @property
@@ -3126,7 +3308,7 @@ class CourseEntitlement(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
     def update_product_data_modified_timestamp(self):
         """
         If a draft course entitlement has changed, update the data modified timestamp
-        of related course object.
+        of related products.
         """
         if self.draft and self.has_changed:
             logger.info(
@@ -3135,6 +3317,12 @@ class CourseEntitlement(ManageHistoryMixin, DraftModelMixin, TimeStampedModel):
             Course.everything.filter(key=self.course.key).update(
                 data_modified_timestamp=datetime.datetime.now(pytz.UTC)
             )
+            Program.objects.filter(
+                courses__in=Course.everything.filter(key=self.course.key)
+            ).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
             self.course.refresh_from_db()
 
     class Meta:
@@ -3172,7 +3360,7 @@ class FAQ(TimeStampedModel):
         ordering = ['created']
 
     def __str__(self):
-        return self.question
+        return f'{self.pk}: {self.question}'
 
 
 class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
@@ -3378,12 +3566,7 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         excluded_fields = [
             'data_modified_timestamp',
         ]
-        external_keys = [
-            self.geolocation,
-            self.in_year_value,
-            self.taxi_form,
-        ]
-        return self.has_model_changed(external_keys, excluded_fields)
+        return self.has_model_changed(excluded_fields=excluded_fields)
 
     objects = ProgramQuerySet.as_manager()
 
@@ -3503,6 +3686,16 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         return {course_run.language for course_run in self.course_runs if course_run.language is not None}
 
     @property
+    def active_languages(self):
+        """
+        :return: The list of languages; It gives preference to the language_override over the languages
+        extracted from the course runs.
+        """
+        if self.language_override:
+            return {self.language_override}
+        return self.languages
+
+    @property
     def transcript_languages(self):
         languages = [course_run.transcript_languages.all() for course_run in self.course_runs]
         languages = itertools.chain.from_iterable(languages)
@@ -3523,6 +3716,25 @@ class Program(ManageHistoryMixin, PkSearchableMixin, TimeStampedModel):
         common_primary = [s for s, _ in Counter(primary_subjects).most_common()][:1]
         common_others = [s for s, _ in Counter(course_subjects).most_common() if s not in common_primary]
         return common_primary + common_others
+
+    @property
+    def active_subjects(self):
+        """
+        :return: The list of subjects; the first subject should be the most common primary subjects of its courses,
+        other subjects should be collected and ranked by frequency among the courses.
+
+        Note: This method gives preference to the primary_subject_override over the primary subject of the courses.
+        """
+        subjects = self.subjects
+
+        if self.primary_subject_override:
+            if self.primary_subject_override not in subjects:
+                subjects = [self.primary_subject_override] + subjects
+            else:
+                subjects = [self.primary_subject_override] + \
+                    [subject for subject in subjects if subject != self.primary_subject_override]
+
+        return subjects
 
     @property
     def topics(self):
@@ -3826,7 +4038,7 @@ class ProgramSubscriptionPrice(TimeStampedModel):
         return f"{self.program_subscription.program} has subscription Price {self.price} {self.currency}"
 
 
-class Ranking(TimeStampedModel):
+class Ranking(ManageHistoryMixin, TimeStampedModel):
     """
     Represents the rankings of a program
     """
@@ -3834,12 +4046,43 @@ class Ranking(TimeStampedModel):
     description = models.CharField(max_length=255, verbose_name=_('What does the rank number mean'))
     source = models.CharField(max_length=100, verbose_name=_('From where the rank is obtained'))
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.pk and self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in Ranking {self.pk}, updating data modified "
+                f"timestamps for related programs."
+            )
+            Degree.objects.filter(rankings=self).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
     def __str__(self):
         return self.description
 
 
-class Specialization(AbstractValueModel):
+class Specialization(ManageHistoryMixin, AbstractValueModel):
     """Specialization model for degree"""
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.pk and self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in Specialization {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
+            Degree.objects.filter(specializations=self).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
 
 class Degree(Program):
@@ -3970,6 +4213,8 @@ class Degree(Program):
         help_text=_('Designates whether the degree should be displayed on the owning organization\'s page')
     )
 
+    field_tracker = FieldTracker()
+
     class Meta:
         verbose_name_plural = "Degrees"
 
@@ -3977,7 +4222,7 @@ class Degree(Program):
         return str(f'Degree: {self.title}')
 
 
-class DegreeAdditionalMetadata(TimeStampedModel):
+class DegreeAdditionalMetadata(ManageHistoryMixin, TimeStampedModel):
     """
     This model holds 2U degree related additional fields
     """
@@ -4001,11 +4246,27 @@ class DegreeAdditionalMetadata(TimeStampedModel):
         related_name='additional_metadata',
     )
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeAdditionalMetadata {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
+            Degree.objects.filter(id__in=[self.degree_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
 
 
-class IconTextPairing(TimeStampedModel):
+class IconTextPairing(ManageHistoryMixin, TimeStampedModel):
     """
     Represents an icon:text model
     """
@@ -4043,14 +4304,30 @@ class IconTextPairing(TimeStampedModel):
     icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
     text = models.CharField(max_length=255, verbose_name=_('Paired text'))
 
+    field_tracker = FieldTracker()
+
     class Meta:
         verbose_name_plural = "IconTextPairings"
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in IconTextPairing {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
+            Degree.objects.filter(id__in=[self.degree_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
     def __str__(self):
         return str(f'IconTextPairing: {self.text}')
 
 
-class DegreeDeadline(TimeStampedModel):
+class DegreeDeadline(ManageHistoryMixin, TimeStampedModel):
     """
     DegreeDeadline stores a Degree's important dates. Each DegreeDeadline
     displays in the Degree product page's "Details" section.
@@ -4078,12 +4355,27 @@ class DegreeDeadline(TimeStampedModel):
     )
 
     history = HistoricalRecords()
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeDeadline {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
+            Degree.objects.filter(id__in=[self.degree_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
     def __str__(self):
         return f"{self.name} {self.date}"
 
 
-class DegreeCost(TimeStampedModel):
+class DegreeCost(ManageHistoryMixin, TimeStampedModel):
     """
     Degree cost stores a Degree's associated costs. Each DegreeCost displays in
     a Degree product page's "Details" section.
@@ -4102,12 +4394,27 @@ class DegreeCost(TimeStampedModel):
     )
 
     history = HistoricalRecords()
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self):
+        if self.has_changed:
+            logger.info(
+                f"Changes detected in DegreeCost {self.pk}, updating data modified "
+                f"timestamps for related degree {self.degree_id}."
+            )
+            Degree.objects.filter(id__in=[self.degree_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
     def __str__(self):
         return str(f'{self.description}, {self.amount}')
 
 
-class Curriculum(TimeStampedModel):
+class Curriculum(ManageHistoryMixin, TimeStampedModel):
     """
     This model links a program to the curriculum associated with that program, that is, the
     courses and programs that compose the program.
@@ -4144,11 +4451,28 @@ class Curriculum(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            if self.program:
+                logger.info(
+                    f"Changes detected in Curriculum {self.pk}, updating data modified "
+                    f"timestamps for related program {self.program_id}."
+                )
+                Program.objects.filter(id=self.program_id).update(
+                    data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+                )
+
     def __str__(self):
         return str(self.name) if self.name else str(self.uuid)
 
 
-class CurriculumProgramMembership(TimeStampedModel):
+class CurriculumProgramMembership(ManageHistoryMixin, TimeStampedModel):
     """
     Represents the Programs that compose the curriculum of a degree.
     """
@@ -4158,13 +4482,29 @@ class CurriculumProgramMembership(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in CurriculumProgramMembership {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
+            Program.objects.filter(id__in=[self.curriculum.program_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
+
     class Meta(TimeStampedModel.Meta):
         unique_together = (
             ('curriculum', 'program')
         )
 
 
-class CurriculumCourseMembership(TimeStampedModel):
+class CurriculumCourseMembership(ManageHistoryMixin, TimeStampedModel):
     """
     Represents the Courses that compose the curriculum of a degree.
     """
@@ -4176,6 +4516,22 @@ class CurriculumCourseMembership(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
+
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in CurriculumCourseMembership {self.pk}, updating data modified "
+                f"timestamps for related products."
+            )
+            Program.objects.filter(id__in=[self.curriculum.program_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
     class Meta(TimeStampedModel.Meta):
         unique_together = (
@@ -4218,6 +4574,11 @@ class Pathway(TimeStampedModel):
         max_length=32,
         choices=[(tag.value, tag.value) for tag in PathwayType],
         default=PathwayType.CREDIT.value,
+    )
+    status = models.CharField(
+        default=PathwayStatus.Unpublished,
+        max_length=255, null=False, blank=False,
+        choices=PathwayStatus.choices
     )
 
     def __str__(self):
@@ -4366,6 +4727,20 @@ class BulkUploadTagsConfig(ConfigurationModel):
     )
 
 
+class ArchiveCoursesConfig(ConfigurationModel):
+    """
+    Configuration to store a csv file for the archive_courses command
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("A csv file containing uuid of the courses to be archived")
+    )
+    mangle_end_date = models.BooleanField(default=False)
+    mangle_title = models.BooleanField(default=False)
+
+
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_geotargeting_data.
@@ -4405,11 +4780,26 @@ class ProductValueDataLoaderConfiguration(ConfigurationModel):
     )
 
 
-class ProgramLocationRestriction(AbstractLocationRestrictionModel):
+class ProgramLocationRestriction(ManageHistoryMixin, AbstractLocationRestrictionModel):
     """ Program location restriction """
     program = models.OneToOneField(
         Program, on_delete=models.CASCADE, null=True, blank=True, related_name='location_restriction'
     )
+    field_tracker = FieldTracker()
+
+    @property
+    def has_changed(self):
+        return self.has_model_changed()
+
+    def update_product_data_modified_timestamp(self, bypass_has_changed=False):
+        if self.has_changed or bypass_has_changed:
+            logger.info(
+                f"Changes detected in ProgramLocationRestriction {self.pk}, updating data modified "
+                f"timestamps for related program {self.program_id}."
+            )
+            Program.objects.filter(id__in=[self.program_id]).update(
+                data_modified_timestamp=datetime.datetime.now(pytz.UTC)
+            )
 
 
 class CSVDataLoaderConfiguration(ConfigurationModel):
@@ -4631,3 +5021,74 @@ class RestrictedCourseRun(DraftModelMixin, TimeStampedModel):
 
     def __str__(self):
         return f"{self.course_run.key}: <{self.restriction_type}>"
+
+
+class BulkOperationTask(TimeStampedModel):
+    """
+    Model to store information related to bulk operations.
+    """
+    csv_file = models.FileField(
+        upload_to=bulk_operation_upload_to_path,
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers."),
+        blank=False,
+        null=False
+    )
+    uploaded_by = models.ForeignKey(
+        User,
+        models.CASCADE,
+        related_name='bulk_operation_tasks',
+        null=True,
+        blank=True,
+        help_text=_('User who uploaded the file')
+    )
+    task_summary = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_('Summary of the task')
+    )
+    task_type = models.CharField(
+        verbose_name=_('Task Type'),
+        max_length=255,
+        choices=BulkOperationType.choices,
+        help_text=_('Type of Bulk Task to be performed'),
+    )
+    status = models.CharField(
+        verbose_name=_('Status'),
+        max_length=50,
+        choices=BulkOperationStatus.choices,
+        help_text=_('Status of the Bulk Task'),
+        default=BulkOperationStatus.Pending,
+    )
+    task_id = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text=_('Identifier of the celery task associated with this bulk task')
+    )
+
+    def save(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        if not self.uploaded_by:
+            if user is None:
+                raise ValueError("User is required to save the BulkOperationTask")
+            self.uploaded_by = user
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        username = self.uploaded_by.username if self.uploaded_by else ""
+        return f"{self.csv_file.name} - {self.task_type} - {self.status} - {username}"
+
+    @property
+    def task_result(self):
+        """
+        Returns the TaskResult object associated with the task_id of this bulk task.
+        """
+        if not self.task_id:
+            return None
+        try:
+            return TaskResult.objects.get(task_id=self.task_id)
+        except TaskResult.DoesNotExist:
+            return None

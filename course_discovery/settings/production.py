@@ -41,6 +41,16 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
 
     vars().update(config_from_yaml)
 
+    MEDIA_STORAGE_BACKEND = config_from_yaml.get("MEDIA_STORAGE_BACKEND", {})
+    default_backend = MEDIA_STORAGE_BACKEND.pop("DEFAULT_FILE_STORAGE", None)
+    static_backend = MEDIA_STORAGE_BACKEND.pop("STATICFILES_STORAGE", None)
+
+    if default_backend:
+        STORAGES["default"]["BACKEND"] = default_backend
+
+    if static_backend:
+        STORAGES["staticfiles"]["BACKEND"] = static_backend
+
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
@@ -94,3 +104,10 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
     k.lower(): (v.replace("\\n", "\n") if k.lower() == "private_key" else v)
     for (k, v) in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()
 }
+
+# IMPORTANT: With this enabled, the server must always be behind a proxy that
+# strips the header X_FORWARDED_PROTO from client requests. Otherwise,
+# a user can fool our server into thinking it was an https connection.
+# See https://docs.djangoproject.com/en/5.1/ref/settings/#secure-proxy-ssl-header
+# for other warnings.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

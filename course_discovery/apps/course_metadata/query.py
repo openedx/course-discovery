@@ -8,16 +8,19 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 
 
 class CourseQuerySet(models.QuerySet):
-    def available(self):
+    def available(self, exclude_hidden_runs=False):
         """
         A Course is considered to be "available" if it contains at least one CourseRun
         that can be enrolled in immediately, is ongoing or yet to start, and appears
         on the marketing site.
+
+        Args:
+            exclude_hidden_runs (bool): Whether to exclude hidden course runs from the query
         """
         now = datetime.datetime.now(pytz.UTC)
-
         # A CourseRun is "enrollable" if its enrollment start date has passed,
         # is now, or is None, and its enrollment end date is in the future or is None.
+
         enrollable = (
             (
                 Q(course_runs__enrollment_start__lte=now) |
@@ -54,7 +57,11 @@ class CourseQuerySet(models.QuerySet):
         # By itself, the query performs a join across several tables and would return
         # the id of the same course multiple times (a separate copy for each available
         # seat in each available run).
-        ids = self.filter(enrollable & not_ended & marketable).values('id').distinct()
+        if exclude_hidden_runs:
+            non_hidden = ~Q(course_runs__hidden=True)
+            ids = self.filter(enrollable & not_ended & marketable & non_hidden).values('id').distinct()
+        else:
+            ids = self.filter(enrollable & not_ended & marketable).values('id').distinct()
 
         # Now return the full object for each of the selected ids
         return self.filter(id__in=ids)

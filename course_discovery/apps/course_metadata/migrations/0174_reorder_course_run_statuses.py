@@ -2,7 +2,6 @@
 
 
 from django.db import migrations, models
-import djchoices.choices
 
 
 class Migration(migrations.Migration):
@@ -15,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courserun',
             name='status',
-            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review'), ('reviewed', 'Reviewed'), ('published', 'Published')], db_index=True, default='unpublished', max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'review_by_internal': 'Awaiting Internal Review', 'review_by_legal': 'Awaiting Review from Legal', 'reviewed': 'Reviewed', 'unpublished': 'Unpublished'})]),
+            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review'), ('reviewed', 'Reviewed'), ('published', 'Published')], db_index=True, default='unpublished', max_length=255),
         ),
         migrations.AlterField(
             model_name='historicalcourserun',
             name='status',
-            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review'), ('reviewed', 'Reviewed'), ('published', 'Published')], db_index=True, default='unpublished', max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'review_by_internal': 'Awaiting Internal Review', 'review_by_legal': 'Awaiting Review from Legal', 'reviewed': 'Reviewed', 'unpublished': 'Unpublished'})]),
+            field=models.CharField(choices=[('unpublished', 'Unpublished'), ('review_by_legal', 'Awaiting Review from Legal'), ('review_by_internal', 'Awaiting Internal Review'), ('reviewed', 'Reviewed'), ('published', 'Published')], db_index=True, default='unpublished', max_length=255),
         ),
     ]

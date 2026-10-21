@@ -18,6 +18,12 @@ class CourseRunStatus(models.TextChoices):
         return [cls.LegalReview.value, cls.InternalReview.value]
 
 
+class PathwayStatus(models.TextChoices):
+    Unpublished = 'unpublished', _('Unpublished')
+    Published = 'published', _('Published')
+    Retired = 'retired', _('Retired')
+
+
 class CourseRunPacing(models.TextChoices):
     # Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
     # similar to a normal university course.
@@ -39,6 +45,29 @@ class ReportingType(models.TextChoices):
     test = 'test', _('test')
     demo = 'demo', _('demo')
     other = 'other', _('other')
+
+
+class BulkOperationType(models.TextChoices):
+    """
+    The types of bulk operations that can be performed.
+    """
+    CourseCreate = 'course_create', _('Course Create')
+    PartialUpdate = 'partial_updates', _('Partial Update')
+    CourseRerun = 'course_rerun', _('Course Rerun')
+    CourseEditorUpdate = 'course_editor_update', _('Course Editor Update')
+
+
+class BulkOperationStatus(models.TextChoices):
+    """
+    The statuses for bulk operations.
+    """
+    Pending = 'pending', _('Pending')
+    Verified = 'verified', _('Verified')
+    Processing = 'processing', _('Processing')
+    Completed = 'completed', _('Completed')
+    Failed = 'failed', _('Failed')
+    PartiallyCompleted = 'partially_completed', _('Partially Completed')
+    Errored = 'errored', _('Errored')
 
 
 class CertificateType(models.TextChoices):

@@ -2,12 +2,19 @@
 Unit tests for utils.
 """
 
+from unittest import mock
+
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.utils import (
-    format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials
+    format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials, prune_empty_values
 )
+
+
+class MockExceptionWithResponse(Exception):
+    def __init__(self, response_content):
+        self.response = mock.Mock(content=response_content)
 
 
 class FormattingTests(TestCase):
@@ -75,3 +82,14 @@ class FormattingTests(TestCase):
 
         output = format_base64_strings(mock_data.BASE64_STRING)
         assert output == "https://www.google.com/"
+
+
+class PruneEmptyValueTests(TestCase):
+    def test(self):
+        assert prune_empty_values({"a": "b"}) == {"a": "b"}
+        assert prune_empty_values({"a": 123, "b": ""}) == {"a": 123}
+        assert prune_empty_values({"a": True, "b": 0}) == {"a": True, "b": 0}
+        assert prune_empty_values({"a": []}) == {}
+        assert prune_empty_values({"a": ["", {"aa": []}]}) == {}
+        assert prune_empty_values({"v": {"d": ""}}) == {}
+        assert prune_empty_values({"d": ["", [123]]}) == {'d': ['', [123]]}

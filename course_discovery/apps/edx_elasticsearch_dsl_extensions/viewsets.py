@@ -1,8 +1,11 @@
+import json
+
 from django_elasticsearch_dsl import Document as OriginDocument
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocumentViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.utils.urls import replace_query_param
 
 from course_discovery.apps.api import mixins
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import MultiMatchSearchFilterBackend
@@ -97,6 +100,40 @@ class CustomPageNumberPagination(PageNumberPagination):
     """
 
     page_size_query_param = 'page_size'
+
+
+class SearchAfterPagination(PageNumberPagination):
+    """
+    Custom paginator that supports Elasticsearch `search_after` pagination.
+    """
+
+    page_size_query_param = "page_size"
+    search_after_param = "search_after"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Paginate the Elasticsearch queryset using search_after.
+        """
+        search_after = request.query_params.get(self.search_after_param)
+        if search_after:
+            try:
+                queryset = queryset.extra(search_after=json.loads(search_after))
+            except json.JSONDecodeError as exc:
+                raise ValueError("Invalid JSON format for search_after parameter") from exc
+        queryset = super().paginate_queryset(queryset, request, view)
+        self.last_obj = queryset[-1] if queryset else None  # pylint: disable=attribute-defined-outside-init
+        return queryset
+
+    def get_next_link(self):
+        if not self.page.has_next():
+            return None
+
+        last_item_sort = self.last_obj.meta.sort.copy() if hasattr(self, 'last_obj') and self.last_obj else None
+        if not last_item_sort:
+            return None
+
+        url = self.request.build_absolute_uri()
+        return replace_query_param(url, self.search_after_param, json.dumps(last_item_sort))
 
 
 class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, DocumentViewSet):

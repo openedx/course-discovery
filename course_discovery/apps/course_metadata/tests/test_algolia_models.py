@@ -2,6 +2,7 @@ import datetime
 from collections import ChainMap
 
 import ddt
+import factory
 import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -31,6 +32,11 @@ class AlgoliaProxyCourseFactory(CourseFactory):
 class AlgoliaProxyProgramFactory(ProgramFactory):
     class Meta:
         model = AlgoliaProxyProgram
+
+    subscription = factory.RelatedFactory(
+        ProgramSubscriptionFactory,
+        factory_related_name='program',
+    )
 
 
 class TestAlgoliaDataMixin():
@@ -391,6 +397,16 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.additional_metadata = AdditionalMetadataFactory(product_status=external_status)
         assert course.should_index == should_index
 
+    @override_settings(RETIRED_COURSE_TYPES=['audit'])
+    def test_retired_course_indexing(self):
+        """
+        Test that retired courses are not indexed
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        course.type = CourseTypeFactory(slug='audit')
+        assert not course.should_index
+
     @ddt.data(
         (None, True),
         (CourseType.BOOTCAMP_2U, True),
@@ -569,13 +585,19 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.type = CourseTypeFactory(slug=course_type_slug)
         assert course.learning_type_exp == [expected_result]
 
-    def test_course_translation_languages(self):
+    def test_course_ai_languages(self):
         course = self.create_current_upgradeable_course()
-        assert course.product_translation_languages == [{'code': 'fr', 'label': 'French'}]
+        assert course.product_ai_languages == {
+            'translation_languages': ['French'],
+            'transcription_languages': ['English', 'Bosnian']
+        }
 
-    def test_course_translation_languages__no_advertised_run(self):
+    def test_course_ai_languages__no_advertised_run(self):
         course = self.create_blocked_course(status=CourseRunStatus.Unpublished)
-        assert course.product_translation_languages == []
+        assert course.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }
 
 
 @ddt.ddt
@@ -917,6 +939,9 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
         assert program.learning_type_exp == [learning_type]
 
-    def test_program_translation_languages(self):
+    def test_program_ai_languages(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        assert program.product_translation_languages == []
+        assert program.product_ai_languages == {
+            'translation_languages': [],
+            'transcription_languages': []
+        }

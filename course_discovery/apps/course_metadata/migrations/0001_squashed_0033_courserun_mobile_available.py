@@ -6,7 +6,6 @@ import uuid
 import django.db.migrations.operations.special
 import django.db.models.deletion
 import django_extensions.db.fields
-import djchoices.choices
 import sortedm2m.fields
 import sortedm2m.operations
 import stdimage.models
@@ -340,7 +339,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, verbose_name='UUID')),
                 ('key', models.CharField(max_length=255, unique=True)),
-                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished')], db_index=True, max_length=255, validators=[djchoices.choices.ChoicesValidator({'published': 'Published', 'unpublished': 'Unpublished'})])),
+                ('status', models.CharField(choices=[('published', 'Published'), ('unpublished', 'Unpublished')], db_index=True, max_length=255)),
                 ('title_override', models.CharField(blank=True, default=None, help_text="Title specific for this run of a course. Leave this value blank to default to the parent course's title.", max_length=255, null=True)),
                 ('start', models.DateTimeField(blank=True, null=True)),
                 ('end', models.DateTimeField(blank=True, db_index=True, null=True)),
@@ -352,7 +351,7 @@ class Migration(migrations.Migration):
                 ('min_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated minimum number of hours per week needed to complete a course run.', null=True)),
                 ('max_effort', models.PositiveSmallIntegerField(blank=True, help_text='Estimated maximum number of hours per week needed to complete a course run.', null=True)),
                 ('weeks_to_complete', models.PositiveSmallIntegerField(blank=True, help_text='Estimated number of weeks needed to complete this course run.', null=True)),
-                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True, validators=[djchoices.choices.ChoicesValidator({'instructor_paced': 'Instructor-paced', 'self_paced': 'Self-paced'})])),
+                ('pacing_type', models.CharField(blank=True, choices=[('instructor_paced', 'Instructor-paced'), ('self_paced', 'Self-paced')], db_index=True, max_length=255, null=True)),
                 ('card_image_url', models.URLField(blank=True, null=True)),
                 ('slug', models.CharField(blank=True, db_index=True, max_length=255, null=True)),
                 ('hidden', models.BooleanField(default=False)),
@@ -408,7 +407,7 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(blank=True, default=uuid.uuid4, editable=False, unique=True, verbose_name='UUID')),
                 ('title', models.CharField(help_text='The user-facing display title for this Program.', max_length=255, unique=True)),
                 ('subtitle', models.CharField(blank=True, help_text='A brief, descriptive subtitle for the Program.', max_length=255)),
-                ('status', models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], db_index=True, help_text='The lifecycle status of this Program.', max_length=24, validators=[djchoices.choices.ChoicesValidator({'active': 'Active', 'deleted': 'Deleted', 'retired': 'Retired', 'unpublished': 'Unpublished'})])),
+                ('status', models.CharField(choices=[('unpublished', 'Unpublished'), ('active', 'Active'), ('retired', 'Retired'), ('deleted', 'Deleted')], db_index=True, help_text='The lifecycle status of this Program.', max_length=24)),
                 ('marketing_slug', models.CharField(blank=True, db_index=True, help_text='Slug used to generate links to the marketing site', max_length=255)),
                 ('order_courses_by_start_date', models.BooleanField(default=True, help_text='If this box is not checked, courses will be ordered as in the courses select box above.', verbose_name='Order Courses By Start Date')),
                 ('overview', models.TextField(blank=True, null=True)),

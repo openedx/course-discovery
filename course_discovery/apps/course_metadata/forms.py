@@ -1,10 +1,11 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType, CourseType, Pathway, Program
 from course_discovery.apps.course_metadata.widgets import SortedModelSelect2Multiple
 
 
@@ -29,6 +30,13 @@ class ProgramAdminForm(forms.ModelForm):
                 },
                 forward=['product_source'],
             ),
+            'corporate_endorsements': SortedModelSelect2Multiple(
+                url='admin_metadata:corporate-endorsement-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                }
+            ),
             'credit_backing_organizations': SortedModelSelect2Multiple(
                 url='admin_metadata:organisation-autocomplete',
                 attrs={
@@ -37,10 +45,38 @@ class ProgramAdminForm(forms.ModelForm):
                 },
                 forward=['product_source'],
             ),
+            'expected_learning_items': SortedModelSelect2Multiple(
+                url='admin_metadata:expected-learning-item-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                }
+            ),
+            'faq': SortedModelSelect2Multiple(
+                url='admin_metadata:faq-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                }
+            ),
+            'individual_endorsements': SortedModelSelect2Multiple(
+                url='admin_metadata:endorsement-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                }
+            ),
             'instructor_ordering': SortedModelSelect2Multiple(
                 url='admin_metadata:person-autocomplete',
                 attrs={
                     'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                }
+            ),
+            'job_outlook_items': SortedModelSelect2Multiple(
+                url='admin_metadata:job-outlook-item-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
                     'class': 'sortable-select',
                 }
             ),
@@ -116,11 +152,43 @@ class CourseAdminForm(forms.ModelForm):
         model = Course
         fields = '__all__'
         exclude = ('slug', 'url_slug', )
+        widgets = {
+            'authoring_organizations': SortedModelSelect2Multiple(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                },
+            ),
+            'collaborators': SortedModelSelect2Multiple(
+                url='admin_metadata:collaborator-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                },
+            ),
+            'expected_learning_items': SortedModelSelect2Multiple(
+                url='admin_metadata:expected-learning-item-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                },
+            ),
+            'sponsoring_organizations': SortedModelSelect2Multiple(
+                url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                    'class': 'sortable-select',
+                },
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.fields.get('product_source'):
             self.fields['product_source'].required = True
+        if not self.instance.pk:
+            self.fields['type'].queryset = CourseType.objects.exclude(slug__in=settings.RETIRED_COURSE_TYPES)
 
 
 class CourseRunAdminForm(forms.ModelForm):
@@ -150,6 +218,11 @@ class CourseRunAdminForm(forms.ModelForm):
                 },
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['type'].queryset = CourseRunType.objects.exclude(slug__in=settings.RETIRED_RUN_TYPES)
 
 
 class PathwayAdminForm(forms.ModelForm):

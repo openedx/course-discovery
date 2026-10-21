@@ -6,7 +6,9 @@ from pytest import mark
 from rest_framework import status
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, RestrictedCourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, RestrictedCourseRunFactory
+)
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.tests.factories import (
     LearnerPathwayCourseFactory, LearnerPathwayFactory, LearnerPathwayProgramFactory, LearnerPathwayStepFactory
@@ -42,7 +44,17 @@ LEARNER_PATHWAY_DATA = {
                     'uuid': '1f301a72-f344-4a31-9e9a-e0b04d8d86b2',
                     'title': 'test-program-0',
                     'short_description': 'into to more basics',
-                    'content_type': 'program'
+                    'content_type': 'program',
+                    'courses': [
+                        {
+                            'key': 'BB+BB102',
+                            'course_runs': [
+                                {
+                                    'key': 'course-v1:BB+BB102+1T2024',
+                                }
+                            ]
+                        }
+                    ],
                 }
             ]
         }
@@ -54,7 +66,6 @@ LEARNER_PATHWAY_COURSE_RUN_KEY = LEARNER_PATHWAY_DATA['steps'][0]['courses'][0][
 LEARNER_PATHWAY_PROGRAM_UUID = LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid']
 
 
-@mark.django_db
 @ddt.ddt
 class TestLearnerPathwayViewSet(TestCase):
     """
@@ -93,11 +104,20 @@ class TestLearnerPathwayViewSet(TestCase):
             key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
             status='published',
         )
+        self.learner_pathway_program_course = CourseFactory(
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['key']
+        )
         LearnerPathwayProgramFactory(
             step=learner_pathway_step,
             program__uuid=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid'],
             program__title=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['title'],
             program__subtitle=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['short_description'],
+            program__courses=[self.learner_pathway_program_course],
+        )
+        CourseRunFactory(
+            course=self.learner_pathway_program_course,
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['course_runs'][0]['key'],
+            status='published',
         )
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -245,3 +265,280 @@ class TestLearnerPathwayViewSet(TestCase):
         learner_pathway_uuids_url = f'/api/v1/learner-pathway/uuids/?{urlencode(query_params)}'
         api_response = self.client.get(learner_pathway_uuids_url)
         assert api_response.json() == response
+
+
+@ddt.ddt
+class TestLearnerPathwayStepViewSet(TestCase):
+    """
+    Tests for LearnerPathwayStepViewSet.
+    """
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(is_staff=True, is_active=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+
+        self.learner_pathway = LearnerPathwayFactory(
+            uuid=LEARNER_PATHWAY_DATA['uuid'],
+            title=LEARNER_PATHWAY_DATA['title'],
+            status=LEARNER_PATHWAY_DATA['status'],
+            overview=LEARNER_PATHWAY_DATA['overview'],
+        )
+        self.learner_pathway_step = LearnerPathwayStepFactory(
+            pathway=self.learner_pathway,
+            uuid=LEARNER_PATHWAY_DATA['steps'][0]['uuid'],
+            min_requirement=LEARNER_PATHWAY_DATA['steps'][0]['min_requirement'],
+        )
+        self.learner_pathway_course = LearnerPathwayCourseFactory(
+            step=self.learner_pathway_step,
+            course__key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['key'],
+            course__title=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['title'],
+            course__short_description=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['short_description'],
+        )
+        self.learner_pathway_course_run = CourseRunFactory(
+            course=self.learner_pathway_course.course,
+            key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
+            status='published',
+        )
+        self.learner_pathway_program_course = CourseFactory(
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['key']
+        )
+        LearnerPathwayProgramFactory(
+            step=self.learner_pathway_step,
+            program__uuid=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid'],
+            program__title=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['title'],
+            program__subtitle=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['short_description'],
+            program__courses=[self.learner_pathway_program_course],
+        )
+        CourseRunFactory(
+            course=self.learner_pathway_program_course,
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['course_runs'][0]['key'],
+            status='published',
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.view_url = f'/api/v1/learner-pathway-step/{self.learner_pathway_step.uuid}/'
+
+    def _verify_learner_pathway_step_data(self, api_response, expected_data):
+        """
+        Verify that learner pathway step api response matches the expected data.
+        """
+        data = api_response.json()
+
+        # Verify learner pathway step data
+        assert data['uuid'] == expected_data['uuid']
+        assert data['min_requirement'] == expected_data['min_requirement']
+
+        # Verify associated course data
+        api_response_course = data['courses'][0]
+        expected_course_data = expected_data['courses'][0]
+        for key, value in expected_course_data.items():
+            assert api_response_course[key] == value
+
+        # Verify course run data (published course runs)
+        assert api_response_course['course_runs'][0]['key'] == expected_course_data['course_runs'][0]['key']
+
+        # Verify program data
+        api_response_program = data['programs'][0]
+        expected_program_data = expected_data['programs'][0]
+        for key, value in expected_program_data.items():
+            assert api_response_program[key] == value
+
+    def test_learner_pathway_step_api(self):
+        """
+        Verify that learner pathway step api returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        self._verify_learner_pathway_step_data(api_response, LEARNER_PATHWAY_DATA['steps'][0])
+
+    @ddt.data([True, 2], [False, 1])
+    @ddt.unpack
+    def test_learner_pathway_step_restricted_runs(self, add_restriction_param, expected_run_count):
+        """
+        Verify that restricted course runs are handled correctly based on query parameters.
+        """
+        restricted_run = CourseRunFactory(
+            course=self.learner_pathway_course.course,
+            key='course-v1:AA+AA101+3T2024',
+            status='published',
+        )
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+
+        url = f'/api/v1/learner-pathway-step/{self.learner_pathway_step.uuid}/'
+        if add_restriction_param:
+            url += '?include_restricted=custom-b2c'
+
+        api_response = self.client.get(url)
+        data = api_response.json()
+        assert len(data['courses'][0]['course_runs']) == expected_run_count
+
+
+@ddt.ddt
+class TestLearnerPathwayCourseViewSet(TestCase):
+    """
+    Tests for LearnerPathwayCourseViewSet.
+    """
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(is_staff=True, is_active=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+
+        self.learner_pathway = LearnerPathwayFactory(
+            uuid=LEARNER_PATHWAY_DATA['uuid'],
+            title=LEARNER_PATHWAY_DATA['title'],
+            status=LEARNER_PATHWAY_DATA['status'],
+            overview=LEARNER_PATHWAY_DATA['overview'],
+        )
+        self.learner_pathway_step = LearnerPathwayStepFactory(
+            pathway=self.learner_pathway,
+            uuid=LEARNER_PATHWAY_DATA['steps'][0]['uuid'],
+            min_requirement=LEARNER_PATHWAY_DATA['steps'][0]['min_requirement'],
+        )
+        self.learner_pathway_course = LearnerPathwayCourseFactory(
+            step=self.learner_pathway_step,
+            course__key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['key'],
+            course__title=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['title'],
+            course__short_description=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['short_description'],
+        )
+        self.learner_pathway_course_run = CourseRunFactory(
+            course=self.learner_pathway_course.course,
+            key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
+            status='published',
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.view_url = f'/api/v1/learner-pathway-course/{self.learner_pathway_course.uuid}/'
+
+    def _verify_learner_pathway_course_data(self, api_response, expected_data):
+        """
+        Verify that learner pathway course api response matches the expected data.
+        """
+        data = api_response.json()
+
+        # Verify course data
+        assert data['key'] == expected_data['key']
+        assert data['title'] == expected_data['title']
+        assert data['short_description'] == expected_data['short_description']
+
+        # Verify course run data (published course runs)
+        api_response_course_run = data['course_runs'][0]
+        assert api_response_course_run['key'] == expected_data['course_runs'][0]['key']
+
+    def test_learner_pathway_course_api(self):
+        """
+        Verify that learner pathway course api returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        self._verify_learner_pathway_course_data(api_response, LEARNER_PATHWAY_DATA['steps'][0]['courses'][0])
+
+    @ddt.data([True, 2], [False, 1])
+    @ddt.unpack
+    def test_learner_pathway_course_restricted_runs(self, add_restriction_param, expected_run_count):
+        """
+        Verify that restricted course runs are handled correctly based on query parameters.
+        """
+        restricted_run = CourseRunFactory(
+            course=self.learner_pathway_course.course,
+            key='course-v1:AA+AA101+3T2024',
+            status='published',
+        )
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+
+        url = f'/api/v1/learner-pathway-course/{self.learner_pathway_course.uuid}/'
+        if add_restriction_param:
+            url += '?include_restricted=custom-b2c'
+
+        api_response = self.client.get(url)
+        data = api_response.json()
+        assert len(data['course_runs']) == expected_run_count
+
+
+@ddt.ddt
+class TestLearnerPathwayProgramViewSet(TestCase):
+    """
+    Tests for LearnerPathwayProgramViewSet.
+    """
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(is_staff=True, is_active=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+
+        self.learner_pathway = LearnerPathwayFactory(
+            uuid=LEARNER_PATHWAY_DATA['uuid'],
+            title=LEARNER_PATHWAY_DATA['title'],
+            status=LEARNER_PATHWAY_DATA['status'],
+            overview=LEARNER_PATHWAY_DATA['overview'],
+        )
+        self.learner_pathway_step = LearnerPathwayStepFactory(
+            pathway=self.learner_pathway,
+            uuid=LEARNER_PATHWAY_DATA['steps'][0]['uuid'],
+            min_requirement=LEARNER_PATHWAY_DATA['steps'][0]['min_requirement'],
+        )
+        self.learner_pathway_program_course = CourseFactory(
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['key']
+        )
+        self.learner_pathway_program = LearnerPathwayProgramFactory(
+            step=self.learner_pathway_step,
+            program__uuid=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid'],
+            program__title=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['title'],
+            program__subtitle=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['short_description'],
+            program__courses=[self.learner_pathway_program_course]
+        )
+        CourseRunFactory(
+            course=self.learner_pathway_program_course,
+            key=LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['courses'][0]['course_runs'][0]['key'],
+            status='published',
+        )
+
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+        self.view_url = f'/api/v1/learner-pathway-program/{self.learner_pathway_program.uuid}/'
+
+    def _verify_learner_pathway_program_data(self, api_response, expected_data):
+        """
+        Verify that learner pathway program api response matches the expected data.
+        """
+        data = api_response.json()
+        # Verify program data
+        assert data['uuid'] == expected_data['uuid']
+        assert data['title'] == expected_data['title']
+        assert data['short_description'] == expected_data['short_description']
+
+        # Verify course run data (published course runs)
+        api_response_course_run = data['courses'][0]['course_runs'][0]
+        assert api_response_course_run['key'] == expected_data['courses'][0]['course_runs'][0]['key']
+
+    def test_learner_pathway_program_api(self):
+        """
+        Verify that learner pathway program api returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        self._verify_learner_pathway_program_data(api_response, LEARNER_PATHWAY_DATA['steps'][0]['programs'][0])
+
+    @ddt.data([True, 2], [False, 1])
+    @ddt.unpack
+    def test_learner_pathway_program_restricted_runs(self, add_restriction_param, expected_run_count):
+        """
+        Verify that restricted program course runs are handled correctly based on query parameters.
+        """
+        restricted_run = CourseRunFactory(
+            course=self.learner_pathway_program.program.courses.first(),
+            key='course-v1:AA+AA101+3T2024',
+            status='published',
+        )
+        RestrictedCourseRunFactory(course_run=restricted_run, restriction_type='custom-b2c')
+
+        url = f'/api/v1/learner-pathway-program/{self.learner_pathway_program.uuid}/'
+        if add_restriction_param:
+            url += '?include_restricted=custom-b2c'
+
+        api_response = self.client.get(url)
+        data = api_response.json()
+        assert len(data['courses'][0]['course_runs']) == expected_run_count

@@ -2,5 +2,4 @@
 # Core dependencies to install other dependencies
 
 pip
-setuptools
 wheel

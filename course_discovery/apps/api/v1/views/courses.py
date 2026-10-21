@@ -34,8 +34,9 @@ from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
     Seat, Source, Video
 )
+from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION
 from course_discovery.apps.course_metadata.utils import (
-    create_missing_entitlement, ensure_draft_world, validate_course_number, validate_slug_format
+    create_missing_entitlement, ensure_draft_world, generate_sku, validate_course_number, validate_slug_format
 )
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -161,6 +162,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 partner=partner,
                 programs=programs,
             )
+        if self.request.method == 'GET' and not get_query_param(self.request, 'include_retired_course_types'):
+            retired_type_ids = list(
+                CourseType.objects.filter(slug__in=settings.RETIRED_COURSE_TYPES).values_list('id', flat=True)
+            )
+            queryset = queryset.exclude(type_id__in=retired_type_ids)
         if pub_q and edit_mode:
             return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by('key')
 
@@ -208,7 +214,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
-
         partner = request.site.partner
         course_creation_fields['partner'] = partner.id
         course_creation_fields['key'] = self.get_course_key(course_creation_fields)
@@ -235,7 +240,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         course = serializer.save(draft=True)
         course.set_active_url_slug(url_slug)
-
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
@@ -245,6 +249,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.collaborators.add(*collaborators)
 
         entitlement_types = course.type.entitlement_types.all()
+        # Waffle switch to control dummy SKU generation logic for 2U purpose.
+        if IS_COURSE_RUN_FOR_DUMMY_SKU_GENERATION.is_enabled():
+            generate_sku(partner, course)  # Generates a SKU for the provide by entitlements
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
             CourseEntitlement.objects.create(
@@ -530,7 +537,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
+class CourseRecommendationViewSet(CompressedCacheResponseMixin, RetrieveModelMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend, )
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX

@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.http.response import Http404
@@ -27,7 +28,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, CourseRunType
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
 
@@ -110,6 +111,11 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
             )
         else:
             queryset = queryset.filter(course__partner=partner)
+            if self.request.method == "GET" and not get_query_param(self.request, 'include_retired_run_types'):
+                retired_type_ids = list(
+                    CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True)
+                )
+                queryset = queryset.exclude(type_id__in=retired_type_ids)
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
@@ -348,6 +354,18 @@ class CourseRunViewSet(CompressedCacheResponseMixin, ValidElasticSearchQueryRequ
 
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
+
+        course_type = course_run.course.type
+        course_run_type = serializer.validated_data.get('type')
+
+        if course_type and course_run_type and course_run_type not in course_type.course_run_types.all():
+            return Response(
+                _("The course run type '{course_run_type}' is not valid for this course type '{course_type}'.").format(
+                    course_run_type=course_run_type,
+                    course_type=course_type
+                ),
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Handle staff update on course run in review with valid status transition
         if (request.user.is_staff and course_run.in_review and 'status' in request.data and

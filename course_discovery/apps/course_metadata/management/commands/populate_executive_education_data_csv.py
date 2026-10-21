@@ -16,7 +16,7 @@ import requests
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
-from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
+from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType, ExternalCourseMarketingType
 from course_discovery.apps.course_metadata.data_loaders import utils
 from course_discovery.apps.course_metadata.data_loaders.utils import map_external_org_code_to_internal_org_code
 from course_discovery.apps.course_metadata.utils import fetch_getsmarter_products
@@ -35,14 +35,14 @@ class Command(BaseCommand):
         'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
         'frequently_asked_questions', 'additional_information', 'about_video_link', 'secondary_subject',
         'tertiary_subject', 'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'is_future_variant', 'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
         'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
         'meta_title', 'meta_description', 'meta_keywords', 'slug', 'external_course_marketing_type', 'restriction_type',
-        'fixed_price_usd',
+        'fixed_price_usd', 'taxi_form_id', 'post_submit_url'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -98,7 +98,7 @@ class Command(BaseCommand):
             help='Product source to be used for mapping external organization code to internal organization code'
         )
 
-    def handle(self, *args, **options):  # pylint: disable=too-many-statements
+    def handle(self, *args, **options):
         input_csv = options.get('input_csv')
         output_csv = options.get('output_csv')
         auth_token = options.get('auth_token')
@@ -152,13 +152,12 @@ class Command(BaseCommand):
                 if getsmarter_flag:
                     product['organization'] = map_external_org_code_to_internal_org_code(
                         product['universityAbbreviation'], product_source)
-                if product.get('variants'):
-                    variants = product.pop('variants')
-                    for variant in variants:
-                        product.update({'variant': variant})
-                        output_dict = self.get_transformed_data(row, product)
-                        output_writer = self.write_csv_row(output_writer, output_dict)
-                else:
+                variants = self.get_variants(product)
+                if not variants:
+                    logger.warning(f"Skipping product {product['name']} ingestion as it has no variants")
+                    continue
+                for variant in variants:
+                    product.update({'variant': variant})
                     output_dict = self.get_transformed_data(row, product)
                     output_writer = self.write_csv_row(output_writer, output_dict)
                 logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -166,6 +165,29 @@ class Command(BaseCommand):
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
             for message in self.messages_list:
                 logger.warning(message)
+
+    def get_variants(self, product):
+        """
+        Given a product, return all the variants from it.
+
+        Args:
+            product (dict): A dictionary containing product details.
+
+        Returns:
+            list: A list of variant dicts
+        """
+
+        variant_keys = ['variant', 'variants', 'futureVariants', 'customPresentations']
+        variants = []
+
+        for key in variant_keys:
+            if key in product and product[key]:
+                if isinstance(product[key], list):
+                    variants.extend(product[key])
+                else:
+                    variants.append(product[key])
+
+        return variants
 
     def transform_dict_keys(self, data):
         """
@@ -292,7 +314,6 @@ class Command(BaseCommand):
             'start_time': '00:00:00',
             'end_time': '00:00:00',
             'reg_close_time': '00:00:00',
-            'publish_date': date.today().isoformat(),
             'course_level': 'Introductory',
             'course_pacing': 'Instructor-Paced',
             'content_language': language,
@@ -313,6 +334,11 @@ class Command(BaseCommand):
             'organization_short_code_override': product_dict[
                 'altUniversityAbbreviation'
             ],
+            'publish_date': (
+                partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate']
+                if product_dict['variant'].get('status') == 'scheduled' else date.today().isoformat()
+            ),
+            'is_future_variant': product_dict['variant'].get('status') == 'scheduled',
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
@@ -381,4 +407,11 @@ class Command(BaseCommand):
                 product_dict['logoUrl']
             ),
             'external_course_marketing_type': product_dict['productType'],
+            'taxi_form_id': product_dict['edxTaxiFormId'],
+            'post_submit_url': (
+                utils.format_base64_strings(product_dict['edxPlpUrl']).replace('/lp/', '/info/')
+                if not product_dict['prospectusUrl'] and
+                product_dict.get('productType', '').lower() == ExternalCourseMarketingType.Sprint.value
+                else utils.format_base64_strings(product_dict['prospectusUrl'])
+            ),
         }

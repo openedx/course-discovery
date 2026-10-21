@@ -363,6 +363,37 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert run3.seats.first().upgrade_deadline is None
 
     @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
+    def test_not_pushed_to_ecomm_if_no_seats(self, mock_push_to_ecomm):
+        """
+        Verify that LMS data loader will skip pushing a course run to ecommerce
+        if it has no seats
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        responses.calls.reset()  # pylint: disable=no-member
+        api_data = self.mock_api()
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
+
+        self.loader.ingest()
+        self.assert_api_called(4)
+        runs = CourseRun.objects.all()
+
+        # Change a run's end date to make it different from the one in studio. This
+        # is needed to trigger the push_to_ecommerce flow in the the loader, which is only
+        # done in case the end dates differ or a certain waffle flag is set.
+        run = runs[0]
+        run.end = datetime.datetime.now(pytz.UTC)
+        run.save()
+        assert run.seats.count() == 0
+
+        expected_num_course_runs = len(api_data)
+        assert CourseRun.objects.count() == expected_num_course_runs
+
+        self.loader.ingest()
+        assert not mock_push_to_ecomm.called
+
+    @responses.activate
     def test_ingest_exception_handling(self):
         """ Verify the data loader properly handles exceptions during processing of the data from the API. """
         api_data = self.mock_api()
@@ -738,7 +769,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         stockrecord = {
             "price_currency": alt_currency if alt_currency else "USD",
-            "price_excl_tax": "10.00",
+            "price": "10.00",
         }
         if valid_stockrecord:
             stockrecord.update({"partner_sku": "sku132"})
@@ -825,7 +856,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for product in products:
             stock_record = product['stockrecords'][0]
             price_currency = stock_record['price_currency']
-            price = Decimal(stock_record['price_excl_tax'])
+            price = Decimal(stock_record.get('price') or stock_record.get('price_excl_tax'))
             sku = stock_record['partner_sku']
             certificate_type = Seat.AUDIT
             credit_provider = None
@@ -877,7 +908,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course = Course.objects.get(uuid=attributes['UUID'])
             stock_record = datum['stockrecords'][0]
             price_currency = stock_record['price_currency']
-            price = Decimal(stock_record['price_excl_tax'])
+            price = Decimal(stock_record['price'])
             sku = stock_record['partner_sku']
 
             mode_name = attributes['certificate_type']

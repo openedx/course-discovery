@@ -1,13 +1,10 @@
 {
   "extends": [
-    "config:base",
-    ":automergeLinters",
-    ":automergeTesters",
-    ":automergeMinor",
+    "config:recommended",
     ":noUnscheduledUpdates",
     ":semanticCommits"
   ],
-  "rebaseStalePrs": true,
+  "rebaseWhen": "behind-base-branch",
   "schedule": [
     "every weekday"
   ],

@@ -68,6 +68,7 @@ THIRD_PARTY_APPS = [
     'nested_admin',
     'openedx_events',
     'multi_email_field',
+    'django_celery_results'
 ]
 
 ALGOLIA = {
@@ -87,6 +88,7 @@ PROJECT_APPS = [
     'course_discovery.apps.publisher_comments',
     'course_discovery.apps.learner_pathway',
     'course_discovery.apps.taxonomy_support',
+    'course_discovery.apps.tagging',
 ]
 
 ES_APPS = [
@@ -117,7 +119,7 @@ MIDDLEWARE = (
     'waffle.middleware.WaffleMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'edx_django_utils.cache.middleware.TieredCacheMiddleware',
-    'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
+    'edx_rest_framework_extensions.middleware.RequestCustomAttributesMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
 )
 
@@ -178,7 +180,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
 
 USE_TZ = True
 
@@ -254,6 +255,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                'course_discovery.apps.tagging.context_processors.tagging',
                 'course_discovery.apps.core.context_processors.core',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
@@ -261,7 +263,6 @@ TEMPLATES = [
     },
 ]
 # END TEMPLATE CONFIGURATION
-
 
 # COOKIE CONFIGURATION
 # The purpose of customizing the cookie names is to avoid conflicts when
@@ -292,7 +293,7 @@ CORS_ALLOW_HEADERS = corsheaders_default_headers + (
 
 # Guardian settings
 ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
-GUARDIAN_MONKEY_PATCH = False  # Use the mixin on the User model instead of monkey-patching.
+GUARDIAN_MONKEY_PATCH_USER = False  # Use the mixin on the User model instead of monkey-patching.
 
 ENABLE_AUTO_AUTH = False
 AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
@@ -328,6 +329,7 @@ PLATFORM_NAME = 'Your Platform Name Here'
 # Set up logging for development use (logging to stdout)
 level = 'DEBUG' if DEBUG else 'INFO'
 hostname = platform.node().split(".")[0]
+LOGGING_FORMAT_STRING = ''
 
 # Use a different address for Mac OS X
 syslog_address = '/var/run/syslog' if platform.system().lower() == 'darwin' else '/dev/log'
@@ -419,7 +421,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '200/hour',
     },
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.openapi.AutoSchema'
 }
 
 # http://chibisov.github.io/drf-extensions/docs/
@@ -540,7 +542,6 @@ PUBLISHER_UPGRADE_DEADLINE_DAYS = 10
 if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
     INSTALLED_APPS += [
         'debug_toolbar',
-        'elastic_panel',
     ]
 
     MIDDLEWARE += (
@@ -562,7 +563,6 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.signals.SignalsPanel',
         'debug_toolbar.panels.logging.LoggingPanel',
         'debug_toolbar.panels.redirects.RedirectsPanel',
-        'elastic_panel.panel.ElasticDebugPanel'
     ]
 
 AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
@@ -578,7 +578,18 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EXTRA_APPS = []
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+,
+    },
+}
+
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -589,7 +600,7 @@ EDX_DRF_EXTENSIONS = {
 }
 API_ROOT = None
 MEDIA_STORAGE_BACKEND = {
-    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
+    "STORAGES": STORAGES,
     'MEDIA_ROOT': MEDIA_ROOT,
     'MEDIA_URL': MEDIA_URL
 }
@@ -751,7 +762,7 @@ LMS_API_URLS = {
     'api_access_request': 'api-admin/api/v1/api_access_request/',
     'blocks': 'api/courses/v1/blocks/',
     'block_metadata': 'api/courses/v1/block_metadata/',
-    'translations': 'api/translatable_xblocks/config/',
+    'translations_and_transcriptions': 'api/translatable_xblocks/config/',
 }
 
 # Map defining the required data fields against courses types and course's product source.
@@ -790,3 +801,28 @@ CSRF_TRUSTED_ORIGINS = (
 )
 
 ENABLE_COURSE_REVIEWS_ADMIN = False
+
+# Keywords that will be searched for inside the `roles` key of the JWT in case a user uses JWT authentication.
+# If the keyword is found, the user has more lenient throttling limits.
+ENHANCED_THROTTLE_JWT_ROLE_KEYWORDS = []
+ENHANCED_THROTTLE_LIMIT = '400/hour'
+
+RETIRED_RUN_TYPES = []
+RETIRED_COURSE_TYPES = []
+COURSE_ARCHIVAL_MAIL_RECIPIENTS = ['user@domain.org']
+
+# The list of user groups that have access to assign verticals and sub-verticals to courses
+VERTICALS_MANAGEMENT_GROUPS = []
+
+COURSE_VERTICALS_UPDATE_RECIPIENTS = ['user@domain.org']
+HEADER_LOGO_URL= 'https://edx-cdn.org/v3/default/logo.svg'
+
+ENABLE_CUSTOM_MANAGEMENT_COMMAND_MONITORING = False
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_RESULT_EXTENDED = True
+
+# Default chunk size from pre-Django 5.0 (2000).
+# Required explicitly when using QuerySet.iterator() with prefetch_related.
+# See: https://docs.djangoproject.com/en/5.2/releases/5.0/#features-removed-in-5-0
+ITERATOR_CHUNK_SIZE = 2000

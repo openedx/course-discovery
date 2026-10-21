@@ -4,9 +4,11 @@ import logging
 import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
+from edx_django_utils.cache import RequestCache
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField
@@ -14,7 +16,7 @@ from sortedm2m.fields import SortedManyToManyField
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunRestrictionType
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, CourseType
 
 logger = logging.getLogger(__name__)
 
@@ -128,11 +130,19 @@ def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
     return changed_fields
 
 
-def conditional_decorator(condition, decorator):
+def conditional_decorator(condition_getter, decorator):
     """
-    Util decorator that allows for only using the given decorator arg if the condition passes
+    Util decorator that applies the given decorator only if the condition passes.
+    The condition is evaluated at runtime via the `condition_getter` callable, allowing dynamic condition checking.
+    If callable evaluates to `True`, the provided decorator is applied, otherwise, the function remains unmodified.
     """
-    return decorator if condition else lambda x: x
+    def wrapper(func):
+        def wrapped(*args, **kwargs):
+            if condition_getter():
+                return decorator(func)(*args, **kwargs)
+            return func(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 def decode_image_data(image_data):
@@ -243,10 +253,11 @@ class StudioAPI:
     def generate_data_for_studio_api(cls, course_run, creating, user=None):
         editors = [editor.user for editor in course_run.course.editors.all()]
         key = CourseKey.from_string(course_run.key)
-
+        is_external = course_run.course.is_external_course
         # start, end, and pacing are not sent on updates - Studio is where users edit them
-        start = course_run.start if creating else None
-        end = course_run.end if creating else None
+        # Include start and end only if creating or if it's an external course during update
+        start = course_run.start if creating or is_external else None
+        end = course_run.end if creating or is_external else None
         pacing = course_run.pacing_type if creating else None
         enrollment_start = course_run.enrollment_start
         enrollment_end = course_run.enrollment_end
@@ -284,16 +295,18 @@ class StudioAPI:
                 'end': serialize_datetime(end),
             }
 
-        if not creating and course_run.course.is_external_course and (enrollment_start or enrollment_end):
+        if not creating and (enrollment_start or enrollment_end):
             # The dates are intentionally not allowed when creating the course run.
             # It is possible to send enrollment dates in API when the course run is being created.
             # But when the course run is created, in Studio or Discovery, the enrollment dates are not taken as input.
             # It is better to keep the flow consistent across places.
-            # Allow sending enrollment start and end dates for external courses as part of Update only.
-            data['schedule'] = {
+            # Allow sending enrollment start and end dates as part of Update only.
+            # Using setdefault + update avoids overwriting and prevents KeyErrors.
+            data.setdefault('schedule', {})
+            data['schedule'].update({
                 'enrollment_start': serialize_datetime(course_run.enrollment_start),
                 'enrollment_end': serialize_datetime(course_run.enrollment_end),
-            }
+            })
             logger.info(f"Enrollment information added to data {data} for course run {course_run.key}")
 
         return data
@@ -352,3 +365,68 @@ class StudioAPI:
             self.create_course_run_in_studio(course_run, user=user)
         else:
             self.update_course_run_details_in_studio(course_run)
+
+    def _update_end_date_in_studio(self, course_run):
+        """
+        We do not update end dates in studio after creation. However, while archiving a course, we
+        may wish to set the end date in the past. This method serves that purpose.
+        """
+        data = self.generate_data_for_studio_api(course_run, creating=False)
+        data.setdefault('schedule', {})
+        for attr in ['end', 'enrollment_end']:
+            attr_val = getattr(course_run, attr)
+            if attr_val:
+                data['schedule'][attr] = serialize_datetime(attr_val)
+        self._request('patch', f'course_runs/{course_run.key}/', json=data)
+
+
+def use_request_cache(cache_name, key_func):
+    """
+    This decorator can be used to cache the result of a function per request.
+    It leverages the RequestCache from edx-django-utils for this purpose
+
+    Args:
+        cache_name (string): The identifier for the cache
+        key_func (callable): The function used for computing cache keys. This will be called
+                             with the same arguments as the function being decorated
+
+    Example:
+        @use_request_cache("find_factors_cache", lambda x: x)
+        def find_factors(x):
+            print("Looking for factors!")
+            # Some expensive calculation
+            print("Found the factors")
+
+        Over the course of a single request,
+        find_factors(12345)  # This will run the expensive calculation.
+        find_factors(12345)  # This will skip the expensive calculation and return cached value.
+    """
+    def inner(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            cache = RequestCache(cache_name)
+            cache_key = key_func(*args, **kwargs)
+            cached_response = cache.get_cached_response(cache_key)
+            if cached_response.is_found:
+                return cached_response.value
+
+            result = fn(*args, **kwargs)
+
+            cache.set(cache_key, result)
+            return result
+        return wrapper
+    return inner
+
+
+@use_request_cache("retired_run_types_cache", lambda: "retired_run_types")
+def get_retired_run_type_ids():
+    return list(
+        CourseRunType.objects.filter(slug__in=settings.RETIRED_RUN_TYPES).values_list('id', flat=True)
+    )
+
+
+@use_request_cache("retired_course_types_cache", lambda: "retired_course_types")
+def get_retired_course_type_ids():
+    return list(
+        CourseType.objects.filter(slug__in=settings.RETIRED_COURSE_TYPES).values_list('id', flat=True)
+    )
