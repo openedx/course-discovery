@@ -106,7 +106,7 @@ celery==5.6.3
     #   -r requirements/test.txt
     #   django-celery-results
     #   taxonomy-connector
-certifi==2026.2.25
+certifi==2026.10.19
     # via
     #   -r requirements/docs.txt
     #   -r requirements/test.txt
