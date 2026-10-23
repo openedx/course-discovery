@@ -62,3 +62,6 @@ django-guardian==3.0.3
 
 # latest release has major upgrade.
 cryptography<46.0.0
+
+# setuptools 82+ no longer ships pkg_resources, which django-choices imports at runtime.
+setuptools<82
