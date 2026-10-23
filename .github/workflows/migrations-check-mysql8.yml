@@ -49,8 +49,11 @@ jobs:
 
     # pinning xmlsec to version 1.3.13 to avoid the CI error, migration checks are failing due to an issue in the latest release of python-xmlsec
     # https://github.com/xmlsec/python-xmlsec/issues/314
+    # install requirements/pip.txt first so setuptools stays at its pinned version, which still
+    # provides pkg_resources (needed by django-choices); local.txt doesn't pin setuptools.
     - name: Install Python dependencies
       run: |
+        pip install -r requirements/pip.txt
         make requirements.python
         pip uninstall -y mysqlclient
         pip install --no-binary mysqlclient mysqlclient

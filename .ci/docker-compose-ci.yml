@@ -29,11 +29,12 @@ services:
     container_name: memcached
   discovery:
     # Uncomment this line to use the official course-discovery base image
-    build:
-      context: ../.
-      target: dev
-      args:
-        PYTHON_VERSION: "${PYTHON_VERSION}"
+    # build:
+    #   context: ../.
+    #   target: dev
+    #   args:
+    #     PYTHON_VERSION: "${PYTHON_VERSION}"
+    image: edxops/discovery-dev:latest
     # Uncomment the next two lines to build from a local configuration repo
     # build: ../configuration/docker/build/discovery/
 
