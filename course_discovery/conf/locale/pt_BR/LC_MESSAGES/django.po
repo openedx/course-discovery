@@ -8,7 +8,7 @@
 # Bruno Abdalla <brabdalla@gmail.com>, 2018-2019
 # Carl Amorim <carl@amorim.blog.br>, 2016
 # Danilo Iurovski <danilo.iurovski@gmail.com>, 2018
-# Diogo Bispo Da Silva <diogobispo012@gmail.com>, 2021
+# Diogo Bispo Da Silva, 2021
 # Douglas Reginatto <dreginatto@yahoo.com.br>, 2016
 # Evaldo Klock <neto.nemesis@gmail.com>, 2019
 # 808007d4a0e569ece8fbccc32b57c592_b53d1a5, 2021
